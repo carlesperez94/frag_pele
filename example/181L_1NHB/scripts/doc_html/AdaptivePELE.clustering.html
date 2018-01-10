@@ -1,0 +1,957 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>clustering Package &mdash; AdaptivePELE  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="AdaptivePELE  documentation" href="index.html"/>
+        <link rel="up" title="AdaptivePELE Package" href="AdaptivePELE.html"/>
+        <link rel="next" title="simulation Package" href="AdaptivePELE.simulation.html"/>
+        <link rel="prev" title="atomset Package" href="AdaptivePELE.atomset.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> AdaptivePELE
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="AdaptivePELE.html">AdaptivePELE Package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.html#module-AdaptivePELE.adaptiveSampling"><tt class="docutils literal"><span class="pre">adaptiveSampling</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.html#module-AdaptivePELE.automateRoundsAdaptive"><tt class="docutils literal"><span class="pre">automateRoundsAdaptive</span></tt> Module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="AdaptivePELE.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.analysis.html">analysis Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.atomset.html">atomset Package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="">clustering Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-AdaptivePELE.clustering.clustering"><tt class="docutils literal"><span class="pre">clustering</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-AdaptivePELE.clustering.clusteringTypes"><tt class="docutils literal"><span class="pre">clusteringTypes</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-AdaptivePELE.clustering.thresholdcalculator"><tt class="docutils literal"><span class="pre">thresholdcalculator</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-AdaptivePELE.clustering.thresholdcalculatortypes"><tt class="docutils literal"><span class="pre">thresholdcalculatortypes</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.simulation.html">simulation Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.spawning.html">spawning Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.utilities.html">utilities Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.validator.html">validator Package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Examples.html">AdaptivePELE Overview</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">AdaptivePELE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+        <li><a href="AdaptivePELE.html">AdaptivePELE Package</a> &raquo;</li>
+      
+    <li>clustering Package</li>
+    <li class="wy-breadcrumbs-aside">
+      
+          
+          <a href="_sources/AdaptivePELE.clustering.txt" rel="nofollow"> View page source</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="clustering-package">
+<h1>clustering Package<a class="headerlink" href="#clustering-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-AdaptivePELE.clustering.clustering">
+<span id="clustering-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">clustering</span></tt> Module<a class="headerlink" href="#module-AdaptivePELE.clustering.clustering" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.AltStructures">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">AltStructures</tt><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#AltStructures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.AltStructures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper class, each cluster will have an instance of AltStructures that
+will maintain a priority queue (pq) of alternative structures to spawn
+from encoded as tuples (priority, PDB).</p>
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.AltStructures.addStructure">
+<tt class="descname">addStructure</tt><big>(</big><em>PDB</em>, <em>threshold</em>, <em>resname</em>, <em>contactThreshold</em>, <em>similarityEvaluator</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#AltStructures.addStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.AltStructures.addStructure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.AltStructures.altSpawnSelection">
+<tt class="descname">altSpawnSelection</tt><big>(</big><em>centerPair</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#AltStructures.altSpawnSelection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.AltStructures.altSpawnSelection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select an alternative PDB from the cluster center to spawn from</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.AltStructures.cleanPQ">
+<tt class="descname">cleanPQ</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#AltStructures.cleanPQ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.AltStructures.cleanPQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure that the alternative structures priority queue has no more
+elements than the limit in order to ensure efficiency</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.AltStructures.sizePQ">
+<tt class="descname">sizePQ</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#AltStructures.sizePQ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.AltStructures.sizePQ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.CMClusteringEvaluator">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">CMClusteringEvaluator</tt><big>(</big><em>similarityEvaluator</em>, <em>symmetryEvaluator</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#CMClusteringEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.CMClusteringEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.CMClusteringEvaluator.checkAttributes">
+<tt class="descname">checkAttributes</tt><big>(</big><em>pdb</em>, <em>resname</em>, <em>contactThresholdDistance</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#CMClusteringEvaluator.checkAttributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.CMClusteringEvaluator.checkAttributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.CMClusteringEvaluator.cleanContactMap">
+<tt class="descname">cleanContactMap</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#CMClusteringEvaluator.cleanContactMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.CMClusteringEvaluator.cleanContactMap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.CMClusteringEvaluator.getInnerLimit">
+<tt class="descname">getInnerLimit</tt><big>(</big><em>cluster</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#CMClusteringEvaluator.getInnerLimit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.CMClusteringEvaluator.getInnerLimit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.CMClusteringEvaluator.getOuterLimit">
+<tt class="descname">getOuterLimit</tt><big>(</big><em>node</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#CMClusteringEvaluator.getOuterLimit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.CMClusteringEvaluator.getOuterLimit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.CMClusteringEvaluator.isElement">
+<tt class="descname">isElement</tt><big>(</big><em>pdb</em>, <em>cluster</em>, <em>resname</em>, <em>contactThresholdDistance</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#CMClusteringEvaluator.isElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.CMClusteringEvaluator.isElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.clustering.clustering.CMClusteringEvaluator.limitMax">
+<tt class="descname">limitMax</tt><em class="property"> = {8: 2, 10: 4, 4: 0.2, 6: 0.8}</em><a class="headerlink" href="#AdaptivePELE.clustering.clustering.CMClusteringEvaluator.limitMax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.clustering.clustering.CMClusteringEvaluator.limitSlope">
+<tt class="descname">limitSlope</tt><em class="property"> = {8: 6, 10: 3, 4: 60, 6: 15}</em><a class="headerlink" href="#AdaptivePELE.clustering.clustering.CMClusteringEvaluator.limitSlope" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.Cluster">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">Cluster</tt><big>(</big><em>pdb</em>, <em>thresholdRadius=None</em>, <em>contactMap=None</em>, <em>contacts=None</em>, <em>metrics=</em><span class="optional">[</span><span class="optional">]</span>, <em>metricCol=None</em>, <em>density=None</em>, <em>contactThreshold=8</em>, <em>altSelection=False</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>A cluster contains a representative structure(pdb), the number of
+elements, its density, threshold, number of contacts,
+a contactMap(sometimes) and a metric</p>
+<p>contacts stands for contacts/ligandAtom</p>
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Cluster.addElement">
+<tt class="descname">addElement</tt><big>(</big><em>metrics</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Cluster.addElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Cluster.addElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Cluster.getContacts">
+<tt class="descname">getContacts</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Cluster.getContacts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Cluster.getContacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Cluster.getMetric">
+<tt class="descname">getMetric</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Cluster.getMetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Cluster.getMetric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Cluster.getMetricFromColumn">
+<tt class="descname">getMetricFromColumn</tt><big>(</big><em>numcol</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Cluster.getMetricFromColumn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Cluster.getMetricFromColumn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Cluster.printCluster">
+<tt class="descname">printCluster</tt><big>(</big><em>verbose=False</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Cluster.printCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Cluster.printCluster" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Cluster.writePDB">
+<tt class="descname">writePDB</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Cluster.writePDB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Cluster.writePDB" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Cluster.writeSpawningStructure">
+<tt class="descname">writeSpawningStructure</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Cluster.writeSpawningStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Cluster.writeSpawningStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>With 50 % probability select the cluster center to spawn in
+the next epoch</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.Clustering">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">Clustering</tt><big>(</big><em>resname=None</em>, <em>reportBaseFilename=None</em>, <em>columnOfReportFile=None</em>, <em>contactThresholdDistance=8</em>, <em>altSelection=False</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for clustering methods, it defines a cluster method that
+contacts and accumulative inherit and use</p>
+<p>resname [In] String containing the three letter name of the ligan in the pdb
+reportBaseFilename [In] Name of the file that contains the metrics of the snapshots to cluster
+columnOfReportFile [In] Column of the report file that contain the metric of interest
+contactThresholdDistance [In] Distance at wich a ligand atom and a protein atom are
+considered in contact(default 8)</p>
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.addSnapshotToCluster">
+<tt class="descname">addSnapshotToCluster</tt><big>(</big><em>snapshot</em>, <em>origCluster</em>, <em>metrics=</em><span class="optional">[</span><span class="optional">]</span>, <em>col=None</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.addSnapshotToCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.addSnapshotToCluster" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.calculateMetastabilityIndex">
+<tt class="descname">calculateMetastabilityIndex</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.calculateMetastabilityIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.calculateMetastabilityIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the metastablity index, mI. mI is the ratio of transitions
+from a given cluster that remains within the same cluster</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.cluster">
+<tt class="descname">cluster</tt><big>(</big><em>paths</em>, <em>processorsToClusterMapping</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster the snaptshots contained in the pahts folder
+:param paths: List of folders with the snapshots
+:type paths: list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.clusterInitialStructures">
+<tt class="descname">clusterInitialStructures</tt><big>(</big><em>initialStructures</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.clusterInitialStructures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.clusterInitialStructures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster the initial structures. This will allow to obtain a working
+processor to cluster mapping (see SimulationRunner docs for more info)
+for simulation with multiple initial structures
+:param initialStructures: List of the initial structures of the simulation
+:type initialStructures: list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.clusterIterator">
+<tt class="descname">clusterIterator</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.clusterIterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.clusterIterator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.createPathwayToCluster">
+<tt class="descname">createPathwayToCluster</tt><big>(</big><em>clusterLeave</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.createPathwayToCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.createPathwayToCluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrace the FDT from a specific cluster to the root where it was
+discovered
+:param clusterLeave: End point of the pathway to reconstruct
+:type clusterLeave: int</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.getCluster">
+<tt class="descname">getCluster</tt><big>(</big><em>clusterNum</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.getCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.getCluster" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.getNumberClusters">
+<tt class="descname">getNumberClusters</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.getNumberClusters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.getNumberClusters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.getOptimalMetric">
+<tt class="descname">getOptimalMetric</tt><big>(</big><em>column=None</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.getOptimalMetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.getOptimalMetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the cluster with the best metric</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.setCol">
+<tt class="descname">setCol</tt><big>(</big><em>col</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.setCol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.setCol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.writeConformationNetwork">
+<tt class="descname">writeConformationNetwork</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.writeConformationNetwork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.writeConformationNetwork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the conformational network to file to visualize it
+:param path: Path where to write the network
+:type path: str</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.writeConformationNodeMetric">
+<tt class="descname">writeConformationNodeMetric</tt><big>(</big><em>path</em>, <em>metricCol</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.writeConformationNodeMetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.writeConformationNodeMetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the metric of each node in the conformation network in a
+tab-separated file
+:param path: Path where to write the network
+:type path: str
+:param metricCol: Column of the metric of interest
+:type metricCol: int</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.writeConformationNodePopulation">
+<tt class="descname">writeConformationNodePopulation</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.writeConformationNodePopulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.writeConformationNodePopulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the population of each node in the conformation network in a
+tab-separated file
+:param path: Path where to write the network
+:type path: str</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.writeFDT">
+<tt class="descname">writeFDT</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.writeFDT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.writeFDT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the first discovery tree to file in edgelist format to
+visualize it
+:param path: Path where to write the network
+:type path: str</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.writeMetastabilityIndex">
+<tt class="descname">writeMetastabilityIndex</tt><big>(</big><em>filename</em>, <em>metInd=None</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.writeMetastabilityIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.writeMetastabilityIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the metastability index of each node to file.
+:param filename: Path where to write the trajectory
+:type filename: str</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.writeOutput">
+<tt class="descname">writeOutput</tt><big>(</big><em>outputPath</em>, <em>degeneracy</em>, <em>outputObject</em>, <em>writeAll</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.writeOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.writeOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes all the clustering information in outputPath</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>outputPath</strong> (<em>str</em>) &#8211; Folder that will contain all the clustering information</li>
+<li><strong>degeneracy</strong> &#8211; Degeneracy of each cluster. It must be in the same order</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>as in the self.clusters list
+:type degeneracy: list
+:param outputObject: Output name for the pickle object
+:type outputObject: str
+:param writeAll: Wether to write pdb files for all cluster in addition
+of the summary
+:type writeAll: bool</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.writePathwayOptimalCluster">
+<tt class="descname">writePathwayOptimalCluster</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.writePathwayOptimalCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.writePathwayOptimalCluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracte the pathway to the cluster with the best metric as a
+trajectory and  write it to a PDB file
+:param filename: Path where to write the trajectory
+:type filename: str</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clustering.writePathwayTrajectory">
+<tt class="descname">writePathwayTrajectory</tt><big>(</big><em>pathway</em>, <em>filename</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clustering.writePathwayTrajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clustering.writePathwayTrajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a list of cluster forming a pathway into a trajectory pdb file
+:param pathway: List of clusters that form the pathway
+:type pathway: list
+:param filename: Path where to write the trajectory
+:type filename: str</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.ClusteringBuilder">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">ClusteringBuilder</tt><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ClusteringBuilder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ClusteringBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.ClusteringBuilder.buildClustering">
+<tt class="descname">buildClustering</tt><big>(</big><em>clusteringBlock</em>, <em>reportBaseFilename=None</em>, <em>columnOfReportFile=None</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ClusteringBuilder.buildClustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ClusteringBuilder.buildClustering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.Clusters">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">Clusters</tt><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clusters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clusters" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clusters.addCluster">
+<tt class="descname">addCluster</tt><big>(</big><em>cluster</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clusters.addCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clusters.addCluster" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clusters.getCluster">
+<tt class="descname">getCluster</tt><big>(</big><em>clusterNum</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clusters.getCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clusters.getCluster" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clusters.getNumberClusters">
+<tt class="descname">getNumberClusters</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clusters.getNumberClusters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clusters.getNumberClusters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clusters.insertCluster">
+<tt class="descname">insertCluster</tt><big>(</big><em>index</em>, <em>cluster</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clusters.insertCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clusters.insertCluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert a cluster in a specified index</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.Clusters.printClusters">
+<tt class="descname">printClusters</tt><big>(</big><em>verbose=False</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#Clusters.printClusters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.Clusters.printClusters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.ContactMapAccumulativeClustering">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">ContactMapAccumulativeClustering</tt><big>(</big><em>thresholdCalculator</em>, <em>similarityEvaluator</em>, <em>resname=None</em>, <em>reportBaseFilename=None</em>, <em>columnOfReportFile=None</em>, <em>contactThresholdDistance=8</em>, <em>symmetries=</em><span class="optional">[</span><span class="optional">]</span>, <em>altSelection=False</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactMapAccumulativeClustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactMapAccumulativeClustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#AdaptivePELE.clustering.clustering.Clustering" title="AdaptivePELE.clustering.clustering.Clustering"><tt class="xref py py-class docutils literal"><span class="pre">AdaptivePELE.clustering.clustering.Clustering</span></tt></a></p>
+<p>Cluster together all snapshots that have similar enough contactMaps.
+This similarity can be calculated with different methods (see similariyEvaluator documentation)</p>
+<p>thresholdCalculator [In] ThresholdCalculator object that calculate the threshold
+similarityEvaluator [In] SimilarityEvaluator object that will determine wether two snapshots
+are similar enough to belong to the same cluster
+resname [In] String containing the three letter name of the ligan in the pdb
+reportBaseFilename [In] Name of the file that contains the metrics of the snapshots to cluster
+columnOfReportFile [In] Column of the report file that contain the metric of interest
+contactThresholdDistance [In] Distance at wich a ligand atom and a protein
+atom are considered in contact(default 8)</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.ContactMapAgglomerativeClustering">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">ContactMapAgglomerativeClustering</tt><big>(</big><em>nclusters</em>, <em>resname=None</em>, <em>reportBaseFilename=None</em>, <em>columnOfReportFile=None</em>, <em>contactThresholdDistance=8</em>, <em>symmetries=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactMapAgglomerativeClustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactMapAgglomerativeClustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#AdaptivePELE.clustering.clustering.Clustering" title="AdaptivePELE.clustering.clustering.Clustering"><tt class="xref py py-class docutils literal"><span class="pre">AdaptivePELE.clustering.clustering.Clustering</span></tt></a></p>
+<p>nclusters[In] Number of the cluster to generate with the hierarchical clustering algorithm
+resname [In] String containing the three letter name of the ligan in the pdb
+reportBaseFilename [In] Name of the file that contains the metrics of the snapshots to cluster
+columnOfReportFile [In] Column of the report file that contain the metric of interest
+contactThresholdDistance [In] Distance at wich a ligand atom and a protein atom are
+considered in contact(default 8)</p>
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.ContactMapAgglomerativeClustering.cluster">
+<tt class="descname">cluster</tt><big>(</big><em>paths</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactMapAgglomerativeClustering.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactMapAgglomerativeClustering.cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clusters the snapshots of the trajectories provided using
+a hierarchical clustering algorithm and the contactMaps similarity.</p>
+<p>The snapshots are clustered together with the previous found clusters.
+If and old cluster is found connected to a new one (with the new one
+being the exemplar) it is ignored and only the new snapshots are
+counted as members of the cluster. The minimum metric is used as the
+metric of the cluster</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.ContactMapAgglomerativeClustering.processClusterResults">
+<tt class="descname">processClusterResults</tt><big>(</big><em>process</em>, <em>clusters</em>, <em>labels</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactMapAgglomerativeClustering.processClusterResults"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactMapAgglomerativeClustering.processClusterResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyse the results obtained from the affinity propagation
+algorithm.</p>
+<p>Process [In] String to decide wether it is the results of the first or
+second clustering
+clusters [In] Numpy array with the indexes the clusters
+Labels [In] Numpy array with the cluster each snapshot belongs to</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.ContactMapClustering">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">ContactMapClustering</tt><big>(</big><em>resname=None</em>, <em>reportBaseFilename=None</em>, <em>columnOfReportFile=None</em>, <em>contactThresholdDistance=8</em>, <em>symmetries=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactMapClustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactMapClustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#AdaptivePELE.clustering.clustering.Clustering" title="AdaptivePELE.clustering.clustering.Clustering"><tt class="xref py py-class docutils literal"><span class="pre">AdaptivePELE.clustering.clustering.Clustering</span></tt></a></p>
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.ContactMapClustering.cluster">
+<tt class="descname">cluster</tt><big>(</big><em>paths</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactMapClustering.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactMapClustering.cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster the snapshots of the trajectories provided using the
+affinity propagation algorithm and the contactMaps similarity.</p>
+<p>A double clustering process is going on. First, all snapshots from an
+epoch are clustered together, and then these clusters are clustered
+together with the previous clusters, if any</p>
+<p>Paths [in] list with the path to the trajectories to cluster</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.ContactMapClustering.processClusterResults">
+<tt class="descname">processClusterResults</tt><big>(</big><em>process</em>, <em>cluster_center_indices</em>, <em>indices</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactMapClustering.processClusterResults"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactMapClustering.processClusterResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyse the results obtained from the affinity propagation
+algorithm.</p>
+<p>Process [In] String to decide wether it is the results of the first or
+second clustering
+cluster_center_indices [In] Numpy array with the snapshots taht are
+cluster centers
+Indices [In] Numpy array with the cluster each snapshot belongs to</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.ContactsClustering">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">ContactsClustering</tt><big>(</big><em>thresholdCalculator</em>, <em>resname=None</em>, <em>reportBaseFilename=None</em>, <em>columnOfReportFile=None</em>, <em>contactThresholdDistance=8</em>, <em>symmetries=</em><span class="optional">[</span><span class="optional">]</span>, <em>altSelection=False</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactsClustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactsClustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#AdaptivePELE.clustering.clustering.Clustering" title="AdaptivePELE.clustering.clustering.Clustering"><tt class="xref py py-class docutils literal"><span class="pre">AdaptivePELE.clustering.clustering.Clustering</span></tt></a></p>
+<p>Cluster together all snapshots that are closer to the cluster center
+than certain threshold. This threshold is assigned according to the
+ratio of number of contacts over the number of heavy atoms of the ligand</p>
+<p>thresholdCalculator [In] ThresholdCalculator object that calculate the
+threshold according to the contacts ratio
+resname [In] String containing the three letter name of the ligand
+in the pdb
+reportBaseFilename [In] Name of the file that contains the metrics of
+the snapshots to cluster
+columnOfReportFile [In] Column of the report file that contain the
+metric of interest
+contactThresholdDistance [In] Distance at wich a ligand atom and a protein atom are
+considered in contact(default 8)</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.ContactsClusteringEvaluator">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">ContactsClusteringEvaluator</tt><big>(</big><em>RMSDCalculator</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactsClusteringEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactsClusteringEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.ContactsClusteringEvaluator.checkAttributes">
+<tt class="descname">checkAttributes</tt><big>(</big><em>pdb</em>, <em>resname</em>, <em>contactThresholdDistance</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactsClusteringEvaluator.checkAttributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactsClusteringEvaluator.checkAttributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.ContactsClusteringEvaluator.cleanContactMap">
+<tt class="descname">cleanContactMap</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactsClusteringEvaluator.cleanContactMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactsClusteringEvaluator.cleanContactMap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.ContactsClusteringEvaluator.getInnerLimit">
+<tt class="descname">getInnerLimit</tt><big>(</big><em>cluster</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactsClusteringEvaluator.getInnerLimit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactsClusteringEvaluator.getInnerLimit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.ContactsClusteringEvaluator.getOuterLimit">
+<tt class="descname">getOuterLimit</tt><big>(</big><em>node</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactsClusteringEvaluator.getOuterLimit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactsClusteringEvaluator.getOuterLimit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.ContactsClusteringEvaluator.isElement">
+<tt class="descname">isElement</tt><big>(</big><em>pdb</em>, <em>cluster</em>, <em>resname</em>, <em>contactThresholdDistance</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#ContactsClusteringEvaluator.isElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.ContactsClusteringEvaluator.isElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.JaccardEvaluator">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">JaccardEvaluator</tt><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#JaccardEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.JaccardEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the similarity of two contactMaps by calculating the Jaccard
+index, that is, the ratio between the intersection of the two contact
+maps and their union</p>
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.JaccardEvaluator.isSimilarCluster">
+<tt class="descname">isSimilarCluster</tt><big>(</big><em>contactMap</em>, <em>clusterContactMap</em>, <em>symContactMapEvaluator</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#JaccardEvaluator.isSimilarCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.JaccardEvaluator.isSimilarCluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate if two contactMaps are similar or not, return True if yes,
+False otherwise</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.SequentialLastSnapshotClustering">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">SequentialLastSnapshotClustering</tt><big>(</big><em>resname=None</em>, <em>reportBaseFilename=None</em>, <em>columnOfReportFile=None</em>, <em>contactThresholdDistance=8</em>, <em>altSelection=False</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#SequentialLastSnapshotClustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.SequentialLastSnapshotClustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#AdaptivePELE.clustering.clustering.Clustering" title="AdaptivePELE.clustering.clustering.Clustering"><tt class="xref py py-class docutils literal"><span class="pre">AdaptivePELE.clustering.clustering.Clustering</span></tt></a></p>
+<p>Assigned  the last snapshot of the trajectory to a cluster.
+Only useful for PELE sequential runs</p>
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.SequentialLastSnapshotClustering.addSnapshotToCluster">
+<tt class="descname">addSnapshotToCluster</tt><big>(</big><em>snapshot</em>, <em>metrics=</em><span class="optional">[</span><span class="optional">]</span>, <em>col=None</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#SequentialLastSnapshotClustering.addSnapshotToCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.SequentialLastSnapshotClustering.addSnapshotToCluster" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.SequentialLastSnapshotClustering.cluster">
+<tt class="descname">cluster</tt><big>(</big><em>paths</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#SequentialLastSnapshotClustering.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.SequentialLastSnapshotClustering.cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster the snaptshots contained in the pahts folder
+paths [In] List of folders with the snapshots</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.clustering.clustering.clusterAgglomerativeContactMaps">
+<tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">clusterAgglomerativeContactMaps</tt><big>(</big><em>contactmaps</em>, <em>n_clusters</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#clusterAgglomerativeContactMaps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.clusterAgglomerativeContactMaps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster multiple contact maps with the hierarchical clustering algorithm
+contactmaps [In] Array of contact maps
+n_clusters [In] Number of clusters that the clustering should generate</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.clustering.clustering.clusterContactMaps">
+<tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">clusterContactMaps</tt><big>(</big><em>contactmaps</em>, <em>preferences=None</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#clusterContactMaps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.clusterContactMaps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster multiple contact maps with the affinity propagation algorithm
+contactmaps [In] Array of contact maps
+preferences [In] Input value to the affinity propagation algorithm, it
+affects the number of clusters that will be generated</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.clustering.clustering.clusterKmeans">
+<tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">clusterKmeans</tt><big>(</big><em>contactmaps</em>, <em>n_clusters</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#clusterKmeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.clusterKmeans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster  multiple contact maps with the kmeans clustering algorithm
+contactmaps [In] Array of contact maps
+n_clusters [In] Number of clusters that the clustering should generate</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.clusteringResultsParameters">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">clusteringResultsParameters</tt><big>(</big><em>pdb_list=</em><span class="optional">[</span><span class="optional">]</span>, <em>metrics=</em><span class="optional">[</span><span class="optional">]</span>, <em>contactmaps=</em><span class="optional">[</span><span class="optional">]</span>, <em>contacts=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#clusteringResultsParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.clusteringResultsParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper object to pass parameters in the ContactMap affinity and agglomerative clustering</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.correlationEvaluator">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">correlationEvaluator</tt><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#correlationEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.correlationEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the similarity of two contact maps by calculating their
+correlation</p>
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.correlationEvaluator.isSimilarCluster">
+<tt class="descname">isSimilarCluster</tt><big>(</big><em>contactMap</em>, <em>clusterContactMap</em>, <em>symContactMapEvaluator</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#correlationEvaluator.isSimilarCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.correlationEvaluator.isSimilarCluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate if two contactMaps are similar or not, return True if yes,
+False otherwise</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.differenceDistanceEvaluator">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">differenceDistanceEvaluator</tt><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#differenceDistanceEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.differenceDistanceEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the similarity of two contactMaps by calculating the ratio of
+the number of differences over the average of elements in the contacts
+maps</p>
+<dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.differenceDistanceEvaluator.isSimilarCluster">
+<tt class="descname">isSimilarCluster</tt><big>(</big><em>contactMap</em>, <em>clusterContactMap</em>, <em>symContactMapEvaluator</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#differenceDistanceEvaluator.isSimilarCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.differenceDistanceEvaluator.isSimilarCluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate if two contactMaps are similar or not, return True if yes,
+False otherwise</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.clustering.clustering.getAllTrajectories">
+<tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">getAllTrajectories</tt><big>(</big><em>paths</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#getAllTrajectories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.getAllTrajectories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all the trajectory files in the paths specified</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>paths</strong> (<em>str</em>) &#8211; The path where to find the trajectories</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list &#8211; A list with the names of all th trajectories in paths</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.clustering.clustering.processSnapshots">
+<tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">processSnapshots</tt><big>(</big><em>trajectories</em>, <em>reportBaseFilename</em>, <em>col</em>, <em>contactThresholdDistance</em>, <em>resname</em>, <em>symmetryEvaluator</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#processSnapshots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.processSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create list of pdb, contactMaps, metrics and contacts from a series of
+snapshots</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.clustering.clustering.selectRandomCenter">
+<tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">selectRandomCenter</tt><big>(</big><em>cluster_members</em>, <em>metrics_weights</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#selectRandomCenter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.selectRandomCenter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract a center randomly from a cluster, weighted according to their
+metrics</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clustering.similarityEvaluatorBuilder">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clustering.</tt><tt class="descname">similarityEvaluatorBuilder</tt><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#similarityEvaluatorBuilder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.similarityEvaluatorBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="AdaptivePELE.clustering.clustering.similarityEvaluatorBuilder.build">
+<tt class="descname">build</tt><big>(</big><em>similarityEvaluatorType</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/clustering.html#similarityEvaluatorBuilder.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clustering.similarityEvaluatorBuilder.build" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-AdaptivePELE.clustering.clusteringTypes">
+<span id="clusteringtypes-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">clusteringTypes</span></tt> Module<a class="headerlink" href="#module-AdaptivePELE.clustering.clusteringTypes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clusteringTypes.CLUSTERING_TYPES">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clusteringTypes.</tt><tt class="descname">CLUSTERING_TYPES</tt><a class="reference internal" href="_modules/AdaptivePELE/clustering/clusteringTypes.html#CLUSTERING_TYPES"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clusteringTypes.CLUSTERING_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="AdaptivePELE.clustering.clusteringTypes.CLUSTERING_TYPES.contactMapAccumulative">
+<tt class="descname">contactMapAccumulative</tt><em class="property"> = 3</em><a class="headerlink" href="#AdaptivePELE.clustering.clusteringTypes.CLUSTERING_TYPES.contactMapAccumulative" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.clustering.clusteringTypes.CLUSTERING_TYPES.contactMapAffinity">
+<tt class="descname">contactMapAffinity</tt><em class="property"> = 1</em><a class="headerlink" href="#AdaptivePELE.clustering.clusteringTypes.CLUSTERING_TYPES.contactMapAffinity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.clustering.clusteringTypes.CLUSTERING_TYPES.contactMapAgglomerative">
+<tt class="descname">contactMapAgglomerative</tt><em class="property"> = 2</em><a class="headerlink" href="#AdaptivePELE.clustering.clusteringTypes.CLUSTERING_TYPES.contactMapAgglomerative" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.clustering.clusteringTypes.CLUSTERING_TYPES.contacts">
+<tt class="descname">contacts</tt><em class="property"> = 0</em><a class="headerlink" href="#AdaptivePELE.clustering.clusteringTypes.CLUSTERING_TYPES.contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.clustering.clusteringTypes.CLUSTERING_TYPES.lastSnapshot">
+<tt class="descname">lastSnapshot</tt><em class="property"> = 4</em><a class="headerlink" href="#AdaptivePELE.clustering.clusteringTypes.CLUSTERING_TYPES.lastSnapshot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.clusteringTypes.SIMILARITY_TYPES">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.clusteringTypes.</tt><tt class="descname">SIMILARITY_TYPES</tt><a class="reference internal" href="_modules/AdaptivePELE/clustering/clusteringTypes.html#SIMILARITY_TYPES"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.clusteringTypes.SIMILARITY_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="AdaptivePELE.clustering.clusteringTypes.SIMILARITY_TYPES.Jaccard">
+<tt class="descname">Jaccard</tt><em class="property"> = 1</em><a class="headerlink" href="#AdaptivePELE.clustering.clusteringTypes.SIMILARITY_TYPES.Jaccard" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.clustering.clusteringTypes.SIMILARITY_TYPES.correlation">
+<tt class="descname">correlation</tt><em class="property"> = 2</em><a class="headerlink" href="#AdaptivePELE.clustering.clusteringTypes.SIMILARITY_TYPES.correlation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.clustering.clusteringTypes.SIMILARITY_TYPES.differenceDistance">
+<tt class="descname">differenceDistance</tt><em class="property"> = 0</em><a class="headerlink" href="#AdaptivePELE.clustering.clusteringTypes.SIMILARITY_TYPES.differenceDistance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-AdaptivePELE.clustering.thresholdcalculator">
+<span id="thresholdcalculator-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">thresholdcalculator</span></tt> Module<a class="headerlink" href="#module-AdaptivePELE.clustering.thresholdcalculator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculator">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.thresholdcalculator.</tt><tt class="descname">ThresholdCalculator</tt><a class="reference internal" href="_modules/AdaptivePELE/clustering/thresholdcalculator.html#ThresholdCalculator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculator" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculator.calculate">
+<tt class="descname">calculate</tt><big>(</big><em>contacts</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/thresholdcalculator.html#ThresholdCalculator.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculator.calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorBuilder">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.thresholdcalculator.</tt><tt class="descname">ThresholdCalculatorBuilder</tt><a class="reference internal" href="_modules/AdaptivePELE/clustering/thresholdcalculator.html#ThresholdCalculatorBuilder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorBuilder.build">
+<tt class="descname">build</tt><big>(</big><em>clusteringBlock</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/thresholdcalculator.html#ThresholdCalculatorBuilder.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorBuilder.build" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorConstant">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.thresholdcalculator.</tt><tt class="descname">ThresholdCalculatorConstant</tt><big>(</big><em>value=2</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/thresholdcalculator.html#ThresholdCalculatorConstant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorConstant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculator" title="AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculator"><tt class="xref py py-class docutils literal"><span class="pre">AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculator</span></tt></a></p>
+<dl class="method">
+<dt id="AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorConstant.calculate">
+<tt class="descname">calculate</tt><big>(</big><em>contacts</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/thresholdcalculator.html#ThresholdCalculatorConstant.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorConstant.calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorConstant.getMaxThreshold">
+<tt class="descname">getMaxThreshold</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/thresholdcalculator.html#ThresholdCalculatorConstant.getMaxThreshold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorConstant.getMaxThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method that returns the maximum treshold possible, required for new
+distance-ordered clustering(in early development)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorHeaviside">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.thresholdcalculator.</tt><tt class="descname">ThresholdCalculatorHeaviside</tt><big>(</big><em>conditions=[1.0, 0.75, 0.5], values=[2, 3, 4, 5.0]</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/thresholdcalculator.html#ThresholdCalculatorHeaviside"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorHeaviside" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculator" title="AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculator"><tt class="xref py py-class docutils literal"><span class="pre">AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculator</span></tt></a></p>
+<dl class="method">
+<dt id="AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorHeaviside.calculate">
+<tt class="descname">calculate</tt><big>(</big><em>contacts</em><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/thresholdcalculator.html#ThresholdCalculatorHeaviside.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorHeaviside.calculate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorHeaviside.getMaxThreshold">
+<tt class="descname">getMaxThreshold</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/AdaptivePELE/clustering/thresholdcalculator.html#ThresholdCalculatorHeaviside.getMaxThreshold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.thresholdcalculator.ThresholdCalculatorHeaviside.getMaxThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method that returns the maximum treshold possible, required for new
+distance-ordered clustering(in early development)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-AdaptivePELE.clustering.thresholdcalculatortypes">
+<span id="thresholdcalculatortypes-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">thresholdcalculatortypes</span></tt> Module<a class="headerlink" href="#module-AdaptivePELE.clustering.thresholdcalculatortypes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="AdaptivePELE.clustering.thresholdcalculatortypes.THRESHOLD_CALCULATOR_TYPES">
+<em class="property">class </em><tt class="descclassname">AdaptivePELE.clustering.thresholdcalculatortypes.</tt><tt class="descname">THRESHOLD_CALCULATOR_TYPES</tt><a class="reference internal" href="_modules/AdaptivePELE/clustering/thresholdcalculatortypes.html#THRESHOLD_CALCULATOR_TYPES"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.clustering.thresholdcalculatortypes.THRESHOLD_CALCULATOR_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="AdaptivePELE.clustering.thresholdcalculatortypes.THRESHOLD_CALCULATOR_TYPES.constant">
+<tt class="descname">constant</tt><em class="property"> = 1</em><a class="headerlink" href="#AdaptivePELE.clustering.thresholdcalculatortypes.THRESHOLD_CALCULATOR_TYPES.constant" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.clustering.thresholdcalculatortypes.THRESHOLD_CALCULATOR_TYPES.heaviside">
+<tt class="descname">heaviside</tt><em class="property"> = 0</em><a class="headerlink" href="#AdaptivePELE.clustering.thresholdcalculatortypes.THRESHOLD_CALCULATOR_TYPES.heaviside" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="AdaptivePELE.simulation.html" class="btn btn-neutral float-right" title="simulation Package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="AdaptivePELE.atomset.html" class="btn btn-neutral" title="atomset Package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Daniel Lecina, Joan Francesc Gilabert.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

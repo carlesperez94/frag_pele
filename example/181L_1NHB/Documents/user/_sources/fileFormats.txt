@@ -1,0 +1,820 @@
+.. _sec-fileFormats:
+
+*****************
+PELE File Formats
+*****************
+
+IMPACT template file format
+===========================
+
+This is one of the two file formats used for templates of chemical entities, and it corresponds to residue units. The other format, the *PELE Custom Template Format* is used for description of inter-residue parameters, such as disulfide bonds, peptide bonds, etc.
+
+This format originates in the IMPACT ([banks:2005]_) software template file format.
+
+It follows a FORTRAN-like fixed columns style.
+
+For the application of these parameters in the energy function, check :ref:`sec-energyFunction`.
+
+File name
+---------
+
+It corresponds to the residue 3-letter code, without spaces (for example, the template for calcium, `CA_`, the space is represented as an underscore, would be represented by file :file:`caz`, where the `z` is for saying it corresponds to an isolated residue).
+
+It may have an additional qualifying character, depending on its position in a chain:
+
+- `b`, for residues at the beginning of the chain.
+- `e`, for residues at the end of the chain.
+- `z`, for isolated residues.
+- no character, for mid-chain residues.
+
+Force field
+-----------
+
+Each template includes the parameters to work with a given residue in the specified template, which is one of those allowed by PELE.
+
+Comments
+--------
+
+Lines with an asterisk (`*`) as the first character are considered comments and are ignored during processing.
+
+Tags
+----
+
+The file is structured in several sections, each starting with a 4-character tag. All files have all the sections (even if empty) and the RESX section must be the first one:
+
+- RESX (atom specification).
+- NBON (non bonded parameters).
+- BOND (bonded parameters).
+- THET (angle parameters).
+- PHI (dihedral parameters).
+- IPHI (improper dihedral parameters).
+- END
+
+Header
+------
+
+It is a comment describing the file. Currently ignored.
+
+.. code-block:: text
+
+    * LIGAND DATABASE FILE (OPLS2001)
+    *
+
+RESX
+----
+
+It must appear as the first section in the file. Examples:
+    
+.. code-block:: text
+
+  LYS      22    21     38     51     110
+  LYSB     24    23     43     57     123
+   DA      32    34     59     92     165
+   DAE     33    35     60     95     170
+   DCB     28    29     51     81     147
+    
+    
+The first four characters are the template name. However, not all files comply with this rule. Therefore, we may find that in one forcefield, for the `_DAE` residue, we actually have `_DA_` written (underscores mean spaces).
+
+To allow for wrongly written template names, spaces are not significant, and the qualifying ending character may or may not be present in this RESX first line.
+
+After the template name, the RESX first line has 5 integers:
+
+- Total number of atoms in the template (also corresponds to the number of elements in the NBON section).
+- Number of elements in the BOND section.
+- Number of elements in the THET section.
+- Number of dihedral angles described in the PHI and IPHI sections.
+
+The exact format of this initial line is:
+
+.. code-block:: text
+	
+  char(5) + int(6) + int(6) + int(7) + int(7) + int(8)
+
+- Template Name: char(5) (0-4)
+- Number of non bond. parms.: int(6) (5-10)
+- Number of bond parms.: int(6) (11-16)
+- Number of angle parms.: int(7) (17-23)
+- Number of dihedral parms.: int(7) (24-30)
+- Number of non-null elements in the matrix of interactions: int(8) (31-38)
+	
+All numbers are right justified.
+	
+Then, for each atom in the residue, there is a line of this type:
+
+.. code-block:: text	
+
+  int(5) + ' ' + int(5) + ' ' + char(1) + ' 'x3 + char(4) + ' ' + char(4) + ' ' + int(5) + ' ' + real(5.5) + ' ' + real(5.5) + ' ' + real(5.5) + ' '
+
+- Atom id Number: int(5) (0-4)
+- Parent Id: int(5) (6-10)
+- Location (`M` for backbone, `S` for side chain; ligand links and non-ligand links use these classification for some checks. However, protein links define its backbone atoms independently of this flag; protein residue templates have `M` only for N, C and CA, under whatever name is actually used for those atoms): char(1) (12)
+- Atom Type: char(4) (16-19)
+- Pdb Atom name: char(4) (21-24)
+- Unknown: int(5) (26-30)
+- X z-matrix: real(5.5) (32-42)
+- Y z-matrix: real(5.5) (44-54)
+- Z z-matrix: real(5.5) (56-66)
+
+With all integer right justified, and reals with 0 padding to fill the 5 allocated places. All atom names must have an underscore `_` instead of a space.
+
+Example (from :file:`lys` template):
+
+.. code-block:: text
+
+  Line:    1     0 M   N    _N__     1     1.33000   116.21694   180.00000
+
+Then, all lists of atomic interactions appear (to generate the upper triangle of a boolean matrix of interactions of size :math:`n^2`, having, therefore, size :math:`n(n-1)/2`). The first line has as many integers as rows will have the interaction matrix (one per atom), with format:
+
+.. code-block:: text
+
+  int(4) * num atoms
+
+Example:
+
+.. code-blok::text
+
+  Line:   9   4  10   6   5   1   9   5   4   9   5   4   9   5   4   6
+
+Lines have at most 16 integers, so if the number of atoms is greater, then additional lines appear.
+
+Following lines will write the identifiers of atoms that are bonded to the atom corresponding to this line. Therefore, :math:`{x=\text{line}, y \in \text{bonded}(x) | (x,y)}`
+
+The format is a sequence of integers `int(5)`.
+
+Example:
+
+.. code-block:: text
+
+  Line:    3     5     6     7    10     2     4     8     9  
+
+Full example. Let the bonding/interactions matrix be:
+
+.. code-block:: text
+
+  id    1 2 3 4
+        N C H O
+  1  N  *   *
+  2  C    *
+  3  H      *
+  4  O
+
+It means the following atoms are bonded or are indirectly bonded (bond, angle or dihedral): C-N, O-N, H-C, O-H.
+
+First line in the template would say:
+
+.. code-block:: text
+
+  Line:    2   1   1
+
+meaning that there exist 2 relations for N, 1 for C and 1 for H in the upper triangle of the relation/bonding/interaction matrix.
+
+The following lines would be:
+
+.. code-block:: text
+
+  Line:    2   4
+  Line:    3
+  Line:    4
+  Line:    0
+
+NBON
+----
+This section stores the non-bonded parameters (van der Waals and electrostatic). Original OPLS parameters are in [jorgensen:1996]_ (supplementary material).
+
+See :ref:`sec-energyFunction-molecularMechanicsEnergyTerms` for details on the meaning of the parameters.
+
+.. code-block:: text
+
+  int(5) + ' ' + real(3.4) + ' ' + real(3.4) + ' ' + real(3.6) + ' ' + real(3.4) + ' ' + real(3.4) + ' ' + real(3.9) + ' ' + real(3.9)
+
+- Atom id: int(5) (0-4)
+- Sigma (:math:`\sigma_{ii}` in OPLS, :math:`r_{i}` in AMBER; units are in :math:`\AA{}`): real(3.4) (6-13)
+- Epsilon (:math:`\epsilon_{ii}`; units are in kcal/mol): real(3.4) (15-22)
+- Charge (:math:`q_{i}`; units are elementary charge (atomic units)): real(3.6) (24-31)
+- Rad. Non Polar SGB (atomic radii used to calculate the surface of the molecules when obtaining SGB Born radii?): real(3.4) (33-40)
+- Rad. Non Polar Type (another type of atomic radii not used?): real(3.4) (42-49)
+- SGB Non Polar gamma (gamma parameter for the nonpolar model of [gallicchio:2002]_): real(3.9) (51-63)
+- SGB Non Polar type (alpha parameter for the nonpolar model of [gallicchio:2002]_): real(3.9) (65-77)
+
+Example:
+
+.. code-block:: text
+
+  Line:    1   3.2500   0.1700  -0.5000   1.9200   1.7000   0.168599800  -5.228863800
+
+Exceptions:
+
+The fourth parameter (charge) may be a real(3.6). This exception is easily found because the line has a length of 80 characters instead of 78.
+
+BOND
+----
+
+This section stores the parameters for atomic bonding (1-2 interactions).
+
+.. math::
+
+  E_{\text{bond}} = \sum_{\text{bonds}} K_{r}(r - r_{\text{eq}})^{2}
+
+.. code-block:: text
+
+  int(5) + ' ' + int(5) + ' ' + real(5.3) + ' ' + real(2.3)
+
+- Atom 1 Id: int(5) (0-4)
+- Atom 2 Id: int(5) (6-10)
+- Spring constant (:math:`K_{r}`): real(5.3) (12-20)
+- Equilibrium distance (:math:`r_{\text{eq}}`): real(2.3) (22-27)
+
+Example:
+
+.. code-block:: text
+
+  Line:    1     3   337.000  1.449
+
+THET
+----
+
+This section stores the parameters for angles formed by 3 atoms (1-3 interactions).
+
+.. math::
+
+  E_{\text{angle}} = \sum_{\text{angles}} K_{\theta} (\theta - \theta_{\text{eq}})^{2}
+
+
+.. code-block:: text
+
+  int(5) + ' ' + int(5) + ' ' + int(5) + ' ' + real(5.5) + real(5.5)
+
+- Atom 1 Id: int(5) (0-4)
+- Atom 2 Id: int(5) (6-10)
+- Atom 3 Id: int(5) (12-16)
+- Spring constant (:math:`K_{\theta}`): real(5.5) (18-28)
+- Equilibrium angle (:math:`\theta_{\text{eq}}`; expressed in degrees in the template file, though PELE uses radians internally): real(5.5) (29-39)
+
+If `atomId1` and `atomId2` are both the symbol `-`, then the parameters are available for 1-4 calculations.
+
+
+Example:
+
+.. code-block:: text
+
+  Line:     1     3     5    63.00000  110.10000
+
+Notice that the same angle ABC is actually defined whether atom 1 is A, atom 2 is B and atom 3 is C, than in reverse order, with atom 1 being C, atom 2 being B, and atom 3 being A.
+
+PHI
+---
+
+This section stores the parameters for dihedral angles formed by 4 atoms (1-4 interactions). Since it may have several terms, each line stores the values for one of the terms.
+
+.. math::
+
+  E_{\text{torsion}} = \sum_{\text{angle}\, i} \sum_{j} {k_{j,1}^{i}[1 + k_{j,2} \cos (n_{j}\phi_{i})]}
+
+.. code-block:: text
+
+  int(5) + ' ' + int(5) + ' ' + int(5) + ' ' + int(5) + ' ' + real(3.5) + ' ' + real(2.1) + ' ' + real(1.1)
+
+- Atom 1 Id: int(5) (0-4)
+- Atom 2 Id: int(5) (6-10)
+- Atom 3 Id: int(5) (12-16)
+- Atom 4 Id: int(5) (18-22)
+- Constant (:math:`k_{j,1}`): real(3.5) (24-32)
+- Prefactor (:math:`k_{j,2}`, can be :math:`-1.0` or :math:`1.0`): real(2.1) (34-37)
+- Number of term (:math:`n_{j}`): real(1.1) (39-41)
+
+Example:
+
+.. code-block:: text
+
+  Line:    1     3     5     6   0.00000  1.0 1.0
+
+Notice that the :math:`\pm 1.0` values for the prefactor actually represent the phases of :math:`0^\circ{}` or :math:`180^\circ{}` degrees in other versions of the energy term formula.
+
+
+If one of the atom ids 2 and 3 is prefixed by a minus sign, this means that atom 1 and atom 4 should not be included in the 1-4 list for energy calculations (this usually happens if the same 1-4 atoms were already included in a different dihedral, to avoid repetition, and also when the 1-4 atoms are actually 1-3, 1-2 or the same atom, in the case of rings).
+
+Notice that the same dihedral is defined either by atoms ABCD or atoms DCBA.
+
+IPHI
+----
+
+For improper dihedral angles. Just the same format as for the dihedrals (see PHI tag).
+
+END
+---
+This is the final tag. Nothing will be read past this tag.
+
+PELE custom template file format
+================================
+
+This is the other file format used for templates of chemical entities, and corresponds to the description of inter-residue parameters, such as disulfide bonds, peptide bonds or bonds between nucleic acids. Notice that the parameters provided in these files apply to the same energy terms as those parameters in the IMPACT template files.
+
+The parameters for bonds, angles and dihedrals between atoms in different links or units appear in files using this format. These files are:
+
+- :file:`inter_nucleicacid_bonds`: When the links are nucleic acids. Notice that the version for DNA is actually used for both DNA and RNA.
+- :file:`disulphide_bonds`: When the links are cysteines forming a disulfide bond.
+- :file:`inter_residue_bonds`: When the links are aminoacids.
+
+This format allows comments, marked with a ``#`` symbol. Anything appearing after the hash mark, will be considered a comment and ignored together with the hash mark.
+
+Contrary to the IMPACT format, each record has a label which indicates its meaning, so though the files are usually organized by sections, the format process line by line independently of the others.
+
+The six labels recognized by this format are:
+
+- NAME
+- ATOID
+- BOND
+- ANGL
+- TORS
+- ITOR
+
+Sample file contents:
+
+.. code-block:: text
+
+    #-----------------------------------
+    # Peptide Bond
+    #-----------------------------------
+    NAME PEPTIDE_BOND
+
+    #-----------------------------------
+    # ATOM IDS
+    #-----------------------------------
+    ATOID  1 _O___
+    ATOID  2 _C___
+    # ...
+
+    #-----------------------------------
+    # GEOMETRY
+    #-----------------------------------
+
+    BOND   C     N  * 490.000   1.335 
+
+    ANGL   CA    C     N  *  70.000 116.600
+    ANGL   O     C     N  *  80.000 122.900
+    ANGL   C     N  *  CA *  50.000 121.900
+    ANGL   C     N  *  H  *  35.000 119.800
+    ANGL   C     N  *  CD *  50.000 121.900
+
+    TORS   O     C     N  *  H  *  2.4500 -1.0 2
+    TORS   O     C     N  *  CA *  3.0445 -1.0 2
+    TORS   C     N  *  CA *  CB *  0.2595  1.0 1
+    # ...
+
+    ITOR   CA    N  *  C     O     10.500 -1.0 2
+    ITOR   CA *  C     N  *  H  *  1.0000 -1.0 2  #?????????????
+    ITOR   CA *  C     N  *  CD *  1.0000 -1.0 2  #??????? or (1)
+
+
+NAME
+----
+There should be a single record of this type. It includes a single element, which is the name of the template, and should match one of these:
+
+- ``PEPTIDE_BOND``
+- ``DISULPHIDE_BOND``
+- ``PHOSPHODIESTER_BOND``
+
+Example:
+
+.. code-block:: text
+
+  Line:NAME PEPTIDE_BOND
+
+
+ATOID
+-----
+
+This record enumerates the atoms considered in the template.
+
+The format of this record is:
+
+.. code-block:: text
+
+  "ATOID " + int(2) + char(5)
+
+- Atom id number: int(2) (6-7)
+- Atom name/type: Spaces in the atom name are identified by underscores. Atom names are actually 4-character long, with a final character to mark whether the atom belongs to the first link in the two-link structure (marked with a space, codified as an underscore) or if it belongs to the second (marked with an asterisk ``*``). char(5) (9-13)
+
+Notice that since these templates are used for parameterizing bonds between residues or units, an asterisk is used to differentiate atoms of the second unit from those of the first unit.
+
+Example:
+
+.. code-block:: text
+
+  Line:ATOID  1 _O___
+
+
+BOND
+----
+
+This record identifies the bonds formed between atoms in the template.
+
+The format of this record is:
+
+.. code-block:: text
+
+  "BOND  " + char(5) + ' ' + char(5) + ' ' + real(7) + ' ' + real(7)
+
+- Atom 1 Id: char(5) (6-10)
+- Atom 2 Id: char(5) (12-16)
+- Spring constant (:math:`K_{r}`): real(7) (18-24)
+- Equilibrium distance (:math:`r_{\text{eq}}`): real(7) (26-32)
+
+Notice that atom names show spaces as such, instead of using underscores.
+
+Example:
+
+.. code-block:: text
+
+  Line:BOND   C     N  * 490.000   1.335 
+   
+  
+ANGL
+----
+
+This records identifies the angles formed between three atoms in the template.
+    
+The format of this record is:
+
+.. code-block:: text
+
+  "ANGL  " + char(5) + ' ' + char(5) + ' ' + char(5) + ' ' + real(7) + ' ' + real(7)
+
+- Atom 1 Id: char(5) (6-10)
+- Atom 2 Id: char(5) (12-16)
+- Atom 3 Id: char(5) (18-22)
+- Spring constant (:math:`K_{\theta}`): real(7) (24-30)
+- Equilibrium distance (:math:`\theta_{\text{eq}}`; expressed in degrees in the template file, though PELE uses radians internally): real(7) (32-38)
+
+Notice that the same angle is defined by atoms ABC as for the same atoms in reverse order (CBA).
+
+Example:
+
+.. code-block:: text
+
+  Line:ANGL   CA    C     N  *  70.000 116.600
+
+TORS
+----
+
+This record identifies the dihedral angles formed between four atoms in the template.
+
+The format of this record is:
+
+.. code-block:: text
+
+  "TORS  " + char(5) + ' ' + char(5) + ' ' + char(5) + ' ' + char(5) + ' ' + real() + ' ' + real() + ' ' + int()
+
+- Atom 1 Id: char(5) (6-10)
+- Atom 2 Id: char(5) (12-16)
+- Atom 3 Id: char(5) (18-22)
+- Atom 4 Id: char(5) (24-28)
+- Constant (:math:`k_{j,1}`): real
+- Prefactor (:math:`k_{j,2}`, can be :math:`-1.0` or :math:`1.0`): real
+- Number of term (:math:`n_{j}`): int
+
+Notice that the :math:`\pm 1.0` values for the prefactor actually represent the phases of :math:`0^\circ{}` or :math:`180^\circ{}` degrees in other versions of the energy term formula.
+
+In this case, all dihedral angles define real 1-4 interactions between the end atoms, so there is no need to use prefix ``-`` as to mark the atoms not to be included in the 1-4 list.
+
+Notice that the same dihedral is defined either by atoms ABCD or atoms DCBA.
+
+Example:
+
+.. code-block:: text
+
+  Line:TORS   O     C     N  *  H  *  2.4500 -1.0 2
+
+ITOR
+----
+
+For improper dihedral angles. Just the same format as for the dihedrals, except the ITOR label is used to identify these records.
+
+Example:
+
+.. code-block:: text
+
+  Line:ITOR   CA    N  *  C     O     10.500 -1.0 2
+
+Non-ligand rotamer library file
+===============================
+
+A rotamer library file lists rotamers for a given link side chain. Notice that this format only allows for single side chain links, differently from what can happen with a ligand link.
+
+These files are stored in directory :file:`Data/RotamerLibs/`, and each rotamer library file has the uppercase name of the residue, followed by the suffix `.side`. For example, the aspartic acid rotamer library file is :file:`Data/RotamerLibs/ASP.side`. Notice the existence of special rotamer libraries that start with `FRE`; these represent all possible angle values for a given resolution and for a single dihedral. More information about these files at the end of this section.
+
+An example file:
+
+.. code-block:: text
+
+    * SER  1  27  10.0  1
+    _OG_
+    POLARH  _HG_  1
+       6
+      -6
+      18
+       7
+      -7
+      17
+      -5
+     -17
+       5
+       8
+       4
+      16
+      -8
+      -4
+     -16
+     -10
+       2
+     -14
+      -2
+      13
+      15
+       1
+     -12
+      10
+      12
+      -1
+     -11
+
+Another example with multiple atoms in the side chain:
+
+.. code-block:: text
+
+    * ASP   2 233  10.0  0
+    _CG_
+    _OD1
+      -7  -1
+      -6  -3
+      -6  -4
+      -8  -2
+    ...
+     -11  -1
+       7   6
+      -1  -8
+       4   2
+       7  -1
+      -8  -9
+       2   9
+     -10   8
+       8   8
+
+
+Header
+------
+The first line is the header. It has several fields separated by blanks. The fields are, in order:
+
+- A star ('*') character.
+- The name of the link.
+- The number of angles that define each rotamer.
+- The number of rotamers included in the file. It must match the number of lines defining rotamers in this file.
+- The resolution of the rotamer library, in degrees, for both the core side chain and the polar part.
+- Whether this side chain has a polar part at the end (either 1 or 0).
+
+Atom names
+----------
+
+After the header line, appear all atoms to apply the rotamer angles. For all dihedral angles of the side chain (chi1, chi2, etc.), being A-B-C-D the atoms defining that dihedral (see the Gold Book entry for torsion angle: http://goldbook.iupac.org/T06406.html), it is the D atoms those that appear in this list. The names correspond to the PELE convention, and have spaces substituted by underscore characters.
+
+Polar line
+----------
+
+If the link's side chain has a polar part, then it follows this line, with the next items (separated by blanks):
+
+- The `POLARH` string.
+- The name of the polar atom (PELE convention, spaces substituted by underscore).
+- iper: Limits the range covered by the dihedral angle. When the polar atom has other symmetric siblings, it suffices with sampling only for a smaller range. For example, lysine zeta nitrogen has 3 hydrogens attached. Due to symmetry, it suffices with sampling the first hydrogen for dihedral angles between -60 and +60; sampling outside that range will position HZ1 at a different place, but it would be equivalent to either HZ2 or HZ3 position in one of the values sampled in the restricted set. The values allowed for iper are: 0 (it covers [-180, 180)), 1 ([-90, 90)) and 2 ([-60, 60)).
+
+Currently, the only residues with a polar dihedral angle are:
+
+- ASH: `POLARH  _HD2 1`
+- ASQ: `POLARH  _O2P  3`
+- BMT: `POLARH  _HG1  1`
+- CYS: `POLARH _HG_ 1`
+- DCY: `POLARH _HG_ 1`
+- DLY: `POLARH  1HZ_  3`
+- DTH: `POLARH  _HG1  1`
+- DTY: `POLARH  _HH_  1`
+- GLH: `POLARH  _HE2 1`
+- LYS: `POLARH  _HZ1  3`
+- OMY: `POLARH _CH_ 1`
+- PTR: `POLARH  _O2P  3`
+- SEP: `POLARH  _O2P  3`
+- SER: `POLARH  _HG_  1`
+- THR: `POLARH _HG1  1`
+- TPO: `POLARH  _O2P  3`
+- TYR: `POLARH _HH_ 1`
+
+
+Non polar rotamers
+------------------
+
+One line per rotamer; exactly the same number as the number of rotamers stated in the header. Each line consists of rotamer angle values (as many as the number of angles defined in the rotamer), with each value in a 4-character field, right justified.
+
+Each rotamer angle value is stored as an integer factor of the rotamer library resolution. 
+
+Free rotamer libraries
+----------------------
+
+The allowed full-sampling rotamers for a single dihedral are stored in the following files:
+
+- :file:`FREE_5.side`
+- :file:`FREE10.side`
+- :file:`FREE15.side`
+- :file:`FREE20.side`
+- :file:`FREE30.side`
+- :file:`FREE40.side`
+- :file:`FREE45.side`
+- :file:`FREE60.side`
+- :file:`FREE90.side`
+- :file:`FRE120.side`
+- :file:`FRE180.side`
+
+For example, for a sampling every 60 degrees, the file :file:`FREE60.side` is:
+
+.. code-block:: text
+
+    * FREE60  1  6  60.0  0
+    ATM1
+    -3
+    -2
+    -1
+    0
+    1
+    2
+
+Notice however that these files are not currently used and, instead, any real resolution that is a result of dividing 180 among 1..17 is allowed, plus number 5. This is because, internally, the polar library of iper 1 for the given resolution is chosen.
+
+
+Ligand rotamer library file
+===========================
+
+Ligand rotamer library files are under :file:`Data/LigandRotamerLibs/`, and are named as the link name in uppercase, plus the suffix `.rot.assign`. For example, benzamidine ligand rotamer library file is :file:`Data/ligandRotamerLibs/BEN.rot.assign`.
+
+All lines must end with an ampersand character (`&`), and blank lines (which cannot be the first one) are ignored.
+
+This is an example for one ligand:
+
+.. code-block:: text
+
+    rot assign res INH &
+       sidelib FREE10 _C16 _C6_ &
+       sidelib FREE10 _C6_ _C22 &
+       sidelib FREE10 _C22 _O5_ &
+	 newgrp &
+       sidelib FREE10 _C14 _O3_ &
+	 newgrp &
+       sidelib FREE10 _C16 _O4_ &
+
+Header
+------
+
+This line, which must be the first one, is ignored. It has the format:
+
+.. code-block:: text
+
+  rot assign res BEN &
+
+which basically means: *assign the following rotameric information to residue BEN*.
+
+Group definition
+----------------
+
+Each side chain is defined in a group definition block. The first side chain does not need any keyword to mark the group. All the following side chains must begin with the `newgrp` keyword, as this:
+
+.. code-block:: text
+
+       newgrp &
+
+Whether the first side chain or any other side chain, a group definition is formed by dihedral angle rotameric descriptions in lines tagged with the keyword `sidelib`:
+
+.. code-block:: text
+
+     sidelib FREE10 _C16 _C6_ &
+
+The first value is the name of a full-sampling rotamer library for that dihedral angle, and must match with those available in :file:`Data/RotamberLibs/`. Currently, you can express resolutions of 5 (`FREE_5`), 10 (`FREE10`), 15 (`FREE15`), 20 (`FREE20`), 30 (`FREE30`), 40 (`FREE40`), 45 (`FREE45`), 60 (`FREE60`), 120 (`FRE120`) and 180 (`FRE180`) degrees. Notice that all names have exactly 6 characters. Actually, you can express any desired integer resolution, and the one closest (and not bigger) from any of the following will be chosen; in any case, the smallest resolution allowed is 5.
+
+- 180 (2 possible values for the whole range [-180, 180)).
+- 90 (4 values).
+- 60 (6 values).
+- 45 (8 values).
+- 36 (10 values).
+- 30 (12 values).
+- 25.7143 (14 values).
+- 22.5 (16 values).
+- 20 (18 values).
+- 18 (20 values).
+- 16.3636 (22 values).
+- 15 (24 values).
+- 13.8462 (26 values).
+- 12.8571 (28 values).
+- 12 (30 values).
+- 11.25 (32 values).
+- 10.5882 (34 values).
+- 10 (36 values).
+- 5 (72 values).
+
+Then, the two atoms that define the central bond appear, using PELE notation (with spaces replaced by underscores). Given that a dihedral (or torsion) angle (see the IUPAC Gold Book entry http://goldbook.iupac.org/T06406.html) is defined by atoms A-B-C-D, these atoms must be B and C, and in that order. 
+
+As in the example shown above, if a given side chain (as copied below) has several dihedral angles, all of them must be shown:
+
+.. code-block:: text
+
+     sidelib FREE10 _C16 _C6_ &
+     sidelib FREE10 _C6_ _C22 &
+     sidelib FREE10 _C22 _O5_ &
+
+In this example, the side chain has three dihedral angles, all of them consecutive (since each one shares one atom with the previous dihedral angle).
+
+Elements Parameters file
+========================
+
+This file is :file:`Data/Atoms/elements_parameters.txt`.
+
+It has a line per chemical element. Each line contains 3 fields, separated by spaces:
+
+- Element symbol, in uppercase.
+- Atomic number.
+- Atomic mass.
+
+Sample contents:
+
+.. code-block:: text
+
+    H    1   1.008
+    HE   2   4.00
+    LI   3   6.94
+    BE   4   9.01
+    B    5   10.81
+    C    6   12.01
+    N    7   14.01
+    O    8   16.00
+    F    9   19.00
+
+Solvent parameters for SGB
+==========================
+
+See file :file:`Data/SGB/solventParamsList.txt`.
+
+
+Solvent penalty terms
+=====================
+
+See file :file:`Data/SGB/penaltyTerms`.
+
+First line of the file shows the number of atom pairs to apply the penalty term.
+
+Then, for each line, there are 9 fields:
+
+- atom name `i`
+- residue name `i`. It may be `ANY`.
+- atom name `j`
+- residue name `j`. It may be `ANY`.
+- :math:`V_{\text{max}}`.
+- :math:`a_{0}`
+- :math:`a_{1}`
+- :math:`\text{cutoff}^{L}` (lower cutoff).
+- :math:`\text{cutoff}^{H}` (higher cutoff).
+
+
+.. _sec-fileFormats-NMD:
+
+Normal modes file format (NMD)
+==============================
+
+This file is used to enter pre-calculated normal modes (whether ANM modes, or PCA modes, or modes from any other model that fit into the ANM pahse of a PELE simulation, see :ref:`sec-anm`).
+
+The input file must be in NMD format, like the files produced by ProDy: http://prody.csb.pitt.edu/manual/reference/dynamics/nmdfile.html. This format has been slightly restricted in the way that, for each mode line, you must provide a scaling factor, and this factor is the square root of the eigenvalue (PELE will compute the actual eigenvalue from this).
+
+For PELE, the following lines in the NMD file are compulsory:
+
+- atomnames: a single record line, with the list of atom names to be used as nodes.
+- resnames: a single record line, with the names of the residues corresponding to the atoms in atomnames.
+- chainids: a single record line, with the chain ids corresponding to the atoms in atomnames.
+- resids: a single record line, with the residue ids corresponding to the atoms in atomnames.
+- coordinates: a single record line, with three times as many coordinate numbers as atoms in atomnames (coordinates x, y, z). This is needed to compute the number of atoms, according to the NMD format specification.
+- mode: multiple lines, containing the normal modes to apply. These lines may contain an initial integer value as the normal mode index. Then, after the optional index, and before the actual normal mode vectorial components, comes the square root of the eigenvalue corresponding to that normal mode.
+
+Example
+-------
+
+The following NMD file contains the normal modes for a hexapeptide. Exact coordinate values are irrelevant, except for the actual number of coordinates, that determine the number of atoms to consider in the normal mode model. All ``mode`` lines start with the square root of the eigenvalue for that normal mode, and then are followed by the normal mode vector coordinates. Notice that lines ``nmwiz_load`` and ``name`` are ignored.
+
+.. code-block:: text
+
+    nmwiz_load non_sense_text 
+    name irrelevant 
+    atomnames  CA   CA   CA   CA   CA   CA  
+    resnames GLY ILE LEU TYR GLY PHE
+    resids 2 1 3 5 6 4
+    chainids A A A A A A 
+    coordinates 69 70 71 12 13 14 90 91 92 207 208 209 270 271 272 147 148 149
+    mode 0.00273518 0.182563 -0.236628 -0.187276 0.138854 -0.21912 -0.0174999 -0.29117 0.385916 0.199129 -0.123327 0.113394 0.0693217 0.331322 -0.366597 -0.249164 -0.238242 0.323036 0.18549
+    mode 0.017155 -0.320418 0.354319 0.0588638 0.244408 -0.216638 0.0623719 0.0449705 -0.106396 -0.0868696 -0.409482 0.438541 0.138569 0.284328 -0.200384 0.0247522 0.156194 -0.269443 -0.197687
+    mode 0.0224504 0.20756 -0.236233 -0.0466123 -0.292223 0.272561 0.0356318 0.389414 -0.449831 -0.146309 -0.278234 0.304692 0.136053 0.123756 -0.151396 -0.139509 -0.150271 0.260207 0.160746
+    mode 0.185988 0.139822 -0.0557512 -0.112711 0.111934 -0.0180165 0.427796 -0.169039 -0.0480346 -0.272187 -0.0752528 -0.0711941 -0.348889 0.318833 0.0217976 0.504157 -0.326297 0.171199 -0.198165
+    mode 0.439333 -0.0382877 -0.0911297 -0.281036 0.0502785 -0.0421324 0.406383 -0.23339 0.0198441 -0.371058 0.385763 0.163819 0.539233 -0.0728528 0.0129334 -0.251376 -0.0915114 -0.063334 -0.0421465
+    mode 1.07997 0.263504 0.13792 0.602361 -0.0294801 -0.00625519 -0.292769 -0.0963889 -0.146163 -0.100595 0.199072 0.0275307 0.229903 0.0258018 0.000911341 0.00357145 -0.362509 -0.013944 -0.442471
+

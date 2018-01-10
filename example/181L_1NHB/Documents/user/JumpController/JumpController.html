@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Jump Controller in Pele++ control file &mdash; PELE 1.5.rev12489 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/naturemodified.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.5.rev12489',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PELE 1.5.rev12489 documentation" href="../index.html" />
+    <link rel="up" title="PELESimulation command" href="../PELE/PELESimulation_index.html" />
+    <link rel="next" title="Changeable Parameters" href="../PELEDynamicChangesInSimulationParameters/ParametersThatCanChange.html" />
+    <link rel="prev" title="StateTracker types in Pele++ control file" href="../Sensors/StateTrackerTypes.html" /> 
+    <script type="text/javascript" >
+    MathJax.Hub.Config({
+        TeX: { 
+	  Macros: {
+	    AA: '{\\unicode{xC5}}'
+	  }
+	}
+    });
+    </script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../PELEDynamicChangesInSimulationParameters/ParametersThatCanChange.html" title="Changeable Parameters"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../Sensors/StateTrackerTypes.html" title="StateTracker types in Pele++ control file"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12489 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../PELE/PELESimulation_index.html" accesskey="U">PELESimulation command</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="jump-controller-in-pele-control-file">
+<span id="sec-jumpcontroller"></span><h1>Jump Controller in Pele++ control file<a class="headerlink" href="#jump-controller-in-pele-control-file" title="Permalink to this headline">¶</a></h1>
+<p>This page documents what is also known as the <em>jumping</em> or <em>spawning</em> functionality of Pele++.</p>
+<p>The jump controller is the responsible to change the explorer
+coordinates if some conditions are met in the task. Thus, the block is
+defined at Task level.</p>
+<p>If you use the jumping functionality, you may want to enable the controller log file through the <a class="reference internal" href="../PELE/PeleOutput.html#sec-peleoutput-controllereventslogpath"><span>PELE_Output controllerEventsLogPath</span></a> option.</p>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-json"><div class="highlight"><pre><span></span>&quot;jumpIf&quot;:
+[
+     &quot;diff_rmsd1 &gt; 1.1&quot;,
+     &quot;diff_rmsd2 &gt; 0.5&quot;
+],
+
+&quot;jumpController&quot;:{
+    &quot;strategyToChooseBestExplorer&quot;:{
+        &quot;type&quot;: &quot;bestHasMinimumValueForOneSensor&quot;,
+        &quot;sensorTag&quot;: &quot;rmsd1&quot;
+    },
+
+    &quot;jumpStrategy&quot;: {
+        &quot;type&quot;: &quot;jumpToBestExplorerCoordinates&quot;
+    }
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="jumpif-section">
+<h2>jumpIf section<a class="headerlink" href="#jumpif-section" title="Permalink to this headline">¶</a></h2>
+<p>The jumpIf clause contains the jumping
+<a class="reference internal" href="../LogicalConditions/ConditionsByExample.html#sec-conditionsbyexample"><span>conditions</span></a>. If any
+<a class="reference internal" href="../LogicalConditions/ConditionsByExample.html#sec-conditionsbyexample"><span>condition</span></a> is met,
+the system&#8217;s state will change.</p>
+<p>There are two kinds of conditions:</p>
+<ul class="simple">
+<li>Absolute condition. We compare the value of the sensor to a certain
+value. The sensor is specified with a tag.</li>
+<li>Relative condition. We compare the sensor&#8217;s current value to the best
+one so far in the whole simulation. We write it: &#8220;diff_&#8221; + tag.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For a relative condition, comparing to the best one so far in the whole
+simulation implies that a given explorer (or the single explorer, in the
+serial version of PELE++) may compare its current value to a value
+already generated by that explorer in the past. It also means that an
+explorer does not necessarily compare its current value to the best
+value of the current state of any other explorer, but to the best value
+in the whole simulation.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>In the current version it is not possible to mix absolute and
+relative conditions:</p>
+<div class="last highlight-json"><div class="highlight"><pre><span></span>&quot;jumpIf&quot;:
+[
+    &quot;rmsdSelection &gt; 1.1 and diff_rmsd1 &gt; 0.5&quot;
+]
+</pre></div>
+</div>
+</div>
+<div class="section" id="example1">
+<h3>Example1<a class="headerlink" href="#example1" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-json"><div class="highlight"><pre><span></span>&quot;jumpIf&quot;:[ &quot;rmsdSelection &gt; 1.1&quot; ]
+</pre></div>
+</div>
+</div>
+<div class="section" id="example2">
+<h3>Example2<a class="headerlink" href="#example2" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-json"><div class="highlight"><pre><span></span>&quot;jumpIf&quot;:[ &quot;diff_rmsd1 &gt; 0.5&quot; ]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="jumpcontroller-section">
+<h2>jumpController section<a class="headerlink" href="#jumpcontroller-section" title="Permalink to this headline">¶</a></h2>
+<p>The jumpController section is comprised of two configuration blocks:</p>
+<ul class="simple">
+<li>strategyToChooseBestExplorer: the way we choose the best
+explorer/step in the simulation.</li>
+<li>jumpStrategy: the way we jump after the jumpIf condition is met.</li>
+</ul>
+<div class="section" id="id1">
+<h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-json"><div class="highlight"><pre><span></span>&quot;jumpController&quot;:{
+    &quot;strategyToChooseBestExplorer&quot;:{
+        &quot;type&quot;: &quot;bestHasMinimumValueForOneSensor&quot;,
+         &quot;sensorTag&quot;: &quot;rmsd1&quot;
+    },
+    &quot;jumpStrategy&quot;: {
+        &quot;type&quot;: &quot;jumpToBestExplorerCoordinates&quot;
+    }
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="types-of-strategytochoosebestexplorer">
+<h3>Types of strategyToChooseBestExplorer<a class="headerlink" href="#types-of-strategytochoosebestexplorer" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p class="first">bestHasMinimumValueForOneSensor: The best explorer will have the
+smaller value for one sensor. The sensor is specified with
+&#8220;sensorTag&#8221;.</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>&quot;strategyToChooseBestExplorer&quot;:{
+    &quot;type&quot;: &quot;bestHasMinimumValueForOneSensor&quot;,
+    &quot;sensorTag&quot;: &quot;rmsd1&quot;
+}
+</pre></div>
+</div>
+</li>
+<li><p class="first">bestHasMinimumValueForWeightedSensors: The best explorer is
+calculated using more than one sensor, each one with a certain weight
+associated to it. It is specified with a block named &#8220;sensorWeights&#8221;
+that consists of the pairs <cite>tag:weight</cite>.</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>&quot;strategyToChooseBestExplorer&quot;:{
+    &quot;type&quot;:&quot;bestHasMinimumValueForWeightedSensors&quot;,
+    &quot;sensorWeights&quot;:{
+        &quot;rmsd1&quot;: 1,
+        &quot;rmsd2&quot;: 2,
+        &quot;rmsd3&quot;: 4
+    }
+}
+</pre></div>
+</div>
+<p>We compare the current explorer with the best one by assigning a
+score. For all the sensors, we subtract &#8220;weight&#8221; to the score of the
+explorer with the minimum value for that sensor. The explorer with
+the smallest score is the best one. Ex: Using the weights of the
+previous example. Explorer1: rmsd1 = 1.12, rmsd2 = 0.024, rmsd3 =
+1.10. Explorer2: rmsd1 = 1.14, rmsd2 = 0.015, rmsd3 = 1.10. Explorer1
+score = -1 - 0 - 0 = -1. Explorer2 score = -0 - 2 - 0= -2. Hence,
+Explorer2 is better than Explorer1.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="types-of-jumpstrategy">
+<h3>Types of jumpStrategy<a class="headerlink" href="#types-of-jumpstrategy" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p class="first">jumpToBestExplorerCoordinates: In case of jump, it will jump to the
+coordinates of the best explorer.</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>&lt;pre&gt;
+&quot;jumpStrategy&quot;: {
+    &quot;type&quot;: &quot;jumpToBestExplorerCoordinates&quot;
+}
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="mpi-vs-serial-execution">
+<h2>MPI vs Serial execution<a class="headerlink" href="#mpi-vs-serial-execution" title="Permalink to this headline">¶</a></h2>
+<p>The &#8220;strategyToChooseBestExplorer&#8221; in MPI chooses the best result so far
+of all the explorers. In Serial version, the best explorer is the best
+step of the serial execution.</p>
+</div>
+<div class="section" id="who-takes-the-decisions">
+<h2>Who takes the decisions<a class="headerlink" href="#who-takes-the-decisions" title="Permalink to this headline">¶</a></h2>
+<p>A jump can be caused by two factors:</p>
+<ul class="simple">
+<li>The explorer decides to jump: After evaluating its own sensors, an
+explorer decides that it has gone too far, so it asks the explorer
+for jumping.</li>
+<li>The controller forces a jump: The controller compares the values of
+the sensors for a given explorer against the values of the best one.
+If the difference is too big, the controller will make the given
+explorer jump.</li>
+</ul>
+<p>This can also be said as the following: although all the jump conditions
+are listed in the &#8220;jumpIf&#8221; sections, the conditions which not involves a
+comparison between the best one&#8217;s values will be evaluated by the
+explorer, who will be who takes the decision of either jumping or not.
+Those are the conditions not prefixed by &#8220;diff_&#8221;. The conditions which
+actually have a &#8220;diff_&#8221; prefix will be the ones that the controller,
+and only the controller, will evaluate in order to decide if an explorer
+has to jump.</p>
+</div>
+<div class="section" id="jumping-spawning">
+<h2>Jumping (Spawning)<a class="headerlink" href="#jumping-spawning" title="Permalink to this headline">¶</a></h2>
+<p>With the previous tools we can make explorers spawn closer or further to
+a certain point.</p>
+<div class="section" id="example-bringing-the-ligand-close-to-a-point">
+<h3>Example: Bringing the ligand close to a point.<a class="headerlink" href="#example-bringing-the-ligand-close-to-a-point" title="Permalink to this headline">¶</a></h3>
+<p>We need to define the distance of the ligand to the point of interest.
+In the <a class="reference internal" href="../Sensors/MetricTypes.html#sec-metrictypes"><span>metrics block</span></a> of the same task
+we add:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>&quot;metrics&quot;: [
+    {
+        &quot;type&quot;: &quot;distanceToPoint&quot;,
+        &quot;point&quot;: [ 0.3, 0.1, 0.5 ],
+        &quot;atoms&quot;: {
+        &quot;links&quot;: {
+            &quot;ids&quot;: [
+            &quot;L:571&quot;
+            ]
+        }
+        },
+        &quot;tag&quot;: &quot;distance&quot;
+    },
+    ...
+]
+</pre></div>
+</div>
+<p>In the same task, we add the &#8220;jumpIf&#8221; block:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>&quot;jumpIf&quot;: [
+    &quot;diff_distance &gt; 10&quot;
+],
+&quot;jumpController&quot;: {
+    &quot;strategyToChooseBestExplorer&quot;: {
+        &quot;type&quot;: &quot;bestHasMinimumValueForOneSensor&quot;,
+        &quot;sensorTag&quot;: &quot;distance&quot;
+    },
+    &quot;jumpStrategy&quot;: {
+        &quot;type&quot;: &quot;jumpToBestExplorerCoordinates&quot;
+    }
+}
+</pre></div>
+</div>
+<p>This way, when a explorer is <span class="math">\(10 \AA{}\)</span> further to the point than the closest
+explorer (i.e. <span class="math">\(| \Delta \text{distance}| &gt; 10 \AA{}\)</span>, where <span class="math">\(\Delta \text{distance} = \text{CurrentExplorer_distance} - \text{BestExplorer_distance}\)</span>), it jumps to the
+best explorer coordinates. It is worth emphazising that diff_distance
+is NOT the distance between the two explorers.</p>
+</div>
+<div class="section" id="example-moving-the-ligand-away-from-a-point">
+<h3>Example: Moving the ligand away from a point.<a class="headerlink" href="#example-moving-the-ligand-away-from-a-point" title="Permalink to this headline">¶</a></h3>
+<p>The example is essentialy the same as the previous example. The only
+difference is that now the best explorer is the one that is the furthest
+away.The jump controller is now:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>&quot;jumpIf&quot;: [
+    &quot;diff_distance &gt; 10&quot;
+],
+&quot;jumpController&quot;: {
+    &quot;strategyToChooseBestExplorer&quot;: {
+        &quot;type&quot;: &quot;bestHasMaximumValueForOneSensor&quot;,
+        &quot;sensorTag&quot;: &quot;distance&quot;
+    },
+    &quot;jumpStrategy&quot;: {
+        &quot;type&quot;: &quot;jumpToBestExplorerCoordinates&quot;
+    }
+}
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Jump Controller in Pele++ control file</a><ul>
+<li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#jumpif-section">jumpIf section</a><ul>
+<li><a class="reference internal" href="#example1">Example1</a></li>
+<li><a class="reference internal" href="#example2">Example2</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#jumpcontroller-section">jumpController section</a><ul>
+<li><a class="reference internal" href="#id1">Example</a></li>
+<li><a class="reference internal" href="#types-of-strategytochoosebestexplorer">Types of strategyToChooseBestExplorer</a></li>
+<li><a class="reference internal" href="#types-of-jumpstrategy">Types of jumpStrategy</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mpi-vs-serial-execution">MPI vs Serial execution</a></li>
+<li><a class="reference internal" href="#who-takes-the-decisions">Who takes the decisions</a></li>
+<li><a class="reference internal" href="#jumping-spawning">Jumping (Spawning)</a><ul>
+<li><a class="reference internal" href="#example-bringing-the-ligand-close-to-a-point">Example: Bringing the ligand close to a point.</a></li>
+<li><a class="reference internal" href="#example-moving-the-ligand-away-from-a-point">Example: Moving the ligand away from a point.</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../Sensors/StateTrackerTypes.html"
+                        title="previous chapter">StateTracker types in Pele++ control file</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../PELEDynamicChangesInSimulationParameters/ParametersThatCanChange.html"
+                        title="next chapter">Changeable Parameters</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/JumpController/JumpController.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../PELEDynamicChangesInSimulationParameters/ParametersThatCanChange.html" title="Changeable Parameters"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../Sensors/StateTrackerTypes.html" title="StateTracker types in Pele++ control file"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12489 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../PELE/PELESimulation_index.html" >PELESimulation command</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2016 BARCELONA SUPERCOMPUTING CENTER. See the COPYRIGHT file at the top-level directory of this distribution. 
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.6.
+    <a href="../index.html#license">License</a>.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>How to run PELE in multicore platforms &mdash; PELE 1.5.rev12489 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/naturemodified.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.5.rev12489',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PELE 1.5.rev12489 documentation" href="../index.html" />
+    <link rel="up" title="Reference Manual" href="../referenceManual.html" />
+    <link rel="next" title="PCA for the perturbation phase of PELE" href="../pca.html" />
+    <link rel="prev" title="Selections By Example" href="../Selections/SelectionExamples.html" /> 
+    <script type="text/javascript" >
+    MathJax.Hub.Config({
+        TeX: { 
+	  Macros: {
+	    AA: '{\\unicode{xC5}}'
+	  }
+	}
+    });
+    </script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../pca.html" title="PCA for the perturbation phase of PELE"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../Selections/SelectionExamples.html" title="Selections By Example"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12489 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" accesskey="U">Reference Manual</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="how-to-run-pele-in-multicore-platforms">
+<h1>How to run PELE in multicore platforms<a class="headerlink" href="#how-to-run-pele-in-multicore-platforms" title="Permalink to this headline">¶</a></h1>
+<p>PELE can take advantage of multicore platforms in different ways:</p>
+<ul class="simple">
+<li>OpenMP</li>
+<li>MPI</li>
+<li>MPI + OpenMP</li>
+<li>CUDA (Experimental)</li>
+</ul>
+<p>Brief introduction of computing language used in this page:</p>
+<ul class="simple">
+<li>Processor: a die with one or more cores</li>
+<li>Core: execution unit</li>
+<li>Thread: process running in a core</li>
+</ul>
+<p>Usually the meaning of each words depends on the context. It&#8217;s also used
+processor instead of core, etc.</p>
+<div class="section" id="openmp">
+<h2>OpenMP<a class="headerlink" href="#openmp" title="Permalink to this headline">¶</a></h2>
+<p>In OpenMP, all the processors are sharing the memory of the system.
+OpenMP allows us to use the multiple cores that are available in the
+processor/s of our workstation in an easy and fast way. The OpenMP PELE
+implementation is like the serial execution of PELE (one explorer) but
+faster, doing some calculations in parallel.</p>
+<p>To use the OpenMP version of PELE, you have to follow the next steps:</p>
+<ol class="arabic simple">
+<li>Compile PELE with the pre-processor flag -DOPENMP and the flags to compile an OpenMP source code in your machine.</li>
+<li>Before run PELE, set the enviromental variable &#8220;OMP_NUM_THREADS&#8221; to set the number of threads that you want to use.</li>
+</ol>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">$</span> setenv OMP_NUM_THREADS 4
+<span class="gp">#</span> or
+<span class="gp">$</span> <span class="nb">export</span> <span class="nv">OMP_NUM_THREADS</span><span class="o">=</span>4
+</pre></div>
+</div>
+</div></blockquote>
+<p>Tip: set at maximum the number of REAL cores that you have to map each thread to a real core and get the maximum perfomance. Pay attention if you have an Intel cpu with hyperthreading enable.</p>
+<ol class="arabic simple" start="3">
+<li>Run PELE</li>
+</ol>
+<p>It doesn&#8217;t need any anotation in the configuration file.</p>
+</div>
+<div class="section" id="mpi">
+<h2>MPI<a class="headerlink" href="#mpi" title="Permalink to this headline">¶</a></h2>
+<p>MPI allows us to communicate different processors that are not sharing
+memory. We can also use MPI to comunicate the different cores or
+processors that are sharing memory. MPI it&#8217;s very used in supercomputers
+The MPI implementation runs one explorer per thread. Is like a lot of
+serial executions of PELE running at the same time being handled by a
+controller. If we have N cores and we launch PELE using all of them, we
+will have N-1 explorers and 1 controller.</p>
+<ol class="arabic simple">
+<li>Compile PELE for MPI</li>
+<li>Set in the PeleParameters section of the configuration file the &#8220;useMPI&#8221; option to true.</li>
+<li>Launch PELE using mpirun</li>
+</ol>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">$</span> mpirun -np &lt;numberOfProcessors&gt; PELE &lt;configurationFile&gt;
+</pre></div>
+</div>
+</div></blockquote>
+<p>If mpirun can&#8217;t find some files and crash, set the &#8220;working directory&#8221;,
+in our case the Pele directory, adding the flag &#8220;-wd &#8221;.</p>
+</div>
+<div class="section" id="mpi-openmp">
+<h2>MPI + OpenMP<a class="headerlink" href="#mpi-openmp" title="Permalink to this headline">¶</a></h2>
+<p>It combines the two previous methods. In brief, the combination of
+both technologies permit to have fastest explorers running at the same
+time.</p>
+<p>For example, if we have 10 processors with 4 cores each one, we can
+have two configurations to use all the resources in an efficient way:</p>
+<ul class="simple">
+<li>10 MPI threads (explorers) with 4 OpenMP threads</li>
+<li>20 MPI threads (explorers) with 2 OpenMP threads</li>
+</ul>
+<div class="section" id="tips">
+<h3>Tips<a class="headerlink" href="#tips" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">Don&#8217;t split an explorer to use OpenMP threads from a different
+processors. This situation can decrease the performance. Example, if
+we have 2 processors sharing memory with 6-core each, we have the
+following good and bad configurations:</p>
+<blockquote>
+<div><ul class="simple">
+<li>2 MPI threads with 6 OpenMP threads -&gt; GOOD</li>
+<li>3 MPI threads with 4 OpenMP threads -&gt; BAD, because one MPI
+thread will have 2 OpenMP thread in one processors and 2 OpenMP
+thread in other processor</li>
+<li>4 MPI threads with 3 OpenMP threads -&gt; GOOD</li>
+<li>6 MPI threads with 2 OpenMP threads -&gt; GOOD</li>
+</ul>
+</div></blockquote>
+</li>
+</ol>
+</div>
+</div>
+<div class="section" id="cuda-experimental">
+<h2>CUDA (Experimental)<a class="headerlink" href="#cuda-experimental" title="Permalink to this headline">¶</a></h2>
+<p>It&#8217;s very hardware dependent. Use OpenMP and MPI.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">How to run PELE in multicore platforms</a><ul>
+<li><a class="reference internal" href="#openmp">OpenMP</a></li>
+<li><a class="reference internal" href="#mpi">MPI</a></li>
+<li><a class="reference internal" href="#mpi-openmp">MPI + OpenMP</a><ul>
+<li><a class="reference internal" href="#tips">Tips</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#cuda-experimental">CUDA (Experimental)</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../Selections/SelectionExamples.html"
+                        title="previous chapter">Selections By Example</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../pca.html"
+                        title="next chapter">PCA for the perturbation phase of PELE</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/PELEinMulticorePlatforms/HowToRunPeleInMulticorePlatforms.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../pca.html" title="PCA for the perturbation phase of PELE"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../Selections/SelectionExamples.html" title="Selections By Example"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12489 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2016 BARCELONA SUPERCOMPUTING CENTER. See the COPYRIGHT file at the top-level directory of this distribution. 
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.6.
+    <a href="../index.html#license">License</a>.
+    </div>
+  </body>
+</html>

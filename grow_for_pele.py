@@ -1,64 +1,164 @@
-#import template_selector
-#import template_fragmenter_2
-#import simulations_linker
+# General imports
 import argparse
 import string
 import os
 import logging
+# Local imports
+import template_selector
+import template_fragmenter_2
+import simulations_linker
 
-# if os.path.exists("output.log"):
-#    os.remove("output.log")
-logging.basicConfig(filename="output.log", format="%(asctime)s:%(levelname)s:%(message)s", level=logging.DEBUG)
+# Logging constants
+LOG_FILENAME = "output.out"
+LOG_FORMAT = "%(asctime)s:%(levelname)s:%(message)s"
+
+# Logging definition block
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter(LOG_FORMAT)
+
+file_handler = logging.FileHandler(LOG_FILENAME)
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
 
 
-# The main block of code
-def main():
-    templates_path = "DataLocal/Templates/OPLS2005/HeteroAtoms/"
-    # Definition of arguments
-    parser = argparse.ArgumentParser(description='''From an input file, correspondent to the template of the initial structure of the ligand,
+def parse_arguments():
+    """
+        Parse user arguments
+
+        Output: list with all the user arguments
+    """
+    parser = argparse.ArgumentParser(description="""From an input file, correspondent to the template of the initial structure of the ligand,
     throught this function we will generate "x_fragments" intermediate templates until reach the final template,
-    modifing Vann Der Waals, bond lengths and deleting charges''')
+    modifing Vann Der Waals, bond lengths and deleting charges""")
 
-    parser.add_argument("-i", "--initial", dest="template_initial", required=True,
-                        help='input file correspondent to the initial template for the ligand that you want to grow')
-    parser.add_argument("-f", "--final", dest="template_final", required=True,
-                        help='input file correspondent to the final template for the ligand that you want to reach')
-    parser.add_argument("-x", "--frag", type=int, dest="n_files", required=True,
-                        help='number of intermediate templates that you want to generate')
-    parser.add_argument("-t", "--trans", dest="transformation", required=True,
-                        help='When an atom is transformed in another one we want to conserve the properties of the '
-                             'first one until being changed in the last template. This has to be specified in the program.')
-    parser.add_argument("-c", "--contrl", dest="control_file", required=True,
-                        help='Initial control file')
-    parser.add_argument("-p", "--pdb", dest="pdb", required=True,
-                        help='Initial pdb file')
-    parser.add_argument("-r", "--resfold", dest="results_f_name", required=True,
-                        help='Name for results folder')
-    parser.add_argument("-cr", "--criteria", dest="criteria", required=True,
-                        help='Name of the column used as criteria in order to select the template used as input for succesive simulations')
+    required_named = parser.add_argument_group('required named arguments')  # We have to do this in order
+    # to print properly the required arguments when using the defined arguments method
+
+    # Required arguments
+    required_named.add_argument("-i", "--initial",
+                                required=True,
+                                help="""input file correspondent to the 
+                                initial template for the ligand that you 
+                                want to grow""")
+    required_named.add_argument("-t", "--trans", required=True,
+                                help="""When an atom is transformed into another
+                                one we want to conserve the properties
+                                of the first one until being changed in the 
+                                last template. This has to be specified in 
+                                the program.""")
+    required_named.add_argument("-c", "--contrl", required=True,
+                                help='Initial control file')
+    required_named.add_argument("-p", "--pdb", required=True,
+                                help='Initial pdb file')
+    required_named.add_argument("-cr", "--criteria",
+                                required=True,
+                                help="""Name of the column used as criteria in order
+                                to select the template used as input for 
+                                succesive simulations.""")
+
+    # In the future we will remove this argument
+    required_named.add_argument("-f", "--final", required=True,
+                                help="""Input file correspondent to the
+                                final template for the ligand that you 
+                                want to reach""")
+
+    # Optional arguments
+    parser.add_argument("-x", "--frag", type=int,
+                        default=10,
+                        help="""Number of intermediate templates that you want 
+                             to generate""")
+
+    parser.add_argument("-r", "--resfold",
+                        default="growing_output",
+                        help="Name for results folder")
     args = parser.parse_args()
-    # Main algorithm
-    print("We are going to transform the template _{}_ into _{}_ in _{}_ steps!\nStarting...\n".format(args.template_initial, args.template_final, args.n_files))
-    logging.info(("We are going to transform the template _{}_ into _{}_ in _{}_ steps! Starting...".format(args.template_initial, args.template_final, args.n_files)))
-    template_fragmenter_2.fragmenter("{}".format(args.template_initial), "{}".format(args.template_final), "{}".format(args.transformation), args.n_files)
-    print("========== Files selected ========\nControl file: {}\nPDB file: {}\nResults folder name: {}\n=====================".format(args.control_file, args.pdb, args.results_f_name))
-    logging.info("===== Files selected ====== Control file: {} PDB file: {} Results folder name: {}".format(args.control_file, args.pdb, args.results_f_name))
-    simulations_linker.control_file_modifier(args.control_file, args.pdb, args.results_f_name, args.n_files)
-    for n in range(0, args.n_files):
-        if os.path.exists("{}_{}".format(args.results_f_name, string.ascii_lowercase[n])) == False:
-            os.mkdir("{}_{}".format(args.results_f_name, string.ascii_lowercase[n]))
-        simulations_linker.simulation_runner("control_file_grw_{}".format(string.ascii_lowercase[n]))
-        print("SIMULATION FOR control_file_grw_{} COMPLETED!!!!!!!".format(string.ascii_lowercase[n]))
-        logging.info("SIMULATION FOR control_file_grw_{} COMPLETED!!!!!!!".format(string.ascii_lowercase[n]))
-        template_selector.trajectory_selector("{}_{}".format(args.results_f_name, string.ascii_lowercase[n]), "{}_{}_tmp.pdb".format(args.pdb, string.ascii_lowercase[n + 1]), "{}".format(args.criteria))
-        template_selector.change_ligandname("{}_{}_tmp.pdb".format(args.pdb, string.ascii_lowercase[n + 1]), "{}_{}.pdb".format(args.pdb, string.ascii_lowercase[n + 1]))
-        if os.path.exists("{}_{}".format(args.pdb, string.ascii_lowercase[n + 1])):
-            print("Step of the Trajectory selected in {}_{}.pdb".format(args.pdb, string.ascii_lowercase[n + 1]))
-            logging.info("Step of the Trajectory selected in {}_{}.pdb".format(args.pdb, string.ascii_lowercase[n + 1]))
+
+    return args.initial, args.final, args.frag, args.trans, args.contrl, args.pdb, args.resfold, args.criteria
+
+
+def main(template_initial, template_final,
+         n_files, transformation,
+         control_file, pdb,
+         results_f_name, criteria):
+    """
+        Description:
+
+        Input:
+
+        Output:
+
+    """
+
+    # Creating template files
+    logger.info(("We are going to transform the template _{}_ \
+                 into _{}_ in _{}_ steps! Starting...".format(
+        template_initial, template_final,
+        n_files)))
+
+    templates = template_fragmenter_2.fragmenter(template_initial,
+                                                 template_final,
+                                                 transformation,
+                                                 n_files)
+    # Creating control files
+    logger.info(
+        """=================== Files selected ================\n
+        Control file: {} \n
+        PDB file: {} \n
+        Results folder name: {}\n""".format(
+            control_file,
+            pdb,
+            results_f_name)
+                )
+
+    control_files = simulations_linker.control_file_modifier(
+        control_file,
+        pdb,
+        results_f_name,
+        n_files
+    )
+
+    # Run Pele for each control file
+
+    # for template, control_file in zip(templates, control_files):
+    for n in range(0, n_files):
+        # Run Pele
+        if not os.path.exists("{}_{}".format(results_f_name,
+                                             string.ascii_lowercase[n]
+                                             )):
+            os.mkdir("{}_{}".format(results_f_name,
+                                    string.ascii_lowercase[n])
+                     )
+            simulations_linker.simulation_runner(
+                "control_file_grw_{}".format(string.ascii_lowercase[n])
+            )
+        logger.info("SIMULATION FOR control_file_grw_{} COMPLETED!!!!!!!".format(
+            string.ascii_lowercase[n])
+                    )
+        # Choose the best trajectory
+        template_selector.trajectory_selector("{}_{}".format(results_f_name,
+                                                             string.ascii_lowercase[n]
+                                                             ),
+                                              "{}_{}_tmp.pdb".format(pdb,
+                                                                     string.ascii_lowercase[n + 1]),
+                                              "{}".format(criteria)
+                                              )
+        if os.path.exists("{}_{}".format(pdb,
+                                         string.ascii_lowercase[n + 1])
+                          ):
+            logger.info("Step of the Trajectory selected in {}_{}.pdb".format(
+                pdb,
+                string.ascii_lowercase[n + 1])
+                        )
         else:
-            logging.critical("We could not create {}_{}.pdb".format(args.pdb, string.ascii_lowercase[n + 1]))
-            exit("CRITICAL ERROR!!! Check the log file for more information.")
+            logger.critical("We could not create {}_{}.pdb".format(pdb,
+                                                                   string.ascii_lowercase[n + 1])
+                            )
+            exit()
 
 
 if __name__ == '__main__':
-    main()
+    init, final, frag, trans, control, pdb, res_fold, criteria = parse_arguments()
+    main(init, final, frag, trans, control, pdb, res_fold, criteria)
