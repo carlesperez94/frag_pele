@@ -15,6 +15,12 @@ STREAM_FORMAT = "%(asctime)s:%(message)s"
 TEMPLATE_MESSAGE = "We are going to transform the template _{}_ into _{}_ in _{}_ steps! Starting..."
 SELECTED_MESSAGE = "\n============ Files selected ============\nControl file: {}\nPDB file: {}\nResults folder name: {}\n"
 FINISH_SIM_MESSAGE = "SIMULATION FOR control_file_grw_{} COMPLETED!!! "
+# Errors messages
+SELECT_ERROR_FNOTFOUND = "{}_{}/trajectory.pdb was not found. Probably the simulation did not finish properly"
+SELECT_ERROR_EXCEPT = """Sorry, something went wrong when selecting a PDB from results. First, check if the criteria 
+coincide with the report file column name"""
+CHLG_ERROR_FNOTFOUND = "{}_{}_tmp.pdb was not found"
+CHLG_ERROR_EXCEPT = "Sorry, something went wrong when changing ligand name of the selected PDB"
 # Logging definition block
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -138,18 +144,26 @@ def main(template_initial, template_final, n_files, transformation, control_file
         if not os.path.exists("{}_{}".format(results_f_name, string.ascii_lowercase[n])):
             os.mkdir("{}_{}".format(results_f_name, string.ascii_lowercase[n]))
             simulations_linker.simulation_runner("control_file_grw_{}".format(string.ascii_lowercase[n]))
-            logger.info("SIMULATION FOR control_file_grw_{} COMPLETED!!!!!!!".format(string.ascii_lowercase[n]))
+            logger.info(FINISH_SIM_MESSAGE.format(string.ascii_lowercase[n]))
         else:
-            simulations_linker.simulation_runner(
-                "control_file_grw_{}".format(string.ascii_lowercase[n])
-            )
+            simulations_linker.simulation_runner("control_file_grw_{}".format(string.ascii_lowercase[n]))
             logger.info(FINISH_SIM_MESSAGE.format(string.ascii_lowercase[n]))
         # Choose the best trajectory
-        template_selector.trajectory_selector("{}_{}".format(results_f_name, string.ascii_lowercase[n]),
+        try:
+            template_selector.trajectory_selector("{}_{}".format(results_f_name, string.ascii_lowercase[n]),
                                               "{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
                                               "{}".format(criteria))
-        template_selector.change_ligandname("{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
+        except FileNotFoundError:
+            logger.exception(SELECT_ERROR_FNOTFOUND.format(results_f_name, string.ascii_lowercase[n]))
+        except Exception:
+            logger.exception(SELECT_ERROR_EXCEPT)
+        try:
+            template_selector.change_ligandname("{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
                                             "{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
+        except FileNotFoundError:
+            logger.exception(CHLG_ERROR_FNOTFOUND.format(pdb, string.ascii_lowercase[n + 1]))
+        except Exception:
+            logger.exception()
         if not os.path.isfile("{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1])):
             logger.critical("We could not create {}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
             exit()
