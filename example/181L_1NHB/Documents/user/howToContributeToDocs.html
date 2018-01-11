@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>How to contribute to the documentation &mdash; PELE 1.5.rev12489 documentation</title>
+    
+    <link rel="stylesheet" href="_static/naturemodified.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.5.rev12489',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PELE 1.5.rev12489 documentation" href="index.html" />
+    <link rel="next" title="References" href="references.html" />
+    <link rel="prev" title="PELE Error Messages" href="errorMessages.html" /> 
+    <script type="text/javascript" >
+    MathJax.Hub.Config({
+        TeX: { 
+	  Macros: {
+	    AA: '{\\unicode{xC5}}'
+	  }
+	}
+    });
+    </script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="references.html" title="References"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="errorMessages.html" title="PELE Error Messages"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PELE 1.5.rev12489 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="how-to-contribute-to-the-documentation">
+<h1>How to contribute to the documentation<a class="headerlink" href="#how-to-contribute-to-the-documentation" title="Permalink to this headline">¶</a></h1>
+<p>If you want to contribute to the documentation of PELE, you are welcome.</p>
+<p>PELE documentation uses the <a class="reference external" href="http://sphinx-doc.org/">Sphinx</a> tool, which is based in the <a class="reference external" href="http://docutils.sf.net/rst.html">reStructuredText</a> markup language (very similar to the <a class="reference external" href="http://daringfireball.net/projects/markdown/">Markdown</a> markup language previously used in PELE). A quick introduction to reStructuredText with Sphinx is at <a class="reference external" href="http://sphinx-doc.org/rest.html">http://sphinx-doc.org/rest.html</a></p>
+<p>For any page where you will contribute, you can obtain the original document for that page on the bar on the left, following the <cite>This Page &gt; Show Source</cite>. Download that file, make the modifications you want, and send it to the PELE support team, which will review it and merge it with the official documentation as suitable.</p>
+<p>If you want to add a completely new page, proceed as above, but build the complete page structure, using one of the existing pages as a template. Then send it to the PELE support team and tell them where in the documentation structure the page fits.</p>
+<p>Below are some general instructions on how to write the documentation. For all the details about the Sphinx tool, check <a class="reference external" href="http://sphinx-doc.org/">Shpinx</a>.</p>
+<div class="section" id="notes-on-writing-a-page-of-documentation">
+<h2>Notes on writing a page of documentation<a class="headerlink" href="#notes-on-writing-a-page-of-documentation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="structure">
+<h3>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h3>
+<p>Follow the sectioning structure that Sphinx uses as a convention (<a class="reference external" href="http://sphinx-doc.org/rest.html#sections">http://sphinx-doc.org/rest.html#sections</a>). This is:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#</span></code> with overline, for parts</li>
+<li><code class="docutils literal"><span class="pre">*</span></code> with overline, for chapters</li>
+<li><code class="docutils literal"><span class="pre">=</span></code>, for sections</li>
+<li><code class="docutils literal"><span class="pre">-</span></code>, for subsections</li>
+<li><code class="docutils literal"><span class="pre">^</span></code>, for subsubsections</li>
+<li><code class="docutils literal"><span class="pre">&quot;</span></code>, for paragraphs</li>
+</ul>
+<p>Depending on where your documentation page fits into the PELE documentation structure, your page top level header can be any of the previous ones.</p>
+</div>
+<div class="section" id="cross-references">
+<h3>Cross-references<a class="headerlink" href="#cross-references" title="Permalink to this headline">¶</a></h3>
+<p>To help the user connecting ideas, and also to avoid redundance by keeping the information in a single place, use cross-references (see <a class="reference external" href="http://sphinx-doc.org/markup/inline.html#cross-referencing-arbitrary-locations">http://sphinx-doc.org/markup/inline.html#cross-referencing-arbitrary-locations</a>).</p>
+<p>Labels for section will start with <code class="docutils literal"><span class="pre">sec-</span></code>, while labels for figures start with <code class="docutils literal"><span class="pre">fig-</span></code> and labels for tables with <code class="docutils literal"><span class="pre">table-</span></code>.</p>
+<p>For sections, the main header of a page will take the name of the file, but with the first character in lower case (unless the file starts with an acronym as PELE). For example, the label for the main header of file <code class="file docutils literal"><span class="pre">SelectionExamples.rst</span></code> is <code class="docutils literal"><span class="pre">sec-selectionExamples</span></code>; however, for <code class="file docutils literal"><span class="pre">PELESimulation.rst</span></code>, it is <code class="docutils literal"><span class="pre">sec-PELESimulation</span></code>. Subsections in a file will start with the same label as the main header of the file, plus additional text, using <code class="docutils literal"><span class="pre">-</span></code> as a separator. For example, the label for the <code class="docutils literal"><span class="pre">Parameters</span></code> section in the <code class="file docutils literal"><span class="pre">Anm.rst</span></code> file is <code class="docutils literal"><span class="pre">sec-anm-parameters</span></code>.</p>
+</div>
+<div class="section" id="footnotes">
+<h3>Footnotes<a class="headerlink" href="#footnotes" title="Permalink to this headline">¶</a></h3>
+<p>The text corresponding to footnotes will appear in the same page as the footnote. See Sphinx for reference: <a class="reference external" href="http://sphinx-doc.org/rest.html#footnotes">http://sphinx-doc.org/rest.html#footnotes</a></p>
+<p>Footnotes will be labeled as <code class="docutils literal"><span class="pre">#f&lt;footnote_number&gt;</span></code> consecutively in the file. The footnote section will be defined with the <cite>rubric</cite> directive. For example:</p>
+<div class="highlight-rest"><div class="highlight"><pre><span></span>A peleSimulation has a PeleTask block. It is an array comprised of all
+the tasks that the program has to carry out before a command (usually a
+simulation) is considered to be finished <span class="s">[#f1]_</span>. Each task is a block, so it
+should be enclosed in curly braces.
+
+<span class="p">..</span> <span class="ow">rubric</span><span class="p">::</span> Footnotes
+
+<span class="p">..</span> <span class="nt">[#f1]</span> It can also finish because numberOfPeleSteps is reached.
+</pre></div>
+</div>
+</div>
+<div class="section" id="citations">
+<h3>Citations<a class="headerlink" href="#citations" title="Permalink to this headline">¶</a></h3>
+<p>Each part of the documentation (for example, the <code class="docutils literal"><span class="pre">Reference</span> <span class="pre">Manual</span></code> or the <code class="docutils literal"><span class="pre">Tutorial</span></code>) may have its own references, which should be gathered in a page of their own. Each reference will be labeled by <code class="docutils literal"><span class="pre">[firstauthor:year]</span></code>, and follows the format: Authors &#8220;Article title&#8221; <em>Journal</em> volume, pp. 1-n, Year. URL.</p>
+<p>For example:</p>
+<div class="highlight-rest"><div class="highlight"><pre><span></span><span class="gh">References</span>
+<span class="gh">==========</span>
+
+<span class="p">..</span> <span class="nt">[atilgan:2001]</span> Atilgan, A.R. and Durell, S.R. and Jernigan, R.L. and Demirel, M.C. and Keskin, O. and Bahar, I. &quot;Anisotropy of Fluctuation Dynamics of Proteins with an Elastic Network Model&quot; <span class="ge">*Biophysical Journal*</span> 80, pp. 505--515, 2001. http://dx.doi.org/10.1016/S0006-3495(01)76033-X
+</pre></div>
+</div>
+<p>For citing those references, follow the instructions given by Sphinx (<a class="reference external" href="http://sphinx-doc.org/rest.html#citations">http://sphinx-doc.org/rest.html#citations</a>). For example, the previous paper will be cited as:</p>
+<div class="highlight-rest"><div class="highlight"><pre><span></span>The original form of the potential (<span class="s">[atilgan:2001]_</span>) is ...
+</pre></div>
+</div>
+</div>
+<div class="section" id="mathematics">
+<h3>Mathematics<a class="headerlink" href="#mathematics" title="Permalink to this headline">¶</a></h3>
+<p>The documentation uses MathJax to display mathematical formulas, symbols and equations (see <a class="reference external" href="http://sphinx-doc.org/ext/math.html">http://sphinx-doc.org/ext/math.html</a>). This is basically LaTeX input, though only basic mathematical commands are available (for a complete documentation, see <a class="reference external" href="https://www.mathjax.org/">MathJax</a>).</p>
+<p>For example, the Pythagoras equation, inline, would be coded as:</p>
+<div class="highlight-rest"><div class="highlight"><pre><span></span>Since Pythagoras, we know that <span class="na">:math:</span><span class="nv">`a^2 + b^2 = c^2`</span>.
+</pre></div>
+</div>
+<p>And it will appear as <span class="math">\(a^2 + b^2 = c^2\)</span>.</p>
+<p>Though the <code class="docutils literal"><span class="pre">\AA</span></code> command is not defined in MathJax, the PELE documentation configures MathJax (in <code class="file docutils literal"><span class="pre">_templates/layout.html</span></code>) so that you can use it to represent <span class="math">\(\AA{}\)</span>.</p>
+<p>Notice that the HTML representation of mathematics through MathJax requires an Internet connection, since the MathJax Javascript code is always retrieved from the Internet.</p>
+</div>
+<div class="section" id="file-names">
+<h3>File names<a class="headerlink" href="#file-names" title="Permalink to this headline">¶</a></h3>
+<p>When providing a file name or path, use the <code class="docutils literal"><span class="pre">:file:</span></code> role of Sphinx (<a class="reference external" href="http://sphinx-doc.org/markup/inline.html#role-file">http://sphinx-doc.org/markup/inline.html#role-file</a>):</p>
+<div class="highlight-rest"><div class="highlight"><pre><span></span>Open file <span class="na">:file:</span><span class="nv">`README.txt`</span>.
+</pre></div>
+</div>
+</div>
+<div class="section" id="examples-and-source-code">
+<h3>Examples and source code<a class="headerlink" href="#examples-and-source-code" title="Permalink to this headline">¶</a></h3>
+<p>For displaying the contents (or extacts) of files, possibly source code files, use the <code class="docutils literal"><span class="pre">code-block</span></code> directive (<a class="reference external" href="http://sphinx-doc.org/markup/code.html#showing-code-examples">http://sphinx-doc.org/markup/code.html#showing-code-examples</a>). For example, to show python code, use:</p>
+<div class="highlight-rest"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">code-block</span><span class="p">::</span> <span class="k">python</span>
+
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]:</span>
+     <span class="k">print</span> <span class="n">i</span>
+</pre></div>
+</div>
+<p>Which results in:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]:</span>
+  <span class="k">print</span> <span class="n">i</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="hyperlinks">
+<h3>Hyperlinks<a class="headerlink" href="#hyperlinks" title="Permalink to this headline">¶</a></h3>
+<p>For referencing external links, use the inline format given in <a class="reference external" href="http://sphinx-doc.org/rest.html#hyperlinks">http://sphinx-doc.org/rest.html#hyperlinks</a></p>
+<p>Notice that external links will appear with discontinued underlining in the current PELE theme, but internal cross-references will simply appear as colored cursive text, with no underlining.</p>
+</div>
+<div class="section" id="copyright-notice">
+<h3>Copyright notice<a class="headerlink" href="#copyright-notice" title="Permalink to this headline">¶</a></h3>
+<p>Since the copyright notice is included in the general template for all pages, you do not have to add any copyright text to the documentation pages. Sphinx will take care of it.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">How to contribute to the documentation</a><ul>
+<li><a class="reference internal" href="#notes-on-writing-a-page-of-documentation">Notes on writing a page of documentation</a><ul>
+<li><a class="reference internal" href="#structure">Structure</a></li>
+<li><a class="reference internal" href="#cross-references">Cross-references</a></li>
+<li><a class="reference internal" href="#footnotes">Footnotes</a></li>
+<li><a class="reference internal" href="#citations">Citations</a></li>
+<li><a class="reference internal" href="#mathematics">Mathematics</a></li>
+<li><a class="reference internal" href="#file-names">File names</a></li>
+<li><a class="reference internal" href="#examples-and-source-code">Examples and source code</a></li>
+<li><a class="reference internal" href="#hyperlinks">Hyperlinks</a></li>
+<li><a class="reference internal" href="#copyright-notice">Copyright notice</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="errorMessages.html"
+                        title="previous chapter">PELE Error Messages</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="references.html"
+                        title="next chapter">References</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/howToContributeToDocs.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="references.html" title="References"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="errorMessages.html" title="PELE Error Messages"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PELE 1.5.rev12489 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2016 BARCELONA SUPERCOMPUTING CENTER. See the COPYRIGHT file at the top-level directory of this distribution. 
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.6.
+    <a href="index.html#license">License</a>.
+    </div>
+  </body>
+</html>

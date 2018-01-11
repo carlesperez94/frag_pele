@@ -1,0 +1,438 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Perturbation Block in Pele++ control file &mdash; PELE 1.5.rev12489 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/naturemodified.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.5.rev12489',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PELE 1.5.rev12489 documentation" href="../index.html" />
+    <link rel="up" title="PELESimulation command" href="../PELE/PELESimulation_index.html" />
+    <link rel="next" title="ANM Block in Pele++ control file" href="../ANM/Anm.html" />
+    <link rel="prev" title="NonBonding in Pele++ control file" href="../NonBonding/NonBondingAlgorithms.html" /> 
+    <script type="text/javascript" >
+    MathJax.Hub.Config({
+        TeX: { 
+	  Macros: {
+	    AA: '{\\unicode{xC5}}'
+	  }
+	}
+    });
+    </script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../ANM/Anm.html" title="ANM Block in Pele++ control file"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../NonBonding/NonBondingAlgorithms.html" title="NonBonding in Pele++ control file"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12489 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../PELE/PELESimulation_index.html" accesskey="U">PELESimulation command</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="perturbation-block-in-pele-control-file">
+<span id="sec-perturbation"></span><h1>Perturbation Block in Pele++ control file<a class="headerlink" href="#perturbation-block-in-pele-control-file" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-json"><div class="highlight"><pre><span></span>&quot;Perturbation&quot;: {
+    &quot;perturbationType&quot;: &quot;naive&quot;,
+    &quot;rotationAngles&quot;: &quot;nonCoupled&quot;,
+    &quot;translationDirection&quot;: &quot;steered&quot;,
+    &quot;translationRangeType&quot;: &quot;spherical&quot;,
+    &quot;parameters&quot;: {
+        &quot;numberOfStericTrials&quot;: 200,
+        &quot;numberOfTrials&quot;: 5,
+        &quot;translationRange&quot;: 1.75,
+        &quot;rotationScalingFactor&quot;: 0.1,
+    &quot;rotationMidrangeFactor&quot;: 0.25,
+        &quot;streeringUpdateFrequency&quot;: 5,
+        &quot;overlapFactor&quot;:0.5
+    }
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="perturbation-selection">
+<h2>Perturbation selection<a class="headerlink" href="#perturbation-selection" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="perturbationtype">
+<h3>perturbationType<a class="headerlink" href="#perturbationtype" title="Permalink to this headline">¶</a></h3>
+<p>Use: It selects the ligand perturbation that is going to be used.</p>
+<p>Possible values:</p>
+<ul class="simple">
+<li>&#8220;naive&#8221;: Selects the best ligand conformation (i.e. the one with
+lowest energy) of a certain number of random movements.</li>
+<li>&#8220;metropolis&#8221;: The ligand performs a random walk using the Metropolis
+algorithm.</li>
+</ul>
+<p>Default value: No default value. You must indicate it.</p>
+</div>
+<div class="section" id="translationdirection">
+<h3>translationDirection<a class="headerlink" href="#translationdirection" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: TranslationDirectionGenerator *
+translationDirectionGenerator</p>
+<p>Use: Selects the translation direction generation.</p>
+<p>Note for developers: Used in AtomSetMover.</p>
+<p>Possible values:</p>
+<ul class="simple">
+<li>&#8220;random&#8221;: Chooses a complete random direction.</li>
+<li>&#8220;steered&#8221;: Chooses a direction with a Gaussian dispersion with
+respect to the steering vector. The steering vector is updated
+according to the &#8220;steeringUpdateFrequency&#8221;.</li>
+</ul>
+<p>Default value: &#8220;random&#8221;</p>
+<p>Plop info:</p>
+<ul class="simple">
+<li>Plop control file name: steered</li>
+<li>Plop parameter name: liga_lig%steered</li>
+<li>Plop default value: 0</li>
+</ul>
+</div>
+<div class="section" id="translationrangetype">
+<h3>translationRangeType<a class="headerlink" href="#translationrangetype" title="Permalink to this headline">¶</a></h3>
+<p>Use: Select how to generate the translation vector modules using the
+&#8220;translationRange&#8221;.</p>
+<p>Possible values:</p>
+<ul class="simple">
+<li>&#8220;spherical&#8221;: The translation vector is allowed to be inside a sphere
+centered in the perturbed atom set. That is, the vector modulus is
+drawn from a uniform distribution in [0,&#8221;translationRange&#8221;].</li>
+<li>&#8220;centered&#8221;: The translation vector modulus is drawn from a uniform
+distribution centered on &#8220;translatinRange&#8221;, [0.75 *
+&#8220;translationRange&#8221;, 1.25 * &#8220;translationRange&#8221;].</li>
+</ul>
+<p>Default value: &#8220;centered&#8221;</p>
+<p>Plop info: There is no equivalence in Plop</p>
+</div>
+<div class="section" id="rotationangles">
+<h3>rotationAngles<a class="headerlink" href="#rotationangles" title="Permalink to this headline">¶</a></h3>
+<p>There are two options to generate the rotation angles using the
+rotationScalingFactor.</p>
+<p>Default value: &#8220;nonCoupled&#8221;</p>
+<ul>
+<li><p class="first">coupled: The same rotationScalingFactor is used for every angle.</p>
+<blockquote>
+<div><ul class="simple">
+<li><span class="math">\(\phi = \text{rotationScalingFactor} * \text{rand}(-2\pi, 2\pi)\)</span></li>
+<li><span class="math">\(\psi = \text{rotationScalingFactor} * \text{rand}(-2\pi, 2\pi)\)</span></li>
+<li><span class="math">\(\theta = \text{rotationScalingFactor} * \text{rand}(-\pi, \pi)\)</span></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>where <span class="math">\(\phi\)</span>, <span class="math">\(\psi\)</span>, and <span class="math">\(\theta\)</span> are the rotation angles and <span class="math">\(\text{rand}(a,b)\)</span> is a random
+number in the interval between brackets.</p>
+<ul class="simple">
+<li>nonCoupled: Randomly, rotationScalingFactor is assigned to either 1,
+2 or 3 angles at random. For the rest, a rotationScalingFactor of
+0.02 is assigned. The angle is computed as follows: for a target
+angle <span class="math">\(\text{TA} = \text{FAR} * \text{rotationScalingFactor}\)</span>, <span class="math">\(\text{angle} = \text{sign}(\text{rand}) * \text{rand}((1-\text{RRF})*\text{TA}, (1+\text{RRF}) * \text{TA})\)</span>, where FAR (full angle range) is <span class="math">\(2\pi\)</span> for
+<span class="math">\(\phi\)</span> and <span class="math">\(\psi\)</span>, and <span class="math">\(\pi\)</span> for <span class="math">\(\theta\)</span>, and RRF is the rotationRangeFactor.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="parameters">
+<span id="sec-perturbation-parameters"></span><h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="numberofsteps">
+<h3>numberOfSteps<a class="headerlink" href="#numberofsteps" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: unsigned int numberOfSteps</p>
+<p>Use: Number of steps in the &#8216;metropolis&#8217; algorithm.</p>
+<p>Note for developers: Used in LigandPerturbationMetropolis::perturbLigand</p>
+<p>Range: An integer in [1,inf).</p>
+<p>Units: Dimensionless.</p>
+<p>Default value: 1000.</p>
+<p>Plop info: There is no equivalence in Plop</p>
+</div>
+<div class="section" id="numberoftrials">
+<h3>numberOfTrials<a class="headerlink" href="#numberoftrials" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: unsigned int numberOfTrials.</p>
+<p>Use: Number of iterations in the &#8216;naive&#8217; algorithm.</p>
+<p>Note for developers: Used in LigandPerturbationNaive::perturbLigand.</p>
+<p>Range: An integer in [1,inf).</p>
+<p>Units: Dimensionless.</p>
+<p>Default value: 10</p>
+<p>Plop info:</p>
+<ul class="simple">
+<li>Plop control file name: &#8216;tries&#8217;</li>
+<li>Plop parameter name: liga_params%tries</li>
+<li>Plop default value: 1</li>
+</ul>
+</div>
+<div class="section" id="numberofsterictrials">
+<h3>numberOfStericTrials<a class="headerlink" href="#numberofsterictrials" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: unsigned int numberOfStericTries.</p>
+<p>Use: Number of tries to get a non-clashing conformation for each trial
+in &#8216;numberOfTrials&#8217;.</p>
+<p>Note for developers: Used in LigandPerturbationNaive::perturbLigand.</p>
+<p>Range: An integer in [1,inf).</p>
+<p>Units: Dimensionless.</p>
+<p>Default value: 500</p>
+<p>Plop info:</p>
+<ul class="simple">
+<li>Plop control file name: &#8216;steric_tr&#8217;</li>
+<li>Plop parameter name: liga_params%max_steric_tries</li>
+<li>Plop default value: 1000</li>
+</ul>
+</div>
+<div class="section" id="atleastoneselectedtrial">
+<h3>atLeastOneSelectedTrial<a class="headerlink" href="#atleastoneselectedtrial" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: boolean atLeastOneSelectedTrial.</p>
+<p>Use: Whether to do the perturbation phase to last until, at least, one
+trial has been selected. However, at most maxTrialsForAtLeastOne trials
+would ever be done.</p>
+<p>Default value: false</p>
+<p>Plop info: There is no equivalence in Plop.</p>
+</div>
+<div class="section" id="maxtrialsforatleastone">
+<h3>maxTrialsForAtLeastOne<a class="headerlink" href="#maxtrialsforatleastone" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: unsigned int numberOfStericTries.</p>
+<p>Use: Only considered if atLeastOneSelectedTrial is true. In such a case,
+it is the maximum number of iterations/steps done in the perturbation.</p>
+<p>Range: An integer in [1,inf).</p>
+<p>Units: Dimensionless.</p>
+<p>Default value: 1000</p>
+<p>Plop info: There is no equivalence in Plop.</p>
+</div>
+<div class="section" id="rotationscalingfactor">
+<h3>rotationScalingFactor<a class="headerlink" href="#rotationscalingfactor" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: double rotationScalingFactor.</p>
+<p>Use: Factor used to generate the rotation angles.</p>
+<p>Note for developers: Used in LigandPerturbation::rotateRandomly.</p>
+<p>Range: [0, 0.5]</p>
+<p>Units: Dimensionless.</p>
+<p>Default value: 0.5</p>
+<p>Plop info:</p>
+<ul class="simple">
+<li>Plop control file name: &#8216;rot_r&#8217;</li>
+<li>Plop parameter name: liga_params%rot_range</li>
+<li>Plop default value: 0</li>
+</ul>
+</div>
+<div class="section" id="rotationrangefactor">
+<h3>rotationRangeFactor<a class="headerlink" href="#rotationrangefactor" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: double rotationRangeFactor.</p>
+<p>Use: Factor used to generate the range of allowed rotation angles. Given
+a rotation angle target value TA, the allowed range of angles will be
+[(1-RRF)*TA, (1+RRF)*TA)], being RRF the rotationRangeFactor.</p>
+<p>Note for developers: Used in LigandPerturbation::rotateRandomly.</p>
+<p>Range: [0, 1.0]</p>
+<p>Units: Dimensionless.</p>
+<p>Default value: 0.25</p>
+<p>Plop info: There is no equivalence in Plop.</p>
+</div>
+<div class="section" id="translationrange">
+<h3>translationRange<a class="headerlink" href="#translationrange" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: double translationRange.</p>
+<p>Use: Factor in the length of the random translation.</p>
+<p><span class="math">\(\text{shift} = \text{translationRange} * \text{rand}(1,2)\)</span></p>
+<p>Note for developers: Used in LigandPerturbation::translateRandomly.</p>
+<p>Range: (0,inf)</p>
+<p>Units: <span class="math">\(\AA{}\)</span></p>
+<p>Default value: 1</p>
+<p>Plop info:</p>
+<ul class="simple">
+<li>Plop control file name: &#8216;tra_r&#8217;</li>
+<li>Plop parameter name: liga_params%tr_range</li>
+<li>Plop default value: 0</li>
+</ul>
+</div>
+<div class="section" id="overlapfactor">
+<h3>overlapFactor<a class="headerlink" href="#overlapfactor" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: double overlapFactor.</p>
+<p>Use: See side chain section for more information.</p>
+<p>Note for developers: Used to find and relieve ligand side chain clashes
+in ClashesReliever and Perturbation.</p>
+<p>Range: [0,inf)</p>
+<p>Units: Dimensionless.</p>
+<p>Default value: 0.6</p>
+<p>Plop info: Plop uses the same overlap factor that uses for the proteins.</p>
+<ul class="simple">
+<li>Plop control file name: &#8216;ofac_min&#8217;</li>
+<li>Plop parameter name: side_params%tree_params%ofac_min</li>
+<li>Plop default value: 0.7</li>
+</ul>
+</div>
+<div class="section" id="temperature">
+<h3>temperature<a class="headerlink" href="#temperature" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: double temperature.</p>
+<p>Use: Used in the acceptance criterion in the ligand perturbation
+Metropolis algorithm.</p>
+<p>Note for developers: Used in
+LigandPerturbationMetropolis::perturbLigand.</p>
+<p>Range: (0,inf)</p>
+<p>Units: K</p>
+<p>Default value: 200000 (this makes for a 0.5 probability of accepting
+energies about 275 kcal/mol higher)</p>
+<p>Plop info: There is no equivalence in Plop.</p>
+</div>
+<div class="section" id="steeringupdatefrequency">
+<h3>steeringUpdateFrequency<a class="headerlink" href="#steeringupdatefrequency" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: unsigned int steeringVectorUpdateFrequency</p>
+<p>Use: If steering, frequency to update the steering direction. If it is
+set to 0, then steering is deactivated and a random translation
+direction is used, until this parameter is changed again to a value
+greater than 0.</p>
+<p>If this parameter is modified using the parametersChanges option, and
+the new value is the same as before, then simulation continues as if
+this parameter had not been changed (that is, if there remained two
+steps for updating the steering vector, there still remain those two
+steps).</p>
+<p>Note for developers: Used in the translation direction generation.</p>
+<p>Range: (0,inf)</p>
+<p>Units: Dimensionless</p>
+<p>Default value: 2</p>
+<p>Plop info:</p>
+<ul class="simple">
+<li>Plop control file name: waitfor</li>
+<li>Plop parameter name: liga_params%wait</li>
+<li>Plop default value: 1</li>
+</ul>
+</div>
+<div class="section" id="gridresolution">
+<h3>gridResolution<a class="headerlink" href="#gridresolution" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: double gridResolution</p>
+<p>Use: Resolution of the rotamer library to be used for the &#8216;non-polar&#8217;
+part of non-ligand links (the polar part always uses the resolution
+given in the link-type rotamer library file for the polar atom) when
+relieving clashes in the perturbation. Ligand links always use the
+resolution stated in the rotamer library file for that link; therefore
+this parameter does not affect them. The angles a rotamer can take are
+divided in bins of length &#8216;gridResolution&#8217; degrees.</p>
+<p>Units: Degrees</p>
+<p>Range: It can take any value, generally 10, 20, 30, 40 (these are the
+only values allowed for standard protein residues). If an unsupported
+resolution is chosen, it is set to the base resolution for each type of
+link, which is 10 in the standard protein residues.</p>
+<p>Default value: 10</p>
+<p>Plop info: ??</p>
+</div>
+</div>
+<div class="section" id="boxes">
+<h2>Boxes<a class="headerlink" href="#boxes" title="Permalink to this headline">¶</a></h2>
+<p>See <a class="reference internal" href="../Boxes/Boxes.html#sec-boxes"><span>box</span></a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Perturbation Block in Pele++ control file</a><ul>
+<li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#perturbation-selection">Perturbation selection</a><ul>
+<li><a class="reference internal" href="#perturbationtype">perturbationType</a></li>
+<li><a class="reference internal" href="#translationdirection">translationDirection</a></li>
+<li><a class="reference internal" href="#translationrangetype">translationRangeType</a></li>
+<li><a class="reference internal" href="#rotationangles">rotationAngles</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#parameters">Parameters</a><ul>
+<li><a class="reference internal" href="#numberofsteps">numberOfSteps</a></li>
+<li><a class="reference internal" href="#numberoftrials">numberOfTrials</a></li>
+<li><a class="reference internal" href="#numberofsterictrials">numberOfStericTrials</a></li>
+<li><a class="reference internal" href="#atleastoneselectedtrial">atLeastOneSelectedTrial</a></li>
+<li><a class="reference internal" href="#maxtrialsforatleastone">maxTrialsForAtLeastOne</a></li>
+<li><a class="reference internal" href="#rotationscalingfactor">rotationScalingFactor</a></li>
+<li><a class="reference internal" href="#rotationrangefactor">rotationRangeFactor</a></li>
+<li><a class="reference internal" href="#translationrange">translationRange</a></li>
+<li><a class="reference internal" href="#overlapfactor">overlapFactor</a></li>
+<li><a class="reference internal" href="#temperature">temperature</a></li>
+<li><a class="reference internal" href="#steeringupdatefrequency">steeringUpdateFrequency</a></li>
+<li><a class="reference internal" href="#gridresolution">gridResolution</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#boxes">Boxes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../NonBonding/NonBondingAlgorithms.html"
+                        title="previous chapter">NonBonding in Pele++ control file</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../ANM/Anm.html"
+                        title="next chapter">ANM Block in Pele++ control file</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Perturbation/Perturbation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../ANM/Anm.html" title="ANM Block in Pele++ control file"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../NonBonding/NonBondingAlgorithms.html" title="NonBonding in Pele++ control file"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12489 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../PELE/PELESimulation_index.html" >PELESimulation command</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2016 BARCELONA SUPERCOMPUTING CENTER. See the COPYRIGHT file at the top-level directory of this distribution. 
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.6.
+    <a href="../index.html#license">License</a>.
+    </div>
+  </body>
+</html>

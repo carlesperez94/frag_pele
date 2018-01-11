@@ -1,0 +1,393 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PELE default parameters &mdash; PELE 1.5.rev12489 documentation</title>
+    
+    <link rel="stylesheet" href="_static/naturemodified.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.5.rev12489',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PELE 1.5.rev12489 documentation" href="index.html" />
+    <link rel="up" title="Reference Manual" href="referenceManual.html" />
+    <link rel="next" title="PELE Error Messages" href="errorMessages.html" />
+    <link rel="prev" title="PELE File Formats" href="fileFormats.html" /> 
+    <script type="text/javascript" >
+    MathJax.Hub.Config({
+        TeX: { 
+	  Macros: {
+	    AA: '{\\unicode{xC5}}'
+	  }
+	}
+    });
+    </script>
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="errorMessages.html" title="PELE Error Messages"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="fileFormats.html" title="PELE File Formats"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PELE 1.5.rev12489 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="referenceManual.html" accesskey="U">Reference Manual</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pele-default-parameters">
+<span id="sec-defaultparameters"></span><h1>PELE default parameters<a class="headerlink" href="#pele-default-parameters" title="Permalink to this headline">¶</a></h1>
+<p>This section shows a complete control file with the default values for all parameters in the control file, in the case of a PELE simulation. When each parameter is explained in the documentation, its default value is provided. This section wants to be a quick reference for all the default values of all parameters.</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>{
+ // Complete set of default PELE simulation parameters
+
+ &quot;simulationLogPath&quot;: &quot;&quot;,
+ &quot;controlFileSavingPath&quot;: &quot;&quot;,
+ &quot;Initialization&quot;: {
+   // Either the Complex or MultipleComplex sections must be present
+   // Here, only the Complex section is shown.
+   &quot;Complex&quot;: {
+      // There is no default for the Complex files, but, of course,
+      // the complex must be present. The following is an example:
+      &quot;files&quot;: [{&quot;path&quot;: &quot;complex.pdb&quot;}]
+   },
+   &quot;fixTrees&quot;: true,
+   &quot;fixChainNames&quot;: false,
+   &quot;allowMissingTerminals&quot;: false,
+   &quot;Solvent&quot;: {
+     // If the Solvent block is not defined, then the default
+     // solventType is VACUUM.
+     &quot;solventType&quot;: &quot;SGBNP&quot;,
+     &quot;useDebyeLength&quot;: true,
+     // ionicStrength only makes sense if useDebyeLength is true and
+     // the solvent is different from VACUUM.
+     &quot;ionicStrength&quot;: 0.15
+   },
+   &quot;ForceField&quot;: &quot;OPLS2005&quot;
+ },
+ &quot;commands&quot;: [
+   { 
+     &quot;commandType&quot;: &quot;peleSimulation&quot;,
+
+     // The selectionToPerturb has no default
+     // It must be the user who identifies the chain to perturb,
+     // in case there is something to perturb.
+     // In this example, it corresponds to chain L
+     &quot;selectionToPerturb&quot;: { &quot;chains&quot;: { &quot;names&quot;: [&quot;L&quot;] } },
+     &quot;NonBonding&quot;: {
+       &quot;nonBondingVersion&quot;: &quot;NB_GEN_MSCALE&quot;,
+       &quot;cutoffList&quot;:
+               [ {&quot;type&quot;: &quot;shortNeutrumNeutrum&quot;, &quot;value&quot;: 10},
+                 {&quot;type&quot;: &quot;shortChargedNeutrum&quot;, &quot;value&quot;: 10},
+                 {&quot;type&quot;: &quot;shortChargedCharged&quot;, &quot;value&quot;: 15},
+                 {&quot;type&quot;: &quot;longNeutrumNeutrum&quot;, &quot;value&quot;: 15},
+                 {&quot;type&quot;: &quot;longChargedNeutrum&quot;, &quot;value&quot;: 20},
+                 {&quot;type&quot;: &quot;longChargedCharged&quot;, &quot;value&quot;: 30}
+               ]
+     },
+     // The following is considered for all minimizations done
+     &quot;includeInMinimization&quot;: {&quot;chains&quot;: &quot;all&quot;},
+     &quot;doNotIncludeInMinimization&quot;: &quot;empty&quot;,
+     // end of minimization related selections
+
+     &quot;PELE_Parameters&quot;: { 
+       &quot;temperature&quot;: 1000,
+       &quot;numberOfPeleSteps&quot;: 1000,
+       &quot;anmFrequency&quot;: 2,
+       &quot;minimizationFrequency&quot;: 1,
+       &quot;sideChainPredictionFrequency&quot;: 3,
+       // The following only make sense if side chain prediction is used
+       &quot;numberOfTopSideSelectedLinks&quot;: 0,
+       &quot;topSideRadius&quot;: 0,
+       &quot;sideChainPredictionRegionRadius&quot;: 6.0,
+       // end of side chain prediction related fields
+       &quot;minimizationRegionRadius&quot;: 1000.0,
+       &quot;activateProximityDetection&quot;: true,
+       // proximityDistance is only considered when activateProximityDetection
+       // is true
+       &quot;proximityDistance&quot;: 5.0,
+       // perturbationCOMConstraintConstant only makes sense when 
+       // selectionToPerturb is defined
+       &quot;perturbationCOMConstraintConstant&quot;: 0
+     },
+     &quot;PELE_Output&quot;: {
+       // Notice that MPI executions will append the trajectory
+       // number to the trajectory and report paths.
+       &quot;savingMode&quot;: &quot;savingTrajectory&quot;,
+       &quot;trajectoryPath&quot;: &quot;../../trajectory.pdb&quot;,
+       // stepsFolder is only used when savingMode is either 
+       // savingSteps or savingBoth
+       &quot;stepsFolder&quot;: &quot;&quot;,
+       &quot;savingFrequencyForAcceptedSteps&quot;: 1,
+       &quot;reportPath&quot;: &quot;../../test_report.txt&quot;,
+       &quot;initialPdbPath&quot;: &quot;&quot;,
+       &quot;finalPdbPath&quot;: &quot;&quot;,
+       &quot;flushingFrequency&quot;: 50,
+       &quot;controllerEventsLogPath&quot;: &quot;&quot;
+     },
+     // constrains are needed for some simulations.
+     // constraints come here. There are no default values for the 
+     // different constraint types
+     &quot;constraints&quot;: [],
+     // PELE tasks come here. 
+     // If no tasks are included, 
+     // an empty list must be written, as is shown:
+     // example empty list: &quot;PeleTask&quot;: [],
+     &quot;PeleTasks&quot;: [
+       {
+         // metrics go here. This is an example for a single task.
+         &quot;metrics&quot;: [
+	  // Only the &quot;rmsd&quot; metric has default values.
+	  // For all metrics, &quot;logIt&quot; is true by default
+	  // In the metrics section, besides metrics,
+	  // also state trackers are allowed, but are not typically used
+	  {
+	    &quot;type&quot;: &quot;rmsd&quot;,
+	    // tags are optional
+	    // &quot;tag&quot;: &quot;rmsd1&quot;,
+	    &quot;logIt&quot;: true,
+	    // Native has no default, but must be specified:
+	    &quot;Native&quot;: { &quot;path&quot;: &quot;native.pdb&quot;},
+	    // By default, if no selection is specified,
+	    // all atoms are specified.
+	    // The following example selects chain L:
+	    // &quot;selection&quot;: { &quot;chains&quot;: { &quot;names&quot;: [&quot;L&quot;] } },
+	    &quot;selection&quot;: {&quot;chains&quot;: &quot;all&quot;},
+	    &quot;doSuperposition&quot;: true,
+	    // if not specified, superpositionSelection is the same as in
+	    // selection.
+	    // superpositionSelection is only used when doSuperposition
+	    // is true
+	    // &quot;superpositionSelection&quot;: { &quot;chains&quot;: { &quot;names&quot;: [&quot;L&quot;] } }
+	    &quot;includeHydrogens&quot;: false
+	  }
+	 ]
+       }
+     ],
+     // RandomGenerator can be used to force the same seed every time,
+     // allowing for reproducibility of results. By default,
+     // the time is used to generate the seed.
+     // An example RandomGenerator:
+     // &quot;RandomGenerator&quot;: { &quot;seed&quot;: 1234 },
+     
+     // Perturbation only happens if the perturbation block is present.
+     &quot;Perturbation&quot;: {
+       &quot;perturbationType&quot;: &quot;naive&quot;,
+       &quot;translationDirection&quot;: &quot;random&quot;,
+       &quot;translationRangeType&quot;: &quot;centered&quot;,
+       &quot;rotationAngles&quot;: &quot;nonCoupled&quot;,
+       &quot;parameters&quot;: {
+         // These parameters only make sense for perturbationType naive
+	 &quot;numberOfTrials&quot;: 10,
+	 &quot;numberOfStericTrials&quot;: 500,
+         // These parameters only make sense for perturbationType metropolis
+         &quot;numberOfSteps&quot;: 1000,
+	 &quot;temperature&quot;: 200000,
+	 // These parameters are common to all perturbationTypes
+	 &quot;atLeastOneSelectedTrial&quot;: false,
+	 // maxTrialsForAtLeastOne only makes sense if 
+	 // atLeastOneSelectedTrial is true
+	 &quot;maxTrialsForAtLeastOne&quot;: 1000,
+	 &quot;rotationScalingFactor&quot;: 0.5,
+	 &quot;rotationRangeFactor&quot;: 0.25,
+	 &quot;translationRange&quot;: 1,
+	 &quot;overlapFactor&quot;: 0.6,
+	 &quot;steeringUpdateFrequency&quot;: 2,
+	 &quot;gridResolution&quot;: 30
+	 // A Box would come here as &quot;Box&quot;: {}
+       }
+     },
+     &quot;ANM&quot;: {
+       &quot;algorithm&quot;: &quot;ALPHACARBONS&quot;,
+       // When using &quot;CARTESIANS&quot; as algorithm, a &quot;nodes&quot; selection must be used
+       // By default, &quot;nodes&quot; selects all atoms (for &quot;CARTESIANS&quot;).
+       
+       // If loading modes from a file, you have to use &quot;preloadedModesIn&quot;,
+       // specifying the file
+       // &quot;preloadedModesIn&quot;: &quot;myfile&quot;,
+       &quot;linksToInclude&quot;: { &quot;chains&quot;: &quot;everythingButLigands&quot;},
+       &quot;linksToOmit&quot;: &quot;empty&quot;,
+       &quot;options&quot;: {
+         &quot;pickingCase&quot;: &quot;RANDOM_MODE&quot;,
+         &quot;definedMode&quot;: 1,
+         &quot;directionGeneration&quot;: &quot;random&quot;,
+         &quot;initialDirection&quot;: 1.0,
+         &quot;modesMixingOption&quot;: &quot;mixMainModeWithOthersModes&quot;,
+         &quot;moveMagnitudeGeneration&quot;: &quot;noRandom&quot;,
+         &quot;elasticNetworkModel&quot;: &quot;powerContactModel&quot;
+	 },
+       &quot;parameters&quot;: {
+         &quot;displacementFactor&quot;: 1.0,
+	 &quot;numberOfModes&quot;: 6,
+	 &quot;thermalScaling&quot;: true,
+	 &quot;cutoff&quot;: 12.0,
+	 &quot;bondedConstantForHessian&quot;: 0.0,
+	 &quot;decayConstant&quot;: 1.0,
+	 &quot;constantForHessian&quot;: 1.667,
+	 &quot;steeringForce&quot;: 20.0,
+	 &quot;relaxationSpringConstant&quot;: 0,
+	 &quot;equilibriumParameter&quot;: 0.0,
+	 // A very high frequency effectively means that it should only be 
+	 // calculated the first time
+	 &quot;eigenUpdateFrequency&quot;: 1000000,
+	 &quot;modesChangeFrequency&quot;: 6,
+	 // mainModeWeightForMixModes is only used when
+	 // modesMixingOption is mixMainModeWithOthersModes
+	 &quot;mainModeWeightForMixModes&quot;: 0.6,
+	 // exponentialDistanceDecay is only used when
+	 // elasticNetworkModel is set to exponentialNetworkModel
+	 &quot;exponentialDistanceDecay&quot;: 5.0
+       },
+       &quot;anmMinimizer&quot;: {
+         &quot;algorithm&quot;: &quot;TruncatedNewton&quot;,
+	 &quot;parameters&quot;: {
+	   &quot;EnergyDifference&quot;: 1.0,
+	   &quot;MinimumRMS&quot;: 0.1,
+	   &quot;MaximumMinimizationIterations&quot;: 1,
+	   // The following are Truncated Newton parameters
+	   &quot;MaximumNewtonIterations&quot;: 30,
+	   &quot;nonBondingListUpdatedEachMinStep&quot;: false,
+	   &quot;alphaUpdated&quot;: false,
+	   &quot;sgbUpdated&quot;: false,
+	   &quot;iterationsBetweenNBlistLongUpdate&quot;: 2
+	 }
+       }
+     },
+     &quot;SideChainPrediction&quot;: {
+       &quot;algorithm&quot;: &quot;zhexin&quot;,
+       &quot;selectionToInclude&quot;: &quot;empty&quot;,
+       &quot;selectionToOmit&quot;: &quot;empty&quot;,
+       &quot;parameters&quot;: {
+         &quot;resolution&quot;: 30,
+	 &quot;initialOverlapFactor&quot;: 0.75,
+	 &quot;minimalOverlapFactor&quot;: 0.7,
+	 &quot;randomize&quot;: false,
+	 &quot;discardHighEnergySolutions&quot;: false,
+	 &quot;numberOfIterations&quot;: 1,
+	 // only in &quot;boltzmann&quot; algorithm.
+	 &quot;temperature&quot;: 2000	 	 
+       },
+       // if no sideChainMinimizer block is present, no minimization is done
+       &quot;sideChainMinimizer&quot;:  {
+         &quot;algorithm&quot;: &quot;TruncatedNewton&quot;,
+	 &quot;parameters&quot;: {
+	   &quot;EnergyDifference&quot;: 1.0,
+	   &quot;MinimumRMS&quot;: 0.1,
+	   &quot;MaximumMinimizationIterations&quot;: 3,
+	   // The following are Truncated Newton parameters
+	   &quot;MaximumNewtonIterations&quot;: 65,
+	   &quot;nonBondingListUpdatedEachMinStep&quot;: true,
+	   &quot;alphaUpdated&quot;: false,
+	   &quot;sgbUpdated&quot;: true,
+	   &quot;iterationsBetweenNBlistLongUpdate&quot;: 2
+	 }
+       }
+     },
+     &quot;Minimizer&quot;: {
+         &quot;algorithm&quot;: &quot;TruncatedNewton&quot;,
+	 &quot;parameters&quot;: {
+	   &quot;EnergyDifference&quot;: 1.0,
+	   &quot;MinimumRMS&quot;: 0.1,
+	   &quot;MaximumMinimizationIterations&quot;: 3,
+	   // The following are Truncated Newton parameters
+	   &quot;MaximumNewtonIterations&quot;: 65,
+	   &quot;nonBondingListUpdatedEachMinStep&quot;: true,
+	   &quot;alphaUpdated&quot;: false,
+	   &quot;sgbUpdated&quot;: true,
+	   &quot;iterationsBetweenNBlistLongUpdate&quot;: 2
+	   }
+     }
+   }
+ ]
+
+}
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="fileFormats.html"
+                        title="previous chapter">PELE File Formats</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="errorMessages.html"
+                        title="next chapter">PELE Error Messages</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/defaultParameters.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="errorMessages.html" title="PELE Error Messages"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="fileFormats.html" title="PELE File Formats"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PELE 1.5.rev12489 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="referenceManual.html" >Reference Manual</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2016 BARCELONA SUPERCOMPUTING CENTER. See the COPYRIGHT file at the top-level directory of this distribution. 
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.6.
+    <a href="index.html#license">License</a>.
+    </div>
+  </body>
+</html>

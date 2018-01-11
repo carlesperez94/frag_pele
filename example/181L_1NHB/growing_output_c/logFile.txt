@@ -1,0 +1,200 @@
+PELE version 1.5.0.12492_20170801
+[New Task] Task: 1
+* Complex
+Summary:
+Number of proteins: 1
+Number of DNA chains: 0
+Number of RNA chains: 0
+Number of Ligands: 1
+
+Loaded residues: 163
+All links
+
+Number of loaded atoms: 2622
+
+Topology Summary: 
+Number of parameterized bonds: 2642
+Number of parameterized angles: 4766
+Number of parameterized dihedrals: 6585
+Number of parameterized improper dihedrals: 529
+Number of 14 pairs: 6855
+
+Chain A_0 charge: 9.000
+Chain L_0 charge: 0.060
+Total charge: 9.060
+
+
+* Solvent.
+solventType: VDGBNP
+useDebyeLength: true
+ionicStrength: 0.15
+
+
+* Potential.
+ForceField: OPLS2005
+
+nonBondingVersion: NB_GEN_MSCALE
+shortNeutrumNeutrum: 10
+shortChargedNeutrum: 10
+shortChargedCharged: 15
+longNeutrumNeutrum: 15
+longChargedNeutrum: 20
+longChargedCharged: 30
+
+
+Simulation Permanent Constraints: Number of constraints: 17
+HarmonicConstraintOnAtom A:1:MET_:_CA_ to coordinates (43.457, -1.648, 9.475) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:10:ASP_:_CA_ to coordinates (43.609, 11.188, 8.175) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:20:ASP_:_CA_ to coordinates (39.931, 21.932, 10.193) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:30:GLY_:_CA_ to coordinates (39.54, 14.768, 14.972) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:40:ASN_:_CA_ to coordinates (37.421, 30.295, 24.694) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:50:ILE_:_CA_ to coordinates (36.946, 15.669, 29.2) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:60:LYS_:_CA_ to coordinates (46.993, 10.933, 24.07) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:70:ASP_:_CA_ to coordinates (33.253, 10.721, 18.068) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:80:ARG_:_CA_ to coordinates (19.607, 6.355, 13.711) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:90:SER_:_CA_ to coordinates (24.161, -2.661, 1.956) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:100:ILE_:_CA_ to coordinates (31.759, 6.428, 9.227) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:110:GLY_:_CA_ to coordinates (26.007, 16.648, 5.911) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:120:MET_:_CA_ to coordinates (24.783, 4.312, -6.139) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:130:ALA_:_CA_ to coordinates (33.109, 6.962, -6.531) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:140:ASN_:_CA_ to coordinates (36.91, 20.325, -3.033) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:150:ILE_:_CA_ to coordinates (36.458, 7.312, -2.377) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:160:ALA_:_CA_ to coordinates (43.973, 3.513, -0.143) equilibriumDistance: 0 k: 0.5
+
+Task Permanent Constraints
+Number of constraints: 0
+
+ANM Permanent Constraints
+Number of constraints: 0
+
+Atom Pulling Constraints
+Number of constraints: 0
+
+Constraints on Hydrogen Bonds
+Number of constraints: 0
+
+Perturbed Atom Set COM Constraints
+Number of constraints: 0
+
+
+
+
+
+* Pele parameters:
+temperature: 1000
+anmFrequency: 4
+minimizationFrequency: 1
+sideChainPredictionFrequency: 1
+minimizationRegionRadius: 1000
+sideChainPredictionRegionRadius: 6
+numberOfTopSideSelectedLinks: 0
+topSideRadius: 0
+activateProximityDetection: true, proximityDistance: 5
+perturbationCOMConstraintConstant: 1
+numberOfPeleSteps: 10
+
+* Movement step components:
+----------------------------
+** naive
+Parameters:
+gridResolution: 10
+overlapFactor: 0.5
+rotationScalingFactor: 0.5
+rotationRangeFactor: 0.25
+translationRange: 1
+TranslationRangeType: centered translation modulus generator
+TranslationDirection: RANDOM
+atLeastOneSelectedTrial: false
+numberOfStericTrials: 100
+numberOfTrials: 10
+
+
+** ANM:
+ANM Cartesian algorithm:
+Direction selection strategy:
+directionGeneration: random
+
+Mixing strategy:
+modesMixingOption: mixMainModeWithOthersModes
+mainModeWeightForMixModes: 0.75
+
+Magnitude calculation
+moveMagnitudeGeneration: noRandom
+
+Normal modes: 
+Modes calculated using Lapack
+cutoff: 12
+
+Modes picking strategy:
+pickingCase: RANDOM_MODE
+
+ANM parameters:
+numberOfModes: 6
+thermalScaling: true
+eigenUpdateFrequency: 1000000
+modesChangeFrequency: 4
+relaxationSpringConstant: 0.5
+Number of nodes: 102
+Node list: 
+A:1:MET_:_CA_ A:2:ASN_:_CA_ A:3:ILE_:_CA_ A:4:PHE_:_CA_ A:5:GLU_:_CA_ 
+A:6:MET_:_CA_ A:7:LEU_:_CA_ A:8:ARG_:_CA_ A:9:ILE_:_CA_ A:10:ASP_:_CA_ 
+A:71:VAL_:_CA_ A:72:ASP_:_CA_ A:73:ALA_:_CA_ A:74:ALA_:_CA_ A:75:VAL_:_CA_ 
+A:76:ARG_:_CA_ A:77:GLY_:_CA_ A:78:ILE_:_CA_ A:79:LEU_:_CA_ A:80:ARG_:_CA_ 
+A:81:ASN_:_CA_ A:82:ALA_:_CA_ A:83:LYS_:_CA_ A:84:LEU_:_CA_ A:85:LYS_:_CA_ 
+A:86:PRO_:_CA_ A:87:VAL_:_CA_ A:88:TYR_:_CA_ A:89:ASP_:_CA_ A:90:SER_:_CA_ 
+A:91:LEU_:_CA_ A:92:ASP_:_CA_ A:93:ALA_:_CA_ A:94:VAL_:_CA_ A:95:ARG_:_CA_ 
+A:96:ARG_:_CA_ A:97:ALA_:_CA_ A:98:ALA_:_CA_ A:99:ALA_:_CA_ A:100:ILE_:_CA_ 
+A:101:ASN_:_CA_ A:102:MET_:_CA_ A:103:VAL_:_CA_ A:104:PHE_:_CA_ A:105:GLN_:_CA_ 
+A:106:MET_:_CA_ A:107:GLY_:_CA_ A:108:GLU_:_CA_ A:109:THR_:_CA_ A:110:GLY_:_CA_ 
+A:111:VAL_:_CA_ A:112:ALA_:_CA_ A:113:GLY_:_CA_ A:114:PHE_:_CA_ A:115:THR_:_CA_ 
+A:116:ASN_:_CA_ A:117:SER_:_CA_ A:118:LEU_:_CA_ A:119:ARG_:_CA_ A:120:MET_:_CA_ 
+A:121:LEU_:_CA_ A:122:GLN_:_CA_ A:123:GLN_:_CA_ A:124:LYS_:_CA_ A:125:ARG_:_CA_ 
+A:126:TRP_:_CA_ A:127:ASP_:_CA_ A:128:GLU_:_CA_ A:129:ALA_:_CA_ A:130:ALA_:_CA_ 
+A:131:VAL_:_CA_ A:132:ASN_:_CA_ A:133:LEU_:_CA_ A:134:ALA_:_CA_ A:135:LYS_:_CA_ 
+A:136:SER_:_CA_ A:137:ARG_:_CA_ A:138:TRP_:_CA_ A:139:TYR_:_CA_ A:140:ASN_:_CA_ 
+A:141:GLN_:_CA_ A:142:THR_:_CA_ A:143:PRO_:_CA_ A:144:ASN_:_CA_ A:145:ARG_:_CA_ 
+A:146:ALA_:_CA_ A:147:LYS_:_CA_ A:148:ARG_:_CA_ A:149:VAL_:_CA_ A:150:ILE_:_CA_ 
+A:151:THR_:_CA_ A:152:THR_:_CA_ A:153:PHE_:_CA_ A:154:ARG_:_CA_ A:155:THR_:_CA_ 
+A:156:GLY_:_CA_ A:157:THR_:_CA_ A:158:TRP_:_CA_ A:159:ASP_:_CA_ A:160:ALA_:_CA_ 
+A:161:TYR_:_CA_ A:162:LYS_:_CA_A:1:MET_:_CA_ A:2:ASN_:_CA_ A:3:ILE_:_CA_ A:4:PHE_:_CA_ A:5:GLU_:_CA_ A:6:MET_:_CA_ A:7:LEU_:_CA_ A:8:ARG_:_CA_ A:9:ILE_:_CA_ A:10:ASP_:_CA_ A:71:VAL_:_CA_ A:72:ASP_:_CA_ A:73:ALA_:_CA_ A:74:ALA_:_CA_ A:75:VAL_:_CA_ A:76:ARG_:_CA_ A:77:GLY_:_CA_ A:78:ILE_:_CA_ A:79:LEU_:_CA_ A:80:ARG_:_CA_ A:81:ASN_:_CA_ A:82:ALA_:_CA_ A:83:LYS_:_CA_ A:84:LEU_:_CA_ A:85:LYS_:_CA_ A:86:PRO_:_CA_ A:87:VAL_:_CA_ A:88:TYR_:_CA_ A:89:ASP_:_CA_ A:90:SER_:_CA_ A:91:LEU_:_CA_ A:92:ASP_:_CA_ A:93:ALA_:_CA_ A:94:VAL_:_CA_ A:95:ARG_:_CA_ A:96:ARG_:_CA_ A:97:ALA_:_CA_ A:98:ALA_:_CA_ A:99:ALA_:_CA_ A:100:ILE_:_CA_ A:101:ASN_:_CA_ A:102:MET_:_CA_ A:103:VAL_:_CA_ A:104:PHE_:_CA_ A:105:GLN_:_CA_ A:106:MET_:_CA_ A:107:GLY_:_CA_ A:108:GLU_:_CA_ A:109:THR_:_CA_ A:110:GLY_:_CA_ A:111:VAL_:_CA_ A:112:ALA_:_CA_ A:113:GLY_:_CA_ A:114:PHE_:_CA_ A:115:THR_:_CA_ A:116:ASN_:_CA_ A:117:SER_:_CA_ A:118:LEU_:_CA_ A:119:ARG_:_CA_ A:120:MET_:_CA_ A:121:LEU_:_CA_ A:122:GLN_:_CA_ A:123:GLN_:_CA_ A:124:LYS_:_CA_ A:125:ARG_:_CA_ A:126:TRP_:_CA_ A:127:ASP_:_CA_ A:128:GLU_:_CA_ A:129:ALA_:_CA_ A:130:ALA_:_CA_ A:131:VAL_:_CA_ A:132:ASN_:_CA_ A:133:LEU_:_CA_ A:134:ALA_:_CA_ A:135:LYS_:_CA_ A:136:SER_:_CA_ A:137:ARG_:_CA_ A:138:TRP_:_CA_ A:139:TYR_:_CA_ A:140:ASN_:_CA_ A:141:GLN_:_CA_ A:142:THR_:_CA_ A:143:PRO_:_CA_ A:144:ASN_:_CA_ A:145:ARG_:_CA_ A:146:ALA_:_CA_ A:147:LYS_:_CA_ A:148:ARG_:_CA_ A:149:VAL_:_CA_ A:150:ILE_:_CA_ A:151:THR_:_CA_ A:152:THR_:_CA_ A:153:PHE_:_CA_ A:154:ARG_:_CA_ A:155:THR_:_CA_ A:156:GLY_:_CA_ A:157:THR_:_CA_ A:158:TRP_:_CA_ A:159:ASP_:_CA_ A:160:ALA_:_CA_ A:161:TYR_:_CA_ A:162:LYS_:_CA_ 
+
+Minimizer Truncated Newton algorithm:
+Parameters:
+EnergyDifference: 1
+MinimumRMS: 0.1
+MaximumMinimizationIterations: 1
+MaximumNewtonIterations: 30
+nonBondingListUpdatedEachMinStep: false
+sgbUpdated: false
+alphaUpdated: false
+iterationsBetweenNBlistLongUpdate: 2
+
+* Relaxation step components:
+----------------------------
+** Side Chain Prediction:
+Zhexin Algorithm:
+Parameters:
+discardHighEnergySolutions: false
+resolution: 10
+initialOverlapFactor: 0.75
+minimalOverlapFactor: 0.7
+numberOfIterations: 1
+randomize: false
+
+
+Minimizer Null minimizer algorithm:
+No parameters for the minimizer.
+
+** Relaxation constrained minimization
+Minimizer Truncated Newton algorithm:
+Parameters:
+EnergyDifference: 1
+MinimumRMS: 0.1
+MaximumMinimizationIterations: 3
+MaximumNewtonIterations: 65
+nonBondingListUpdatedEachMinStep: true
+sgbUpdated: true
+alphaUpdated: false
+iterationsBetweenNBlistLongUpdate: 2
+
+
