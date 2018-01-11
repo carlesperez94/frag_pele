@@ -4,9 +4,9 @@ import string
 import os
 import logging
 # Local imports
-import template_selector
-import template_fragmenter_2
-import simulations_linker
+import Growing.template_selector
+import Growing.template_fragmenter
+import Growing.simulations_linker
 
 # Logging constants
 LOG_FILENAME = "output.out"
@@ -131,10 +131,10 @@ def main(template_initial, template_final, n_files, transformation, control_file
 
     # Creating template files
     logger.info((TEMPLATE_MESSAGE.format(template_initial, template_final, n_files)))
-    templates = template_fragmenter_2.fragmenter(template_initial, template_final, transformation, n_files)
+    templates = Growing.template_fragmenter.fragmenter(template_initial, template_final, transformation, n_files)
     # Creating control files
     logger.info(SELECTED_MESSAGE.format(control_file, pdb, results_f_name))
-    control_files = simulations_linker.control_file_modifier(control_file, pdb, results_f_name, n_files)
+    control_files = Growing.simulations_linker.control_file_modifier(control_file, pdb, results_f_name, n_files)
 
     # Run Pele for each control file
 
@@ -143,27 +143,27 @@ def main(template_initial, template_final, n_files, transformation, control_file
         # Run Pele
         if not os.path.exists("{}_{}".format(results_f_name, string.ascii_lowercase[n])):
             os.mkdir("{}_{}".format(results_f_name, string.ascii_lowercase[n]))
-            simulations_linker.simulation_runner("control_file_grw_{}".format(string.ascii_lowercase[n]))
+            Growing.simulations_linker.simulation_runner("control_file_grw_{}".format(string.ascii_lowercase[n]))
             logger.info(FINISH_SIM_MESSAGE.format(string.ascii_lowercase[n]))
         else:
-            simulations_linker.simulation_runner("control_file_grw_{}".format(string.ascii_lowercase[n]))
+            Growing.simulations_linker.simulation_runner("control_file_grw_{}".format(string.ascii_lowercase[n]))
             logger.info(FINISH_SIM_MESSAGE.format(string.ascii_lowercase[n]))
         # Choose the best trajectory
         try:
-            template_selector.trajectory_selector("{}_{}".format(results_f_name, string.ascii_lowercase[n]),
-                                              "{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
-                                              "{}".format(criteria))
+            Growing.template_selector.trajectory_selector("{}_{}".format(results_f_name, string.ascii_lowercase[n]),
+                                                          "{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
+                                                          "{}".format(criteria))
         except FileNotFoundError:
             logger.exception(SELECT_ERROR_FNOTFOUND.format(results_f_name, string.ascii_lowercase[n]))
         except Exception:
             logger.exception(SELECT_ERROR_EXCEPT)
         try:
-            template_selector.change_ligandname("{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
-                                            "{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
+            Growing.template_selector.change_ligandname("{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
+                                                        "{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
         except FileNotFoundError:
             logger.exception(CHLG_ERROR_FNOTFOUND.format(pdb, string.ascii_lowercase[n + 1]))
         except Exception:
-            logger.exception()
+            logger.exception(CHLG_ERROR_EXCEPT)
         if not os.path.isfile("{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1])):
             logger.critical("We could not create {}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
             exit()
