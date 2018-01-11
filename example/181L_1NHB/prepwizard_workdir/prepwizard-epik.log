@@ -1,0 +1,93 @@
+COMMAND:
+ /opt/schrodinger2016-4/epik-v3.8/bin/Linux-x86_64/epik_app -imae /home/carlespl/project/grow/181L_1NHB/prepwizard_workdir/prepwizard-epik.mae -omae prepwizard-epik-out.mae -ms 10 -ph 7.0 -pht 3.0 -cg 0.3 0.3 -retain_i -metal_binding
+SCHRODINGER: /opt/schrodinger2016-4
+
+Running Epik version     3.8015
+Epik. Copyright Schrodinger, LLC. All rights reserved.
+
+Input file name:                        /home/carlespl/project/grow/181L_1NHB/prepwizard_workdir/prepwizard-epik.mae
+Output file name:                       prepwizard-epik-out.mae
+Maximum number of states set to: 10
+Structure adjustment calculation requested.
+  Target pH set to 7.000
+pHt tolerance set to 3.000000e+00
+Both connectivity and geometry used in determining redundant structures.
+  Structures are distinct if: 
+    any position differs by more than 3.000000e-01
+    the rms difference in positions is larger than 3.000000e-01
+Retain ionization state turned on
+Metal binding mode turned on.
+
+Adjusting structures for pH 7.000000e+00 and minimum probability 1.000000e-03
+Solvent model name:                     water
+[running at reduced cpu priority]
+JobID:                                  bsccls308-0-5a2580fc
+---------------------------
+Processing Input Structure #1
+        Title: 
+Metal Binding:    Using non-metal probability:          1.000000e+00
+                                              Calculated pKas
+                                                 Conjugate
+                                          Atom   Acid/Base  pKa
+. . . . . . . . . . . . . . . . . . . . . . .
+Variation: 1
+ pKa penalty:                                 0.00 kcal/mol
+     Charging penalty:                        0.00 kcal/mol
+     Neutralization penalty:                  0.00 kcal/mol
+ Overall Penalty (tautomerization included): -0.00 kcal/mol
+ Total Charge: -1
+ Metal Penalty:                              -0.00 kcal/mol
+---------------------------
+Processing Input Structure #2
+        Title: 
+Metal Binding:    Using non-metal probability:          1.000000e+00
+                                              Calculated pKas
+                                                 Conjugate
+                                          Atom   Acid/Base  pKa
+. . . . . . . . . . . . . . . . . . . . . . .
+Variation: 1
+ pKa penalty:                                 0.00 kcal/mol
+     Charging penalty:                        0.00 kcal/mol
+     Neutralization penalty:                  0.00 kcal/mol
+ Overall Penalty (tautomerization included): -0.00 kcal/mol
+ Total Charge: -1
+ Metal Penalty:                              -0.00 kcal/mol
+---------------------------
+Processing Input Structure #3
+        Title: 
+Metal Binding:    Using non-metal probability:          1.000000e+00
+                                              Calculated pKas
+                                                 Conjugate
+                                          Atom   Acid/Base  pKa
+. . . . . . . . . . . . . . . . . . . . . . .
+Variation: 1
+                                            11   Conj_Acid 13.97
+                                            18   Conj_Acid 13.97
+                                             2   Conj_Base -0.17
+                                             8   Conj_Base -0.17
+ pKa penalty:                                 0.00 kcal/mol
+     Charging penalty:                        0.00 kcal/mol
+     Neutralization penalty:                  0.00 kcal/mol
+ Overall Penalty (tautomerization included): -0.00 kcal/mol
+ Total Charge: 0
+ Metal Penalty:                              -0.00 kcal/mol
+---------------------------
+Processing Input Structure #4
+        Title: 
+Metal Binding:    Using non-metal probability:          1.000000e+00
+                                              Calculated pKas
+                                                 Conjugate
+                                          Atom   Acid/Base  pKa
+. . . . . . . . . . . . . . . . . . . . . . .
+Variation: 1
+ pKa penalty:                                 0.00 kcal/mol
+     Charging penalty:                        0.00 kcal/mol
+     Neutralization penalty:                  0.00 kcal/mol
+ Overall Penalty (tautomerization included): -0.00 kcal/mol
+ Total Charge: 0
+ Metal Penalty:                              -0.00 kcal/mol
+---------------------------
+
+real	0m1.448s
+user	0m0.952s
+sys	0m0.052s

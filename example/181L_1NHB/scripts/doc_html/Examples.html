@@ -1,0 +1,379 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>AdaptivePELE Overview &mdash; AdaptivePELE  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="AdaptivePELE  documentation" href="index.html"/>
+        <link rel="prev" title="validator Package" href="AdaptivePELE.validator.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> AdaptivePELE
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="AdaptivePELE.html">AdaptivePELE Package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">AdaptivePELE Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#general-params">general Params</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#simulation-params">simulation Params</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#clustering-params">clustering Params</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spawning-params">spawning Params</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">AdaptivePELE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>AdaptivePELE Overview</li>
+    <li class="wy-breadcrumbs-aside">
+      
+          
+          <a href="_sources/Examples.txt" rel="nofollow"> View page source</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="adaptivepele-overview">
+<h1>AdaptivePELE Overview<a class="headerlink" href="#adaptivepele-overview" title="Permalink to this headline">¶</a></h1>
+<p>This page will try to give you an overview of the program, enough to get you
+up and running. Adaptive sampling is called with a control file as a
+parameters. The control file is a json document that
+contains 4 sections: general parameters, simulation parameters, clustering
+parameters and spawning parameters. The first block refers to general
+parameters of the adaptive run, while the other three blocks configure the
+three steps of an adaptive sampling run, first run a propagation algorithm
+(simulation), then cluster the trajectories obtained (clustering) and finally
+select the best point to start the next iteration (spawning). This structure
+can be summarized in the flow diagram shown below:</p>
+<img alt="image trouble" class="align-center" src="_images/adaptiveDiagram.png" style="width: 900px; height: 900px;" />
+<div class="section" id="general-params">
+<h2>general Params<a class="headerlink" href="#general-params" title="Permalink to this headline">¶</a></h2>
+<p>The general parameters block has five mandatory fields:</p>
+<ul class="simple">
+<li>restart: <em>boolean</em> (true or false) This parameter specifies wether you want to
+continue a previous simulation or not</li>
+<li>debug: <em>boolean</em> Run adaptive in debug mode, without calling
+any propagation algorithm</li>
+<li>outputPath: <em>string</em> The path where the results of the simulation will be
+written</li>
+<li>initialStructures: <em>list</em> The path(s) to the intial structure(s)</li>
+<li>writeAllClusteringStructures: <em>boolean</em> Wether to write all the structures of
+the clusters</li>
+</ul>
+<p>Additionaly, it can also have a nativeStructure parameter, a string containing
+the path to the native structure. This structure will only be used to correct
+the RMSD in case of symmetries. The symmetries will also have to be specified
+(see <a class="reference internal" href="#clustering-params">clustering Params</a>).</p>
+</div>
+<div class="section" id="simulation-params">
+<h2>simulation Params<a class="headerlink" href="#simulation-params" title="Permalink to this headline">¶</a></h2>
+<p>Currently there are two implemented simulation types, PELE and test. The test
+type has no real use outside of testing. In futures version we plan to
+implement an MD type.</p>
+<p>In the PELE type the following parameters are mandatory:</p>
+<ul class="simple">
+<li>iterations: <em>integer</em> Number of adaptive sampling iterations to run</li>
+<li>processors: <em>integer</em> Number of processors to use with PELE</li>
+<li>peleSteps: <em>integer</em> Number of PELE steps in a iteration</li>
+<li>seed: <em>integer</em> Seed for the random number generator</li>
+<li>controlFile: <em>string</em> Path to the PELE control file templetized for use with
+adaptive</li>
+</ul>
+<p>Optionally, you can also use the following parameters:</p>
+<ul class="simple">
+<li>data: <em>string</em> Path to the Data folder needed for PELE, it is already
+included and should not be modified an specific version of PELE has to be
+used</li>
+<li>documents: <em>string</em> Path to the Documents folder needed for PELE, it is already
+included and should not be modified an specific version of PELE has to be
+used</li>
+<li>executable: <em>string</em> Path to the Pele executable folder, it is already
+included and should not be modified an specific version of PELE has to be
+used</li>
+<li>exitCondition: <em>dict</em> Block which specifies an exit condition for adaptive
+sampling. Currently only the metric type is implemented, this type accepts a
+<em>metricCol</em> which represents a column in the report file and a <em>exitValue</em>
+which represents a value. The simulation will terminate after the metric
+written in the <em>metricCol</em> reaches a value smaller than <em>exitValue</em></li>
+</ul>
+<p>An example of the exit condition block that would terminate the program after a
+trajectory reaches a value of less than 2 for the fourth column of the report
+file would look like:</p>
+<img alt="image trouble" class="align-center" src="_images/exitCond.png" style="width: 500px; height: 200px;" />
+</div>
+<div class="section" id="clustering-params">
+<h2>clustering Params<a class="headerlink" href="#clustering-params" title="Permalink to this headline">¶</a></h2>
+<p>Currently there are two functional types of clustering, Contacts Clustering and
+ContactMap Accumulative Clustering. Both follow the same strategy, they cluster
+the trajectories generated at the end of every trajectory with the previous
+trajectory.</p>
+<p>The Contacts Clustering does that by RMSD, that is, if the RMSD
+between two conformations is less than a certain threshold, the conformation is
+added to the cluster. The thresholds are usually assigned as a function of the
+ratio between the number of contacts of the ligand and the number of heavy
+atoms of the ligand. An atom of the ligand is considered to be in contact with
+an atom of the protein if the distance between them is less than a certain
+threshold. Two functions for the threshold calculator are implemented, <em>constant</em>
+which gives a constant value to all clusters and <em>heaviside</em> which creates a
+step function with steps at the points specified (See next image for an example
+of use).</p>
+<p>The ContactMap Accumulative Clustering does the same
+except that instead of the RMSD it uses the similarity between the contact maps
+of the two conformations. The contactMap is a boolean matrix with the protein
+atoms (or a subset of them) as columns and the ligand atoms (usually only the
+heavy atoms) as rows. The entries are only true if the specific ligand and
+receptor atoms are close enough (less than a contactTreshold). Currently there
+are three methods implemented to evaluate the similarity of contactMaps,
+<em>Jaccard</em> which calulates the Jaccard Index (<a class="reference external" href="https://en.wikipedia.org/wiki/Jaccard_index">Wikipedia page</a>),
+<em>correlation</em>, which calculates the correlation between the two matrices and
+<em>distance</em>, which evaluates the similarity of two contactMaps by calculating the
+ratio of the number of differences over the average of elements in the contacts
+maps.</p>
+<p>The following parameters are mandatory for the clustering block:</p>
+<ul class="simple">
+<li>ligandResname: <em>string</em> Residue name of the ligand in the PDB</li>
+<li>contactThresholdDistance: <em>float</em> Minimum distance at which two atoms have to
+be separated to be considered in contact</li>
+</ul>
+<p>Optionally, the following parameters can be specified:</p>
+<ul class="simple">
+<li>symmetries: <em>list</em> List of groups of key:value maps with the names of atoms
+that are symmetrical in the ligand</li>
+<li>similarityEvaluator: <em>string</em>  Name of the method to evaluate the similarity
+of contactMaps, only available for ContactMap Accumulative Clustering</li>
+</ul>
+<p>A typical setting of the thresholdCalculator for the contacts clustering might
+look like:</p>
+<img alt="image trouble" class="align-center" src="_images/thresholdCalculator.png" style="width: 700px; height: 400px;" />
+<p>In this exemple, clusters having a contacts ration greater than 1 have a
+treshold of 2, those with contacts ratio between 1 and 0.75 have a treshold of
+3, between 0.75 and 0.5 a threshold of 4 and the rest have a threshold size of
+5. This means that for greater contacts ratio, typically closer to the binding site,
+the cluster size will be smaller and therefore those regions will be more
+finely discretized.</p>
+</div>
+<div class="section" id="spawning-params">
+<h2>spawning Params<a class="headerlink" href="#spawning-params" title="Permalink to this headline">¶</a></h2>
+<p>Finally, Adaptive Sampling distributes the number of processors available over
+the clusters obtained. This process is called spawning. There are several
+strategies for this process, currently four are implemented:</p>
+<ol class="arabic simple">
+<li><em>sameWeight</em>: Distributes the processors uniformly over all clusters</li>
+<li><em>inverselyProportional</em>: Distributes the processors with a weight that is
+inversely proportional to the cluster population</li>
+<li><em>epsilon</em>: Does the same that inverselyProportional, except for a fraction of
+the processors, that are distributed according to the value of a certain metric</li>
+<li><em>variableEpsilon</em>: Does the same that epsilon, except that the fraction of
+processors changes over time</li>
+</ol>
+<p>The first two method take no parameters, the last two accept the following
+parameters:</p>
+<ul class="simple">
+<li>reportFilename: <em>string</em> Name of the files that contain the metrics of the
+trajectories</li>
+<li>metricColumnInReport: <em>integer</em> Column of the report file that contains the
+metric of interest (zero indexed)</li>
+<li>epsilon: <em>float</em> The fraction of the processors that will be assigned
+according to the metric selected</li>
+<li>metricWeights: <em>string</em> Selects how to distribute the weights of the cluster
+according to its metric, two options: linear(default) or Boltzmann weigths</li>
+<li>T: <em>float</em> Temperature, only used for Boltzmann weights</li>
+</ul>
+<p>The following parameters are mandatory for <em>variableEpsilon</em>:</p>
+<ul class="simple">
+<li>varEpsilonType: <em>string</em> Select the type of variation for the epsilon value.
+At the moment only a linear variation is implemented</li>
+<li>maxEpsilon: <em>float</em> Maximum value for epsilon</li>
+<li>minEpsilon: <em>float</em> Minimum value for epsilon</li>
+<li>variationWindow: <em>integer</em> Last iteration over which to change the epsilon
+value</li>
+<li>maxEpsilonWindow: <em>integer</em> Number of iteration with epsilon=maxEpsilon</li>
+<li>period: <em>integer</em> Perio of the variation (in number of iterations)</li>
+</ul>
+<p>Similarly than with the cluster threshold, a density for each cluster can be
+assigned as a function of the contacts ratio. There are two types of density
+calculators, <em>null</em> and <em>heaviside</em>. The first assigns a constant density of 1
+to all cluster (it is the default option), meanwhile, the second assigns
+different densities using a heaviside function, much like the
+thresholdCalculator.</p>
+<p>To summarize, below there is a screenshot of a simple functional control file:</p>
+<img alt="image trouble" class="align-center" src="_images/shortControlFile.png" style="width: 700px; height: 400px;" />
+<p>A more complete (altough not comprehensible) example would look like (clicking
+in the image will show a larger version of the image):</p>
+<img alt="image trouble" class="align-center" src="_images/longControlFile.png" style="width: 900px; height: 900px;" />
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="AdaptivePELE.validator.html" class="btn btn-neutral" title="validator Package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Daniel Lecina, Joan Francesc Gilabert.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
