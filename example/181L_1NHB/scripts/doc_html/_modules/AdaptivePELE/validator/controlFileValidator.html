@@ -1,0 +1,362 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>AdaptivePELE.validator.controlFileValidator &mdash; AdaptivePELE  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="AdaptivePELE  documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> AdaptivePELE
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../AdaptivePELE.html">AdaptivePELE Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Examples.html">AdaptivePELE Overview</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">AdaptivePELE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+        <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>AdaptivePELE.validator.controlFileValidator</li>
+    <li class="wy-breadcrumbs-aside">
+      
+          
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for AdaptivePELE.validator.controlFileValidator</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">validatorBlockNames</span>
+<span class="kn">from</span> <span class="nn">AdaptivePELE.constants</span> <span class="kn">import</span> <span class="n">blockNames</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numbers</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+
+<div class="viewcode-block" id="validate"><a class="viewcode-back" href="../../../AdaptivePELE.validator.html#AdaptivePELE.validator.controlFileValidator.validate">[docs]</a><span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="n">control_file</span><span class="p">):</span>
+    <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">control_file</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">jsonFile</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">print</span> <span class="n">jsonFile</span>
+        <span class="n">parsedJSON</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">jsonFile</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Invalid JSON file!&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">validatorBlockNames</span><span class="o">.</span><span class="n">ControlFileParams</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;__&#39;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">block_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">validatorBlockNames</span><span class="p">,</span>
+                            <span class="nb">eval</span><span class="p">(</span><span class="s">&quot;validatorBlockNames.ControlFileParams.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                                 <span class="n">block</span><span class="p">))</span>
+        <span class="n">controlfile_obj</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="s">&quot;blockNames.ControlFileParams.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">block</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">block</span> <span class="o">==</span> <span class="s">&quot;generalParams&quot;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">blockCorrect</span> <span class="o">=</span> <span class="n">validateGeneralBlock</span><span class="p">(</span><span class="n">block_obj</span><span class="p">,</span>
+                                                    <span class="n">parsedJSON</span><span class="p">[</span><span class="n">controlfile_obj</span><span class="p">])</span>
+                <span class="n">isCorrect</span> <span class="o">=</span> <span class="n">isCorrect</span> <span class="ow">and</span> <span class="n">blockCorrect</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Block </span><span class="si">%s</span><span class="s"> not found in control file!&quot;</span> <span class="o">%</span>
+                              <span class="n">controlfile_obj</span><span class="p">)</span>
+                <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">blockCorrect</span> <span class="o">=</span> <span class="n">validateBlock</span><span class="p">(</span><span class="n">block_obj</span><span class="p">,</span>
+                                             <span class="n">parsedJSON</span><span class="p">[</span><span class="n">controlfile_obj</span><span class="p">])</span>
+                <span class="n">isCorrect</span> <span class="o">=</span> <span class="n">isCorrect</span> <span class="ow">and</span> <span class="n">blockCorrect</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Block </span><span class="si">%s</span><span class="s"> not found in control file!&quot;</span> <span class="o">%</span>
+                              <span class="n">controlfile_obj</span><span class="p">)</span>
+                <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">if</span> <span class="n">isCorrect</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Congratulations! No errors found in your control file!&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;There are errors in your control file!!!&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">True</span>
+
+</div>
+<div class="viewcode-block" id="validateBlock"><a class="viewcode-back" href="../../../AdaptivePELE.validator.html#AdaptivePELE.validator.controlFileValidator.validateBlock">[docs]</a><span class="k">def</span> <span class="nf">validateBlock</span><span class="p">(</span><span class="n">blockName</span><span class="p">,</span> <span class="n">controlFileBlock</span><span class="p">):</span>
+    <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">blockType</span> <span class="o">=</span> <span class="n">controlFileBlock</span><span class="p">[</span><span class="s">&quot;type&quot;</span><span class="p">]</span>
+    <span class="c"># Check if type selected is valid</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">blockType</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Type for </span><span class="si">%s</span><span class="s"> should be </span><span class="si">%s</span><span class="s"> and instead is </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                      <span class="p">(</span><span class="n">blockType</span><span class="p">,</span> <span class="s">&#39;basestring&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">blockType</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+        <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="c"># check for mandatory parameters</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">mandatory</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">blockName</span><span class="o">.</span><span class="n">types</span><span class="p">[</span><span class="n">blockType</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">controlFileBlock</span><span class="p">[</span><span class="s">&#39;params&#39;</span><span class="p">][</span><span class="n">mandatory</span><span class="p">],</span> <span class="nb">eval</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Type for </span><span class="si">%s</span><span class="s"> should be </span><span class="si">%s</span><span class="s"> and instead is </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                                  <span class="p">(</span><span class="n">mandatory</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">controlFileBlock</span><span class="p">[</span><span class="s">&#39;params&#39;</span><span class="p">][</span><span class="n">mandatory</span><span class="p">])</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+                    <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> missing: Mandatory parameter </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s"> not found.&quot;</span> <span class="o">%</span>
+                              <span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">mandatory</span><span class="p">,</span> <span class="n">blockName</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+                <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Missing </span><span class="si">%s</span><span class="s">: Type </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s"> not found.&quot;</span> <span class="o">%</span>
+                      <span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">blockType</span><span class="p">,</span> <span class="n">blockName</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+        <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="c"># check rest of parameters specified</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">controlFileBlock</span><span class="p">[</span><span class="s">&quot;params&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">eval</span><span class="p">(</span><span class="n">blockName</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">param</span><span class="p">])):</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Type for </span><span class="si">%s</span><span class="s"> should be </span><span class="si">%s</span><span class="s"> and instead is </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                                  <span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">blockName</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">param</span><span class="p">],</span>
+                                   <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+                    <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Parameter </span><span class="si">%s</span><span class="s"> in block </span><span class="si">%s</span><span class="s"> not recognized.&quot;</span> <span class="o">%</span>
+                              <span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">blockName</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+                <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Missing </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">blockName</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+        <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">blockName</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">block</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">block</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;params&quot;</span><span class="p">,</span> <span class="s">&quot;types&quot;</span><span class="p">]:</span>
+            <span class="c"># The parameters blocks for density and threshold calculator are</span>
+            <span class="c"># not mandatory</span>
+            <span class="k">if</span> <span class="n">block</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">controlFileBlock</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">types_dict</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="s">&quot;blockName.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">block</span><span class="p">)[</span><span class="s">&quot;types&quot;</span><span class="p">]</span>
+                <span class="n">params_dict</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="s">&quot;blockName.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">block</span><span class="p">)[</span><span class="s">&quot;params&quot;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Type </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s"> not found.&quot;</span> <span class="o">%</span>
+                              <span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">block</span><span class="p">))</span>
+                <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">blockType</span> <span class="o">=</span> <span class="n">controlFileBlock</span><span class="p">[</span><span class="n">block</span><span class="p">][</span><span class="s">&quot;type&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">blockType</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">types_dict</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Type </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s"> not found.&quot;</span> <span class="o">%</span>
+                              <span class="p">(</span><span class="n">blockType</span><span class="p">,</span> <span class="n">blockName</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+                <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">blockType</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Type for </span><span class="si">%s</span><span class="s"> should be </span><span class="si">%s</span><span class="s"> and instead is </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                              <span class="p">(</span><span class="n">blockType</span><span class="p">,</span> <span class="s">&#39;basestring&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">blockType</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+                <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="c"># check rest of parameters specified</span>
+            <span class="c"># Do a get on the &quot;params&quot; block and return an empty list if not found</span>
+            <span class="n">paramsControlFile</span> <span class="o">=</span> <span class="n">controlFileBlock</span><span class="p">[</span><span class="n">block</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;params&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">paramsControlFile</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">eval</span><span class="p">(</span><span class="n">params_dict</span><span class="p">[</span><span class="n">param</span><span class="p">])):</span>
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Type for </span><span class="si">%s</span><span class="s"> should be </span><span class="si">%s</span><span class="s"> and instead is </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                                      <span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">params_dict</span><span class="p">[</span><span class="n">param</span><span class="p">],</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+                        <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Parameter </span><span class="si">%s</span><span class="s"> not recognized.&quot;</span> <span class="o">%</span> <span class="n">param</span><span class="p">)</span>
+                    <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">return</span> <span class="n">isCorrect</span>
+
+</div>
+<div class="viewcode-block" id="validateGeneralBlock"><a class="viewcode-back" href="../../../AdaptivePELE.validator.html#AdaptivePELE.validator.controlFileValidator.validateGeneralBlock">[docs]</a><span class="k">def</span> <span class="nf">validateGeneralBlock</span><span class="p">(</span><span class="n">blockName</span><span class="p">,</span> <span class="n">controlFileBlock</span><span class="p">):</span>
+    <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">value</span> <span class="ow">in</span> <span class="n">blockName</span><span class="o">.</span><span class="n">mandatory</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">controlFileBlock</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">eval</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Type for </span><span class="si">%s</span><span class="s"> should be </span><span class="si">%s</span><span class="s"> and instead is </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                              <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">controlFileBlock</span><span class="p">[</span><span class="n">key</span><span class="p">])</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+                <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Mandatory parameter </span><span class="si">%s</span><span class="s"> in GeneralParams not found.&quot;</span> <span class="o">%</span>
+                          <span class="n">key</span><span class="p">)</span>
+            <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">controlFileBlock</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">eval</span><span class="p">(</span><span class="n">blockName</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">])):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Type for </span><span class="si">%s</span><span class="s"> should be </span><span class="si">%s</span><span class="s"> and instead is </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                              <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">blockName</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">])</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+                <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Parameter </span><span class="si">%s</span><span class="s"> in GeneralParams not recognized.&quot;</span> <span class="o">%</span>
+                          <span class="n">key</span><span class="p">)</span>
+            <span class="n">isCorrect</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="n">isCorrect</span>
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">validate</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">controlFiles</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;tests/data/3ptb_data/integrationTest</span><span class="si">%i</span><span class="s">.conf&quot;</span> <span class="o">%</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">contfile</span> <span class="ow">in</span> <span class="n">controlFiles</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;Validating control file </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">contfile</span>
+            <span class="n">validate</span><span class="p">(</span><span class="n">contfile</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Daniel Lecina, Joan Francesc Gilabert.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

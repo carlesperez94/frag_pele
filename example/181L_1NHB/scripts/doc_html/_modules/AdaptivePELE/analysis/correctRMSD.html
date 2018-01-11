@@ -1,0 +1,288 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>AdaptivePELE.analysis.correctRMSD &mdash; AdaptivePELE  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="AdaptivePELE  documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> AdaptivePELE
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../AdaptivePELE.html">AdaptivePELE Package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Examples.html">AdaptivePELE Overview</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">AdaptivePELE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+        <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>AdaptivePELE.analysis.correctRMSD</li>
+    <li class="wy-breadcrumbs-aside">
+      
+          
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for AdaptivePELE.analysis.correctRMSD</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">AdaptivePELE.atomset.atomset</span> <span class="kn">as</span> <span class="nn">atomset</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">AdaptivePELE.utilities</span> <span class="kn">import</span> <span class="n">utilities</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<div class="viewcode-block" id="extendReportWithRmsd"><a class="viewcode-back" href="../../../AdaptivePELE.analysis.html#AdaptivePELE.analysis.correctRMSD.extendReportWithRmsd">[docs]</a><span class="k">def</span> <span class="nf">extendReportWithRmsd</span><span class="p">(</span><span class="n">reportFile</span><span class="p">,</span> <span class="n">rmsds</span><span class="p">):</span>
+    <span class="n">newShape</span> <span class="o">=</span> <span class="n">reportFile</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">fixedReport</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">newShape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">newShape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">fixedReport</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">reportFile</span>
+    <span class="n">fixedReport</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">rmsds</span>
+    <span class="k">return</span> <span class="n">fixedReport</span>
+</div>
+<div class="viewcode-block" id="parseArguments"><a class="viewcode-back" href="../../../AdaptivePELE.analysis.html#AdaptivePELE.analysis.correctRMSD.parseArguments">[docs]</a><span class="k">def</span> <span class="nf">parseArguments</span><span class="p">():</span>
+    <span class="n">desc</span> <span class="o">=</span> <span class="s">&quot;Program that fixes RMSD symmetries of a PELE report file.&quot;</span>\
+            <span class="s">&quot;Control file is a JSON file that contains </span><span class="se">\&quot;</span><span class="s">resname</span><span class="se">\&quot;</span><span class="s">, </span><span class="se">\&quot;</span><span class="s">native</span><span class="se">\&quot;</span><span class="s">, &quot;</span>\
+            <span class="s">&quot;symmetries, and, optionally, the column to substitute in report. &quot;</span>\
+            <span class="s">&quot;Example of content:&quot;</span>\
+            <span class="s">&quot;{&quot;</span>\
+            <span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">resname</span><span class="se">\&quot;</span><span class="s"> : </span><span class="se">\&quot;</span><span class="s">K5Y</span><span class="se">\&quot;</span><span class="s">,&quot;</span>\
+            <span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">native</span><span class="se">\&quot;</span><span class="s"> : </span><span class="se">\&quot;</span><span class="s">native.pdb</span><span class="se">\&quot;</span><span class="s">,&quot;</span>\
+            <span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">symmetries</span><span class="se">\&quot;</span><span class="s"> : {[</span><span class="se">\&quot;</span><span class="s">4122:C12:K5Y</span><span class="se">\&quot;</span><span class="s">:</span><span class="se">\&quot;</span><span class="s">4123:C13:K5Y</span><span class="se">\&quot;</span><span class="s">, </span><span class="se">\&quot;</span><span class="s">4120:C10:K5Y</span><span class="se">\&quot;</span><span class="s">:</span><span class="se">\&quot;</span><span class="s">4127:C17:K5Y</span><span class="se">\&quot;</span><span class="s">]},&quot;</span>\
+            <span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">column</span><span class="se">\&quot;</span><span class="s"> = 5&quot;</span>\
+            <span class="s">&quot;}&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="n">desc</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;controlFile&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;Control File name&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">return</span>  <span class="n">args</span><span class="o">.</span><span class="n">controlFile</span>
+</div>
+<div class="viewcode-block" id="readControlFile"><a class="viewcode-back" href="../../../AdaptivePELE.analysis.html#AdaptivePELE.analysis.correctRMSD.readControlFile">[docs]</a><span class="k">def</span> <span class="nf">readControlFile</span><span class="p">(</span><span class="n">controlFile</span><span class="p">):</span>
+    <span class="n">jsonFile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">controlFile</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">parsedJSON</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">jsonFile</span><span class="p">)</span>
+    <span class="n">resname</span> <span class="o">=</span> <span class="n">parsedJSON</span><span class="p">[</span><span class="s">&quot;resname&quot;</span><span class="p">]</span>
+    <span class="n">nativeFilename</span> <span class="o">=</span> <span class="n">parsedJSON</span><span class="p">[</span><span class="s">&quot;native&quot;</span><span class="p">]</span>
+    <span class="n">symmetries</span> <span class="o">=</span> <span class="n">parsedJSON</span><span class="p">[</span><span class="s">&quot;symmetries&quot;</span><span class="p">]</span>
+    <span class="n">rmsdColInReport</span> <span class="o">=</span> <span class="n">parsedJSON</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;column&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">rmsdColInReport</span><span class="p">:</span>
+        <span class="c">#append to the end</span>
+        <span class="n">rmsdColInReport</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">resname</span><span class="p">,</span> <span class="n">nativeFilename</span><span class="p">,</span> <span class="n">symmetries</span><span class="p">,</span> <span class="n">rmsdColInReport</span>
+</div>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../AdaptivePELE.analysis.html#AdaptivePELE.analysis.correctRMSD.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">controlFile</span><span class="p">):</span>
+    <span class="c">#Constants</span>
+    <span class="n">folder</span> <span class="o">=</span> <span class="s">&quot;.&quot;</span>
+    <span class="n">outputFilename</span> <span class="o">=</span> <span class="s">&quot;fixedReport_</span><span class="si">%d</span><span class="s">&quot;</span>
+    <span class="n">trajName</span> <span class="o">=</span> <span class="s">&quot;*traj*.pdb&quot;</span>
+    <span class="n">reportName</span> <span class="o">=</span> <span class="s">&quot;*report_</span><span class="si">%d</span><span class="s">&quot;</span>
+    <span class="c">#end constants</span>
+
+    <span class="n">resname</span><span class="p">,</span> <span class="n">nativeFilename</span><span class="p">,</span> <span class="n">symmetries</span><span class="p">,</span> <span class="n">rmsdColInReport</span> <span class="o">=</span> <span class="n">readControlFile</span><span class="p">(</span><span class="n">controlFile</span><span class="p">)</span>
+
+
+    <span class="n">nativePDB</span> <span class="o">=</span> <span class="n">atomset</span><span class="o">.</span><span class="n">PDB</span><span class="p">()</span>
+    <span class="n">nativePDB</span><span class="o">.</span><span class="n">initialise</span><span class="p">(</span><span class="n">nativeFilename</span><span class="p">,</span> <span class="n">resname</span><span class="o">=</span><span class="n">resname</span><span class="p">)</span>
+
+    <span class="n">allFolders</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+    <span class="n">epochs</span> <span class="o">=</span> <span class="p">[</span><span class="n">epoch</span> <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">allFolders</span> <span class="k">if</span> <span class="n">epoch</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()]</span>
+
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">epochs</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Epoch&quot;</span><span class="p">,</span> <span class="n">epoch</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
+        <span class="n">allTrajs</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">trajName</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">traj</span> <span class="ow">in</span> <span class="n">allTrajs</span><span class="p">:</span>
+            <span class="n">rmsds</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">getRMSD</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span> <span class="n">nativePDB</span><span class="p">,</span> <span class="n">resname</span><span class="p">,</span> <span class="n">symmetries</span><span class="p">)</span>
+            <span class="n">trajNum</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">getTrajNum</span><span class="p">(</span><span class="n">traj</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">reportFilename</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">reportName</span><span class="o">%</span><span class="n">trajNum</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s">&quot;File </span><span class="si">%s</span><span class="s"> not found in folder </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">reportName</span><span class="o">%</span><span class="n">trajNum</span><span class="p">,</span> <span class="n">epoch</span><span class="p">))</span>
+
+            <span class="n">reportFile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">reportFilename</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">rmsdColInReport</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">rmsdColInReport</span> <span class="o">&lt;</span> <span class="n">reportFile</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">reportFile</span><span class="p">[:,</span><span class="n">rmsdColInReport</span><span class="p">]</span> <span class="o">=</span> <span class="n">rmsds</span>
+                <span class="n">fixedReport</span> <span class="o">=</span> <span class="n">reportFile</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fixedReport</span> <span class="o">=</span> <span class="n">extendReportWithRmsd</span><span class="p">(</span><span class="n">reportFile</span><span class="p">,</span> <span class="n">rmsds</span><span class="p">)</span>
+
+            <span class="c">#print fixedReport</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">outputFilename</span><span class="o">%</span><span class="n">trajNum</span><span class="p">,</span> <span class="n">fixedReport</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%.4f</span><span class="s">&#39;</span><span class="p">)</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s">&quot;..&quot;</span><span class="p">)</span>
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">controlFile</span> <span class="o">=</span> <span class="n">parseArguments</span><span class="p">()</span>
+    <span class="n">main</span><span class="p">(</span><span class="n">controlFile</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Daniel Lecina, Joan Francesc Gilabert.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
