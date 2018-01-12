@@ -7,8 +7,27 @@ import subprocess
 # Local imports
 import Helpers.templatize
 
-logging.basicConfig(filename="output.log",format="%(asctime)s:%(levelname)s:%(message)s", level=logging.DEBUG)
+# Logging constants
+LOG_FILENAME = "output.out"
+LOG_FORMAT = "%(asctime)s:%(name)s:%(levelname)s:%(message)s"
+STREAM_FORMAT = "%(asctime)s:%(message)s"
 
+# Logging definition block
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+log_formatter = logging.Formatter(LOG_FORMAT)
+stream_formatter = logging.Formatter(STREAM_FORMAT)
+
+file_handler = logging.FileHandler(LOG_FILENAME)
+file_handler.setFormatter(log_formatter)
+file_handler.setLevel(logging.NOTSET)
+
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(stream_formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(stream_handler)
 
 def control_file_modifier(control_file, pdb, results_path="/growing_output", n_files = 10, license="/opt/PELErev12492/licenses"):
     """
@@ -31,6 +50,7 @@ def control_file_modifier(control_file, pdb, results_path="/growing_output", n_f
        pass
     # Then, we are going to put all files inside this folder, so we will create another path variable
     control_path = os.path.join(PATH, "control_folder")
+    logger.info("Intermediate control files created will be stored in '{}'".format(control_path))
 
     # As we have several templates that uses as input different PDBs we have to do a loop to create this
     # different templates
@@ -47,6 +67,7 @@ def control_file_modifier(control_file, pdb, results_path="/growing_output", n_f
 
         # Modifying the control file template for each step
         Helpers.templatize.TemplateBuilder(control_renamed, keywords)
+        logger.info("'{}' has been created successfully!".format(control_renamed))
 
 
 def simulation_runner(path_to_pele, control_in):
