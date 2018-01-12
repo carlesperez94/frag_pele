@@ -3,8 +3,9 @@ import os
 import string
 import logging
 import shutil
+import subprocess
 # Local imports
-import Ligand_growing.Helpers.templatize
+import Helpers.templatize
 
 logging.basicConfig(filename="output.log",format="%(asctime)s:%(levelname)s:%(message)s", level=logging.DEBUG)
 
@@ -24,12 +25,12 @@ def control_file_modifier(control_file, pdb, results_path="/growing_output", n_f
                 "PDB": pdb
                 }
     # Creation of a folder where we are going to contain our control files
-    #if not os.path.exists(os.path.join(PATH, "control_folder")):
-    #    os.mkdir(os.path.join(PATH, "control_folder"))
-    #else:
-    #    pass
+    if not os.path.exists(os.path.join(PATH, "control_folder")):
+        os.mkdir(os.path.join(PATH, "control_folder"))
+    else:
+       pass
     # Then, we are going to put all files inside this folder, so we will create another path variable
-    #working_path = os.path.join(PATH, "control_folder")
+    control_path = os.path.join(PATH, "control_folder")
 
     # As we have several templates that uses as input different PDBs we have to do a loop to create this
     # different templates
@@ -37,26 +38,30 @@ def control_file_modifier(control_file, pdb, results_path="/growing_output", n_f
     for n in range(0, n_files):
 
         # First, we are going to create n_files copies of the template in order to keep the original unmodified.
-        control_renamed = os.path.join(PATH, "control_growing_{}.conf".format(string.ascii_lowercase[n]))
+        control_renamed = os.path.join(control_path, "control_growing_{}.conf".format(string.ascii_lowercase[n]))
         shutil.copyfile(control_file, control_renamed)
 
         # Changing the name of the pdb for each control file
-        keywords.update({"RESULTS_PATH": "{}_{}".format(results_path, string.ascii_lowercase[n]),
+        keywords.update({"RESULTS_PATH": "{}_{}".format(os.path.join(PATH, results_path), string.ascii_lowercase[n]),
                          "PDB": "{}_{}.pdb".format(pdb, string.ascii_lowercase[n])})
 
         # Modifying the control file template for each step
         Helpers.templatize.TemplateBuilder(control_renamed, keywords)
 
 
-def simulation_runner(control_in):
-    #counter=1
-    #quantity will depend on the amount of simulations that we will want to do
-    #while counter<quantity:
-    print(control_in)
-    os.system("/opt/PELErev12492/bin/Pele_serial {}".format(control_in))
+def simulation_runner(path_to_pele, control_in):
+    """
+    Runs a PELE simulation with the parameters described in the input control file.
 
-    #print("\n\n----------____SIMULATION {} FINISHED____-------------\n\n".format(counter))
-    #counter=1+counter
+    Input:
+
+    path_to_pele --> Complete path to Pele_serial
+
+    control_in --> Name of the control file with the parameters to run PELE
+    """
+
+    subprocess.call(["{}".format(path_to_pele), "{}".format(control_in)])
+
 
 
 
