@@ -14,7 +14,7 @@ LOG_FORMAT = "%(asctime)s:%(name)s:%(levelname)s:%(message)s"
 STREAM_FORMAT = "%(asctime)s:%(message)s"
 TEMPLATE_MESSAGE = "We are going to transform the template _{}_ into _{}_ in _{}_ steps! Starting..."
 SELECTED_MESSAGE = "\n============ Files selected ============\nControl file: {}\nPDB file: {}\nResults folder name: {}\n"
-FINISH_SIM_MESSAGE = "SIMULATION FOR control_file_grw_{} COMPLETED!!! "
+FINISH_SIM_MESSAGE = "SIMULATION FOR control_growing_{} COMPLETED!!! "
 # Errors messages
 SELECT_ERROR_FNOTFOUND = "{}_{}/trajectory.pdb was not found. Probably the simulation did not finish properly"
 SELECT_ERROR_EXCEPT = """Sorry, something went wrong when selecting a PDB from results. First, check if the criteria 
@@ -112,7 +112,7 @@ def main(template_initial, template_final, n_files, transformation, control_file
                              The atom name of the initial template that we want to transform into another of
                              the final template has to be specified in a text file separated by whitespaces.
 
-        "control_file" --> Initial control file used as template to generate intermediates control files.
+        "control_file" --> Template control file used to generate intermediates control files.
 
         "pdb" --> Initial pdb file which already contain the ligand with the fragment that we want to grow
                   but with bond lengths correspondent to the initial ligand (dummy-like).
@@ -133,7 +133,7 @@ def main(template_initial, template_final, n_files, transformation, control_file
     logger.info((TEMPLATE_MESSAGE.format(template_initial, template_final, n_files)))
     templates = Growing.template_fragmenter.fragmenter(template_initial, template_final, transformation, n_files)
     # Creating control files
-    logger.info(SELECTED_MESSAGE.format(control_file, pdb, results_f_name))
+    logger.info(SELECTED_MESSAGE.format(control_file, pdb, results_f_name, n_files))
     control_files = Growing.simulations_linker.control_file_modifier(control_file, pdb, results_f_name, n_files)
 
     # Run Pele for each control file
@@ -143,25 +143,24 @@ def main(template_initial, template_final, n_files, transformation, control_file
         # Run Pele
         if not os.path.exists("{}_{}".format(results_f_name, string.ascii_lowercase[n])):
             os.mkdir("{}_{}".format(results_f_name, string.ascii_lowercase[n]))
-            Growing.simulations_linker.simulation_runner("control_file_grw_{}".format(string.ascii_lowercase[n]))
-            logger.info(FINISH_SIM_MESSAGE.format(string.ascii_lowercase[n]))
         else:
-            Growing.simulations_linker.simulation_runner("control_file_grw_{}".format(string.ascii_lowercase[n]))
-            logger.info(FINISH_SIM_MESSAGE.format(string.ascii_lowercase[n]))
+            pass
+        Growing.simulations_linker.simulation_runner("control_growing_{}.conf".format(string.ascii_lowercase[n]))
+        logger.info(FINISH_SIM_MESSAGE.format(string.ascii_lowercase[n]))
         # Choose the best trajectory
         try:
             Growing.template_selector.trajectory_selector("{}_{}".format(results_f_name, string.ascii_lowercase[n]),
                                                           "{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
                                                           "{}".format(criteria))
-        except FileNotFoundError:
-            logger.exception(SELECT_ERROR_FNOTFOUND.format(results_f_name, string.ascii_lowercase[n]))
+        #except FileNotFoundError:
+        #    logger.exception(SELECT_ERROR_FNOTFOUND.format(results_f_name, string.ascii_lowercase[n]))
         except Exception:
             logger.exception(SELECT_ERROR_EXCEPT)
         try:
             Growing.template_selector.change_ligandname("{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
                                                         "{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
-        except FileNotFoundError:
-            logger.exception(CHLG_ERROR_FNOTFOUND.format(pdb, string.ascii_lowercase[n + 1]))
+        #except FileNotFoundError:
+        #    logger.exception(CHLG_ERROR_FNOTFOUND.format(pdb, string.ascii_lowercase[n + 1]))
         except Exception:
             logger.exception(CHLG_ERROR_EXCEPT)
         if not os.path.isfile("{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1])):
