@@ -1,25 +1,27 @@
+import sys
 import re
 import os
 import string
 from shutil import copyfile
 import logging
 
-logging.basicConfig(filename="output.log",format="%(asctime)s:%(levelname)s:%(message)s", level=logging.DEBUG)
+# Getting the name of the module for the log system
+logger = logging.getLogger(__name__)
 
 def section_selector(template_input,beg_pattern,end_pattern):
     '''Using this function you can select a section of the template file which is between beg_patter and end_pattern'''
     templates_path = "DataLocal/Templates/OPLS2005/HeteroAtoms/"
     #Open the template file and save it as a string
     if not os.path.exists("{}{}".format(templates_path,template_input)):
-        logging.critical("Template {} does not exist!!".format(template_input))
+        logger.critical("Template {} does not exist!!".format(template_input))
     with open("{}{}".format(templates_path,template_input), 'r') as input_file:
         file_content = input_file.read()
         if file_content == "":
-            logging.critical("Template file {} is empty!".format(template_input))
+            logger.critical("Template file {} is empty!".format(template_input))
     #Select and return everything between two patterns
     section_selected = re.search('{}\n(.*?){}'.format(beg_pattern,end_pattern), file_content, re.DOTALL)
     if section_selected == None:
-        logging.critical("Template file contain ERRORS!!!".format(beg_pattern,end_pattern))
+        logger.critical("Template file contain ERRORS!!!".format(beg_pattern,end_pattern))
         exit("CRITICAL ERROR!!! Check the log file for more information.")
     return section_selected.group(1)
 
@@ -30,17 +32,13 @@ def fragmenter(template_initial,template_final,transformation,n_files):
     atoms_f_section = section_selector(template_final, "\*", "NBON")
     #Definition of a patter with regex in order to detect the important information
     atoms_initial = re.findall('\s+(\d+)\s+(\d+)\s+(\w)\s+(\w*)\s+(\w{4,})\s+(\d*)\s+(-?[0-9]*\.[-]?[0-9]*)\s+(-?[0-9]*\.[0-9]*)\s+(-?[0-9]*\.[0-9]*)', atoms_i_section)
-    print("\n\nThe following atoms have been found in the initial template:\n")
-    logging.info("The following atoms have been found in the initial template:")
+    logger.info("The following atoms have been found in the initial template:")
     for atom in atoms_initial:
-        print("{}".format(atom[4]))
-        logging.info("{}".format(atom[4]))
+        logger.info("{}".format(atom[4]))
     atoms_final = re.findall('\s+(\d+)\s+(\d+)\s+(\w)\s+(\w*)\s+(\w{4,})\s+(\d*)\s+(-?[0-9]*\.[-]?[0-9]*)\s+(-?[0-9]*\.[0-9]*)\s+(-?[0-9]*\.[0-9]*)', atoms_f_section)
-    print("\nThe following atoms have been found in the final template:\n")
-    logging.info("The following atoms have been found in the final template:")
+    logger.info("The following atoms have been found in the final template:")
     for atom in atoms_final:
-        print("{}".format(atom[4]))
-        logging.info("{}".format(atom[4]))
+        logger.info("{}".format(atom[4]))
     #Searching for new atoms in final template
     #First make two lists with all the symbols for each atom
     atoms_initial_symbol=[]
@@ -54,17 +52,14 @@ def fragmenter(template_initial,template_final,transformation,n_files):
     for atom in atoms_final_symbol:
         if atom not in atoms_initial_symbol:
             new_atoms_symbol.append(atom)
-    print("The following new atoms have been detected:")
-    logging.info("The following new atoms have been detected:")
+    logger.info("The following new atoms have been detected:")
     for atom in new_atoms_symbol:
-        print(atom)
-        logging.info(atom)
+        logger.info(atom)
     if new_atoms_symbol == []:
-        logging.critical("Something went wrong... We could not find new atoms!!! Check templates and try again!")
+        logger.critical("Something went wrong... We could not find new atoms!!! Check templates and try again!")
         exit("CRITICAL ERROR!!! Check the log file for more information.")
     #Now we have the atoms that have been added in the list new_atoms_symbols. We want to obtain their index:
-    print("\n\nChecking indexing for new atoms...\n")
-    logging.info("Checking indexing for new atoms...")
+    logger.info("Checking indexing for new atoms...")
     new_atoms_indexes=[]
     for atom_new in new_atoms_symbol:
         for atom in atoms_final:
@@ -83,15 +78,13 @@ def fragmenter(template_initial,template_final,transformation,n_files):
         for line in transf:
             transformations.append((line.split()[0], line.split()[1]))
         for transformation in transformations:
-            print("\n\nTransforming {} to {}...\n".format(transformation[0], transformation[1]))
-            logging.info("Transforming {} to {}...".format(transformation[0], transformation[1]))
+            logger.info("Transforming {} to {}...".format(transformation[0], transformation[1]))
             if transformation == []:
-                logging.warning("There are not atoms to be transformed!")
+                logger.warning("There are not atoms to be transformed!")
             if transformation[1] in new_atoms_symbol and transformation[0] in atoms_initial_symbol:
                 index_transformation.append((int(atoms_initial_symbol.index(transformation[0]))+1,new_atoms_indexes[new_atoms_symbol.index(transformation[1])]))
     #Reading NBON parameters
-    print("\nReading NBON parameters...\n")
-    logging.info("Reading NBON parameters...")
+    logger.info("Reading NBON parameters...")
     nbon_section_i=section_selector(template_initial,"NBON","BOND")
     nbon_section_f=section_selector(template_final,"NBON","BOND")
     #Definition of a patter with regex in order to detect the important information
@@ -99,16 +92,15 @@ def fragmenter(template_initial,template_final,transformation,n_files):
         '\s+(\d+)\s+(\d+\.\d{4})\s+(\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)',
         nbon_section_i)
     if nbon_initial == []:
-        logging.critical("Something went wrong... We cannot read NBON section of the initial template!")
+        logger.critical("Something went wrong... We cannot read NBON section of the initial template!")
         exit("CRITICAL ERROR!!! Check the log file for more information.")
     nbon_final = re.findall(
         '\s+(\d+)\s+(\d+\.\d{4})\s+(\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)',
         nbon_section_f)
     if nbon_final == []:
-        logging.critical("Something went wrong... We cannot read NBON section of the final template!")
+        logger.critical("Something went wrong... We cannot read NBON section of the final template!")
         exit("CRITICAL ERROR!!! Check the log file for more information.")
-    print("\nReading VDW...\n")
-    logging.info("Reading VDW...")
+    logger.info("Reading VDW...")
     #We are going to modify nbon_final, so we want to transform it into a list of lists.
     nbon_final = [list(elem) for elem in nbon_final]
     #Reading Vann Der Waals and Charges
@@ -116,16 +108,13 @@ def fragmenter(template_initial,template_final,transformation,n_files):
     for element in nbon_final:
         if element[0] in new_atoms_indexes:
             nbond_to_modify.append((element[0],element[1], element[3]))
-    print("\nThe following NBON parameters are going to be modified:\n")
-    logging.info("The following NBON parameters are going to be modified:")
-    print("Index      VDW   Charge")
-    logging.info("Index      VDW   Charge")
+    logger.info("The following NBON parameters are going to be modified:")
+    logger.info("Index      VDW   Charge")
     if nbond_to_modify == []:
-        logging.critical("Something went wrong... We cannot modify NBON parameters!")
+        logger.critical("Something went wrong... We cannot modify NBON parameters!")
         exit("CRITICAL ERROR!!! Check the log file for more information.")
     for element in nbond_to_modify:
-        print("{:>2}      {}     {: 3.9f}".format(element[0],element[1],float(element[2])))
-        logging.info("{:>2}      {}     {: 3.9f}".format(element[0],element[1],float(element[2])))
+        logger.info("{:>2}      {}     {: 3.9f}".format(element[0],element[1],float(element[2])))
     #Tranforming atoms
     banned_index=[]
     for something in nbond_to_modify:
@@ -153,21 +142,19 @@ def fragmenter(template_initial,template_final,transformation,n_files):
                     float(element[5]), float(element[6]), float(element[7])))
     os.chdir("../../../../")
     #Reading BOND parameters
-    print("\nReading BOND parameters...\n")
-    logging.info("Reading BOND parameters...")
+    logger.info("Reading BOND parameters...")
     bond_section_i = section_selector(template_initial, "BOND", "THET")
     bond_section_f = section_selector(template_final, "BOND", "THET")
     #Definition of a patter with regex in order to detect the important information
     bond_initial = re.findall('\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)',bond_section_i)
     if bond_initial == []:
-        logging.critical("Something went wrong... We cannot read BOND section of the initial template!")
+        logger.critical("Something went wrong... We cannot read BOND section of the initial template!")
         exit("CRITICAL ERROR!!! Check the log file for more information.")
     bond_final = re.findall('\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)',bond_section_f)
     if bond_final == []:
-        logging.critical("Something went wrong... We cannot read BOND section of the final template!")
+        logger.critical("Something went wrong... We cannot read BOND section of the final template!")
         exit("CRITICAL ERROR!!! Check the log file for more information.")
-    print("\nModifying BOND parameters...\n")
-    logging.info("Modifying BOND parameters...")
+    logger.info("Modifying BOND parameters...")
     #Writting BOND section:
     os.chdir("{}".format(templates_path, template_final))
     for n in range(1, n_files):
@@ -189,8 +176,7 @@ def fragmenter(template_initial,template_final,transformation,n_files):
                     int(bond[0]), int(bond[1]), float(bond[2]), float(bond[3])))
     os.chdir("../../../../")
     #Write the final part of the file:
-    print("\nFilling the rest of the file...\n")
-    logging.info("Filling the rest of the file...")
+    logger.info("Filling the rest of the file...")
     end_section_f = section_selector(template_final, "THET", "END")
     os.chdir("{}".format(templates_path, template_final))
     for n in range(1, n_files+1):
@@ -213,5 +199,4 @@ def fragmenter(template_initial,template_final,transformation,n_files):
                                     "{}{}".format(string.ascii_uppercase[n_files-1], template_final[0:2].upper()))))
     fr.close()
     fw.close()
-    print("=========== Process finished ===========\n")
-    logging.info("=========== Process finished ===========")
+    logger.info("=========== Process finished ===========")

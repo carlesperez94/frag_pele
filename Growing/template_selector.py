@@ -1,10 +1,12 @@
+import sys
 import re
 import os
 import string
 import pandas as pd
 import logging
 
-logging.basicConfig(filename="output.log",format="%(asctime)s:%(levelname)s:%(message)s", level=logging.DEBUG)
+# Getting the name of the module for the log system
+logger = logging.getLogger(__name__)
 
 def trajectory_selector(trajectory_path,output,criteria):
     '''This function select the step of a trajectory of PELE
@@ -14,7 +16,7 @@ def trajectory_selector(trajectory_path,output,criteria):
     with open("{}/trajectory.pdb".format(trajectory_path), 'r') as input_file:
         file_content = input_file.read()
         if file_content == "":
-            logging.critical("{}/trajectory.pdb does not exist or it is empty!!!".format(trajectory_path))
+            logger.critical("{}/trajectory.pdb does not exist or it is empty!!!".format(trajectory_path))
     #Storing the report file as pandas dataframe
     data = pd.read_csv('{}/report'.format(trajectory_path), sep='    ',
                        engine='python')
@@ -31,7 +33,7 @@ def trajectory_selector(trajectory_path,output,criteria):
         #Writing this step into a PDB with a single structure
         with open(output,'w') as output_file:
             output_file.write("MODEL     %d" %int(min_trajectory+1))
-            print("MODEL     %d has been selected" %int(min_trajectory+1))
+            logger.info(":::.MODEL     %d has been selected.:::" %int(min_trajectory+1))
             #print(trajectory_selected.group(1))
             output_file.write(trajectory_selected.group(1))
             output_file.write("ENDMDL\n")

@@ -4,40 +4,25 @@ import argparse
 import string
 import os
 import logging
+from logging.config import fileConfig
 # Local imports
 import Growing.template_selector
 import Growing.template_fragmenter
 import Growing.simulations_linker
 
+# Calling configuration file for log system
+fileConfig("/home/carlespl/project/Ligand_growing/log_configure.ini")
+
+# Getting the name of the module for the log system
+logger = logging.getLogger(__name__)
+
 # Path variables
 CONTROL_PATH = "control_folder/control_growing_{}.conf"
-
-# Logging constants
-LOG_FILENAME = "output.out"
-LOG_FORMAT = "%(asctime)s:%(name)s:%(levelname)s:%(message)s"
-STREAM_FORMAT = "%(asctime)s:%(message)s"
 
 # Messages constants
 TEMPLATE_MESSAGE = "We are going to transform the template _{}_ into _{}_ in _{}_ steps! Starting..."
 SELECTED_MESSAGE = "\n============ Files selected ============\nControl file: {}\nPDB file: {}\nResults folder name: {}\n"
 FINISH_SIM_MESSAGE = "SIMULATION FOR control_growing_{} COMPLETED!!! "
-
-# Logging definition block
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-log_formatter = logging.Formatter(LOG_FORMAT)
-stream_formatter = logging.Formatter(STREAM_FORMAT)
-
-file_handler = logging.FileHandler(LOG_FILENAME)
-file_handler.setFormatter(log_formatter)
-file_handler.setLevel(logging.NOTSET)
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(stream_formatter)
-
-logger.addHandler(file_handler)
-logger.addHandler(stream_handler)
 
 
 def parse_arguments():

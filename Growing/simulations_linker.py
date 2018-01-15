@@ -1,33 +1,15 @@
 # General imports
 import os
 import string
-import logging
 import shutil
 import subprocess
+import logging
+
 # Local imports
 import Helpers.templatize
 
-# Logging constants
-LOG_FILENAME = "output.out"
-LOG_FORMAT = "%(asctime)s:%(name)s:%(levelname)s:%(message)s"
-STREAM_FORMAT = "%(asctime)s:%(message)s"
-
-# Logging definition block
+# Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-log_formatter = logging.Formatter(LOG_FORMAT)
-stream_formatter = logging.Formatter(STREAM_FORMAT)
-
-file_handler = logging.FileHandler(LOG_FILENAME)
-file_handler.setFormatter(log_formatter)
-file_handler.setLevel(logging.NOTSET)
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(stream_formatter)
-
-logger.addHandler(file_handler)
-logger.addHandler(stream_handler)
 
 def control_file_modifier(control_file, pdb, results_path="/growing_output", n_files = 10, license="/opt/PELErev12492/licenses"):
     """
