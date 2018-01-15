@@ -1,42 +1,28 @@
 # General imports
+import sys
 import argparse
 import string
 import os
 import logging
+from logging.config import fileConfig
 # Local imports
-import template_selector
-import template_fragmenter_2
-import simulations_linker
+import Growing.template_selector
+import Growing.template_fragmenter
+import Growing.simulations_linker
 
-# Logging constants
-LOG_FILENAME = "output.out"
-LOG_FORMAT = "%(asctime)s:%(name)s:%(levelname)s:%(message)s"
-STREAM_FORMAT = "%(asctime)s:%(message)s"
+# Calling configuration file for log system
+fileConfig("/home/carlespl/project/Ligand_growing/log_configure.ini")
+
+# Getting the name of the module for the log system
+logger = logging.getLogger(__name__)
+
+# Path variables
+CONTROL_PATH = "control_folder/control_growing_{}.conf"
+
+# Messages constants
 TEMPLATE_MESSAGE = "We are going to transform the template _{}_ into _{}_ in _{}_ steps! Starting..."
 SELECTED_MESSAGE = "\n============ Files selected ============\nControl file: {}\nPDB file: {}\nResults folder name: {}\n"
-FINISH_SIM_MESSAGE = "SIMULATION FOR control_file_grw_{} COMPLETED!!! "
-# Errors messages
-SELECT_ERROR_FNOTFOUND = "{}_{}/trajectory.pdb was not found. Probably the simulation did not finish properly"
-SELECT_ERROR_EXCEPT = """Sorry, something went wrong when selecting a PDB from results. First, check if the criteria 
-coincide with the report file column name"""
-CHLG_ERROR_FNOTFOUND = "{}_{}_tmp.pdb was not found"
-CHLG_ERROR_EXCEPT = "Sorry, something went wrong when changing ligand name of the selected PDB"
-# Logging definition block
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-log_formatter = logging.Formatter(LOG_FORMAT)
-stream_formatter = logging.Formatter(STREAM_FORMAT)
-
-file_handler = logging.FileHandler(LOG_FILENAME)
-file_handler.setFormatter(log_formatter)
-file_handler.setLevel(logging.NOTSET)
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(stream_formatter)
-
-logger.addHandler(file_handler)
-logger.addHandler(stream_handler)
+FINISH_SIM_MESSAGE = "SIMULATION FOR control_growing_{} COMPLETED!!! "
 
 
 def parse_arguments():
@@ -88,12 +74,14 @@ def parse_arguments():
                         help="""Name of the column used as criteria in order
                              to select the template used as input for 
                              successive simulations.""")
+    parser.add_argument("-d", "--dir", default="/opt/PELErev12492/bin/Pele_serial",
+                        help="Complete path to Pele_serial")
     args = parser.parse_args()
 
-    return args.initial, args.final, args.frag, args.trans, args.contrl, args.pdb, args.resfold, args.criteria
+    return args.initial, args.final, args.frag, args.trans, args.contrl, args.pdb, args.resfold, args.criteria, args.dir
 
 
-def main(template_initial, template_final, n_files, transformation, control_file, pdb, results_f_name, criteria):
+def main(template_initial, template_final, n_files, transformation, control_file, pdb, results_f_name, criteria, path_pele):
     """
         Description: This function is the main core of the program. It creates N intermediate templates
         and control files for PELE. Then, it perform N successive simulations automatically.
@@ -112,7 +100,7 @@ def main(template_initial, template_final, n_files, transformation, control_file
                              The atom name of the initial template that we want to transform into another of
                              the final template has to be specified in a text file separated by whitespaces.
 
-        "control_file" --> Initial control file used as template to generate intermediates control files.
+        "control_file" --> Template control file used to generate intermediates control files.
 
         "pdb" --> Initial pdb file which already contain the ligand with the fragment that we want to grow
                   but with bond lengths correspondent to the initial ligand (dummy-like).
@@ -122,19 +110,20 @@ def main(template_initial, template_final, n_files, transformation, control_file
         "criteria" --> Name of the column of the report file used as criteria in order to select the template
                        used as input for successive simulations.
 
+        "path_pele" --> Complete path to Pele_serial
+
         Output:
 
         First, intermediate control files and templates. Then, the results for each simulation and a pdb file for
         each selected trajectory (the last selected trajectory is the final structure with the ligand grown).
 
         """
-
     # Creating template files
     logger.info((TEMPLATE_MESSAGE.format(template_initial, template_final, n_files)))
-    templates = template_fragmenter_2.fragmenter(template_initial, template_final, transformation, n_files)
+    templates = Growing.template_fragmenter.fragmenter(template_initial, template_final, transformation, n_files)
     # Creating control files
-    logger.info(SELECTED_MESSAGE.format(control_file, pdb, results_f_name))
-    control_files = simulations_linker.control_file_modifier(control_file, pdb, results_f_name, n_files)
+    logger.info(SELECTED_MESSAGE.format(control_file, pdb, results_f_name, n_files))
+    control_files = Growing.simulations_linker.control_file_modifier(control_file, pdb, results_f_name, n_files)
 
     # Run Pele for each control file
 
@@ -143,27 +132,18 @@ def main(template_initial, template_final, n_files, transformation, control_file
         # Run Pele
         if not os.path.exists("{}_{}".format(results_f_name, string.ascii_lowercase[n])):
             os.mkdir("{}_{}".format(results_f_name, string.ascii_lowercase[n]))
-            simulations_linker.simulation_runner("control_file_grw_{}".format(string.ascii_lowercase[n]))
-            logger.info(FINISH_SIM_MESSAGE.format(string.ascii_lowercase[n]))
         else:
-            simulations_linker.simulation_runner("control_file_grw_{}".format(string.ascii_lowercase[n]))
-            logger.info(FINISH_SIM_MESSAGE.format(string.ascii_lowercase[n]))
+            pass
+        Growing.simulations_linker.simulation_runner(path_pele, CONTROL_PATH.format(string.ascii_lowercase[n]))
+        logger.info(FINISH_SIM_MESSAGE.format(string.ascii_lowercase[n]))
+
         # Choose the best trajectory
-        try:
-            template_selector.trajectory_selector("{}_{}".format(results_f_name, string.ascii_lowercase[n]),
-                                              "{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
-                                              "{}".format(criteria))
-        except FileNotFoundError:
-            logger.exception(SELECT_ERROR_FNOTFOUND.format(results_f_name, string.ascii_lowercase[n]))
-        except Exception:
-            logger.exception(SELECT_ERROR_EXCEPT)
-        try:
-            template_selector.change_ligandname("{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
-                                            "{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
-        except FileNotFoundError:
-            logger.exception(CHLG_ERROR_FNOTFOUND.format(pdb, string.ascii_lowercase[n + 1]))
-        except Exception:
-            logger.exception()
+        Growing.template_selector.trajectory_selector("{}_{}".format(results_f_name, string.ascii_lowercase[n]),
+                                                      "{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
+                                                      "{}".format(criteria))
+        Growing.template_selector.change_ligandname("{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
+                                                    "{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
+
         if not os.path.isfile("{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1])):
             logger.critical("We could not create {}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
             exit()
@@ -172,5 +152,5 @@ def main(template_initial, template_final, n_files, transformation, control_file
 
 
 if __name__ == '__main__':
-    init, final, frag, trans, control, pdb, res_fold, criteria = parse_arguments()
-    main(init, final, frag, trans, control, pdb, res_fold, criteria)
+    init, final, frag, trans, control, pdb, res_fold, criteria, path_pele = parse_arguments()
+    main(init, final, frag, trans, control, pdb, res_fold, criteria, path_pele)
