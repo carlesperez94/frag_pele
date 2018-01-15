@@ -1,4 +1,5 @@
 # General imports
+import sys
 import argparse
 import string
 import os
@@ -15,6 +16,8 @@ CONTROL_PATH = "control_folder/control_growing_{}.conf"
 LOG_FILENAME = "output.out"
 LOG_FORMAT = "%(asctime)s:%(name)s:%(levelname)s:%(message)s"
 STREAM_FORMAT = "%(asctime)s:%(message)s"
+
+# Messages constants
 TEMPLATE_MESSAGE = "We are going to transform the template _{}_ into _{}_ in _{}_ steps! Starting..."
 SELECTED_MESSAGE = "\n============ Files selected ============\nControl file: {}\nPDB file: {}\nResults folder name: {}\n"
 FINISH_SIM_MESSAGE = "SIMULATION FOR control_growing_{} COMPLETED!!! "
@@ -151,10 +154,10 @@ def main(template_initial, template_final, n_files, transformation, control_file
 
         # Choose the best trajectory
         Growing.template_selector.trajectory_selector("{}_{}".format(results_f_name, string.ascii_lowercase[n]),
-                                                          "{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
-                                                          "{}".format(criteria))
+                                                      "{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
+                                                      "{}".format(criteria))
         Growing.template_selector.change_ligandname("{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
-                                                        "{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
+                                                    "{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
 
         if not os.path.isfile("{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1])):
             logger.critical("We could not create {}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
