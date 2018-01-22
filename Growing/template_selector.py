@@ -8,41 +8,54 @@ import logging
 # Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
 
-def trajectory_selector(trajectory_path,output,criteria):
-    '''This function select the step of a trajectory of PELE
-    ("trajectory_file") with the minimum value of the criteria selected (of the report)
-    and extract it as a single pdb file (output).'''
-    #Storing the trajectory as a string
-    with open("{}/trajectory.pdb".format(trajectory_path), 'r') as input_file:
+
+def trajectory_selector(output, path_to_file="/growing_output", report="report", trajectory="trajectory.pdb",
+                        criteria="Binding Energy"):
+    """
+    This function select the step of a trajectory of PELE
+    with the minimum value of the criteria selected
+    and extract it as a single pdb file.
+    """
+    # Storing the trajectory as a string
+    with open(os.path.join(path_to_file, trajectory), 'r') as input_file:
         file_content = input_file.read()
-        if file_content == "":
-            logger.critical("{}/trajectory.pdb does not exist or it is empty!!!".format(trajectory_path))
-    #Storing the report file as pandas dataframe
-    data = pd.read_csv('{}/report'.format(trajectory_path), sep='    ',
-                       engine='python')
-    #Now, select only the columns correspondent to the numberOfAcceptedPeleSteps(if you sum 1 to this number you can obtain the step in the trajectory) and the criteria
-    selected_data = data.loc[:, ['numberOfAcceptedPeleSteps',criteria]]
-    #Find the minimum value of the criteria
+
+    # Storing the report file as pandas data-frame
+    data = pd.read_csv(os.path.join(path_to_file, report), sep='    ', engine='python')
+    print(data)
+
+    # Now, select only the columns correspondent to the numberOfAcceptedPeleSteps
+    # (if you sum 1 to this number you can obtain the step in the trajectory) and the criteria
+    selected_data = data.loc[:, ['numberOfAcceptedPeleSteps', criteria]]
+
+    # Find the minimum value of the criteria
     min_energy = selected_data.min(axis=0)[1]
-    #Once we have this value, find the step that correspond to this minimum value
+
+    # Once we have this value, find the step that correspond to this minimum value
     min_trajectory = selected_data.loc[selected_data[criteria] == min_energy, 'numberOfAcceptedPeleSteps'].iloc[0]
-    #Using this step number we will select the MODEL (step of the trajectory) that correspond to this value. We do min_trajectory+1 because the difference between accepted steps and models numbers
-    trajectory_selected = re.search('MODEL\s+%d(.*?)ENDMDL' %int(min_trajectory+1), file_content,re.DOTALL)
-    #Check that we have a trajectory selected
-    if trajectory_selected:
-        #Writing this step into a PDB with a single structure
-        with open(output,'w') as output_file:
-            output_file.write("MODEL     %d" %int(min_trajectory+1))
-            logger.info(":::.MODEL     %d has been selected.:::" %int(min_trajectory+1))
-            #print(trajectory_selected.group(1))
-            output_file.write(trajectory_selected.group(1))
-            output_file.write("ENDMDL\n")
-    else:
-        return ("This trajectory do not exist")
+
+    # Using this step number we will select the MODEL (step of the trajectory) that correspond to this value.
+    # We do min_trajectory+1 because the difference between accepted steps and models numbers
+    trajectory_selected = re.search('MODEL\s+%d(.*?)ENDMDL' %int(min_trajectory+1), file_content, re.DOTALL)
+
+    # Writing this step into a PDB with a single structure. We will do it with a list in order to reduce
+    # computing time
+    output_file_content = []
+    output_file_content.append("MODEL     {}".format(int(min_trajectory+1)))
+    output_file_content.append("{}".format(trajectory_selected.group(1)))
+    output_file_content.append("ENDMDL")
+    output_file_content = "\n".join(output_file_content)
+    print(output_file_content)
+    with open(output, 'w') as output_file:
+        output_file.write(output_file_content)
+        logger.info(":::.MODEL     {} has been selected.:::".format(int(min_trajectory + 1)))
+
 
 def change_ligandname(input_file,output):
-    '''From an input pdb file this function replace the first character of the ligand name
-    string to the next one in alphabetic order'''
+    """
+    From an input pdb file this function replace the first character of the ligand name
+    string to the next one in alphabetic order
+    """
     #Creating a list of capital letters
     letters=list(string.ascii_uppercase)
     with open(output,'w') as output_f:
