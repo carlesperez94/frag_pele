@@ -45,39 +45,44 @@ def trajectory_selector(output, path_to_file="/growing_output", report="report",
     output_file_content.append("{}".format(trajectory_selected.group(1)))
     output_file_content.append("ENDMDL")
     output_file_content = "\n".join(output_file_content)
-    print(output_file_content)
     with open(output, 'w') as output_file:
         output_file.write(output_file_content)
         logger.info(":::.MODEL     {} has been selected.:::".format(int(min_trajectory + 1)))
 
 
-def change_ligandname(input_file,output):
+def change_ligandname(input_file, output):
     """
     From an input pdb file this function replace the first character of the ligand name
     string to the next one in alphabetic order
     """
-    #Creating a list of capital letters
-    letters=list(string.ascii_uppercase)
-    with open(output,'w') as output_f:
+    # Creating a list of capital letters
+    letters = list(string.ascii_uppercase)
+    with open(output, 'w') as output_f:
         with open(input_file) as input_f:
             for line in input_f:
-                #We only want to read lines that contain information about the ligand
+                # We only want to read lines that contain information about the ligand
                 if line.startswith("HETATM"):
-                    #This is the ligandname of the original file, column 4.
+                    # This is the ligandname of the original file, column 4.
                     ligandname_old = line.split()[3]
-                    #We will transform this name into a list of letters
-                    ligandname = list(ligandname_old)
-                    #Now, the index that we will select is the first letter of the ligandname
-                    index = letters.index(ligandname[0])
-                    #Doing this we are going to transform the first letter of the ligand name into the next in the alphabet. F.ex: CMB -> DMB
+
+                    # We will transform this name into a list of letters (strings in python are unmutable)
+                    ligandname_new = list(ligandname_old)
+
+                    # Now, the index that we will select is the first letter of the ligandname
+                    index = letters.index(ligandname_old[0])
+
+                    # Doing this we are going to transform the first letter of the ligand name into
+                    # the next in the alphabet. F.ex: CMB -> DMB
                     new_letter = letters[index+1]
-                    ligandname[0] = "%s" %new_letter
-                    #Join again all the letters into a string
-                    ligandname = "".join(ligandname)
-                    #Write it in the file
-                    output_f.write(line.replace(ligandname_old,ligandname))
+                    ligandname_new[0] = new_letter
+
+                    # Join again all the letters into a string
+                    ligandname_new = "".join(ligandname_new)
+
+                    # Write it in the file
+                    output_f.write(line.replace(ligandname_old, ligandname_new))
                 else:
-                    #The rest of the file that don't have information about the ligand will stay unchanged
+                    # The rest of the file that don't have information about the ligand will stay unchanged
                     output_f.write(line)
-    #We would like to delete the temporary input files
+    # We would like to delete the temporary input files
     os.remove(input_file)

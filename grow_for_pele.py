@@ -11,7 +11,7 @@ import Growing.template_fragmenter
 import Growing.simulations_linker
 
 # Calling configuration file for log system
-fileConfig("/home/carlespl/project/Ligand_growing/log_configure.ini")
+fileConfig("/home/carlespl/project/growing/Ligand_growing/log_configure.ini")
 
 # Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
@@ -76,12 +76,16 @@ def parse_arguments():
                              successive simulations.""")
     parser.add_argument("-d", "--dir", default="/opt/PELErev12492/bin/Pele_serial",
                         help="Complete path to Pele_serial")
+    parser.add_argument("-rp", "--report", default="report",
+                        help="Name of the report file from PELE.")
+    parser.add_argument("-tj", "--traject", default="trajectory.pdb",
+                        help="Name of the trajectory file from PELE.")
     args = parser.parse_args()
 
-    return args.initial, args.final, args.frag, args.trans, args.contrl, args.pdb, args.resfold, args.criteria, args.dir
+    return args.initial, args.final, args.frag, args.trans, args.contrl, args.pdb, args.resfold, args.criteria, args.dir, args.report, args.traject
 
 
-def main(template_initial, template_final, n_files, transformation, control_file, pdb, results_f_name, criteria, path_pele):
+def main(template_initial, template_final, n_files, transformation, control_file, pdb, results_f_name, criteria, path_pele, report, traject):
     """
         Description: This function is the main core of the program. It creates N intermediate templates
         and control files for PELE. Then, it perform N successive simulations automatically.
@@ -138,9 +142,9 @@ def main(template_initial, template_final, n_files, transformation, control_file
         logger.info(FINISH_SIM_MESSAGE.format(string.ascii_lowercase[n]))
 
         # Choose the best trajectory
-        Growing.template_selector.trajectory_selector("{}_{}".format(results_f_name, string.ascii_lowercase[n]),
-                                                      "{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
-                                                      "{}".format(criteria))
+        Growing.template_selector.trajectory_selector("{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n+1]),
+                                                      "{}_{}".format(results_f_name, string.ascii_lowercase[n]),
+                                                      report, traject, criteria)
         Growing.template_selector.change_ligandname("{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
                                                     "{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
 
@@ -152,5 +156,5 @@ def main(template_initial, template_final, n_files, transformation, control_file
 
 
 if __name__ == '__main__':
-    init, final, frag, trans, control, pdb, res_fold, criteria, path_pele = parse_arguments()
-    main(init, final, frag, trans, control, pdb, res_fold, criteria, path_pele)
+    init, final, frag, trans, control, pdb, res_fold, criteria, path_pele, report, traject = parse_arguments()
+    main(init, final, frag, trans, control, pdb, res_fold, criteria, path_pele, report, traject)
