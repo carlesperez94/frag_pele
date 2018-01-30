@@ -101,6 +101,29 @@ def get_atom_properties(atoms_dictionary, template):
     return properties
 
 
+def transform_properties(original_atom, final_atom, initial_atm_dictionary, final_atm_dictionary,
+                         initial_prp_dictionary, final_prp_dictionary):
+    """
+    :param original_atom: atom that we want to transform into another.
+    :param final_atom: atom that we want to finally get.
+    :param initial_atm_dictionary: initial dictionary {"PDB atom name" : "index"} which contain the atom.
+    :param final_atm_dictionary: final dictionary {"PDB atom name" : "index"} which contain the atom.
+    :param initial_prp_dictionary: initial dictionary {"index" : ("vdw", "charge")} which contain the properties
+    of the template.
+    :param final_prp_dictionary: final dictionary {"index" : ("vdw", "charge")} which contain the properties of
+    the template.
+    :return: dictionary with the properties modified.
+    """
+
+    index_original = initial_atm_dictionary[original_atom]
+    index_final = final_atm_dictionary[final_atom]
+
+    initial_properties = initial_prp_dictionary[index_original]
+    final_prp_dictionary[index_final] = initial_properties
+
+    return final_prp_dictionary
+
+# TESTING PART, PLEASE IGNORE IT
 initial_template = template_reader("mbez")
 final_template = template_reader("pyjz")
 
@@ -110,5 +133,8 @@ atoms_selected_2 = atoms_selector(final_template)
 new_atoms = new_atoms_detector(atoms_selected_1, atoms_selected_2)
 properties = get_atom_properties(new_atoms, final_template)
 
-print(properties)
+prp1 = get_atom_properties(atoms_selected_1, initial_template)
+prp2 = get_atom_properties(atoms_selected_2, final_template)
+
+transformed_properties = transform_properties("_H8_", "_C8_", atoms_selected_1, atoms_selected_2, prp1, prp2)
 
