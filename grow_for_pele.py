@@ -85,7 +85,7 @@ def parse_arguments():
     return args.initial, args.final, args.frag, args.trans, args.contrl, args.pdb, args.resfold, args.criteria, args.dir, args.report, args.traject
 
 
-def main(template_initial, template_final, n_files, transformation, control_file, pdb, results_f_name, criteria, path_pele, report, traject):
+def main(template_initial, template_final, n_files, transformation, control_template, pdb, results_f_name, criteria, path_pele, report, traject):
     """
         Description: This function is the main core of the program. It creates N intermediate templates
         and control files for PELE. Then, it perform N successive simulations automatically.
@@ -122,37 +122,30 @@ def main(template_initial, template_final, n_files, transformation, control_file
         each selected trajectory (the last selected trajectory is the final structure with the ligand grown).
 
         """
-    # Creating template files
-    logger.info((TEMPLATE_MESSAGE.format(template_initial, template_final, n_files)))
-    templates = Growing.template_fragmenter.fragmenter(template_initial, template_final, transformation, n_files)
-    # Creating control files
-    logger.info(SELECTED_MESSAGE.format(control_file, pdb, results_f_name, n_files))
-    control_files = Growing.simulations_linker.control_file_modifier(control_file, pdb, results_f_name, n_files)
+    # Main loop
 
-    # Run Pele for each control file
-
-    # for template, control_file in zip(templates, control_files):
     for n in range(0, n_files):
-        # Run Pele
-        if not os.path.exists("{}_{}".format(results_f_name, string.ascii_lowercase[n])):
-            os.mkdir("{}_{}".format(results_f_name, string.ascii_lowercase[n]))
+
+        # Template creation
+        template = Growing.template_fragmenter.fragmenter(template_initial, template_final, transformation)
+        logger.info((TEMPLATE_MESSAGE.format(template_initial, template_final)))
+
+        # Control file modification
+        control_template = Growing.simulations_linker.control_file_modifier(control_template, pdb, results_f_name)
+        logger.info(SELECTED_MESSAGE.format(control_template, pdb, results_f_name))
+
+        # Running PELE simulation
+        if not os.path.exists("{}_{}".format(results_f_name, n)):
+            os.mkdir("{}_{}".format(results_f_name, n))
         else:
             pass
-        Growing.simulations_linker.simulation_runner(path_pele, CONTROL_PATH.format(string.ascii_lowercase[n]))
-        logger.info(FINISH_SIM_MESSAGE.format(string.ascii_lowercase[n]))
+        Growing.simulations_linker.simulation_runner(path_pele, CONTROL_PATH)
+        logger.info(FINISH_SIM_MESSAGE.format(n))
 
-        # Choose the best trajectory
-        Growing.template_selector.trajectory_selector("{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n+1]),
-                                                      "{}_{}".format(results_f_name, string.ascii_lowercase[n]),
-                                                      report, traject, criteria)
-        Growing.template_selector.change_ligandname("{}_{}_tmp.pdb".format(pdb, string.ascii_lowercase[n + 1]),
-                                                    "{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
+        # Selection of the trajectory used as new input
+        Growing.template_selector.trajectory_selector(pdb, "{}".format(results_f_name), report, traject, criteria)
 
-        if not os.path.isfile("{}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1])):
-            logger.critical("We could not create {}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
-            exit()
-        else:
-            logger.info("Step of the Trajectory selected in {}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
+        logger.info("Step of the Trajectory selected in {}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
 
 
 if __name__ == '__main__':

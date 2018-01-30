@@ -8,21 +8,27 @@ import logging
 # Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
 
-def section_selector(template_input,beg_pattern,end_pattern):
-    '''Using this function you can select a section of the template file which is between beg_patter and end_pattern'''
+def section_selector(template_input, beg_pattern, end_pattern):
+    """
+    Using this function you can select a section of the template file which is between beg_patter and end_pattern
+    """
+
     templates_path = "DataLocal/Templates/OPLS2005/HeteroAtoms/"
-    #Open the template file and save it as a string
+
+    # Open the template file and save it as a string
     if not os.path.exists("{}{}".format(templates_path,template_input)):
         logger.critical("Template {} does not exist!!".format(template_input))
-    with open("{}{}".format(templates_path,template_input), 'r') as input_file:
+    with open("{}{}".format(templates_path, template_input), 'r') as input_file:
         file_content = input_file.read()
         if file_content == "":
             logger.critical("Template file {} is empty!".format(template_input))
-    #Select and return everything between two patterns
+
+    # Select and return everything between two patterns
     section_selected = re.search('{}\n(.*?){}'.format(beg_pattern,end_pattern), file_content, re.DOTALL)
-    if section_selected == None:
-        logger.critical("Template file contain ERRORS!!!".format(beg_pattern,end_pattern))
-        exit("CRITICAL ERROR!!! Check the log file for more information.")
+
+    if not section_selected:
+        logger.critical("Template file contains ERRORS!!!".format(beg_pattern, end_pattern))
+
     return section_selected.group(1)
 
 def fragmenter(template_initial,template_final,transformation,n_files):
