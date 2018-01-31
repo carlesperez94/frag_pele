@@ -1,7 +1,7 @@
 import sys
 import re
 import os
-import string
+from operator import itemgetter
 from shutil import copyfile
 import logging
 
@@ -9,6 +9,12 @@ import logging
 # Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
 
+# Definition of reggex patterns
+ATOM_PATTERN = "\s+(\d+)\s+(\d+)\s+(\w)\s+(\w*)\s+(\w{4,})\s+(\d*)\s+(-?[0-9]*\.[-]?[0-9]*)\s+(-?[0-9]*\.[0-9]*)\s+(-?[0-9]*\.[0-9]*)"
+NBON_PATTERN = "\s+(\d+)\s+(\d+\.\d{4})\s+(\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
+BOND_PATTERN = "\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
+WRITE_NBON_PATTERN = " {:5d}   {:3.4f}   {:3.4f}  {: 3.6f}   {:3.4f}   {:3.4f}   {:3.9f}  {: 3.9f}\n"
+WRITE_BOND_PATTERN = " {:5d} {:5d}   {:5.3f} {: 2.3f}\n"
 
 def template_reader(template_name, path_to_template="DataLocal/Templates/OPLS2005/HeteroAtoms/"):
     """
@@ -43,12 +49,10 @@ def atoms_selector(template):
     :param template: input template (string)
     :return: dictionary {"PDB atom name":"index"}
     """
-    ROW_PATTERN = "\s+(\d+)\s+(\d+)\s+(\w)\s+(\w*)\s+(\w{4,})\s+(\d*)\s+(-?[0-9]*\.[-]?[0-9]*)\s+(-?[0-9]*\.[0-9]*)\s+(-?[0-9]*\.[0-9]*)"
-
     # Select the section of the templates where we have the atoms defined
     atoms_section = section_selector(template, "\*", "NBON")
     # Obtain all rows (list of lists)
-    rows = re.findall(ROW_PATTERN, atoms_section)
+    rows = re.findall(ATOM_PATTERN, atoms_section)
     # Get the atom name from all rows and insert it in a dictionary
     atoms = {}
     for row in rows:
@@ -79,8 +83,6 @@ def get_atom_properties(atoms_dictionary, template):
     :param template: input template (string)
     :return: dictionary {"index" : ("vdw", "charge")}
     """
-    # Definition of the pattern correspondent to NBON section
-    NBON_PATTERN = "\s+(\d+)\s+(\d+\.\d{4})\s+(\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
     # Selection of NBON section of the template
     nbon_section = section_selector(template, "NBON", "BOND")
     # Obtain all rows (list of lists)
@@ -101,6 +103,7 @@ def get_atom_properties(atoms_dictionary, template):
     return properties
 
 
+# We will need to change this function in further updates
 def transform_properties(original_atom, final_atom, initial_atm_dictionary, final_atm_dictionary,
                          initial_prp_dictionary, final_prp_dictionary):
     """
@@ -129,8 +132,6 @@ def get_bonds(template):
     :param template: template (string) that we want to extract bonding information
     :return: dictionary {("index_1", "index_2"): "bond length" }
     """
-    # Definition of the reggex pattern needed in this section
-    BOND_PATTERN = "\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
     # Selecting BOND information
     bonds_section = section_selector(template, "BOND", "THET")
     # Find data (list of lists)
@@ -171,6 +172,7 @@ def get_specific_bonds(atoms_dictionary, bonds_dictionary):
     return selected_bonds_dictionary
 
 
+# We will need to change this function in further updates
 def transform_bond_length(original_atom, initial_atm_dictionary, initial_bnd_dictionary, final_bnd_dictionary):
     """
     :param original_atom: name of the atom of the original template whose bond length will be used to be replaced
@@ -194,6 +196,88 @@ def transform_bond_length(original_atom, initial_atm_dictionary, initial_bnd_dic
     return final_bnd_dictionary
 
 
+def modify_properties(properties_dict, new_atoms_properties_dict, steps):
+    """
+    :param properties_dict: dictionary {"index" : ("vdw", "charge")} that we want to modify.
+    :param new_atoms_properties_dict: dictionary {"index" : ("vdw", "charge")} that we are going to use
+    to know which atoms modify.
+    :param steps: integer with the number of steps that we are going to do to grow the template.
+    :return: modification of properties_dict adding VDW and Charge to the atoms that we want to grow.
+    """
+    for index in properties_dict.keys():
+        # In fact, we are only using the index of the new_atoms_properties_dict to get the changing atoms
+        for new_index in new_atoms_properties_dict.keys():
+            if index == new_index:
+                if float(properties_dict[index][1]) != 0:
+                    # We are adding value/steps to the current value of VDW and charge
+                    properties_dict[index] = (float(properties_dict[index][0]) +
+                                             (float(properties_dict[index][0]) / steps),
+                                              float(properties_dict[index][1]) +
+                                             (float(properties_dict[index][1]) / steps))
+                else:
+                    # We expect always to find positives or negatives values, otherwise we put this warning
+                    # just in case...
+                    logger.warning("Charges of the atom are 0, we can not add charge if we do not know the sign")
+            else:
+                pass
+    return properties_dict
+
+
+def write_nbon_section(template, properties_dict):
+    nbon_section = section_selector(template, "NBON", "BOND")
+    rows = re.findall(NBON_PATTERN, nbon_section)
+    section_modified = []
+    sorted_keys_properties = sorted([int(x) for x in properties_dict.keys()])
+    for key in sorted_keys_properties:
+        for row in rows:
+            if int(row[0]) == key:
+                section_modified.append(WRITE_NBON_PATTERN.format(int(row[0]), float(properties_dict[str(key)][0]),
+                                                                  float(row[2]), float(properties_dict[str(key)][1]),
+                                                                  float(row[4]), float(row[5]),
+                                                                  float(row[6]), float(row[7])))
+            else:
+                pass
+    section_modified = "".join(section_modified)
+    return section_modified
+
+
+def modify_bonds(bonds_dictionary, new_atoms_properties_dict, steps):
+    """
+    :param bonds: dictionary {("index1", "index2") : "bond length"} that we want to modify.
+    :param new_atoms_properties_dict: dictionary {"index" : ("vdw", "charge")} that we are going to use
+    to know which bonds modify.
+    :param steps: integer with the number of steps that we are going to do to grow the template.
+    :return: modification of bonds_dictionary adding length to the initial distance.
+    """
+    for index1, index2 in bonds_dictionary.keys():
+        # We are only using the index of the new_atoms_properties_dict to get the changing atoms
+        for new_index in new_atoms_properties_dict.keys():
+            if index2 == new_index:
+                # We are adding value/steps to the current value of length
+                bonds_dictionary[(index1, index2)] = (float(bonds_dictionary[(index1, index2)]) +
+                                                     (float(bonds_dictionary[(index1, index2)]) / steps))
+            else:
+                pass
+    return bonds_dictionary
+
+
+def write_bond_section(template, bonds_dict):
+    bond_section = section_selector(template, "BOND", "THET")
+    rows = re.findall(BOND_PATTERN, bond_section)
+    section_modified = []
+    # Sort keys (tuple) of the dictionary
+    list_of_keys = list(bonds_dict.keys())
+    list_of_keys.sort(key=lambda list: (int(list[0]), int(list[1])))
+    for key in list_of_keys:
+        for row in rows:
+            if row[1] == key[1]:
+                section_modified.append(WRITE_BOND_PATTERN.format(int(row[0]), int(row[1]),
+                                                                  float(row[2]), float(bonds_dict[tuple(key)])))
+            else:
+                pass
+    section_modified = "".join(section_modified)
+    return section_modified
+
 
 # TESTING PART, PLEASE IGNORE IT
 initial_template = template_reader("mbez")
@@ -208,10 +292,18 @@ properties = get_atom_properties(new_atoms, final_template)
 prp1 = get_atom_properties(atoms_selected_1, initial_template)
 prp2 = get_atom_properties(atoms_selected_2, final_template)
 
-transformed_properties = transform_properties("_H8_", "_C8_", atoms_selected_1, atoms_selected_2, prp1, prp2)
 bonds = get_bonds(initial_template)
 bonds_2 = get_bonds(final_template)
 
 bonding = get_specific_bonds(new_atoms, bonds_2)
+
+modify_properties(prp2, properties, 10)
+transform_properties("_H8_", "_C8_", atoms_selected_1, atoms_selected_2, prp1, prp2)
+modify_bonds(bonds_2, properties, 10)
 transform_bond_length("_H8_", atoms_selected_1, bonds, bonds_2)
+#print(final_template)
+nbon_sect = write_nbon_section(final_template, prp2)
+bon_sect = write_bond_section(final_template, bonds_2)
+
+
 
