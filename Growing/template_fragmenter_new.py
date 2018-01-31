@@ -171,6 +171,30 @@ def get_specific_bonds(atoms_dictionary, bonds_dictionary):
     return selected_bonds_dictionary
 
 
+def transform_bond_length(original_atom, initial_atm_dictionary, initial_bnd_dictionary, final_bnd_dictionary):
+    """
+    :param original_atom: name of the atom of the original template whose bond length will be used to be replaced
+    for the final bond
+    :param initial_atm_dictionary: dictionary with {"PDB atom names" : "index"} of the atoms of the original template
+    :param initial_bnd_dictionary: dictionary {("index_1", "index_2"): "bond length" } of the initial template
+    :param final_bnd_dictionary: dictionary {("index_1", "index_2"): "bond length" } of the final template
+    :return: final_bnd_dictionary will be modified, getting the bond length of the original bonded atom in order to
+    replace it in the final dictionary.
+    """
+    # Collect indexes from original and final dictionaries
+    index_original = initial_atm_dictionary[original_atom]
+
+    # Use this indexes to transform the bonds of the final dictionary to the original ones
+    # We are only using original atom and initial dictionaries because the keys of the dictionary
+    # (bonds) are repeated in both, initial and final, so we can replace the value of the correspondent key.
+    initial_bonds = initial_bnd_dictionary.keys()
+    for bonds in initial_bonds:
+        if bonds[1] == index_original:
+            final_bnd_dictionary[bonds] = initial_bnd_dictionary[bonds]
+    return final_bnd_dictionary
+
+
+
 # TESTING PART, PLEASE IGNORE IT
 initial_template = template_reader("mbez")
 final_template = template_reader("pyjz")
@@ -188,6 +212,6 @@ transformed_properties = transform_properties("_H8_", "_C8_", atoms_selected_1, 
 bonds = get_bonds(initial_template)
 bonds_2 = get_bonds(final_template)
 
-print(new_atoms)
 bonding = get_specific_bonds(new_atoms, bonds_2)
-print(bonding)
+transform_bond_length("_H8_", atoms_selected_1, bonds, bonds_2)
+
