@@ -114,14 +114,62 @@ def transform_properties(original_atom, final_atom, initial_atm_dictionary, fina
     the template.
     :return: dictionary with the properties modified.
     """
-
+    # Collect indexes from original and final dictionaries
     index_original = initial_atm_dictionary[original_atom]
     index_final = final_atm_dictionary[final_atom]
-
+    # Use this indexes to transform the properties of the final dictionary to the original ones
     initial_properties = initial_prp_dictionary[index_original]
     final_prp_dictionary[index_final] = initial_properties
 
     return final_prp_dictionary
+
+
+def get_bonds(template):
+    """
+    :param template: template (string) that we want to extract bonding information
+    :return: dictionary {("index_1", "index_2"): "bond length" }
+    """
+    # Definition of the reggex pattern needed in this section
+    BOND_PATTERN = "\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
+    # Selecting BOND information
+    bonds_section = section_selector(template, "BOND", "THET")
+    # Find data (list of lists)
+    rows = re.findall(BOND_PATTERN, bonds_section)
+    # Creating a dictionary having as key a tuple of indexes (atoms in bond) and the bond length
+    bonds = {}
+    for row in rows:
+        bonds[(row[0], row[1])] = row[3]
+
+    return bonds
+
+
+def get_specific_bonds(atoms_dictionary, bonds_dictionary):
+    """
+    :param atoms_dictionary: dictionary with {"PDB atom names" : "index"} of the atoms that we want to get
+    their bond length.
+    :param bonds_dictionary: dictionary {("index_1", "index_2"): "bond length" } to obtain the information.
+    :return: dictionary {("index_1", "index_2"): "bond length" }
+    """
+    # Get indexes of the dictionary with all the atoms
+    atom_indexes = []
+    for atom_name, index in atoms_dictionary.items():
+        atom_indexes.append(index)
+    # Get indexes of the dictionary with bonding data
+    bonded_indexes = []
+    for bond_indexes, length in bonds_dictionary.items():
+        bonded_indexes.append(bond_indexes)
+    # Create a dictionary where we are going to select the bonds for the atoms of the atom_dictionary
+    selected_bonds_dictionary = {}
+    for index in atom_indexes:
+        for bond in bonded_indexes:
+            # If we want to obtain only bonds that correspond to our atoms dictionary indexes
+            # we have to apply this criteria (bond[1] is the atom that "recives" the bond)
+            if bond[1] == index:
+                selected_bonds_dictionary[bond] = bonds_dictionary[bond]
+            else:
+                pass
+    return selected_bonds_dictionary
+
 
 # TESTING PART, PLEASE IGNORE IT
 initial_template = template_reader("mbez")
@@ -137,4 +185,9 @@ prp1 = get_atom_properties(atoms_selected_1, initial_template)
 prp2 = get_atom_properties(atoms_selected_2, final_template)
 
 transformed_properties = transform_properties("_H8_", "_C8_", atoms_selected_1, atoms_selected_2, prp1, prp2)
+bonds = get_bonds(initial_template)
+bonds_2 = get_bonds(final_template)
 
+print(new_atoms)
+bonding = get_specific_bonds(new_atoms, bonds_2)
+print(bonding)
