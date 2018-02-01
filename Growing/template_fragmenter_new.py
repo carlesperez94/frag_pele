@@ -1,7 +1,6 @@
 import sys
 import re
 import os
-from operator import itemgetter
 from shutil import copyfile
 import logging
 
@@ -196,12 +195,12 @@ def transform_bond_length(original_atom, initial_atm_dictionary, initial_bnd_dic
     return final_bnd_dictionary
 
 
-def modify_properties(properties_dict, new_atoms_properties_dict, steps):
+def modify_properties(properties_dict, new_atoms_properties_dict, step):
     """
     :param properties_dict: dictionary {"index" : ("vdw", "charge")} that we want to modify.
     :param new_atoms_properties_dict: dictionary {"index" : ("vdw", "charge")} that we are going to use
     to know which atoms modify.
-    :param steps: integer with the number of steps that we are going to do to grow the template.
+    :param step: integer with the number of the step of growing that we are in.
     :return: modification of properties_dict adding VDW and Charge to the atoms that we want to grow.
     """
     for index in properties_dict.keys():
@@ -211,9 +210,9 @@ def modify_properties(properties_dict, new_atoms_properties_dict, steps):
                 if float(properties_dict[index][1]) != 0:
                     # We are adding value/steps to the current value of VDW and charge
                     properties_dict[index] = (float(properties_dict[index][0]) +
-                                             (float(properties_dict[index][0]) / steps),
+                                             (float(properties_dict[index][0])/step),
                                               float(properties_dict[index][1]) +
-                                             (float(properties_dict[index][1]) / steps))
+                                             (float(properties_dict[index][1])/step))
                 else:
                     # We expect always to find positives or negatives values, otherwise we put this warning
                     # just in case...
@@ -241,12 +240,12 @@ def write_nbon_section(template, properties_dict):
     return section_modified
 
 
-def modify_bonds(bonds_dictionary, new_atoms_properties_dict, steps):
+def modify_bonds(bonds_dictionary, new_atoms_properties_dict, step):
     """
-    :param bonds: dictionary {("index1", "index2") : "bond length"} that we want to modify.
+    :param bonds_dictionary: dictionary {("index1", "index2") : "bond length"} that we want to modify.
     :param new_atoms_properties_dict: dictionary {"index" : ("vdw", "charge")} that we are going to use
     to know which bonds modify.
-    :param steps: integer with the number of steps that we are going to do to grow the template.
+    :param step: integer with the number of the step of growing that we are in.
     :return: modification of bonds_dictionary adding length to the initial distance.
     """
     for index1, index2 in bonds_dictionary.keys():
@@ -255,7 +254,7 @@ def modify_bonds(bonds_dictionary, new_atoms_properties_dict, steps):
             if index2 == new_index:
                 # We are adding value/steps to the current value of length
                 bonds_dictionary[(index1, index2)] = (float(bonds_dictionary[(index1, index2)]) +
-                                                     (float(bonds_dictionary[(index1, index2)]) / steps))
+                                                     (float(bonds_dictionary[(index1, index2)])/step))
             else:
                 pass
     return bonds_dictionary
@@ -279,31 +278,158 @@ def write_bond_section(template, bonds_dict):
     return section_modified
 
 
-# TESTING PART, PLEASE IGNORE IT
-initial_template = template_reader("mbez")
-final_template = template_reader("pyjz")
-
-atoms_selected_1 = atoms_selector(initial_template)
-atoms_selected_2 = atoms_selector(final_template)
-
-new_atoms = new_atoms_detector(atoms_selected_1, atoms_selected_2)
-properties = get_atom_properties(new_atoms, final_template)
-
-prp1 = get_atom_properties(atoms_selected_1, initial_template)
-prp2 = get_atom_properties(atoms_selected_2, final_template)
-
-bonds = get_bonds(initial_template)
-bonds_2 = get_bonds(final_template)
-
-bonding = get_specific_bonds(new_atoms, bonds_2)
-
-modify_properties(prp2, properties, 10)
-transform_properties("_H8_", "_C8_", atoms_selected_1, atoms_selected_2, prp1, prp2)
-modify_bonds(bonds_2, properties, 10)
-transform_bond_length("_H8_", atoms_selected_1, bonds, bonds_2)
-#print(final_template)
-nbon_sect = write_nbon_section(final_template, prp2)
-bon_sect = write_bond_section(final_template, bonds_2)
+def set_properties(properties_dict, new_atoms_properties_dict, steps):
+    """
+    :param properties_dict: dictionary {"index" : ("vdw", "charge")} that we want to set.
+    :param new_atoms_properties_dict: dictionary {"index" : ("vdw", "charge")} that we are going to use
+    to know which atoms modify.
+    :param steps: integer with the number of steps that we are going to do to grow the template.
+    :return: setting properties_dict VDW and Charge to the atoms that we want to grow.
+    """
+    for index in properties_dict.keys():
+        # In fact, we are only using the index of the new_atoms_properties_dict to get the changing atoms
+        for new_index in new_atoms_properties_dict.keys():
+            if index == new_index:
+                if float(properties_dict[index][1]) != 0:
+                    # We are setting value/steps to the current data of VDW and charge
+                    properties_dict[index] = ((float(properties_dict[index][0]) / steps),
+                                             (float(properties_dict[index][1]) / steps))
+                else:
+                    # We expect always to find positives or negatives values, otherwise we put this warning
+                    # just in case...
+                    logger.warning("Charges of the atom are 0, we can not add charge if we do not know the sign")
+            else:
+                pass
+    return properties_dict
 
 
+def set_bonds(bonds_dictionary, new_atoms_properties_dict, steps):
+    """
+    :param bonds_dictionary: dictionary {("index1", "index2") : "bond length"} that we want to set.
+    :param new_atoms_properties_dict: dictionary {"index" : ("vdw", "charge")} that we are going to use
+    to know which bonds modify.
+    :param steps: integer with the number of steps that we are going to do to grow the template.
+    :return: modification of bonds_dictionary setting the initial length.
+    """
+    for index1, index2 in bonds_dictionary.keys():
+        # We are only using the index of the new_atoms_properties_dict to get the changing atoms
+        for new_index in new_atoms_properties_dict.keys():
+            if index2 == new_index:
+                # We are adding value/steps to the current value of length
+                bonds_dictionary[(index1, index2)] = (float(bonds_dictionary[(index1, index2)]) / steps)
+            else:
+                pass
+    return bonds_dictionary
+
+
+def write_template(reference_template, output_filename, nbon_content, bond_content,
+                   output_path="DataLocal/Templates/OPLS2005/HeteroAtoms/"):
+    """
+    :param reference_template: string containing the whole template that we want to replace.
+    :param output_filename: name of the file of the output template.
+    :param nbon_content: string which contain the nbon section that we will replace to the reference template.
+    :param bond_content: string which contain the bond section that we will replace to the reference template.
+    """
+    content_list = []
+    atoms_section = section_selector(reference_template, "\*", "NBON")
+    angles_section = section_selector(reference_template, "THET", "END")
+    content_list.append("* LIGAND DATABASE FILE (OPLS2005)\n")
+    content_list.append("*\n")
+    content_list.append(atoms_section)
+    content_list.append("NBON\n")
+    content_list.append(nbon_content)
+    content_list.append("BOND\n")
+    content_list.append(bond_content)
+    content_list.append("THET\n")
+    content_list.append(angles_section)
+    content_list.append("END")
+    with open(os.path.join(output_path, output_filename), "w") as template_to_write:
+        template_to_write.write("".join(content_list))
+
+
+# These functions are the main algorithm to modify templates (we will modify them in further updates
+# in order to avoid final templates)
+def generate_starting_template(initial_template_file, final_template_file, original_atom_to_mod, final_atom_to_mod,
+                               output_template_filename, steps=10):
+    """
+    :param initial_template_file: template file of the initial ligand.
+    :param final_template_file: template file of the ligand with the fragment that we want to add.
+    :param original_atom_to_mod: PDB atom name of the atom that we want to transform into another (in initial template).
+    :param final_atom_to_mod: PDB atom name of the atom that will be transformed (in final template).
+    :param output_template_filename: name of the output template.
+    :param steps: number of growing steps.
+    :return: template modified that will be used as starting point to do the growing process.
+    """
+    # Reading initial and final templates and convert them in strings
+    initial_template = template_reader(initial_template_file)
+    final_template = template_reader(final_template_file)
+    # Select the atoms for this templates and convert them into dictionaries objects
+    atoms_selected_initial = atoms_selector(initial_template)
+    atoms_selected_final = atoms_selector(final_template)
+    # Use this dictionaries in order to find differences in atoms to determine which are new ones
+    new_atoms = new_atoms_detector(atoms_selected_initial, atoms_selected_final)
+    # Get also the properties (VDW and Charge) of all the dictionaries
+    properties_initial = get_atom_properties(atoms_selected_initial, initial_template)
+    properties_final = get_atom_properties(atoms_selected_final, final_template)
+    new_atoms_properties = get_atom_properties(new_atoms, final_template)
+    # Get the bonding data for initial and final dictionaries
+    bonds_initial = get_bonds(initial_template)
+    bonds_final = get_bonds(final_template)
+    # We want to generate a starting template, so we will set the properties correspondent to the first step of growing
+    set_properties(properties_final, new_atoms_properties, steps)
+    # As we are transforming a H to a heavy atom (C,O,S...), we want to keep the H properties in the final template so
+    # given their PDB names we will transform these properties of the heavy atom into the H ones
+    transform_properties(original_atom_to_mod, final_atom_to_mod, atoms_selected_initial, atoms_selected_final,
+                         properties_initial, properties_final)
+    # Now, we will repeat the same process for bonding data
+    set_bonds(bonds_final, new_atoms_properties, steps)
+    transform_bond_length(original_atom_to_mod, atoms_selected_initial, bonds_initial, bonds_final)
+    # Once we have all data in place, we will replace the current content of the final template for the starting
+    # values needed to grow
+    nbon_section = write_nbon_section(final_template, properties_final)
+    bond_section = write_bond_section(final_template, bonds_final)
+    # Finally, join everything and write a file with the output template
+    write_template(final_template, output_template_filename, nbon_section, bond_section)
+
+
+# We could save a lot of steps and useless variables in this function if we use variables of the previous one,
+# but I do not want to take the risk creating global variables
+def grow_parameters_in_template(starting_template_file, initial_template_file, final_template_file,
+                                original_atom_to_mod, final_atom_to_mod, output_template_filename, step):
+    # Reading initial and final templates and convert them in strings
+    starting_template = template_reader(starting_template_file)
+    initial_template = template_reader(initial_template_file)
+    final_template = template_reader(final_template_file)
+    # Select the atoms for this templates and convert them into dictionaries objects
+    atoms_selected_initial = atoms_selector(initial_template)
+    atoms_selected_starting = atoms_selector(final_template)
+    # Use this dictionaries in order to find differences in atoms to determine which are new ones
+    new_atoms = new_atoms_detector(atoms_selected_initial, atoms_selected_starting)
+    # Get also the properties (VDW and Charge) of the dictionaries
+    properties_initial = get_atom_properties(atoms_selected_initial, initial_template)
+    new_atoms_properties = get_atom_properties(new_atoms, final_template)
+    properties_starting = get_atom_properties(atoms_selected_starting, starting_template)
+    # Get the bonding data for initial and starting dictionaries
+    bonds_initial = get_bonds(initial_template)
+    bonds_starting = get_bonds(starting_template)
+    # We want to add values to a starting template
+    modify_properties(properties_starting, new_atoms_properties, step)
+    transform_properties(original_atom_to_mod, final_atom_to_mod, atoms_selected_initial, atoms_selected_starting,
+                         properties_initial, properties_starting)
+    # Now, we will repeat the same process for bonding data
+    modify_bonds(bonds_starting, new_atoms_properties, step)
+    transform_bond_length(original_atom_to_mod, atoms_selected_initial, bonds_initial, bonds_starting)
+    # Once we have all data in place, we will replace the current content of the final template for the starting
+    # values needed to grow
+    nbon_section = write_nbon_section(final_template, properties_starting)
+    bond_section = write_bond_section(final_template, bonds_starting)
+    # Finally, join everything and write a file with the output template
+    write_template(final_template, output_template_filename, nbon_section, bond_section)
+
+
+#generate_starting_template("mbez", "pyjz", "_H8_", "_C8_",
+#                           "generation_template.test", steps=10)
+
+#grow_parameters_in_template("generation_template.test", "mbez", "pyjz", "_H8_", "_C8_",
+#                            "generation_template.test", step=2)
 
