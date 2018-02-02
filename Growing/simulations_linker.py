@@ -47,8 +47,8 @@ def control_file_modifier(control_template, pdb, step, results_path="/growing_ou
     # Modifying the control file template
     Helpers.templatize.TemplateBuilder(control_template, keywords)
     # Make a copy in the control files folder
-    shutil.copyfile(control_template, os.path.join(control_path, "{}_{}".format(control_template, step)))
-    logger.info("{}_{} has been created successfully!".format(control_template, step))
+    shutil.copyfile(control_template, os.path.join(control_path, "{}_{}".format(step, control_template)))
+    logger.info("{}_{} has been created successfully!".format(step, control_template))
 
 def simulation_runner(path_to_pele, control_in):
     """

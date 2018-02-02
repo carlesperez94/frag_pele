@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 # Path variables
 TEMPLATES_PATH = "DataLocal/Templates/OPLS2005/HeteroAtoms/"
-CONTROL_PATH = "control_folder/control_growing_{}.conf"
 
 # Messages constants
 TEMPLATE_MESSAGE = "We are going to transform the template _{}_ into _{}_ in _{}_ steps! Starting..."
@@ -162,7 +161,7 @@ def main(template_initial, template_final, n_files, control_template, original_a
             os.mkdir("{}_{}".format(results_f_name, n))
         else:
             pass
-        Growing.simulations_linker.simulation_runner(path_pele, CONTROL_PATH)
+        Growing.simulations_linker.simulation_runner(path_pele, control_template)
         logger.info(FINISH_SIM_MESSAGE.format(n))
 
         # Selection of the trajectory used as new input

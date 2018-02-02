@@ -347,7 +347,7 @@ def write_template(reference_template, output_filename, nbon_content, bond_conte
         template_to_write.write("".join(content_list))
 
 
-# These functions are the main algorithm to modify templates (we will modify them in further updates
+# These last two functions are the main algorithm to modify templates (we will modify them in further updates
 # in order to avoid final templates)
 def generate_starting_template(initial_template_file, final_template_file, original_atom_to_mod, final_atom_to_mod,
                                output_template_filename, steps=10):
@@ -396,6 +396,17 @@ def generate_starting_template(initial_template_file, final_template_file, origi
 # but I do not want to take the risk creating global variables
 def grow_parameters_in_template(starting_template_file, initial_template_file, final_template_file,
                                 original_atom_to_mod, final_atom_to_mod, output_template_filename, step):
+    """
+    :param starting_template_file: template file resultant of generate_starting_template() which contain the properties
+    of the atoms and bonds modified to start the growing.
+    :param initial_template_file: template file of the ligand with the fragment that we want to add.
+    :param final_template_file: template file of the ligand with the fragment that we want to add.
+    :param original_atom_to_mod: PDB atom name of the atom that we want to transform into another (in initial template).
+    :param final_atom_to_mod: PDB atom name of the atom that will be transformed (in final template).
+    :param output_template_filename: name of the output template.
+    :param step: current step of the growing loop.
+    :return: template with the parameters increased linearly.
+    """
     # Reading initial and final templates and convert them in strings
     starting_template = template_reader(starting_template_file)
     initial_template = template_reader(initial_template_file)
@@ -425,11 +436,4 @@ def grow_parameters_in_template(starting_template_file, initial_template_file, f
     bond_section = write_bond_section(final_template, bonds_starting)
     # Finally, join everything and write a file with the output template
     write_template(final_template, output_template_filename, nbon_section, bond_section)
-
-
-#generate_starting_template("mbez", "pyjz", "_H8_", "_C8_",
-#                           "generation_template.test", steps=10)
-
-#grow_parameters_in_template("generation_template.test", "mbez", "pyjz", "_H8_", "_C8_",
-#                            "generation_template.test", step=2)
 
