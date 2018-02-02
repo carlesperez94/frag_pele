@@ -1,6 +1,5 @@
 # General imports
 import os
-import string
 import shutil
 import subprocess
 import logging
@@ -11,46 +10,45 @@ import Helpers.templatize
 # Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
 
-def control_file_modifier(control_file, pdb, results_path="/growing_output", n_files = 10, license="/opt/PELErev12492/licenses"):
+
+def control_file_modifier(control_template, pdb, step, results_path="/growing_output",
+                          license="/opt/PELErev12492/licenses"):
     """
     This function creates n control files for each intermediate template created in order to change
     the logPath, reportPath and trajectoryPath to have all control files prepared for PELE simulations.
     """
     # Obtain the path of the directory
-
     PATH = os.getcwd()
+
+    # Then, in the main loop we will do a copy of control files, so we will print this in the logger
+    control_path = os.path.join(PATH, "control_folder")
+    logger.info("Intermediate control files created will be stored in '{}'".format(control_path))
 
     # Definition of the keywords that we are going to substitute from the template
     keywords = {"LICENSE": license,
                 "RESULTS_PATH": results_path,
                 "PDB": pdb
                 }
-    # Creation of a folder where we are going to contain our control files
+    # Creation of a folder where we are going to contain our control files, just if needed
     if not os.path.exists(os.path.join(PATH, "control_folder")):
         os.mkdir(os.path.join(PATH, "control_folder"))
     else:
-       pass
-    # Then, we are going to put all files inside this folder, so we will create another path variable
-    control_path = os.path.join(PATH, "control_folder")
-    logger.info("Intermediate control files created will be stored in '{}'".format(control_path))
+        pass
+    # Changing the name of the results folder in the dictionary
+    keywords.update({"RESULTS_PATH": "{}_{}".format(os.path.join(PATH, results_path), step)})
 
-    # As we have several templates that uses as input different PDBs we have to do a loop to create this
-    # different templates
-
-    for n in range(0, n_files):
-
-        # First, we are going to create n_files copies of the template in order to keep the original unmodified.
-        control_renamed = os.path.join(control_path, "control_growing_{}.conf".format(string.ascii_lowercase[n]))
-        shutil.copyfile(control_file, control_renamed)
-
-        # Changing the name of the pdb for each control file
-        keywords.update({"RESULTS_PATH": "{}_{}".format(os.path.join(PATH, results_path), string.ascii_lowercase[n]),
-                         "PDB": "{}_{}.pdb".format(pdb, string.ascii_lowercase[n])})
-
-        # Modifying the control file template for each step
-        Helpers.templatize.TemplateBuilder(control_renamed, keywords)
-        logger.info("'{}' has been created successfully!".format(control_renamed))
-
+    # Create a copy of the control template in the control folder, because templatize.py replace the original template
+    if not os.path.exists(os.path.join(control_path, control_template)):
+        shutil.copyfile(control_template, os.path.join(control_path, control_template))
+    # Else, if has been created this means that we already have a template in this folder, so we will need a copy of the
+    # file in the main folder to then replace the template for a real control file
+    else:
+        shutil.copyfile(os.path.join(control_path, control_template), control_template)
+    # Modifying the control file template
+    Helpers.templatize.TemplateBuilder(control_template, keywords)
+    # Make a copy in the control files folder
+    shutil.copyfile(control_template, os.path.join(control_path, "{}_{}".format(control_template, step)))
+    logger.info("{}_{} has been created successfully!".format(control_template, step))
 
 def simulation_runner(path_to_pele, control_in):
     """

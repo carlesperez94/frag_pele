@@ -5,6 +5,7 @@ import string
 import os
 import logging
 from logging.config import fileConfig
+import shutil
 # Local imports
 import Growing.template_selector
 import Growing.template_fragmenter
@@ -17,6 +18,7 @@ fileConfig("/home/carlespl/project/growing/Ligand_growing/log_configure.ini")
 logger = logging.getLogger(__name__)
 
 # Path variables
+TEMPLATES_PATH = "DataLocal/Templates/OPLS2005/HeteroAtoms/"
 CONTROL_PATH = "control_folder/control_growing_{}.conf"
 
 # Messages constants
@@ -40,17 +42,22 @@ def parse_arguments():
 
     # Required arguments
     required_named.add_argument("-i", "--initial", required=True,
-                                help="""input file correspondent to the 
+                                help="""Input file correspondent to the 
                                 initial template for the ligand that you 
                                 want to grow.""")
-    required_named.add_argument("-t", "--trans", required=True,
+    required_named.add_argument("-oa", "--original_atom", required=True,
                                 help="""When an atom is transformed into another
                                 one we want to conserve the properties
                                 of the first one until being changed in the 
-                                last template. The atom name of the initial template
-                                that we want to transform into another of the final
-                                template has to be specified in 
-                                a text file separated by whitespaces.""")
+                                last template. The PDB atom name of the first atom
+                                that we want to transform """)
+    required_named.add_argument("-fa", "--final_atom", required=True,
+                                help="""When an atom is transformed into another
+                                one we want to conserve the properties
+                                of the first one until being changed in the 
+                                last template. The PDB atom name of the final atom
+                                that will have their properties replaced.
+                                """)
     required_named.add_argument("-c", "--contrl", required=True,
                                 help='Initial control file.')
     required_named.add_argument("-p", "--pdb", required=True,
@@ -82,10 +89,11 @@ def parse_arguments():
                         help="Name of the trajectory file from PELE.")
     args = parser.parse_args()
 
-    return args.initial, args.final, args.frag, args.trans, args.contrl, args.pdb, args.resfold, args.criteria, args.dir, args.report, args.traject
+    return args.initial, args.final, args.frag, args.contrl, args.original_atom, args.final_atom, args.pdb, args.resfold, args.criteria, args.dir, args.report, args.traject
 
 
-def main(template_initial, template_final, n_files, transformation, control_template, pdb, results_f_name, criteria, path_pele, report, traject):
+def main(template_initial, template_final, n_files, control_template, original_atom, final_atom, pdb, results_f_name,
+         criteria, path_pele, report, traject):
     """
         Description: This function is the main core of the program. It creates N intermediate templates
         and control files for PELE. Then, it perform N successive simulations automatically.
@@ -125,13 +133,28 @@ def main(template_initial, template_final, n_files, transformation, control_temp
     # Main loop
 
     for n in range(0, n_files):
+        print(n)
 
-        # Template creation
-        template = Growing.template_fragmenter.fragmenter(template_initial, template_final, transformation)
-        logger.info((TEMPLATE_MESSAGE.format(template_initial, template_final)))
-
+        # Template creation part
+        if n == 0:
+            # If we are starting the main loop we have to generate a starting template
+            Growing.template_fragmenter.generate_starting_template(template_initial, template_final, original_atom,
+                                                                   final_atom, template_final, n_files)
+            # Save a copy of the file in growing_templates
+            shutil.copy(os.path.join(TEMPLATES_PATH, template_final),
+                                     os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"),
+                                     "{}_{}".format(template_final,n)))
+        if n > 0 and n < n_files:
+            # Now, we have already create this starting template so we just need to increase their values
+            Growing.template_fragmenter.grow_parameters_in_template(template_initial, template_final,
+                                                                    original_atom, final_atom,
+                                                                    template_final, n)
+        # We have to end up with the final template, so in the last step we will copy it into the templates folder
+        if n == n_files:
+            shutil.copy(os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"),
+                        template_final), os.path.join(TEMPLATES_PATH, template_final))
         # Control file modification
-        control_template = Growing.simulations_linker.control_file_modifier(control_template, pdb, results_f_name)
+        Growing.simulations_linker.control_file_modifier(control_template, pdb, n, results_f_name)
         logger.info(SELECTED_MESSAGE.format(control_template, pdb, results_f_name))
 
         # Running PELE simulation
@@ -149,5 +172,5 @@ def main(template_initial, template_final, n_files, transformation, control_temp
 
 
 if __name__ == '__main__':
-    init, final, frag, trans, control, pdb, res_fold, criteria, path_pele, report, traject = parse_arguments()
-    main(init, final, frag, trans, control, pdb, res_fold, criteria, path_pele, report, traject)
+    init, final, frag, control, original_atom, final_atom, pdb, res_fold, criteria, path_pele, report, traject = parse_arguments()
+    main(init, final, frag, control, original_atom, final_atom, pdb, res_fold, criteria, path_pele, report, traject)

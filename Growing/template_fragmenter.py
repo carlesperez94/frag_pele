@@ -1,208 +1,435 @@
 import sys
 import re
 import os
-import string
 from shutil import copyfile
 import logging
+
 
 # Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
 
-def section_selector(template_input, beg_pattern, end_pattern):
+# Definition of reggex patterns
+ATOM_PATTERN = "\s+(\d+)\s+(\d+)\s+(\w)\s+(\w*)\s+(\w{4,})\s+(\d*)\s+(-?[0-9]*\.[-]?[0-9]*)\s+(-?[0-9]*\.[0-9]*)\s+(-?[0-9]*\.[0-9]*)"
+NBON_PATTERN = "\s+(\d+)\s+(\d+\.\d{4})\s+(\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
+BOND_PATTERN = "\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
+WRITE_NBON_PATTERN = " {:5d}   {:3.4f}   {:3.4f}  {: 3.6f}   {:3.4f}   {:3.4f}   {:3.9f}  {: 3.9f}\n"
+WRITE_BOND_PATTERN = " {:5d} {:5d}   {:5.3f} {: 2.3f}\n"
+
+def template_reader(template_name, path_to_template="DataLocal/Templates/OPLS2005/HeteroAtoms/growing_templates"):
     """
-    Using this function you can select a section of the template file which is between beg_patter and end_pattern
+    This function reads the content of a PELE's template and return it
     """
 
-    templates_path = "DataLocal/Templates/OPLS2005/HeteroAtoms/"
+    with open(os.path.join(path_to_template, template_name), "r") as template_file:
+        template_content = template_file.read()
+        if not template_content:
+            logger.critical("Template file {} is empty!".format(template_name))
 
-    # Open the template file and save it as a string
-    if not os.path.exists("{}{}".format(templates_path,template_input)):
-        logger.critical("Template {} does not exist!!".format(template_input))
-    with open("{}{}".format(templates_path, template_input), 'r') as input_file:
-        file_content = input_file.read()
-        if file_content == "":
-            logger.critical("Template file {} is empty!".format(template_input))
+    return template_content
 
-    # Select and return everything between two patterns
-    section_selected = re.search('{}\n(.*?){}'.format(beg_pattern,end_pattern), file_content, re.DOTALL)
 
-    if not section_selected:
-        logger.critical("Template file contains ERRORS!!!".format(beg_pattern, end_pattern))
+def section_selector(template, pattern_1, pattern_2):
+    """
+    From a template string, this function return a section between two patterns.
+    :param template: input template (string).
+    :param pattern_1: pattern which sets the begining of the section.
+    :param pattern_2: pattern which sets the end of the section.
+    :return: string with the content of the section.
+    """
+
+    section_selected = re.search("{}\n(.*?){}".format(pattern_1, pattern_2), template, re.DOTALL)
 
     return section_selected.group(1)
 
-def fragmenter(template_initial,template_final,transformation,n_files):
-    templates_path = "DataLocal/Templates/OPLS2005/HeteroAtoms/"
-    #Select the section of the templates where is placed the information related with which atoms are there
-    atoms_i_section = section_selector(template_initial,"\*", "NBON")
-    atoms_f_section = section_selector(template_final, "\*", "NBON")
-    #Definition of a patter with regex in order to detect the important information
-    atoms_initial = re.findall('\s+(\d+)\s+(\d+)\s+(\w)\s+(\w*)\s+(\w{4,})\s+(\d*)\s+(-?[0-9]*\.[-]?[0-9]*)\s+(-?[0-9]*\.[0-9]*)\s+(-?[0-9]*\.[0-9]*)', atoms_i_section)
-    logger.info("The following atoms have been found in the initial template:")
-    for atom in atoms_initial:
-        logger.info("{}".format(atom[4]))
-    atoms_final = re.findall('\s+(\d+)\s+(\d+)\s+(\w)\s+(\w*)\s+(\w{4,})\s+(\d*)\s+(-?[0-9]*\.[-]?[0-9]*)\s+(-?[0-9]*\.[0-9]*)\s+(-?[0-9]*\.[0-9]*)', atoms_f_section)
-    logger.info("The following atoms have been found in the final template:")
-    for atom in atoms_final:
-        logger.info("{}".format(atom[4]))
-    #Searching for new atoms in final template
-    #First make two lists with all the symbols for each atom
-    atoms_initial_symbol=[]
-    atoms_final_symbol=[]
-    for atom in atoms_initial:
-        atoms_initial_symbol.append(atom[4])
-    for atom in atoms_final:
-        atoms_final_symbol.append(atom[4])
-    #Now, find with symbols are different between initial and final template
-    new_atoms_symbol=[]
-    for atom in atoms_final_symbol:
-        if atom not in atoms_initial_symbol:
-            new_atoms_symbol.append(atom)
-    logger.info("The following new atoms have been detected:")
-    for atom in new_atoms_symbol:
-        logger.info(atom)
-    if new_atoms_symbol == []:
-        logger.critical("Something went wrong... We could not find new atoms!!! Check templates and try again!")
-        exit("CRITICAL ERROR!!! Check the log file for more information.")
-    #Now we have the atoms that have been added in the list new_atoms_symbols. We want to obtain their index:
-    logger.info("Checking indexing for new atoms...")
-    new_atoms_indexes=[]
-    for atom_new in new_atoms_symbol:
-        for atom in atoms_final:
-            if atom[4] == atom_new:
-                new_atoms_indexes.append(atom[0])
-    #Creation of the intermediate templates and starting to fill them
-    for n in range(n_files):
-        f=open("{}{}{}z".format(templates_path,string.ascii_lowercase[n], template_final[0:2]), 'w')
-        find_ligname = re.search('^({})\s+'.format(template_final[0:3].upper()),atoms_f_section,re.DOTALL)
-        #Replacing the name of the ligand and writing the files:
-        f.write("* LIGAND DATABASE FILE (OPLS2005)\n*\n{}".format(atoms_f_section.replace("{}".format(find_ligname.group(1)),"{}{}".format(string.ascii_uppercase[n],template_final[0:2].upper()))))
-    #Reading the atoms that we are going to transform. F.ex: an H6 into C7.
-    with open(transformation, 'r') as transf:
-        transformations = []
-        index_transformation=[]
-        for line in transf:
-            transformations.append((line.split()[0], line.split()[1]))
-        for transformation in transformations:
-            logger.info("Transforming {} to {}...".format(transformation[0], transformation[1]))
-            if transformation == []:
-                logger.warning("There are not atoms to be transformed!")
-            if transformation[1] in new_atoms_symbol and transformation[0] in atoms_initial_symbol:
-                index_transformation.append((int(atoms_initial_symbol.index(transformation[0]))+1,new_atoms_indexes[new_atoms_symbol.index(transformation[1])]))
-    #Reading NBON parameters
-    logger.info("Reading NBON parameters...")
-    nbon_section_i=section_selector(template_initial,"NBON","BOND")
-    nbon_section_f=section_selector(template_final,"NBON","BOND")
-    #Definition of a patter with regex in order to detect the important information
-    nbon_initial = re.findall(
-        '\s+(\d+)\s+(\d+\.\d{4})\s+(\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)',
-        nbon_section_i)
-    if nbon_initial == []:
-        logger.critical("Something went wrong... We cannot read NBON section of the initial template!")
-        exit("CRITICAL ERROR!!! Check the log file for more information.")
-    nbon_final = re.findall(
-        '\s+(\d+)\s+(\d+\.\d{4})\s+(\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)',
-        nbon_section_f)
-    if nbon_final == []:
-        logger.critical("Something went wrong... We cannot read NBON section of the final template!")
-        exit("CRITICAL ERROR!!! Check the log file for more information.")
-    logger.info("Reading VDW...")
-    #We are going to modify nbon_final, so we want to transform it into a list of lists.
-    nbon_final = [list(elem) for elem in nbon_final]
-    #Reading Vann Der Waals and Charges
-    nbond_to_modify=[]
-    for element in nbon_final:
-        if element[0] in new_atoms_indexes:
-            nbond_to_modify.append((element[0],element[1], element[3]))
-    logger.info("The following NBON parameters are going to be modified:")
-    logger.info("Index      VDW   Charge")
-    if nbond_to_modify == []:
-        logger.critical("Something went wrong... We cannot modify NBON parameters!")
-        exit("CRITICAL ERROR!!! Check the log file for more information.")
-    for element in nbond_to_modify:
-        logger.info("{:>2}      {}     {: 3.9f}".format(element[0],element[1],float(element[2])))
-    #Tranforming atoms
-    banned_index=[]
-    for something in nbond_to_modify:
-        for index in index_transformation:
-            if int(something[0]) == int(index[1]):
-                banned_index.append(index[1])
-                #We are doing substitutions of the lines that contain atoms that need to be transformed
-                nbon_final[int(index[1])-1][1] = nbon_initial[int(index[0])-1][1]
-                nbon_final[int(index[1]) - 1][3] = nbon_initial[int(index[0]) - 1][3]
-    #Writting NBON section:
-    os.chdir("{}".format(templates_path, template_final))
-    for n in range(1,n_files):
-        f = open("{}{}z".format(string.ascii_lowercase[n-1], template_final[0:2]), 'a')
-        f.write("NBON\n")
-        for element in nbon_final:
-            #We are selecting the data of the atoms that are new but they do not belong to transformed group
-            if element[0] in new_atoms_indexes and element[0] not in banned_index:
-                f.write(" {:5d}   {:3.4f}   {:3.4f}  {: 3.6f}   {:3.4f}   {:3.4f}   {:3.9f}  {: 3.9f}\n".format(
-                int(element[0]), float((n*float(element[1]))/int(n_files)), float(element[2]), float(0.0), float(element[4]),
-                float(element[5]), float(element[6]), float(element[7])))
-            #Now, the transformed ones and the not new atoms.
+
+def atoms_selector(template):
+    """
+    Given a template, it returns a dictionary with the atoms found.
+    :param template: input template (string)
+    :return: dictionary {"PDB atom name":"index"}
+    """
+    # Select the section of the templates where we have the atoms defined
+    atoms_section = section_selector(template, "\*", "NBON")
+    # Obtain all rows (list of lists)
+    rows = re.findall(ATOM_PATTERN, atoms_section)
+    # Get the atom name from all rows and insert it in a dictionary
+    atoms = {}
+    for row in rows:
+        atoms[row[4]] = row[0]
+    return atoms
+
+
+# Temporary function
+def new_atoms_detector(initial_atoms, final_atoms):
+    """
+    :param initial_atoms: initial dictionary with {"PDB atom names" : "index"}
+    :param final_atoms: final dictionary with {"PDB atom names" : "index"}
+    :return: dictionary with {"PDB atom names" : "index"} of the new atoms found.
+    """
+    # Find the differences between keys in both dictionaries
+    differences = final_atoms.keys()-initial_atoms.keys()
+
+    # Now, transform the object to dictionary in order to find the keys
+    diff_dictionary = {}
+    for atom_name in differences:
+        diff_dictionary[atom_name] = final_atoms[atom_name]
+    return diff_dictionary
+
+
+def get_atom_properties(atoms_dictionary, template):
+    """
+    :param atoms_dictionary: dictionary with {"PDB atom names" : "index"}
+    :param template: input template (string)
+    :return: dictionary {"index" : ("vdw", "charge")}
+    """
+    # Selection of NBON section of the template
+    nbon_section = section_selector(template, "NBON", "BOND")
+    # Obtain all rows (list of lists)
+    rows = re.findall(NBON_PATTERN, nbon_section)
+    # Obtain a list with the indexes of atoms
+    atom_indexes = []
+    for atom_name, index in atoms_dictionary.items():
+        atom_indexes.append(index)
+    # Get the properties for each index
+    properties = {}
+    for row in rows:
+        index = row[0]
+        if index in atom_indexes:
+            properties[index] = (row[1], row[3])
+        else:
+            pass
+
+    return properties
+
+
+# We will need to change this function in further updates
+def transform_properties(original_atom, final_atom, initial_atm_dictionary, final_atm_dictionary,
+                         initial_prp_dictionary, final_prp_dictionary):
+    """
+    :param original_atom: atom that we want to transform into another.
+    :param final_atom: atom that we want to finally get.
+    :param initial_atm_dictionary: initial dictionary {"PDB atom name" : "index"} which contain the atom.
+    :param final_atm_dictionary: final dictionary {"PDB atom name" : "index"} which contain the atom.
+    :param initial_prp_dictionary: initial dictionary {"index" : ("vdw", "charge")} which contain the properties
+    of the template.
+    :param final_prp_dictionary: final dictionary {"index" : ("vdw", "charge")} which contain the properties of
+    the template.
+    :return: dictionary with the properties modified.
+    """
+    # Collect indexes from original and final dictionaries
+    index_original = initial_atm_dictionary[original_atom]
+    index_final = final_atm_dictionary[final_atom]
+    # Use this indexes to transform the properties of the final dictionary to the original ones
+    initial_properties = initial_prp_dictionary[index_original]
+    final_prp_dictionary[index_final] = initial_properties
+
+    return final_prp_dictionary
+
+
+def get_bonds(template):
+    """
+    :param template: template (string) that we want to extract bonding information
+    :return: dictionary {("index_1", "index_2"): "bond length" }
+    """
+    # Selecting BOND information
+    bonds_section = section_selector(template, "BOND", "THET")
+    # Find data (list of lists)
+    rows = re.findall(BOND_PATTERN, bonds_section)
+    # Creating a dictionary having as key a tuple of indexes (atoms in bond) and the bond length
+    bonds = {}
+    for row in rows:
+        bonds[(row[0], row[1])] = row[3]
+
+    return bonds
+
+
+def get_specific_bonds(atoms_dictionary, bonds_dictionary):
+    """
+    :param atoms_dictionary: dictionary with {"PDB atom names" : "index"} of the atoms that we want to get
+    their bond length.
+    :param bonds_dictionary: dictionary {("index_1", "index_2"): "bond length" } to obtain the information.
+    :return: dictionary {("index_1", "index_2"): "bond length" }
+    """
+    # Get indexes of the dictionary with all the atoms
+    atom_indexes = []
+    for atom_name, index in atoms_dictionary.items():
+        atom_indexes.append(index)
+    # Get indexes of the dictionary with bonding data
+    bonded_indexes = []
+    for bond_indexes, length in bonds_dictionary.items():
+        bonded_indexes.append(bond_indexes)
+    # Create a dictionary where we are going to select the bonds for the atoms of the atom_dictionary
+    selected_bonds_dictionary = {}
+    for index in atom_indexes:
+        for bond in bonded_indexes:
+            # If we want to obtain only bonds that correspond to our atoms dictionary indexes
+            # we have to apply this criteria (bond[1] is the atom that "recives" the bond)
+            if bond[1] == index:
+                selected_bonds_dictionary[bond] = bonds_dictionary[bond]
             else:
-                f.write(" {:5d}   {:3.4f}   {:3.4f}  {: 3.6f}   {:3.4f}   {:3.4f}   {:3.9f}  {: 3.9f}\n".format(
-                    int(element[0]), float(element[1]), float(element[2]), float(element[3]), float(element[4]),
-                    float(element[5]), float(element[6]), float(element[7])))
-    os.chdir("../../../../")
-    #Reading BOND parameters
-    logger.info("Reading BOND parameters...")
-    bond_section_i = section_selector(template_initial, "BOND", "THET")
-    bond_section_f = section_selector(template_final, "BOND", "THET")
-    #Definition of a patter with regex in order to detect the important information
-    bond_initial = re.findall('\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)',bond_section_i)
-    if bond_initial == []:
-        logger.critical("Something went wrong... We cannot read BOND section of the initial template!")
-        exit("CRITICAL ERROR!!! Check the log file for more information.")
-    bond_final = re.findall('\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)',bond_section_f)
-    if bond_final == []:
-        logger.critical("Something went wrong... We cannot read BOND section of the final template!")
-        exit("CRITICAL ERROR!!! Check the log file for more information.")
-    logger.info("Modifying BOND parameters...")
-    #Writting BOND section:
-    os.chdir("{}".format(templates_path, template_final))
-    for n in range(1, n_files):
-        f = open("{}{}z".format(string.ascii_lowercase[n - 1], template_final[0:2]), 'a')
-        f.write("BOND\n")
-        for bond in bond_final:
-            if bond[1] in new_atoms_indexes:
-                for index in index_transformation:
-                    if bond[1] != index[1]:
-                        f.write(" {:5d} {:5d}   {:5.3f} {: 2.3f}\n".format(
-                            int(bond[0]), int(bond[1]), float(bond[2]), float(float(bond[3])*n/n_files)))
-                    else:
-                        for element in bond_initial:
-                            if bond[1] == element[1]:
-                                f.write(" {:5d} {:5d}   {:5.3f} {: 2.3f}\n".format(
-                                    int(bond[0]), int(bond[1]), float(bond[2]), float(element[3])))
+                pass
+    return selected_bonds_dictionary
+
+
+# We will need to change this function in further updates
+def transform_bond_length(original_atom, initial_atm_dictionary, initial_bnd_dictionary, final_bnd_dictionary):
+    """
+    :param original_atom: name of the atom of the original template whose bond length will be used to be replaced
+    for the final bond
+    :param initial_atm_dictionary: dictionary with {"PDB atom names" : "index"} of the atoms of the original template
+    :param initial_bnd_dictionary: dictionary {("index_1", "index_2"): "bond length" } of the initial template
+    :param final_bnd_dictionary: dictionary {("index_1", "index_2"): "bond length" } of the final template
+    :return: final_bnd_dictionary will be modified, getting the bond length of the original bonded atom in order to
+    replace it in the final dictionary.
+    """
+    # Collect indexes from original and final dictionaries
+    index_original = initial_atm_dictionary[original_atom]
+
+    # Use this indexes to transform the bonds of the final dictionary to the original ones
+    # We are only using original atom and initial dictionaries because the keys of the dictionary
+    # (bonds) are repeated in both, initial and final, so we can replace the value of the correspondent key.
+    initial_bonds = initial_bnd_dictionary.keys()
+    for bonds in initial_bonds:
+        if bonds[1] == index_original:
+            final_bnd_dictionary[bonds] = initial_bnd_dictionary[bonds]
+    return final_bnd_dictionary
+
+
+def modify_properties(properties_dict, new_atoms_properties_dict, step):
+    """
+    :param properties_dict: dictionary {"index" : ("vdw", "charge")} that we want to modify.
+    :param new_atoms_properties_dict: dictionary {"index" : ("vdw", "charge")} that we are going to use
+    to know which atoms modify.
+    :param step: integer with the number of the step of growing that we are in.
+    :return: modification of properties_dict adding VDW and Charge to the atoms that we want to grow.
+    """
+    for index in properties_dict.keys():
+        # In fact, we are only using the index of the new_atoms_properties_dict to get the changing atoms
+        for new_index in new_atoms_properties_dict.keys():
+            if index == new_index:
+                if float(properties_dict[index][1]) != 0:
+                    # We are adding value/steps to the current value of VDW and charge
+                    properties_dict[index] = (float(properties_dict[index][0]) +
+                                             (float(properties_dict[index][0])/step),
+                                              float(properties_dict[index][1]) +
+                                             (float(properties_dict[index][1])/step))
+                else:
+                    # We expect always to find positives or negatives values, otherwise we put this warning
+                    # just in case...
+                    logger.warning("Charges of the atom are 0, we can not add charge if we do not know the sign")
             else:
-                f.write(" {:5d} {:5d}   {:5.3f} {: 2.3f}\n".format(
-                    int(bond[0]), int(bond[1]), float(bond[2]), float(bond[3])))
-    os.chdir("../../../../")
-    #Write the final part of the file:
-    logger.info("Filling the rest of the file...")
-    end_section_f = section_selector(template_final, "THET", "END")
-    os.chdir("{}".format(templates_path, template_final))
-    for n in range(1, n_files+1):
-        f = open("{}{}z".format(string.ascii_lowercase[n - 1], template_final[0:2]), 'a')
-        f.write("THET\n")
-        f.write("{}".format(end_section_f))
-        f.write("END\n")
-        f.close()
-    os.chdir("../../../../")
-    #Add the final template:
-    copyfile("{}{}".format(templates_path,template_final),"{}{}{}z".format(templates_path,string.ascii_lowercase[n_files-1], template_final[0:2]))
-    fr = open("{}{}{}z".format(templates_path,string.ascii_lowercase[n_files-1], template_final[0:2]),'r')
-    content = fr.read()
-    find_ligname = re.search('({})\s+'.format(template_final[0:3].upper()), content)
-    fw = open(
-        "{}/{}{}z".format(templates_path, string.ascii_lowercase[n_files - 1], template_final[0:2]),
-        'w')
-    fw.write("{}".format(
-            content.replace("{}".format(find_ligname.group(1)),
-                                    "{}{}".format(string.ascii_uppercase[n_files-1], template_final[0:2].upper()))))
-    fr.close()
-    fw.close()
-    logger.info("=========== Process finished ===========")
+                pass
+    return properties_dict
+
+
+def write_nbon_section(template, properties_dict):
+    nbon_section = section_selector(template, "NBON", "BOND")
+    rows = re.findall(NBON_PATTERN, nbon_section)
+    section_modified = []
+    sorted_keys_properties = sorted([int(x) for x in properties_dict.keys()])
+    for key in sorted_keys_properties:
+        for row in rows:
+            if int(row[0]) == key:
+                section_modified.append(WRITE_NBON_PATTERN.format(int(row[0]), float(properties_dict[str(key)][0]),
+                                                                  float(row[2]), float(properties_dict[str(key)][1]),
+                                                                  float(row[4]), float(row[5]),
+                                                                  float(row[6]), float(row[7])))
+            else:
+                pass
+    section_modified = "".join(section_modified)
+    return section_modified
+
+
+def modify_bonds(bonds_dictionary, new_atoms_properties_dict, step):
+    """
+    :param bonds_dictionary: dictionary {("index1", "index2") : "bond length"} that we want to modify.
+    :param new_atoms_properties_dict: dictionary {"index" : ("vdw", "charge")} that we are going to use
+    to know which bonds modify.
+    :param step: integer with the number of the step of growing that we are in.
+    :return: modification of bonds_dictionary adding length to the initial distance.
+    """
+    for index1, index2 in bonds_dictionary.keys():
+        # We are only using the index of the new_atoms_properties_dict to get the changing atoms
+        for new_index in new_atoms_properties_dict.keys():
+            if index2 == new_index:
+                # We are adding value/steps to the current value of length
+                bonds_dictionary[(index1, index2)] = (float(bonds_dictionary[(index1, index2)]) +
+                                                     (float(bonds_dictionary[(index1, index2)])/step))
+            else:
+                pass
+    return bonds_dictionary
+
+
+def write_bond_section(template, bonds_dict):
+    bond_section = section_selector(template, "BOND", "THET")
+    rows = re.findall(BOND_PATTERN, bond_section)
+    section_modified = []
+    # Sort keys (tuple) of the dictionary
+    list_of_keys = list(bonds_dict.keys())
+    list_of_keys.sort(key=lambda list: (int(list[0]), int(list[1])))
+    for key in list_of_keys:
+        for row in rows:
+            if row[1] == key[1]:
+                section_modified.append(WRITE_BOND_PATTERN.format(int(row[0]), int(row[1]),
+                                                                  float(row[2]), float(bonds_dict[tuple(key)])))
+            else:
+                pass
+    section_modified = "".join(section_modified)
+    return section_modified
+
+
+def set_properties(properties_dict, new_atoms_properties_dict, steps):
+    """
+    :param properties_dict: dictionary {"index" : ("vdw", "charge")} that we want to set.
+    :param new_atoms_properties_dict: dictionary {"index" : ("vdw", "charge")} that we are going to use
+    to know which atoms modify.
+    :param steps: integer with the number of steps that we are going to do to grow the template.
+    :return: setting properties_dict VDW and Charge to the atoms that we want to grow.
+    """
+    for index in properties_dict.keys():
+        # In fact, we are only using the index of the new_atoms_properties_dict to get the changing atoms
+        for new_index in new_atoms_properties_dict.keys():
+            if index == new_index:
+                if float(properties_dict[index][1]) != 0:
+                    # We are setting value/steps to the current data of VDW and charge
+                    properties_dict[index] = ((float(properties_dict[index][0]) / steps),
+                                             (float(properties_dict[index][1]) / steps))
+                else:
+                    # We expect always to find positives or negatives values, otherwise we put this warning
+                    # just in case...
+                    logger.warning("Charges of the atom are 0, we can not add charge if we do not know the sign")
+            else:
+                pass
+    return properties_dict
+
+
+def set_bonds(bonds_dictionary, new_atoms_properties_dict, steps):
+    """
+    :param bonds_dictionary: dictionary {("index1", "index2") : "bond length"} that we want to set.
+    :param new_atoms_properties_dict: dictionary {"index" : ("vdw", "charge")} that we are going to use
+    to know which bonds modify.
+    :param steps: integer with the number of steps that we are going to do to grow the template.
+    :return: modification of bonds_dictionary setting the initial length.
+    """
+    for index1, index2 in bonds_dictionary.keys():
+        # We are only using the index of the new_atoms_properties_dict to get the changing atoms
+        for new_index in new_atoms_properties_dict.keys():
+            if index2 == new_index:
+                # We are adding value/steps to the current value of length
+                bonds_dictionary[(index1, index2)] = (float(bonds_dictionary[(index1, index2)]) / steps)
+            else:
+                pass
+    return bonds_dictionary
+
+
+def write_template(reference_template, output_filename, nbon_content, bond_content,
+                   output_path="DataLocal/Templates/OPLS2005/HeteroAtoms/"):
+    """
+    :param reference_template: string containing the whole template that we want to replace.
+    :param output_filename: name of the file of the output template.
+    :param nbon_content: string which contain the nbon section that we will replace to the reference template.
+    :param bond_content: string which contain the bond section that we will replace to the reference template.
+    """
+    content_list = []
+    atoms_section = section_selector(reference_template, "\*", "NBON")
+    angles_section = section_selector(reference_template, "THET", "END")
+    content_list.append("* LIGAND DATABASE FILE (OPLS2005)\n")
+    content_list.append("*\n")
+    content_list.append(atoms_section)
+    content_list.append("NBON\n")
+    content_list.append(nbon_content)
+    content_list.append("BOND\n")
+    content_list.append(bond_content)
+    content_list.append("THET\n")
+    content_list.append(angles_section)
+    content_list.append("END")
+    with open(os.path.join(output_path, output_filename), "w") as template_to_write:
+        template_to_write.write("".join(content_list))
+
+
+# These functions are the main algorithm to modify templates (we will modify them in further updates
+# in order to avoid final templates)
+def generate_starting_template(initial_template_file, final_template_file, original_atom_to_mod, final_atom_to_mod,
+                               output_template_filename, steps=10):
+    """
+    :param initial_template_file: template file of the initial ligand.
+    :param final_template_file: template file of the ligand with the fragment that we want to add.
+    :param original_atom_to_mod: PDB atom name of the atom that we want to transform into another (in initial template).
+    :param final_atom_to_mod: PDB atom name of the atom that will be transformed (in final template).
+    :param output_template_filename: name of the output template.
+    :param steps: number of growing steps.
+    :return: template modified that will be used as starting point to do the growing process.
+    """
+    # Reading initial and final templates and convert them in strings
+    initial_template = template_reader(initial_template_file)
+    final_template = template_reader(final_template_file)
+    # Select the atoms for this templates and convert them into dictionaries objects
+    atoms_selected_initial = atoms_selector(initial_template)
+    atoms_selected_final = atoms_selector(final_template)
+    # Use this dictionaries in order to find differences in atoms to determine which are new ones
+    new_atoms = new_atoms_detector(atoms_selected_initial, atoms_selected_final)
+    # Get also the properties (VDW and Charge) of all the dictionaries
+    properties_initial = get_atom_properties(atoms_selected_initial, initial_template)
+    properties_final = get_atom_properties(atoms_selected_final, final_template)
+    new_atoms_properties = get_atom_properties(new_atoms, final_template)
+    # Get the bonding data for initial and final dictionaries
+    bonds_initial = get_bonds(initial_template)
+    bonds_final = get_bonds(final_template)
+    # We want to generate a starting template, so we will set the properties correspondent to the first step of growing
+    set_properties(properties_final, new_atoms_properties, steps)
+    # As we are transforming a H to a heavy atom (C,O,S...), we want to keep the H properties in the final template so
+    # given their PDB names we will transform these properties of the heavy atom into the H ones
+    transform_properties(original_atom_to_mod, final_atom_to_mod, atoms_selected_initial, atoms_selected_final,
+                         properties_initial, properties_final)
+    # Now, we will repeat the same process for bonding data
+    set_bonds(bonds_final, new_atoms_properties, steps)
+    transform_bond_length(original_atom_to_mod, atoms_selected_initial, bonds_initial, bonds_final)
+    # Once we have all data in place, we will replace the current content of the final template for the starting
+    # values needed to grow
+    nbon_section = write_nbon_section(final_template, properties_final)
+    bond_section = write_bond_section(final_template, bonds_final)
+    # Finally, join everything and write a file with the output template
+    write_template(final_template, output_template_filename, nbon_section, bond_section)
+
+
+# We could save a lot of steps and useless variables in this function if we use variables of the previous one,
+# but I do not want to take the risk creating global variables
+def grow_parameters_in_template(starting_template_file, initial_template_file, final_template_file,
+                                original_atom_to_mod, final_atom_to_mod, output_template_filename, step):
+    # Reading initial and final templates and convert them in strings
+    starting_template = template_reader(starting_template_file)
+    initial_template = template_reader(initial_template_file)
+    final_template = template_reader(final_template_file)
+    # Select the atoms for this templates and convert them into dictionaries objects
+    atoms_selected_initial = atoms_selector(initial_template)
+    atoms_selected_starting = atoms_selector(final_template)
+    # Use this dictionaries in order to find differences in atoms to determine which are new ones
+    new_atoms = new_atoms_detector(atoms_selected_initial, atoms_selected_starting)
+    # Get also the properties (VDW and Charge) of the dictionaries
+    properties_initial = get_atom_properties(atoms_selected_initial, initial_template)
+    new_atoms_properties = get_atom_properties(new_atoms, final_template)
+    properties_starting = get_atom_properties(atoms_selected_starting, starting_template)
+    # Get the bonding data for initial and starting dictionaries
+    bonds_initial = get_bonds(initial_template)
+    bonds_starting = get_bonds(starting_template)
+    # We want to add values to a starting template
+    modify_properties(properties_starting, new_atoms_properties, step)
+    transform_properties(original_atom_to_mod, final_atom_to_mod, atoms_selected_initial, atoms_selected_starting,
+                         properties_initial, properties_starting)
+    # Now, we will repeat the same process for bonding data
+    modify_bonds(bonds_starting, new_atoms_properties, step)
+    transform_bond_length(original_atom_to_mod, atoms_selected_initial, bonds_initial, bonds_starting)
+    # Once we have all data in place, we will replace the current content of the final template for the starting
+    # values needed to grow
+    nbon_section = write_nbon_section(final_template, properties_starting)
+    bond_section = write_bond_section(final_template, bonds_starting)
+    # Finally, join everything and write a file with the output template
+    write_template(final_template, output_template_filename, nbon_section, bond_section)
+
+
+#generate_starting_template("mbez", "pyjz", "_H8_", "_C8_",
+#                           "generation_template.test", steps=10)
+
+#grow_parameters_in_template("generation_template.test", "mbez", "pyjz", "_H8_", "_C8_",
+#                            "generation_template.test", step=2)
+
