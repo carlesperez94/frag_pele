@@ -1,7 +1,6 @@
 import sys
 import re
 import os
-from shutil import copyfile
 import logging
 
 
@@ -210,9 +209,9 @@ def modify_properties(properties_dict, new_atoms_properties_dict, step):
                 if float(properties_dict[index][1]) != 0:
                     # We are adding value/steps to the current value of VDW and charge
                     properties_dict[index] = (float(properties_dict[index][0]) +
-                                             (float(properties_dict[index][0])/step),
+                                             (float(properties_dict[index][0])*step),
                                               float(properties_dict[index][1]) +
-                                             (float(properties_dict[index][1])/step))
+                                             (float(properties_dict[index][1])*step))
                 else:
                     # We expect always to find positives or negatives values, otherwise we put this warning
                     # just in case...
@@ -254,7 +253,7 @@ def modify_bonds(bonds_dictionary, new_atoms_properties_dict, step):
             if index2 == new_index:
                 # We are adding value/steps to the current value of length
                 bonds_dictionary[(index1, index2)] = (float(bonds_dictionary[(index1, index2)]) +
-                                                     (float(bonds_dictionary[(index1, index2)])/step))
+                                                     (float(bonds_dictionary[(index1, index2)])*step))
             else:
                 pass
     return bonds_dictionary

@@ -22,7 +22,6 @@ def trajectory_selector(output, path_to_file="/growing_output", report="report",
 
     # Storing the report file as pandas data-frame
     data = pd.read_csv(os.path.join(path_to_file, report), sep='    ', engine='python')
-    print(data)
 
     # Now, select only the columns correspondent to the numberOfAcceptedPeleSteps
     # (if you sum 1 to this number you can obtain the step in the trajectory) and the criteria
@@ -50,6 +49,7 @@ def trajectory_selector(output, path_to_file="/growing_output", report="report",
         logger.info(":::.MODEL     {} has been selected.:::".format(int(min_trajectory + 1)))
 
 
+# Old function. We are not using it now.
 def change_ligandname(input_file, output):
     """
     From an input pdb file this function replace the first character of the ligand name

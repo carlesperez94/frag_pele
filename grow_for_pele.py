@@ -23,7 +23,7 @@ TEMPLATES_PATH = "DataLocal/Templates/OPLS2005/HeteroAtoms/"
 # Messages constants
 TEMPLATE_MESSAGE = "We are going to transform the template _{}_ into _{}_ in _{}_ steps! Starting..."
 SELECTED_MESSAGE = "\n============ Files selected ============\nControl file: {}\nPDB file: {}\nResults folder name: {}\n"
-FINISH_SIM_MESSAGE = "SIMULATION FOR control_growing_{} COMPLETED!!! "
+FINISH_SIM_MESSAGE = "SIMULATION {} COMPLETED!!! "
 
 
 def parse_arguments():
@@ -99,62 +99,60 @@ def main(template_initial, template_final, n_files, control_template, original_a
 
         Input:
 
-        "template_initial" --> Name of the input file correspondent to the initial template for the ligand that you
-                               want to grow.
-
-        "template_final" --> Name of the input file correspondent to the final template for the ligand that you want
-                             to get.
-
-        "n_files" --> Number of intermediate templates that you want to generate
-
-        "transformation" --> When an atom is transformed into another one we want to conserve the properties.
-                             The atom name of the initial template that we want to transform into another of
-                             the final template has to be specified in a text file separated by whitespaces.
-
-        "control_file" --> Template control file used to generate intermediates control files.
-
-        "pdb" --> Initial pdb file which already contain the ligand with the fragment that we want to grow
-                  but with bond lengths correspondent to the initial ligand (dummy-like).
-
-        "results_f_name" --> Name for results folder
-
-        "criteria" --> Name of the column of the report file used as criteria in order to select the template
-                       used as input for successive simulations.
-
-        "path_pele" --> Complete path to Pele_serial
-
-        Output:
-
-        First, intermediate control files and templates. Then, the results for each simulation and a pdb file for
-        each selected trajectory (the last selected trajectory is the final structure with the ligand grown).
-
+        :param: template_initial: Name of the input file correspondent to the initial template for the ligand that you
+        want to grow.
+        :param template_final: Name of the input file correspondent to the final template for the ligand that you want
+        to get.
+        :param n_files: Number of intermediate templates that you want to generate
+        :param original_atom: When an atom is transformed into another one we want to conserve the properties.
+        The PDB atom name of the initial template that we want to transform into another of the final template has to be
+        specified here.
+       :param final_atom: When an atom is transformed into another one we want to conserve the properties.
+        The PDB atom name of the final template that will be used as target to be transformed into the original atom.
+        :param control_template: Template control file used to generate intermediates control files.
+        :param pdb: Initial pdb file which already contain the ligand with the fragment that we want to grow
+        but with bond lengths correspondent to the initial ligand (dummy-like).
+        :param results_f_name: Name for results folder.
+        :param criteria: Name of the column of the report file used as criteria in order to select the template
+        used as input for successive simulations.
+        :param path_pele: Complete path to Pele_serial.
+        :param report: Name of the report file of PELE simulation's results.
+        :param traject: Name of the trajectory file of PELE simulation's results.
+        :return The algorithm is formed by two main parts:
+        First, it prepare the files needed in a PELE simulation: control file and ligand templates.
+        Second, after analyzing the report file it selects the best structure in the trajectory file in order to be used
+        as input for the next growing step.
+        This process will be repeated until get the final grown ligand (protein + ligand).
         """
     # Main loop
 
     for n in range(0, n_files):
-        print(n)
-
         # Template creation part
         if n == 0:
             # If we are starting the main loop we have to generate a starting template
             Growing.template_fragmenter.generate_starting_template(template_initial, template_final, original_atom,
-                                                                   final_atom, template_final, n_files)
+                                                                   final_atom, "{}_{}".format(template_final, n),
+                                                                   n_files)
             # Save a copy of the file in growing_templates
-            shutil.copy(os.path.join(TEMPLATES_PATH, template_final),
-                                     os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"),
-                                     "{}_{}".format(template_final,n)))
-        if n > 0 and n < n_files:
+            shutil.copy(os.path.join(TEMPLATES_PATH, "{}_{}".format(template_final, n)),
+                        os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"), "{}_{}".format(template_final, n)))
+        if n > 0 and n < (n_files-1):
             # Now, we have already create this starting template so we just need to increase their values
-            Growing.template_fragmenter.grow_parameters_in_template(template_initial, template_final,
+            Growing.template_fragmenter.grow_parameters_in_template("{}_0".format(template_final),
+                                                                    template_initial, template_final,
                                                                     original_atom, final_atom,
                                                                     template_final, n)
+            # Save a copy of the file in growing_templates
+            shutil.copy(os.path.join(TEMPLATES_PATH, template_final),
+                        os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"),
+                        "{}_{}".format(template_final, n)))
         # We have to end up with the final template, so in the last step we will copy it into the templates folder
-        if n == n_files:
+        if n == (n_files-1):
             shutil.copy(os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"),
                         template_final), os.path.join(TEMPLATES_PATH, template_final))
         # Control file modification
         Growing.simulations_linker.control_file_modifier(control_template, pdb, n, results_f_name)
-        logger.info(SELECTED_MESSAGE.format(control_template, pdb, results_f_name))
+        logger.info(SELECTED_MESSAGE.format(control_template, pdb, "{}_{}".format(results_f_name, n)))
 
         # Running PELE simulation
         if not os.path.exists("{}_{}".format(results_f_name, n)):
@@ -163,11 +161,17 @@ def main(template_initial, template_final, n_files, control_template, original_a
             pass
         Growing.simulations_linker.simulation_runner(path_pele, control_template)
         logger.info(FINISH_SIM_MESSAGE.format(n))
-
+        # Before selecting a step from a trajectory we will save the input PDB file in a folder
+        if n == 0:
+            if not os.path.exists("PDBs_growing"):
+                os.mkdir("PDBs_growing")
+            else:
+                pass
+            shutil.copy(pdb, os.path.join("PDBs_growing", pdb))
+        else:
+            shutil.copy(pdb, os.path.join("PDBs_growing", "{}_{}".format(n, pdb)))
         # Selection of the trajectory used as new input
-        Growing.template_selector.trajectory_selector(pdb, "{}".format(results_f_name), report, traject, criteria)
-
-        logger.info("Step of the Trajectory selected in {}_{}.pdb".format(pdb, string.ascii_lowercase[n + 1]))
+        Growing.template_selector.trajectory_selector(pdb, "{}_{}".format(results_f_name, n), report, traject, criteria)
 
 
 if __name__ == '__main__':

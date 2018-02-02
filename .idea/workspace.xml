@@ -2,10 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c1e2c966-915c-4333-aebe-63af589e9d20" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/example/181L_1NHB/181l_prepared_met_a.pdb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/example/181L_1NHB/transformations.dat" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Growing/simulations_linker.py" afterPath="$PROJECT_DIR$/Growing/simulations_linker.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Growing/template_fragmenter.py" afterPath="$PROJECT_DIR$/Growing/template_fragmenter.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Growing/template_selector.py" afterPath="$PROJECT_DIR$/Growing/template_selector.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/example/181L_1NHB/DataLocal/Templates/OPLS2005/HeteroAtoms/pyjz" afterPath="$PROJECT_DIR$/example/181L_1NHB/DataLocal/Templates/OPLS2005/HeteroAtoms/pyjz" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/example/181L_1NHB/control_template.conf" afterPath="$PROJECT_DIR$/example/181L_1NHB/control_template.conf" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/example/181L_1NHB/output.log" afterPath="$PROJECT_DIR$/example/181L_1NHB/output.log" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/grow_for_pele.py" afterPath="$PROJECT_DIR$/grow_for_pele.py" />
     </list>
@@ -24,8 +27,8 @@
             <file leaf-file-name="template_fragmenter.py" pinned="false" current-in-tab="true">
               <entry file="file://$PROJECT_DIR$/Growing/template_fragmenter.py">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="328">
-                    <caret line="407" column="61" lean-forward="true" selection-start-line="407" selection-start-column="61" selection-end-line="407" selection-end-column="61" />
+                  <state relative-caret-position="731">
+                    <caret line="261" column="45" lean-forward="false" selection-start-line="261" selection-start-column="45" selection-end-line="261" selection-end-column="45" />
                     <folding>
                       <element signature="e#0#10#0" expanded="true" />
                     </folding>
@@ -43,8 +46,8 @@
       <file leaf-file-name="grow_for_pele.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/grow_for_pele.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="526">
-              <caret line="165" column="0" lean-forward="true" selection-start-line="165" selection-start-column="0" selection-end-line="165" selection-end-column="0" />
+            <state relative-caret-position="1598">
+              <caret line="151" column="26" lean-forward="false" selection-start-line="151" selection-start-column="26" selection-end-line="151" selection-end-column="26" />
               <folding>
                 <element signature="e#18#28#0" expanded="true" />
               </folding>
@@ -55,8 +58,8 @@
       <file leaf-file-name="template_selector.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Growing/template_selector.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="731">
-              <caret line="43" column="38" lean-forward="false" selection-start-line="43" selection-start-column="38" selection-end-line="43" selection-end-column="38" />
+            <state relative-caret-position="391">
+              <caret line="23" column="87" lean-forward="false" selection-start-line="23" selection-start-column="87" selection-end-line="23" selection-end-column="87" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -67,8 +70,8 @@
       <file leaf-file-name="simulations_linker.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Growing/simulations_linker.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="370">
-              <caret line="50" column="84" lean-forward="false" selection-start-line="50" selection-start-column="84" selection-end-line="50" selection-end-column="84" />
+            <state relative-caret-position="153">
+              <caret line="21" column="14" lean-forward="false" selection-start-line="21" selection-start-column="14" selection-end-line="21" selection-end-column="14" />
               <folding>
                 <element signature="e#18#27#0" expanded="true" />
               </folding>
@@ -105,6 +108,7 @@
       <find>logging</find>
       <find>logger</find>
       <find>file_content</find>
+      <find>Step of the</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -118,11 +122,11 @@
         <option value="$PROJECT_DIR$/Helpers/log.py" />
         <option value="$PROJECT_DIR$/log_configure.ini" />
         <option value="$PROJECT_DIR$/../../scoring/prep_barrils/prepared_complexes/equilibration/equilibration_results/minimum_trajectory_selector.py" />
-        <option value="$PROJECT_DIR$/Growing/template_selector.py" />
         <option value="$PROJECT_DIR$/Growing/template_fragmenter_new.py" />
+        <option value="$PROJECT_DIR$/Growing/template_selector.py" />
         <option value="$PROJECT_DIR$/Growing/simulations_linker.py" />
-        <option value="$PROJECT_DIR$/grow_for_pele.py" />
         <option value="$PROJECT_DIR$/Growing/template_fragmenter.py" />
+        <option value="$PROJECT_DIR$/grow_for_pele.py" />
       </list>
     </option>
   </component>
@@ -469,8 +473,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Growing/template_selector.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="731">
-          <caret line="43" column="38" lean-forward="false" selection-start-line="43" selection-start-column="38" selection-end-line="43" selection-end-column="38" />
+        <state relative-caret-position="391">
+          <caret line="23" column="87" lean-forward="false" selection-start-line="23" selection-start-column="87" selection-end-line="23" selection-end-column="87" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
@@ -479,30 +483,30 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Growing/simulations_linker.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="370">
-          <caret line="50" column="84" lean-forward="false" selection-start-line="50" selection-start-column="84" selection-end-line="50" selection-end-column="84" />
+        <state relative-caret-position="153">
+          <caret line="21" column="14" lean-forward="false" selection-start-line="21" selection-start-column="14" selection-end-line="21" selection-end-column="14" />
           <folding>
             <element signature="e#18#27#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Growing/template_fragmenter.py">
+    <entry file="file://$PROJECT_DIR$/grow_for_pele.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="407" column="61" lean-forward="true" selection-start-line="407" selection-start-column="61" selection-end-line="407" selection-end-column="61" />
+        <state relative-caret-position="1598">
+          <caret line="151" column="26" lean-forward="false" selection-start-line="151" selection-start-column="26" selection-end-line="151" selection-end-column="26" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#18#28#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/grow_for_pele.py">
+    <entry file="file://$PROJECT_DIR$/Growing/template_fragmenter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="526">
-          <caret line="165" column="0" lean-forward="true" selection-start-line="165" selection-start-column="0" selection-end-line="165" selection-end-column="0" />
+        <state relative-caret-position="731">
+          <caret line="261" column="45" lean-forward="false" selection-start-line="261" selection-start-column="45" selection-end-line="261" selection-end-column="45" />
           <folding>
-            <element signature="e#18#28#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -19,7 +19,7 @@ def control_file_modifier(control_template, pdb, step, results_path="/growing_ou
     """
     # Obtain the path of the directory
     PATH = os.getcwd()
-
+    print(step)
     # Then, in the main loop we will do a copy of control files, so we will print this in the logger
     control_path = os.path.join(PATH, "control_folder")
     logger.info("Intermediate control files created will be stored in '{}'".format(control_path))
