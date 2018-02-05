@@ -1,7 +1,6 @@
 # General imports
 import sys
 import argparse
-import string
 import os
 import logging
 from logging.config import fileConfig
@@ -80,7 +79,7 @@ def parse_arguments():
                         help="""Name of the column used as criteria in order
                              to select the template used as input for 
                              successive simulations.""")
-    parser.add_argument("-d", "--dir", default="/opt/PELErev12492/bin/Pele_serial",
+    parser.add_argument("-d", "--dir", default="/opt/PELErev12492",
                         help="Complete path to Pele_serial")
     parser.add_argument("-rp", "--report", default="report",
                         help="Name of the report file from PELE.")
@@ -126,37 +125,51 @@ def main(template_initial, template_final, n_files, control_template, original_a
         """
     # Main loop
 
-    templates = [template_final if  n == (n_files-1)  else "{}_{}".format(template_final, n) for n in range(0, n_files) ]
+    templates = [template_final if n == (n_files-1) else "{}_{}".format(template_final, n) for n in range(0, n_files)]
 
-    results = [ "{}_{}".format(results_f_name, n) for n in range(0, n_files) ]
+    results = ["{}_{}".format(results_f_name, n) for n in range(0, n_files) ]
 
-    pdbs = [pdb if  n == 0  else "{}_{}".format(n, pdb) for n in range(0, n_files)]
+    pdbs = [pdb if n == 0 else "{}_{}".format(n, pdb) for n in range(0, n_files)]
 
+    if not os.path.exists("PDBs_growing"):
+        os.mkdir("PDBs_growing")
+
+    # Create a copy of the original templates in growing_templates folder
+    shutil.copy(os.path.join(TEMPLATES_PATH, template_initial),
+                os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"), template_initial))
+    shutil.copy(os.path.join(TEMPLATES_PATH, template_final),
+                os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"), template_final))
 
     Growing.template_fragmenter.generate_starting_template(template_initial, template_final, original_atom,
-                                                                   final_atom, "{}_{}".format(template_final, n),
-                                                                   n_files)
+                                                           final_atom, "{}_0".format(template_final),
+                                                           n_files)
 
-    for template, pdb_file, results in zip(templates, pdb_files, results):
-             
-        shutil.copy(os.path.join(TEMPLATES_PATH, "{}_{}".format(template_final, n)),
-                    os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"), "{}_{}".format(template_final, n)))
+    for i, (template, pdb_file, result) in enumerate(zip(templates, pdbs, results)):
 
         # Control file modification
-        logger.info(SELECTED_MESSAGE.format(control_template, pdb, results))
-        Growing.simulations_linker.control_file_modifier(control_template, pdb, n, results_f_name)
-        
+        logger.info(SELECTED_MESSAGE.format(control_template, pdb, result))
+        Growing.simulations_linker.control_file_modifier(control_template, pdb, result, path_pele)
+
+        if i != 0:
+            Growing.template_fragmenter.grow_parameters_in_template("{}_0".format(template_final),
+                                                                    os.path.join("growing_templates", template_initial),
+                                                                    os.path.join("growing_templates", template_final),
+                                                                    original_atom, final_atom, template_final, i)
+
+            # Make a copy of the template file in growing_templates folder
+        shutil.copy(os.path.join(TEMPLATES_PATH, template_final),
+                    os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"), template))
+
 
         # Running PELE simulation
-        if not os.path.exists("{}_{}".format(results_f_name, n)):
+        if not os.path.exists(result):
             os.mkdir(result)
 
-        logger.info(FINISH_SIM_MESSAGE.format(n))
+        logger.info(FINISH_SIM_MESSAGE.format(result))
         Growing.simulations_linker.simulation_runner(path_pele, control_template)
-     
 
         # Before selecting a step from a trajectory we will save the input PDB file in a folder
-	    shutil.copy(pdb, os.path.join("PDBs_growing", pdb))
+        shutil.copy(pdb, os.path.join("PDBs_growing", pdb_file))
 
         # Selection of the trajectory used as new input
         Growing.template_selector.trajectory_selector(pdb, result, report, traject, criteria)
