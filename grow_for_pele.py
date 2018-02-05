@@ -126,52 +126,40 @@ def main(template_initial, template_final, n_files, control_template, original_a
         """
     # Main loop
 
-    for n in range(0, n_files):
-        # Template creation part
-        if n == 0:
-            # If we are starting the main loop we have to generate a starting template
-            Growing.template_fragmenter.generate_starting_template(template_initial, template_final, original_atom,
+    templates = [template_final if  n == (n_files-1)  else "{}_{}".format(template_final, n) for n in range(0, n_files) ]
+
+    results = [ "{}_{}".format(results_f_name, n) for n in range(0, n_files) ]
+
+    pdbs = [pdb if  n == 0  else "{}_{}".format(n, pdb) for n in range(0, n_files)]
+
+
+    Growing.template_fragmenter.generate_starting_template(template_initial, template_final, original_atom,
                                                                    final_atom, "{}_{}".format(template_final, n),
                                                                    n_files)
-            # Save a copy of the file in growing_templates
-            shutil.copy(os.path.join(TEMPLATES_PATH, "{}_{}".format(template_final, n)),
-                        os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"), "{}_{}".format(template_final, n)))
-        if n > 0 and n < (n_files-1):
-            # Now, we have already create this starting template so we just need to increase their values
-            Growing.template_fragmenter.grow_parameters_in_template("{}_0".format(template_final),
-                                                                    template_initial, template_final,
-                                                                    original_atom, final_atom,
-                                                                    template_final, n)
-            # Save a copy of the file in growing_templates
-            shutil.copy(os.path.join(TEMPLATES_PATH, template_final),
-                        os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"),
-                        "{}_{}".format(template_final, n)))
-        # We have to end up with the final template, so in the last step we will copy it into the templates folder
-        if n == (n_files-1):
-            shutil.copy(os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"),
-                        template_final), os.path.join(TEMPLATES_PATH, template_final))
+
+    for template, pdb_file, results in zip(templates, pdb_files, results):
+             
+        shutil.copy(os.path.join(TEMPLATES_PATH, "{}_{}".format(template_final, n)),
+                    os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"), "{}_{}".format(template_final, n)))
+
         # Control file modification
+        logger.info(SELECTED_MESSAGE.format(control_template, pdb, results))
         Growing.simulations_linker.control_file_modifier(control_template, pdb, n, results_f_name)
-        logger.info(SELECTED_MESSAGE.format(control_template, pdb, "{}_{}".format(results_f_name, n)))
+        
 
         # Running PELE simulation
         if not os.path.exists("{}_{}".format(results_f_name, n)):
-            os.mkdir("{}_{}".format(results_f_name, n))
-        else:
-            pass
-        Growing.simulations_linker.simulation_runner(path_pele, control_template)
+            os.mkdir(result)
+
         logger.info(FINISH_SIM_MESSAGE.format(n))
+        Growing.simulations_linker.simulation_runner(path_pele, control_template)
+     
+
         # Before selecting a step from a trajectory we will save the input PDB file in a folder
-        if n == 0:
-            if not os.path.exists("PDBs_growing"):
-                os.mkdir("PDBs_growing")
-            else:
-                pass
-            shutil.copy(pdb, os.path.join("PDBs_growing", pdb))
-        else:
-            shutil.copy(pdb, os.path.join("PDBs_growing", "{}_{}".format(n, pdb)))
+	    shutil.copy(pdb, os.path.join("PDBs_growing", pdb))
+
         # Selection of the trajectory used as new input
-        Growing.template_selector.trajectory_selector(pdb, "{}_{}".format(results_f_name, n), report, traject, criteria)
+        Growing.template_selector.trajectory_selector(pdb, result, report, traject, criteria)
 
 
 if __name__ == '__main__':
