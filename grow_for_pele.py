@@ -143,6 +143,8 @@ def main(template_initial, template_final, n_files, control_template, original_a
     Growing.template_fragmenter.generate_starting_template(template_initial, template_final, original_atom,
                                                            final_atom, "{}_0".format(template_final),
                                                            n_files)
+    shutil.copy(os.path.join(TEMPLATES_PATH, "{}_0".format(template_final)),
+                os.path.join(TEMPLATES_PATH, template_final))
 
     for i, (template, pdb_file, result) in enumerate(zip(templates, pdbs, results)):
 
@@ -150,16 +152,18 @@ def main(template_initial, template_final, n_files, control_template, original_a
         logger.info(SELECTED_MESSAGE.format(control_template, pdb, result))
         Growing.simulations_linker.control_file_modifier(control_template, pdb, result, path_pele)
 
-        if i != 0:
+        if i != 0 and i != (n_files-1):
             Growing.template_fragmenter.grow_parameters_in_template("{}_0".format(template_final),
                                                                     os.path.join("growing_templates", template_initial),
                                                                     os.path.join("growing_templates", template_final),
                                                                     original_atom, final_atom, template_final, i)
+        elif i == (n_files-1):
+            shutil.copy(os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"), template_final),
+                        os.path.join(os.path.join(TEMPLATES_PATH, template_final)))
 
-            # Make a copy of the template file in growing_templates folder
+        # Make a copy of the template file in growing_templates folder
         shutil.copy(os.path.join(TEMPLATES_PATH, template_final),
                     os.path.join(os.path.join(TEMPLATES_PATH, "growing_templates"), template))
-
 
         # Running PELE simulation
         if not os.path.exists(result):

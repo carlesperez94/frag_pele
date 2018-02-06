@@ -268,7 +268,7 @@ def write_bond_section(template, bonds_dict):
     list_of_keys.sort(key=lambda list: (int(list[0]), int(list[1])))
     for key in list_of_keys:
         for row in rows:
-            if row[1] == key[1]:
+            if (row[0], row[1]) == key:
                 section_modified.append(WRITE_BOND_PATTERN.format(int(row[0]), int(row[1]),
                                                                   float(row[2]), float(bonds_dict[tuple(key)])))
             else:
@@ -435,4 +435,3 @@ def grow_parameters_in_template(starting_template_file, initial_template_file, f
     bond_section = write_bond_section(final_template, bonds_starting)
     # Finally, join everything and write a file with the output template
     write_template(final_template, output_template_filename, nbon_section, bond_section)
-
