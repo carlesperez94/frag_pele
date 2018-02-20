@@ -6,6 +6,7 @@ import sys
 # Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
 
+
 def pdb_parser_ligand(pdb_file, ligand_chain="L"):
     """
     :param pdb_file: input PDB file of the complex that we want to get their ligand
@@ -41,5 +42,6 @@ def pdb_to_smile(pdb_file):
     logger.info("SMILE of the pdb: {}".format(smile_and_name))
     smile = smile_and_name.split("\t")[0]
     return smile
+
 
 
