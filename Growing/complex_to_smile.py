@@ -28,8 +28,8 @@ def selection_to_pdb(selection):
     :param selection: prody selection
     :return: writes a PDB file containing the selection, named using the residue name of the first atom of the selection.
     """
-    selection_pdb = prody.writePDB(selection.getResnames()[0], selection)
-    return selection_pdb
+    prody.writePDB(selection.getResnames()[0], selection)
+    return "{}.pdb".format(selection.getResnames()[0])
 
 
 def pdb_to_smile(pdb_file):
