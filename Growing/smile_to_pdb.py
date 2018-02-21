@@ -6,15 +6,6 @@ import sys
 logger = logging.getLogger(__name__)
 
 
-def read_smi(smi):
-    """
-    :param smi: smile format string.
-    :return: pybel object with the information given by the smile.
-    """
-    smi_object = pybel.readstring("smi", smi)
-    return smi_object
-
-
 def molecule_to_h_and_3d(smi_object):
     """
     Add H and 3D parameters to a pybel molecule object.
