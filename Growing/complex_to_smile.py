@@ -15,7 +15,7 @@ def pdb_parser_ligand(pdb_file, ligand_chain="L"):
     """
     pdb = prody.parsePDB(pdb_file)
     ligand = pdb.select("chain {}".format(ligand_chain))
-    if not ligand:
+    if ligand is None:
         logger.critical("Wrong chain selected!")
     elif ligand.ishetero:
         return ligand
@@ -43,5 +43,14 @@ def pdb_to_smile(pdb_file):
     smile = smile_and_name.split("\t")[0]
     return smile
 
+
+def check_protonation(selection):
+    """
+    Check if the structure is protonated or not. In case that is not protonated we will rise a critical logger.
+    :param selection: prody molecule
+    :return: if not hydrogens detected, prints a message.
+    """
+    if not selection.select("hydrogen"):
+        logger.critical("We have not detected Hydrogens in your ligand. Please, add them before starting.")
 
 

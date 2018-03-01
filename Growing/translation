@@ -1,0 +1,12 @@
+from prody import *
+
+def join(core, fragment):
+    for atom in core.atoms:
+        if atom == usuari:
+            coordinates_c = atom.getCoords()
+    for atom in fragment.atoms:
+        if atom ==usuari:
+            coordinates_f = atom.getCoords()
+    delta = coordinates_c-coordinates_f
+    for atom in fragment.atoms:
+        atom.setCoords(atom.getCoords()+delta)

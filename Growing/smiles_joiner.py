@@ -69,7 +69,9 @@ def smile_to_list(smile):
     smile_as_list = re.findall("\(*\=*\%*[A-z][1-9]*\)*", smile)
     counter = 1
     while counter < len(smile_as_list):
-        if smile_as_list[counter-1]+smile_as_list[counter] in atoms:
+        # We want to remove everything that is not a letter in order to do this check
+        combination_only_letters = re.sub(r'[^A-Za-z]', '', smile_as_list[counter-1]+smile_as_list[counter])
+        if combination_only_letters in atoms:
             smile_as_list[counter - 1] = smile_as_list[counter-1]+smile_as_list[counter]
             del smile_as_list[counter]
             counter += 1
@@ -88,13 +90,30 @@ def check_smile_len(list_of_atomicnum, smile_list):
         logger.critical("Something went wrong in the transformation from smile to list! The length does not match!")
 
 
-def add_fragment(fragment_smile, core_smile_list, where):
+def add_fragment(fragment_smile, core_smile_list, where, bond_type="simple"):
     """
-    :param fragment_smile:
-    :param core_smile_list:
-    :param where:
+    :param fragment_smile: fragment in smile format that will be added to the core. Take into account that you can not use
+    canonical smiles because the first atom will be bonded to the core (probably solved in further updates).
+    :param core_smile_list: list with the different atoms of the smile of the core.
+    :param where: number of atom the specific atom where you want to grow once you have selected the
+    type (p.ex: I want to grow the Carbon 9, so in atom_type_where_grow I will put a "C" and here I will put a "9".
+    :param bond_type: type of bond that you want to set between the fragment and the core. Three possibilities: simple
+    (by default), double, triple.
     :return:
     """
-    core_smile_list[where-1] = core_smile_list[where-1] + "({})".format(fragment_smile)
+    if bond_type is "simple":
+        if not core_smile_list[where-1].endswith(")"):
+            core_smile_list[where-1] = core_smile_list[where-1] + "({})".format(fragment_smile)
+        else:
+            core_smile_list[where - 1] = core_smile_list[where - 1][:core_smile_list[where - 1].find(")")] + \
+                                         "({})".format(fragment_smile) + ")"
+    elif bond_type is "double":
+        core_smile_list[where - 1] = core_smile_list[where - 1] + "(={})".format(fragment_smile)
+    elif bond_type is "triple":
+        core_smile_list[where - 1] = core_smile_list[where - 1] + "(%{})".format(fragment_smile)
+    else:
+        logger.critical("Sorry, {} is not accepted as bond type. Bond types accepted: 'simple', 'double' or 'triple'."
+                        .format(bond_type))
     return "".join(core_smile_list)
+
 
