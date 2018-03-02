@@ -30,12 +30,29 @@ def get_atoms_from_structure(structure):
 
 
 def select_atoms_from_list(PDB_atom_name, atoms_list):
+    """
+    Given a pdb atom name string and a list of atoms (BioPython Atom) it returns the Bio.Atom correspondent to the atom
+    name.
+    :param PDB_atom_name: string with an atom name
+    :param atoms_list: list of Bio.Atoms
+    :return: Bio.Atom correspondent to the atom name
+    """
     for atom in atoms_list:
         if atom.name == PDB_atom_name:
             return atom
 
 
 def get_H_bonded_to_grow(PDB_atom_name, prody_complex):
+    """
+    Given a heavy atom name (string) and a complex (prody molecule) it returns the hydrogen atom of the chain L
+    placed at bonding distance of the input atom name. If there is more than one, a checking of contacts with the
+    protein will be performed. In case of finding a possible contact between the hydrogen and the protein, we will
+    reject this hydrogen and we will repeat the check in another one. If all the hydrogens have contacts with the
+    protein, the first of them will be selected and a warning will be printed.
+    :param PDB_atom_name: heavy atom name (string) of a ligand
+    :param prody_complex: prody molecule object
+    :return: hydrogen atom of the ligand placed at bonding distance of the heavy atom
+    """
     # Select the hydrogens bonded to the heavy atom 'PDB_atom_name'
     selected_h = prody_complex.select("chain L and hydrogen within 1.5 of name {}".format(PDB_atom_name))
     # In case that we found more than one we have to select one of them
