@@ -50,14 +50,14 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex):
             # We put this elif to select one of H randomly if all of them have contacts
             elif (select_h_bonds is not None) and (idx == len(selected_h) -1):
                 hydrogen_pdbatomname = selected_h.getNames()[0]
-                return hydrogen_pdbatomname[0]
+                return hydrogen_pdbatomname
             else:
                 hydrogen_pdbatomname = selected_h.getNames()[idx]
-                return hydrogen_pdbatomname[0]
+                return hydrogen_pdbatomname
 
     else:
         hydrogen_pdbatomname = selected_h.getNames()
-        return hydrogen_pdbatomname[0]
+        return hydrogen_pdbatomname
 
 
 def superimpose(fixed_vector, moving_vector, moving_atom_list):
@@ -68,8 +68,11 @@ def superimpose(fixed_vector, moving_vector, moving_atom_list):
     :param moving_atom_list: list of atoms that we want to do the rotation and translation of the moving vector
     :return: the input list of atoms is rotated an translated
     """
+    # Do the superimposition with BioPython
     sup = bio.Superimposer()
+    # Set the vectors: first element is the fix vector (bond of the core) and second is the moving (bond of the fragment)
     sup.set_atoms(fixed_vector, moving_vector)
+    # Apply the transformation to the atoms of the fragment (translate and rotate)
     return sup.apply(moving_atom_list)
 
 
