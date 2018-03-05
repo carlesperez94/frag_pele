@@ -1,6 +1,7 @@
 import prody
 import logging
 import numpy as np
+import math
 import sys
 # Local imports
 import complex_to_smile as c2s
@@ -128,6 +129,56 @@ def bond(hydrogen_atom_names, molecules):
     return bonds
 
 
+def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fragment_structure):
+    # Superimpose atoms of the fragment to the core bond
+    pj.superimpose(core_bond, fragment_bond, list_of_atoms)
+    # Get the new coords and change them in prody
+    transform_coords_from_bio2prody(fragment_structure, list_of_atoms)
+    # Now, we have to remove the hydrogens of the binding
+    h_atom_names = [core_bond[1].name, fragment_bond[0].name]
+    merged_structure = bond(h_atom_names, [core_structure, fragment_structure])
+    return merged_structure
+
+
+def finishing_joining(merged_structure):
+    merged_structure.setResnames("GRW")
+    merged_structure.setResnums(1)
+
+
+def rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, core_structure, fragment_structure):
+    # Obtain the axis that we want to use as reference for the rotation
+    vector = bond[1].get_vector() - bond[0].get_vector()
+    # Obtain the rotation matrix for the vector (axis) and the angle (theta)
+    rot_mat = bio.rotaxis(theta, vector)
+    for atom in list_of_atoms:
+        # Multiply the matrix of coordinates for the transpose of the rotation matrix to get the coordinates rotated
+        atom.transform(rot_mat, (0, 0, 0))
+        transform_coords_from_bio2prody(fragment_structure, list_of_atoms)
+    rotated_structure = join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fragment_structure)
+    return rotated_structure
+
+
+def check_collision(merged_structure, bond, theta, theta_interval, core_bond, list_of_atoms, fragment_bond,
+                    core_structure, fragment_structure):
+    core_resname = bond[0].get_parent().get_resname()
+    check_possible_collision = merged_structure.select("resname {} and within 1.7 of resname FRG".format(core_resname))
+    # This list only should have the atom of the fragment that will be bonded to the core, so if not we will have to
+    # solve it
+    print(check_possible_collision.getNames())
+    if len(check_possible_collision.getNames()) > 1 or check_possible_collision.getNames()[0] != bond[0].name:
+        print("We have a collision between atoms of the fragment and the core! Rotating the fragment to solve it...")
+        theta = theta + theta_interval
+        if theta >= math.pi*2:
+            print("Not possible solution, increasing resolution...")
+        else:
+            rotated_structure = rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, core_structure,
+                                                  fragment_structure)
+            recall = check_collision(rotated_structure[0], bond, theta, theta_interval, core_bond, list_of_atoms,
+                               fragment_bond, core_structure, fragment_structure)
+            return recall
+    else:
+        return merged_structure
+
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name,
                           output_file="growing_result.pdb"):
     """
@@ -145,6 +196,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     :param output_file: pdb file with the result of the connection between the core and the fragment (single ligand).
     The resname of the molecule will be "GRW" and the resnum "1". "growing_result.pdb" by default.
     """
+
     ligand_core = c2s.pdb_parser_ligand(pdb_complex_core, ligand_chain="L")
     fragment = c2s.pdb_parser_ligand(pdb_fragment, ligand_chain="L")
     core_residue_name = extract_heteroatoms_pdbs(pdb_complex_core)
@@ -158,21 +210,17 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     fragment_bond = [hydrogen_atoms[1], heavy_atoms[1]]  # This has to be in inverted order
     logger.info("Performing a superimposition of bond {} of the fragment on bond {} of the core..."
                 .format(fragment_bond, core_bond))
-    # Superimpose atoms of the fragment to the core bond
-    pj.superimpose(core_bond, fragment_bond, bioatoms_core_and_frag[1])
-    # Get the new coords and change them in prody
-    transform_coords_from_bio2prody(fragment, bioatoms_core_and_frag[1])
-    # Now, we have to remove the hydrogens of the binding
-    h_atom_names = []
-    for h in hydrogen_atoms:
-        name = h.name
-        h_atom_names.append(name)
-    merged_structure = bond(h_atom_names, [ligand_core, fragment])
+    merged_structure = join_structures(core_bond, fragment_bond, bioatoms_core_and_frag[1], ligand_core, fragment)
+    check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/5, core_bond, bioatoms_core_and_frag[1], fragment_bond,
+                    ligand_core, fragment)
+    if not check_results:
+        check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/50, core_bond,
+                                          bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment)
+
     # Change the resnames and resnums to set everything as a single molecule
     # Now its only one element of a list, but we keep it as list if we would like to increase the amount of bonds later
-    merged_structure[0].setResnames("GRW")
-    merged_structure[0].setResnums(1)
-    prody.writePDB(output_file, merged_structure[0])
+    finishing_joining(check_results)
+    prody.writePDB(output_file, check_results)
     logger.info("The result of core + fragment has been saved in '{}'".format(output_file))
 
-
+main("4e20.pdb", "frag.pdb", "N3", "C7")

@@ -63,7 +63,7 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex):
                                                   .format(selected_h.getNames()[idx]))
             if select_h_bonds is not None:
                 logger.warning("WARNING: {} is forming a close interaction with the protein! We will try to grow"
-                               "in another direction.".format(selected_h.getNames()[idx]))
+                               " in another direction.".format(selected_h.getNames()[idx]))
             # We put this elif to select one of H randomly if all of them have contacts
             elif (select_h_bonds is not None) and (idx == len(selected_h) -1):
                 hydrogen_pdbatomname = selected_h.getNames()[0]
