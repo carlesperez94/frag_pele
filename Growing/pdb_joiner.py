@@ -2,7 +2,9 @@ import prody
 import Bio.PDB as bio
 import logging
 import numpy as np
+import re
 import sys
+
 
 # Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
@@ -71,19 +73,46 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex):
             else:
                 hydrogen_pdbatomname = selected_h.getNames()[idx]
                 return hydrogen_pdbatomname
-
     else:
         hydrogen_pdbatomname = selected_h.getNames()
         return hydrogen_pdbatomname
 
 
+# This function is prepared to rename PDB atom names of the repeated names, but is not working currently
+def change_repeated_atomnames(list_of_repeated_names, core_names):
+    list_of_lists_repeated = []
+    for atom in list_of_repeated_names:
+        find_name_and_number = re.search('([A-Z]*)([0-9]*)', atom)
+        element = find_name_and_number.group(1)
+        number = find_name_and_number.group(2)
+        list_of_lists_repeated.append([element, number])
+    list_of_lists_core = []
+    for atom in core_names:
+        find_name_and_number = re.search('([A-Z]*)([0-9]*)', atom)
+        element = find_name_and_number.group(1)
+        number = find_name_and_number.group(2)
+        list_of_lists_core.append([element, number])
+    for repeated_atom in list_of_lists_repeated:
+        for core_atom in list_of_lists_core:
+            if repeated_atom[0] is core_atom[0]:
+                new_name = [repeated_atom[0], int(repeated_atom[1]) + 1]
+                new_name = [new_name[0], str(new_name[1])]
+                switch = False
+                while not switch:
+                    if new_name not in list_of_lists_core:
+                        list_of_lists_core.append(new_name)
+                        switch = True
+                    new_name = [new_name[0], int(new_name[1])+1]
+                    new_name = [new_name[0], str(new_name[1])]
+
+
 def superimpose(fixed_vector, moving_vector, moving_atom_list):
     """
-    Rotates and translates a list of moving atoms from a moving vector to a fixed vector
-    :param fixed_vector: vector used as reference
-    :param moving_vector: vector that will rotate and translate
-    :param moving_atom_list: list of atoms that we want to do the rotation and translation of the moving vector
-    :return: the input list of atoms is rotated an translated
+    Rotates and translates a list of moving atoms from a moving vector to a fixed vector.
+    :param fixed_vector: vector used as reference.
+    :param moving_vector: vector that will rotate and translate.
+    :param moving_atom_list: list of atoms that we want to do the rotation and translation of the moving vector.
+    :return: the input list of atoms is rotated an translated.
     """
     # Do the superimposition with BioPython
     sup = bio.Superimposer()
@@ -95,12 +124,45 @@ def superimpose(fixed_vector, moving_vector, moving_atom_list):
 
 def transform_coords(atoms_with_coords):
     """
-    Transform the coords of a molecule (prody selection) into the coords from a list of atoms of Bio.PDB.
+    Transform the coords of a molecule (ProDy selection) into the coords from a list of atoms of Bio.PDB.
     :param atoms_with_coords: list of atoms (from a Bio.PDB) with the coordinates that we want to set.
-    :param molecule_to_transform: prody selection with the molecule that we want to replace their coords.
     :return: perform the transformation of the coords.
     """
     coords = []
     for atom in atoms_with_coords:
         coords.append(list(atom.get_coord()))
     return np.asarray(coords)
+
+
+def extract_and_change_atomnames(molecule, selected_resname):
+    """
+    Given a ProDy molecule and a Resname this function will rename the PDB atom names for the selected residue following
+    the next pattern: G1, G2, G3...
+    :param molecule: ProDy molecule.
+    :param selected_resname: Residue name whose atoms you would like to rename.
+    :return: ProDy molecule with atoms renamed and dictionary {"original atom name" : "new atom name"}
+    """
+    selection_to_change = molecule.select("resname {}".format(selected_resname))
+    names_dictionary = {}
+    for n, atomname in enumerate(selection_to_change.getNames()):
+        names_dictionary[atomname] = "G{}".format(n)
+    for atom in molecule:
+        if atom.getResname() == selected_resname:
+            atom.setName(names_dictionary[atom.getName()])
+    return molecule, names_dictionary
+
+
+def check_overlapping_names(structures_to_bond):
+    """
+    Checking that there is not duplications in the names of the structure. If not, it will return None, else, it will
+    return the repeated elements.
+    :param structures_to_bond: ProDy molecule
+    :return: set object with the repeated elements if they are found. Else, None object.
+    """
+    all_atom_names = list(structures_to_bond.getNames())
+    return set([name for name in all_atom_names if all_atom_names.count(name) > 1])
+
+
+
+
+

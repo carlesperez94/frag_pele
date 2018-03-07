@@ -239,7 +239,7 @@ def finishing_joining(molecule):
 
 
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name,
-                          output_file="growing_result.pdb"):
+         core_chain="L", fragment_chain="L", output_file="growing_result.pdb"):
     """
     From a core (protein + ligand core = chain L) and fragment (chain L) pdb files, given the heavy atoms names that we
     want to connect, this function writes a new PDB with the fragment added to the core structure.
@@ -255,29 +255,59 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     :param output_file: pdb file with the result of the connection between the core and the fragment (single ligand).
     The resname of the molecule will be "GRW" and the resnum "1". "growing_result.pdb" by default.
     """
-
-    ligand_core = c2s.pdb_parser_ligand(pdb_complex_core, ligand_chain="L")
-    fragment = c2s.pdb_parser_ligand(pdb_fragment, ligand_chain="L")
-    core_residue_name = extract_heteroatoms_pdbs(pdb_complex_core)
-    frag_residue_name = extract_heteroatoms_pdbs(pdb_fragment)
+    # Get the selected chain from the core and the fragment and convert them into ProDy molecules.
+    ligand_core = c2s.pdb_parser_ligand(pdb_complex_core, core_chain)
+    fragment = c2s.pdb_parser_ligand(pdb_fragment, fragment_chain)
+    # We will check that the structures are protonated. We will also create a new PDB file for each one and we will get
+    # the residue name of each ligand.
+    core_residue_name = extract_heteroatoms_pdbs(pdb_complex_core, core_chain)
+    frag_residue_name = extract_heteroatoms_pdbs(pdb_fragment, fragment_chain)
+    # We will use the PDBs previously generated to get a list of Bio.PDB.Atoms for each structure
     bioatoms_core_and_frag = from_pdb_to_bioatomlist([core_residue_name, frag_residue_name])
+    # Then, we will have to transform the atom names of the core and the fragment to a list object
+    # (format required by functions)
     pdb_atom_names = [pdb_atom_core_name, pdb_atom_fragment_name]
+    # Using the Bio.PDB.Atoms lists and this names we will get the heavy atoms that we will use later to do the bonding
     heavy_atoms = extract_heavy_atoms(pdb_atom_names, bioatoms_core_and_frag)
+    # Once we have the heavy atoms, for each structure we will obtain the hydrogens bonded to each heavy atom.
+    # We will need pdbs because we will use the information of the protein to select the hydrogens properly.
     hydrogen_atoms = extract_hydrogens(pdb_atom_names, bioatoms_core_and_frag, [pdb_complex_core, pdb_fragment])
-    # Create a list with the atoms that form a bond in core and fragment
+    # Create a list with the atoms that form a bond in core and fragment.
     core_bond = [heavy_atoms[0], hydrogen_atoms[0]]
-    fragment_bond = [hydrogen_atoms[1], heavy_atoms[1]]  # This has to be in inverted order
+    fragment_bond = [hydrogen_atoms[1], heavy_atoms[1]]  # This has to be in inverted order to do correctly the superimposition
     logger.info("Performing a superimposition of bond {} of the fragment on bond {} of the core..."
                 .format(fragment_bond, core_bond))
+    # Using the previous information we will superimpose the whole fragment on the bond of the core in order to place
+    # the fragment in the correct position, deleting the H.
     merged_structure = join_structures(core_bond, fragment_bond, bioatoms_core_and_frag[1], ligand_core, fragment)
+    # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
+    # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
     check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/18, core_bond, bioatoms_core_and_frag[1], fragment_bond,
                     ligand_core, fragment)
+    # If we do not find a solution in the previous step, we will repeat the rotations applying only increments of 1º
     if not check_results:
         check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/180, core_bond,
                                           bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment)
 
     # Change the resnames and resnums to set everything as a single molecule
-    # Now its only one element of a list, but we keep it as list if we would like to increase the amount of bonds later
-    finishing_joining(check_results)
-    prody.writePDB(output_file, check_results)
+    changing_names = pj.extract_and_change_atomnames(check_results, fragment.getResnames()[0])
+    molecule_names_changed = changing_names[0]
+    changing_names_dictionary = changing_names[1]
+    # Check if there is still overlapping names
+    if pj.check_overlapping_names(molecule_names_changed):
+        logger.critical("{} is repeated in the fragment and the core. Please, change this atom name of the core by"
+                        " another one.".format(pj.check_overlapping_names(molecule_names_changed)))
+    logger.info("The following names of the fragment have been changed:")
+    for transformation in changing_names_dictionary:
+        logger.info("{} --> {}".format(transformation, changing_names_dictionary[transformation]))
+    # Once we have all the atom names unique, we will rename the resname and the resnum of both, core and fragment, to
+    # GRW and 1. Doing this, the molecule composed by two parts will be transformed into a single one.
+    finishing_joining(molecule_names_changed)
+    prody.writePDB(output_file, molecule_names_changed)
     logger.info("The result of core + fragment has been saved in '{}'".format(output_file))
+    # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
+    # are returning this dictionary in the function.
+    return changing_names_dictionary
+
+
+main("4e20.pdb", "frag.pdb", "N3", "C7")
