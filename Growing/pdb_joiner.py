@@ -58,6 +58,10 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex):
     # Select the hydrogens bonded to the heavy atom 'PDB_atom_name'
     selected_h = prody_complex.select("chain L and hydrogen within 1.5 of name {}".format(PDB_atom_name))
     # In case that we found more than one we have to select one of them
+    try:
+        number_of_h = len(selected_h)
+    except TypeError:
+        raise TypeError("Check either core or fragment atom to bound when passing parameters")
     if len(selected_h) > 1:
         for idx, hydrogen in enumerate(selected_h):
             # We will select atoms of the protein in interaction distance

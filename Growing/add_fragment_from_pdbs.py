@@ -3,6 +3,7 @@ import logging
 import numpy as np
 import math
 import sys
+import scipy.ndimage.measurements as scymes
 # Local imports
 import complex_to_smile as c2s
 import pdb_joiner as pj
@@ -218,9 +219,9 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
             logger.warning("Not possible solution, decreasing the angle of rotation...")
         else:
             rotated_structure = rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, core_structure,
-                                                  fragment_structure)
+                                                      fragment_structure)
             recall = check_collision(rotated_structure[0], bond, theta, theta_interval, core_bond, list_of_atoms,
-                               fragment_bond, core_structure, fragment_structure)
+                                     fragment_bond, core_structure, fragment_structure)
             return recall
     else:
         return merged_structure
@@ -238,8 +239,46 @@ def finishing_joining(molecule):
     molecule.setResnums(1)
 
 
-def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name,
-         core_chain="L", fragment_chain="L", output_file="growing_result.pdb"):
+def compute_centroid(molecule):
+    coords = molecule.getCoords()
+    x = []
+    y = []
+    z = []
+    for coord in coords:
+        x.append(float(coord[0]))
+        y.append(float(coord[1]))
+        z.append(float(coord[2]))
+    centroid = (np.mean(x),  np.mean(y), np.mean(z))
+    return centroid
+
+
+def move_atom_along_vector(initial_coord, final_coord, position_proportion):
+    vector = final_coord - initial_coord
+    new_coords = initial_coord + (position_proportion * vector)
+    return new_coords
+
+
+def reduce_molecule_size(molecule, residue, proportion):
+    selection = molecule.select("resname {}".format(residue))
+    centroid = compute_centroid(selection)
+    for atom in selection:
+        atom_coords = atom.getCoords()
+        new_coords = move_atom_along_vector(atom_coords, centroid, proportion)
+        atom.setCoords(new_coords)
+
+
+def translate_to_position(initial_pos, final_pos, molecule):
+    translation = initial_pos - final_pos
+    coords_to_move = molecule.getCoords()
+    list_of_new_coords = []
+    for coords in coords_to_move:
+        new_coords = coords + translation
+        list_of_new_coords.append(new_coords[0])
+    molecule.setCoords(list_of_new_coords)
+
+
+def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, core_chain="L", fragment_chain="L",
+         output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb"):
     """
     From a core (protein + ligand core = chain L) and fragment (chain L) pdb files, given the heavy atoms names that we
     want to connect, this function writes a new PDB with the fragment added to the core structure.
@@ -282,17 +321,21 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     merged_structure = join_structures(core_bond, fragment_bond, bioatoms_core_and_frag[1], ligand_core, fragment)
     # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
     # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
-    check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/18, core_bond, bioatoms_core_and_frag[1], fragment_bond,
-                    ligand_core, fragment)
+    check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/18, core_bond,
+                                    bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment)
     # If we do not find a solution in the previous step, we will repeat the rotations applying only increments of 1º
     if not check_results:
         check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/180, core_bond,
-                                          bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment)
+                                        bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment)
+    # Now, we want to extract this structure in a PDB to create the template file after the growing. We will do a copy
+    # of the structure because then we will need to resize the fragment part, so be need to keep it as two different
+    # residues.
+    structure_to_template = check_results.copy()
+    # Once we have all the atom names unique, we will rename the resname and the resnum of both, core and fragment, to
+    # GRW and 1. Doing this, the molecule composed by two parts will be transformed into a single one.
+    changing_names = pj.extract_and_change_atomnames(structure_to_template, fragment.getResnames()[0])
+    molecule_names_changed, changing_names_dictionary = changing_names
 
-    # Change the resnames and resnums to set everything as a single molecule
-    changing_names = pj.extract_and_change_atomnames(check_results, fragment.getResnames()[0])
-    molecule_names_changed = changing_names[0]
-    changing_names_dictionary = changing_names[1]
     # Check if there is still overlapping names
     if pj.check_overlapping_names(molecule_names_changed):
         logger.critical("{} is repeated in the fragment and the core. Please, change this atom name of the core by"
@@ -300,11 +343,25 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     logger.info("The following names of the fragment have been changed:")
     for transformation in changing_names_dictionary:
         logger.info("{} --> {}".format(transformation, changing_names_dictionary[transformation]))
-    # Once we have all the atom names unique, we will rename the resname and the resnum of both, core and fragment, to
-    # GRW and 1. Doing this, the molecule composed by two parts will be transformed into a single one.
     finishing_joining(molecule_names_changed)
-    prody.writePDB(output_file, molecule_names_changed)
-    logger.info("The result of core + fragment has been saved in '{}'".format(output_file))
+    # Extract a PDB file to do the templates
+    prody.writePDB(output_file_to_tmpl, molecule_names_changed)
+    logger.info("The result of core + fragment has been saved in '{}'. This will be used to create the template file."
+                .format(output_file_to_tmpl))
+    # Now, we will use the original molecule to do the resizing of the fragment.
+    reduce_molecule_size(check_results, frag_residue_name, 0.99) # 99% of reduction 
+    point_reference = check_results.select("name {} and resname {}".format(pdb_atom_fragment_name, frag_residue_name))
+    fragment_segment = check_results.select("resname {}".format(frag_residue_name))
+    translate_to_position(hydrogen_atoms[0].get_coord(), point_reference.getCoords(), fragment_segment)
+
+    # Repeat all the preparation process to finish the writing of the molecule.
+    changing_names = pj.extract_and_change_atomnames(check_results, fragment.getResnames()[0])
+    molecule_names_changed, changing_names_dictionary = changing_names
+    finishing_joining(molecule_names_changed)
+    prody.writePDB(output_file_to_grow, molecule_names_changed)
+    logger.info("The result of core + fragment has been saved in '{}'. This will be used to create the template file."
+                .format(output_file_to_grow))
+
     # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
     # are returning this dictionary in the function.
     return changing_names_dictionary
