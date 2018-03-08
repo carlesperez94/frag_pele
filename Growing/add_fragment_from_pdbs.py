@@ -3,9 +3,8 @@ import logging
 import numpy as np
 import math
 import sys
-import scipy.ndimage.measurements as scymes
 # Local imports
-import complex_to_smile as c2s
+import complex_to_prody as c2p
 import pdb_joiner as pj
 import Bio.PDB as bio
 
@@ -22,9 +21,9 @@ def extract_heteroatoms_pdbs(pdb, ligand_chain="L"):
     :return: Writes a new pdb file "{residue name}.pdb" with the chain L isolated an returns the residue name (string).
     """
     # Parse the complex file and isolate the ligand core and the fragment
-    ligand = c2s.pdb_parser_ligand(pdb, ligand_chain)
+    ligand = c2p.pdb_parser_ligand(pdb, ligand_chain)
     # Check if the ligand has H
-    c2s.check_protonation(ligand)
+    c2p.check_protonation(ligand)
     # Save the ligand in a PDB (the name of the file is the name of the residue)
     ligand_name = ligand.getResnames()[0]
     prody.writePDB(ligand_name, ligand)
@@ -295,8 +294,8 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     The resname of the molecule will be "GRW" and the resnum "1". "growing_result.pdb" by default.
     """
     # Get the selected chain from the core and the fragment and convert them into ProDy molecules.
-    ligand_core = c2s.pdb_parser_ligand(pdb_complex_core, core_chain)
-    fragment = c2s.pdb_parser_ligand(pdb_fragment, fragment_chain)
+    ligand_core = c2p.pdb_parser_ligand(pdb_complex_core, core_chain)
+    fragment = c2p.pdb_parser_ligand(pdb_fragment, fragment_chain)
     # We will check that the structures are protonated. We will also create a new PDB file for each one and we will get
     # the residue name of each ligand.
     core_residue_name = extract_heteroatoms_pdbs(pdb_complex_core, core_chain)
@@ -349,7 +348,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     logger.info("The result of core + fragment has been saved in '{}'. This will be used to create the template file."
                 .format(output_file_to_tmpl))
     # Now, we will use the original molecule to do the resizing of the fragment.
-    reduce_molecule_size(check_results, frag_residue_name, 0.99) # 99% of reduction 
+    reduce_molecule_size(check_results, frag_residue_name, 0.99) # 99% of reduction
     point_reference = check_results.select("name {} and resname {}".format(pdb_atom_fragment_name, frag_residue_name))
     fragment_segment = check_results.select("resname {}".format(frag_residue_name))
     translate_to_position(hydrogen_atoms[0].get_coord(), point_reference.getCoords(), fragment_segment)
@@ -367,4 +366,4 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     return changing_names_dictionary
 
 
-main("4e20.pdb", "frag.pdb", "N3", "C7")
+#main("4e20.pdb", "frag.pdb", "N3", "C7")
