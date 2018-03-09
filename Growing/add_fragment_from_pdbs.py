@@ -309,6 +309,17 @@ def translate_to_position(initial_pos, final_pos, molecule):
     molecule.setCoords(list_of_new_coords)
 
 
+def extract_protein_from_complex(pdb_file):
+    """
+    Given a pdb file containing a complex (ligand + protein) it returns only the protein.
+    :param pdb_file: pdb file with a complex. string.
+    :return: ProDy molecule with only the protein.
+    """
+    complex = prody.parsePDB(pdb_file)
+    protein = complex.select("protein")
+    return protein
+
+
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, core_chain="L", fragment_chain="L",
          output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb"):
     """
@@ -401,13 +412,16 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     changing_names = pj.extract_and_change_atomnames(check_results, fragment.getResnames()[0])
     molecule_names_changed, changing_names_dictionary = changing_names
     finishing_joining(molecule_names_changed)
-    prody.writePDB(output_file_to_grow, molecule_names_changed)
     logger.info("The result of core + fragment(small) has been saved in '{}'. This will be used to initialise the growing."
                 .format(output_file_to_grow))
+    # Add the protein to the ligand
+    protein = extract_protein_from_complex(pdb_complex_core)
+    final_structure = protein.copy() + molecule_names_changed.copy()
+    prody.writePDB(output_file_to_grow, final_structure)
 
     # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
     # are returning this dictionary in the function.
     return changing_names_dictionary
 
 
-#main("4e20.pdb", "frag.pdb", "N3", "C7")
+main("4e20.pdb", "frag.pdb", "N3", "C7")
