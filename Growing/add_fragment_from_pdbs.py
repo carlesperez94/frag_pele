@@ -239,6 +239,12 @@ def finishing_joining(molecule):
 
 
 def compute_centroid(molecule):
+    """
+    Given a ProDy molecule, the function extract the coordinates of their atoms and compute the centroid of the
+    molecule.
+    :param molecule: ProDy molecule object.
+    :return: centroid of the molecule, tuple(X,Y,Z).
+    """
     coords = molecule.getCoords()
     x = []
     y = []
@@ -252,21 +258,48 @@ def compute_centroid(molecule):
 
 
 def move_atom_along_vector(initial_coord, final_coord, position_proportion):
+    """
+    Given two points (atom coordinates), this function moves the initial point a distance of "length of the vector
+    formed by the two coordinates" * "position_proportion" on the vector's direction.
+    :param initial_coord: initial 3D coordinates (X, Y, Z). numpy.ndarray
+    :param final_coord: final 3D coordinates (X, Y, Z). numpy.ndarray
+    :param position_proportion: proportion of movement that we would like to apply on the initial atom on the vector's
+    direction. float(generally between 0 and 1)
+    :return:
+    """
     vector = final_coord - initial_coord
     new_coords = initial_coord + (position_proportion * vector)
     return new_coords
 
 
 def reduce_molecule_size(molecule, residue, proportion):
-    selection = molecule.select("resname {}".format(residue))
-    centroid = compute_centroid(selection)
-    for atom in selection:
-        atom_coords = atom.getCoords()
-        new_coords = move_atom_along_vector(atom_coords, centroid, proportion)
-        atom.setCoords(new_coords)
+    """
+    This function performs a reduction of the size of a given residue of a ProDy molecule object.
+    :param molecule: ProDy molecule object.
+    :param residue: Resname of the residue of the molecule that we want to reduce. string
+    :param proportion: proportion of reduction of the size that we want to apply to the selected residue (between 0 and
+    1). float
+    :return: modify the coordinates of the selected residue for the result of the reduction.
+    """
+    if proportion >= 0 and proportion <= 1:
+        selection = molecule.select("resname {}".format(residue))
+        centroid = compute_centroid(selection)
+        for atom in selection:
+            atom_coords = atom.getCoords()
+            new_coords = move_atom_along_vector(atom_coords, centroid, proportion)
+            atom.setCoords(new_coords)
+    else:
+        logger.critical("Sorry, reduce_molecule_size() needs a proportion value between 0 and 1!")
 
 
 def translate_to_position(initial_pos, final_pos, molecule):
+    """
+    This function applies a translation of a whole molecule, using the vector from the initial_pos to the final_pos.
+    :param initial_pos: initial position in 3D coordinates. Generally we use the coordinates of an atom. numpy. ndarray
+    :param final_pos: final position in 3D coordinates. Generally we use the coordinates of an atom. numpy. ndarray
+    :param molecule: ProDy molecule object.
+    :return: modify the coordinates of the molecule.
+    """
     translation = initial_pos - final_pos
     coords_to_move = molecule.getCoords()
     list_of_new_coords = []
@@ -279,8 +312,14 @@ def translate_to_position(initial_pos, final_pos, molecule):
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, core_chain="L", fragment_chain="L",
          output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb"):
     """
-    From a core (protein + ligand core = chain L) and fragment (chain L) pdb files, given the heavy atoms names that we
-    want to connect, this function writes a new PDB with the fragment added to the core structure.
+    From a core (protein + ligand core = core_chain) and fragment (fragment_chain) pdb files, given the heavy atoms
+    names that we want to connect, this function add the fragment to the core structure. We will get three PDB files:
+    (1) the ligand core of the complex isolated, that will be used in further steps to generate the template of the
+    initial structure; (2) the ligand completed with the core and the fragment added, also prepared to generate the
+    template of the final structure; (3) the pdb file that will be used to initialise PELE simulations. Here we have
+    the core structure with the fragment added, but this fragment has been size-reduced in order to get small bond
+    lengths between its atoms. (During PELE simulations this distance will increase linearly until it reaches the
+    bond length given by the template of the final structure)
     :param pdb_complex_core: pdb file with a complex (protein + ligand) that will be used as core to perform the
     addition of the fragment. The chain of the ligand needs to be named as "L". We will also use the information of the
     protein to perform calculations of contacts with the ligand.
@@ -290,8 +329,13 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     form a new bond.
     :param pdb_atom_fragment_name: heavy atom name (string) of the ligand fragment where we want to perform the
     connection to form a new bond with the core.
-    :param output_file: pdb file with the result of the connection between the core and the fragment (single ligand).
-    The resname of the molecule will be "GRW" and the resnum "1". "growing_result.pdb" by default.
+    :param core_chain: name of the chain which contains the ligand in the pdb of the core complex. string
+    :param fragment_chain: name of the chain which contains the ligand in the pdb of the fragment. string
+    :param output_file_to_tmpl: name of the pdb file with the result of the connection between the core and the fragment
+    (single ligand). string. The resname of the molecule will be "GRW" and the resnum "1". "growing_result.pdb" by
+    default.
+    :param output_file_to_grow: name of the pdb file that will be used to initialise PELE simulations. string.
+    "initialization_grow.pdb" by default.
     """
     # Get the selected chain from the core and the fragment and convert them into ProDy molecules.
     ligand_core = c2p.pdb_parser_ligand(pdb_complex_core, core_chain)
@@ -358,7 +402,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     molecule_names_changed, changing_names_dictionary = changing_names
     finishing_joining(molecule_names_changed)
     prody.writePDB(output_file_to_grow, molecule_names_changed)
-    logger.info("The result of core + fragment has been saved in '{}'. This will be used to create the template file."
+    logger.info("The result of core + fragment(small) has been saved in '{}'. This will be used to initialise the growing."
                 .format(output_file_to_grow))
 
     # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
