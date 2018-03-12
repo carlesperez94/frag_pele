@@ -2,6 +2,8 @@ import prody
 import logging
 import numpy as np
 import math
+import os
+import shutil
 import sys
 # Local imports
 import complex_to_prody as c2p
@@ -11,6 +13,8 @@ import Bio.PDB as bio
 
 # Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
+# Working directory variable
+PRE_WORKING_DIR = "pregrow"
 
 
 def extract_heteroatoms_pdbs(pdb, ligand_chain="L"):
@@ -348,6 +352,11 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     :param output_file_to_grow: name of the pdb file that will be used to initialise PELE simulations. string.
     "initialization_grow.pdb" by default.
     """
+    if not PRE_WORKING_DIR:
+        os.mkdir(PRE_WORKING_DIR)
+        os.chdir(PRE_WORKING_DIR)
+    else:
+        os.chdir(PRE_WORKING_DIR)
     # Get the selected chain from the core and the fragment and convert them into ProDy molecules.
     ligand_core = c2p.pdb_parser_ligand(pdb_complex_core, core_chain)
     fragment = c2p.pdb_parser_ligand(pdb_fragment, fragment_chain)
@@ -418,10 +427,11 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     protein = extract_protein_from_complex(pdb_complex_core)
     final_structure = protein.copy() + molecule_names_changed.copy()
     prody.writePDB(output_file_to_grow, final_structure)
-
+    # Make a copy of output files in the main directory
+    shutil.copy(output_file_to_grow, "../")
     # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
     # are returning this dictionary in the function.
     return changing_names_dictionary
 
 
-main("4e20.pdb", "frag.pdb", "N3", "C7")
+#main("4e20.pdb", "frag.pdb", "N3", "C7")
