@@ -1,7 +1,8 @@
 import os
-import sys
 from schrodinger import structure as st
 import main as plop
+import subprocess
+import argparse
 
 
 def convert_mae(ligands):
@@ -32,3 +33,12 @@ def create_template(pdb):
    plop.main(mae_file)
    os.remove(mae_file)
 
+def arg_parse():
+  parser = argparse.ArgumentParser()
+  parser.add_argument("pdb", type=str, help="ligand file to templatize")
+  args = parser.parse_args()
+  return args.pdb
+
+if __name__ == '__main__':
+	pdb = arg_parse()
+	create_template(pdb)

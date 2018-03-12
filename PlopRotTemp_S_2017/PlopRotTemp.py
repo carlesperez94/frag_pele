@@ -130,7 +130,6 @@ dummy_atom3 = [0.1, 0.2, 0.3]
 DUMMY_COORD = 17.21606
 DUMMY_ANGLE = 45.73961
 DUMMY_DIHEDRAL = 13.21566
-DEFAULT_ATOMTYPE = [0.000, 0.000, 1.500, 1.250, 0.005000000, 0.000000000] 
 DEFAULT_RADIUS_VDW = '0.5000'  
 DEFAULT_EPSILON = '0.0300'
 STANDARD_RESIDUE_NAME = 'LIG'
@@ -560,7 +559,7 @@ def find_bonds_in_mae(filename):
             out_bond.append(b)
     f.close()
     if not out_bond:
-      raise Exception("CONNECTIVITY REGION IN MAE CORRUPTED")
+      print("NOT CONNECTIVITY REGION IN MAE")
     return out_bond
 
 
@@ -1841,7 +1840,7 @@ def ReorderTemplate(ordering, new_parent, rank, in_file, out_file, mae_file, R_g
     line = fin.readline()
     if (not re.search('^PHI', line)):
         raise Exception("ERROR IN TEMPLATE FORMAT\n" + line)
-    fout.write(line)
+    fout.write(line.strip("\n"))
     while 1:
         line = fin.readline()
         if (not (line)): break
@@ -1849,8 +1848,10 @@ def ReorderTemplate(ordering, new_parent, rank, in_file, out_file, mae_file, R_g
         if (re.search('IPHI', line)):
           phis = negative_torsions_for_pele(phis, tors, bonds)
           iphi_found = True
+          if phis:
+             phis.insert(0, "")
           fout.write('\n'.join(phis))
-          fout.write('\n' + line)
+          fout.write('\n'+line)
         else:
             a = re.search('^\s*([\-\d]+)\s+([\-\d]+)\s+([\-\d]+)\s+([\-\d]+)(.*)', line)
             line = str(conv_at(ordering, a.group(1))).rjust(6) + str(conv_at(ordering, a.group(2))).rjust(6) + str(

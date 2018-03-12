@@ -29,6 +29,7 @@ CONVERSION = {'CT1': 'CT',
 DEFAULT_INT = 6
 DEFAULT_SPRING_K = '268.0'
 DEFAULT_EQ_DIST = '1.529'
+DEFAULT_ATOMTYPE = [0.000, 0.000, 1.500, 1.250, 0.005000000, 0.000000000] 
 
 FILE_DIR_PATH = os.path.dirname(os.path.dirname(__file__))
 SIMILARITY_PATH = os.path.join(FILE_DIR_PATH, 'param/similarity.param') ##impact??
