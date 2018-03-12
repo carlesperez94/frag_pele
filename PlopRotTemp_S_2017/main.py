@@ -64,7 +64,7 @@ from template.templateBuilder import TemplateBuilder
 
 
 
-def main(mae_file, max_tors, nrot, user_core_atom, mae_charges = False, clean = False):
+def main(mae_file, max_tors=4, nrot=1000, user_core_atom=-1, mae_charges = False, clean = False):
 
     #Defaults
     nrot = nrot
