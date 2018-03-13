@@ -5,10 +5,11 @@ import math
 import os
 import shutil
 import sys
-# Local imports
-import complex_to_prody as c2p
-import pdb_joiner as pj
 import Bio.PDB as bio
+# Local imports
+import Growing.AddingFragHelpers.complex_to_prody as c2p
+import Growing.AddingFragHelpers.pdb_joiner as pj
+
 
 
 # Getting the name of the module for the log system
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 PRE_WORKING_DIR = "pregrow"
 
 
-def extract_heteroatoms_pdbs(pdb, ligand_chain="L"):
+def extract_heteroatoms_pdbs(pdb, create_file = True, ligand_chain="L"):
     """
     From a pdb file, it extracts the chain L and checks if the structure has hydrogens. After that, the chain L is
     written in a new PDB file which will have the following format: "{residue name}.pdb".
@@ -30,8 +31,9 @@ def extract_heteroatoms_pdbs(pdb, ligand_chain="L"):
     c2p.check_protonation(ligand)
     # Save the ligand in a PDB (the name of the file is the name of the residue)
     ligand_name = ligand.getResnames()[0]
-    prody.writePDB(ligand_name, ligand)
-    logger.info("The ligand of {} has been extracted and saved in '{}.pdb'".format(pdb, ligand_name))
+    if create_file:
+        prody.writePDB(ligand_name, ligand)
+        logger.info("The ligand of {} has been extracted and saved in '{}.pdb'".format(pdb, ligand_name))
     return ligand_name
 
 
@@ -431,7 +433,4 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     shutil.copy(output_file_to_grow, "../")
     # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
     # are returning this dictionary in the function.
-    return changing_names_dictionary
-
-
-#main("4e20.pdb", "frag.pdb", "N3", "C7")
+    return changing_names_dictionary, hydrogen_atoms, "{}.pdb".format(core_residue_name), output_file_to_tmpl, output_file_to_grow
