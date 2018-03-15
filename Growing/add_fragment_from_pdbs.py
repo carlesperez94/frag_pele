@@ -326,6 +326,17 @@ def extract_protein_from_complex(pdb_file):
     return protein
 
 
+def add_ter_in_pdb(pdb_file):
+    with open(pdb_file) as pdb:
+        content = pdb.read()
+    list_of_lines = content.split("\n")
+    for n, line in enumerate(list_of_lines):
+        row = line.split()
+        if len(row) > 1:
+            print(str(row[4]), str(list_of_lines[0]))
+            if str(row[4]) == str(list_of_lines[n][4]):
+                print("HEY")
+
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, core_chain="L", fragment_chain="L",
          output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb"):
     """
@@ -364,8 +375,9 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     fragment = c2p.pdb_parser_ligand(pdb_fragment, fragment_chain)
     # We will check that the structures are protonated. We will also create a new PDB file for each one and we will get
     # the residue name of each ligand.
-    core_residue_name = extract_heteroatoms_pdbs(pdb_complex_core, core_chain)
-    frag_residue_name = extract_heteroatoms_pdbs(pdb_fragment, fragment_chain)
+    core_residue_name = extract_heteroatoms_pdbs(pdb_complex_core, True, core_chain)
+    frag_residue_name = extract_heteroatoms_pdbs(pdb_fragment, True, fragment_chain)
+    print(core_residue_name,frag_residue_name)
     # We will use the PDBs previously generated to get a list of Bio.PDB.Atoms for each structure
     bioatoms_core_and_frag = from_pdb_to_bioatomlist([core_residue_name, frag_residue_name])
     # Then, we will have to transform the atom names of the core and the fragment to a list object
@@ -426,11 +438,26 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     logger.info("The result of core + fragment(small) has been saved in '{}'. This will be used to initialise the growing."
                 .format(output_file_to_grow))
     # Add the protein to the ligand
-    protein = extract_protein_from_complex(pdb_complex_core)
-    final_structure = protein.copy() + molecule_names_changed.copy()
-    prody.writePDB(output_file_to_grow, final_structure)
+    prot = extract_protein_from_complex(pdb_complex_core)
+    prody.writePDB("protein.pdb", prot)
+    prody.writePDB("ligand_grown.pdb", molecule_names_changed)
+    with open("protein.pdb") as protein:
+        content_prot = protein.readlines()
+        content_prot = content_prot[1:]
+        content_prot = "".join(content_prot)
+    with open("ligand_grown.pdb") as lig:
+        content_lig = lig.readlines()
+        content_lig = content_lig[1:]
+        content_lig = "".join(content_lig)
+    output_file = []
+    output_file.append("{}TER\n".format(content_prot))
+    output_file.append("{}TER".format(content_lig))
+    out_joined = "".join(output_file)
+    with open(output_file_to_grow, "w") as output :
+        output.write(out_joined)
     # Make a copy of output files in the main directory
     shutil.copy(output_file_to_grow, "../")
+    os.chdir("../")
     # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
     # are returning this dictionary in the function.
     return changing_names_dictionary, hydrogen_atoms, "{}.pdb".format(core_residue_name), output_file_to_tmpl, output_file_to_grow

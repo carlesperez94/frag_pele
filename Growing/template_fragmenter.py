@@ -54,7 +54,9 @@ def atoms_selector(template):
     # Get the atom name from all rows and insert it in a dictionary
     atoms = {}
     for row in rows:
-        atoms[row[4]] = row[0]
+        atom_name = row[4]
+        atom_name_curated = atom_name.replace("_", "")
+        atoms[atom_name_curated] = row[0]
     return atoms
 
 
@@ -349,7 +351,7 @@ def write_template(reference_template, output_filename, nbon_content, bond_conte
 # These last two functions are the main algorithm to modify templates (we will modify them in further updates
 # in order to avoid final templates)
 def generate_starting_template(initial_template_file, final_template_file, original_atom_to_mod, final_atom_to_mod,
-                               output_template_filename, steps=10):
+                               output_template_filename, path, steps=10):
     """
     :param initial_template_file: template file of the initial ligand.
     :param final_template_file: template file of the ligand with the fragment that we want to add.
@@ -360,8 +362,8 @@ def generate_starting_template(initial_template_file, final_template_file, origi
     :return: template modified that will be used as starting point to do the growing process.
     """
     # Reading initial and final templates and convert them in strings
-    initial_template = template_reader(initial_template_file)
-    final_template = template_reader(final_template_file)
+    initial_template = template_reader(initial_template_file, path)
+    final_template = template_reader(final_template_file, path)
     # Select the atoms for this templates and convert them into dictionaries objects
     atoms_selected_initial = atoms_selector(initial_template)
     atoms_selected_final = atoms_selector(final_template)
@@ -388,13 +390,14 @@ def generate_starting_template(initial_template_file, final_template_file, origi
     nbon_section = write_nbon_section(final_template, properties_final)
     bond_section = write_bond_section(final_template, bonds_final)
     # Finally, join everything and write a file with the output template
-    write_template(final_template, output_template_filename, nbon_section, bond_section)
+    write_template(final_template, output_template_filename, nbon_section, bond_section, path)
 
 
 # We could save a lot of steps and useless variables in this function if we use variables of the previous one,
 # but I do not want to take the risk creating global variables
 def grow_parameters_in_template(starting_template_file, initial_template_file, final_template_file,
-                                original_atom_to_mod, final_atom_to_mod, output_template_filename, step):
+                                original_atom_to_mod, final_atom_to_mod, output_template_filename,
+                                path, step):
     """
     :param starting_template_file: template file resultant of generate_starting_template() which contain the properties
     of the atoms and bonds modified to start the growing.
@@ -407,9 +410,9 @@ def grow_parameters_in_template(starting_template_file, initial_template_file, f
     :return: template with the parameters increased linearly.
     """
     # Reading initial and final templates and convert them in strings
-    starting_template = template_reader(starting_template_file)
-    initial_template = template_reader(initial_template_file)
-    final_template = template_reader(final_template_file)
+    starting_template = template_reader(starting_template_file, path)
+    initial_template = template_reader(initial_template_file, path)
+    final_template = template_reader(final_template_file, path)
     # Select the atoms for this templates and convert them into dictionaries objects
     atoms_selected_initial = atoms_selector(initial_template)
     atoms_selected_starting = atoms_selector(final_template)
@@ -434,4 +437,4 @@ def grow_parameters_in_template(starting_template_file, initial_template_file, f
     nbon_section = write_nbon_section(final_template, properties_starting)
     bond_section = write_bond_section(final_template, bonds_starting)
     # Finally, join everything and write a file with the output template
-    write_template(final_template, output_template_filename, nbon_section, bond_section)
+    write_template(final_template, output_template_filename, nbon_section, bond_section, path)
