@@ -25,7 +25,7 @@ def trajectory_selector(output, path_to_file="/growing_output", report="report",
 
     # Now, select only the columns correspondent to the numberOfAcceptedPeleSteps
     # (if you sum 1 to this number you can obtain the step in the trajectory) and the criteria
-    selected_data = data.loc[:, ['numberOfAcceptedPeleSteps', criteria]]
+    selected_data = data.loc[1:, ['numberOfAcceptedPeleSteps', criteria]]
 
     # Find the minimum value of the criteria
     min_energy = selected_data.min(axis=0)[1]

@@ -160,7 +160,9 @@ def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fra
     transform_coords_from_bio2prody(fragment_structure, list_of_atoms)
     # Now, we have to remove the hydrogens of the binding
     h_atom_names = [core_bond[1].name, fragment_bond[0].name]
+    print(h_atom_names)
     merged_structure = bond(h_atom_names, [core_structure, fragment_structure])
+    print(merged_structure[0].getNames())
     return merged_structure
 
 
@@ -377,7 +379,6 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     # the residue name of each ligand.
     core_residue_name = extract_heteroatoms_pdbs(pdb_complex_core, True, core_chain)
     frag_residue_name = extract_heteroatoms_pdbs(pdb_fragment, True, fragment_chain)
-    print(core_residue_name,frag_residue_name)
     # We will use the PDBs previously generated to get a list of Bio.PDB.Atoms for each structure
     bioatoms_core_and_frag = from_pdb_to_bioatomlist([core_residue_name, frag_residue_name])
     # Then, we will have to transform the atom names of the core and the fragment to a list object
@@ -426,7 +427,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     logger.info("The result of core + fragment has been saved in '{}'. This will be used to create the template file."
                 .format(output_file_to_tmpl))
     # Now, we will use the original molecule to do the resizing of the fragment.
-    reduce_molecule_size(check_results, frag_residue_name, 0.99) # 99% of reduction
+    reduce_molecule_size(check_results, frag_residue_name, 0.90) # 99% of reduction
     point_reference = check_results.select("name {} and resname {}".format(pdb_atom_fragment_name, frag_residue_name))
     fragment_segment = check_results.select("resname {}".format(frag_residue_name))
     translate_to_position(hydrogen_atoms[0].get_coord(), point_reference.getCoords(), fragment_segment)

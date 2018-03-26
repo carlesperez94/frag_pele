@@ -369,6 +369,7 @@ def generate_starting_template(initial_template_file, final_template_file, origi
     atoms_selected_final = atoms_selector(final_template)
     # Use this dictionaries in order to find differences in atoms to determine which are new ones
     new_atoms = new_atoms_detector(atoms_selected_initial, atoms_selected_final)
+    print(new_atoms)
     # Get also the properties (VDW and Charge) of all the dictionaries
     properties_initial = get_atom_properties(atoms_selected_initial, initial_template)
     properties_final = get_atom_properties(atoms_selected_final, final_template)
