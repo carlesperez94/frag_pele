@@ -280,7 +280,7 @@ def move_atom_along_vector(initial_coord, final_coord, position_proportion):
     return new_coords
 
 
-def reduce_molecule_size(molecule, residue, proportion):
+def reduce_molecule_size(molecule, residue, steps):
     """
     This function performs a reduction of the size of a given residue of a ProDy molecule object.
     :param molecule: ProDy molecule object.
@@ -289,6 +289,7 @@ def reduce_molecule_size(molecule, residue, proportion):
     1). float
     :return: modify the coordinates of the selected residue for the result of the reduction.
     """
+    proportion = 1-(1/(steps+1))
     if proportion >= 0 and proportion <= 1:
         selection = molecule.select("resname {}".format(residue))
         centroid = compute_centroid(selection)
@@ -339,8 +340,8 @@ def add_ter_in_pdb(pdb_file):
             if str(row[4]) == str(list_of_lines[n][4]):
                 print("HEY")
 
-def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, core_chain="L", fragment_chain="L",
-         output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb"):
+def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
+         fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb"):
     """
     From a core (protein + ligand core = core_chain) and fragment (fragment_chain) pdb files, given the heavy atoms
     names that we want to connect, this function add the fragment to the core structure. We will get three PDB files:
@@ -427,7 +428,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     logger.info("The result of core + fragment has been saved in '{}'. This will be used to create the template file."
                 .format(output_file_to_tmpl))
     # Now, we will use the original molecule to do the resizing of the fragment.
-    reduce_molecule_size(check_results, frag_residue_name, 0.90) # 99% of reduction
+    reduce_molecule_size(check_results, frag_residue_name, steps)
     point_reference = check_results.select("name {} and resname {}".format(pdb_atom_fragment_name, frag_residue_name))
     fragment_segment = check_results.select("resname {}".format(frag_residue_name))
     translate_to_position(hydrogen_atoms[0].get_coord(), point_reference.getCoords(), fragment_segment)
