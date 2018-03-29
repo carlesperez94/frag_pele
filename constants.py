@@ -27,9 +27,11 @@ SCHRODINGER_PY_PATH = "/opt/schrodinger2016-4/utilities/python"
 TEMPLATES_PATH = "DataLocal/Templates/OPLS2005/HeteroAtoms/"
 ROTAMERS_PATH = "DataLocal/LigandRotamerLibs/"
 PDBS_OUTPUT_FOLDER = "PDBs_growing"
+OUTPUT_FOLDER = "growing_results/"
+TEMPLATES_FOLDER = "growing_templates"
 # Messages constants
 TEMPLATE_MESSAGE = "We are going to transform the template _{}_ into _{}_ in _{}_ steps! Starting..."
-SELECTED_MESSAGE = "\n============ Files selected ============\nControl file: {}\nPDB file: {}\nResults folder name: {}\n"
+SELECTED_MESSAGE = "\n============ Files selected ============\nControl file: {}\nPDB file: {}\nResults folder name: {}\nStep: {}\n"
 FINISH_SIM_MESSAGE = "SIMULATION {} COMPLETED!!! "
 
 ##############################################
