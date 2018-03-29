@@ -225,6 +225,13 @@ def modify_properties(properties_dict, new_atoms_properties_dict, step):
 
 
 def write_nbon_section(template, properties_dict):
+    """
+    Given a template and a dictionary of NBON properties the function rewrites the NBON section with the data in the
+    dictionary.
+    :param template: OPLS2005 template of a ligand. string
+    :param properties_dict: dictionary {"index" : ("vdw", "charge")}
+    :return: NBON section modified. string
+    """
     nbon_section = section_selector(template, "NBON", "BOND")
     rows = re.findall(NBON_PATTERN, nbon_section)
     section_modified = []
@@ -263,6 +270,13 @@ def modify_bonds(bonds_dictionary, new_atoms_properties_dict, step):
 
 
 def write_bond_section(template, bonds_dict):
+    """
+    Given a template and a dictionary of BOND information the function rewrites the BOND section with the data in the
+    dictionary.
+    :param template: OPLS2005 template of a ligand. string
+    :param bonds_dict: dictionary {("index1", "index2") : "bond length"}
+    :return: BOND section modified. string
+    """
     bond_section = section_selector(template, "BOND", "THET")
     rows = re.findall(BOND_PATTERN, bond_section)
     section_modified = []
@@ -306,6 +320,15 @@ def set_properties(properties_dict, new_atoms_properties_dict, steps):
 
 
 def set_pretemplate_properties(properties_dict, new_atoms_properties_dict, selected_atom_properties_dict, at_index, steps):
+    """
+
+    :param properties_dict:
+    :param new_atoms_properties_dict:
+    :param selected_atom_properties_dict:
+    :param at_index:
+    :param steps:
+    :return:
+    """
     for index in properties_dict.keys():
         # In fact, we are only using the index of the new_atoms_properties_dict to get the changing atoms
         for new_index in new_atoms_properties_dict.keys():
@@ -396,7 +419,6 @@ def write_template(reference_template, output_filename, nbon_content, bond_conte
 
 def get_specific_atom_properties(atom_pdb_names, atom_dictionary, properties_dictionary):
     """
-
     :param atom_pdb_names: list of strings with the atom names that we want to select.
     :param atom_dictionary: dictionary { "PDB atom name" : "index"} ("VDW", "CHARGE") } that we will use as reference to
     find the correct index of given atoms.
@@ -417,7 +439,7 @@ def get_specific_atom_properties(atom_pdb_names, atom_dictionary, properties_dic
 
 
 def create_initial_template(initial_template, final_template, original_atom_to_mod, heavy_atom,
-                            output_template_filename="grwz_pre", path="DataLocal/Templates/OPLS2005/HeteroAtoms/",
+                            output_template_filename="grwz_0", path="DataLocal/Templates/OPLS2005/HeteroAtoms/",
                             steps=10):
     """
     This function creates a pregrowing template. This template will be used to set the initial properties in a template
@@ -467,13 +489,15 @@ def create_initial_template(initial_template, final_template, original_atom_to_m
 
 
 def generate_starting_template(initial_template_file, final_template_file, original_atom_to_mod, heavy_atom,
-                               output_template_filename, path="DataLocal/Templates/OPLS2005/HeteroAtoms/", steps=10):
+                               output_template_filename="grwz_pre", path="DataLocal/Templates/OPLS2005/HeteroAtoms/",
+                               steps=10):
     """
     :param initial_template_file: template file of the initial ligand.
     :param final_template_file: template file of the ligand with the fragment that we want to add.
     :param original_atom_to_mod: PDB atom name of the atom that we want to transform into another (in initial template).
-    :param final_atom_to_mod: PDB atom name of the atom that will be transformed (in final template).
+    :param heavy_atom: PDB atom name of the atom that will be transformed (in final template).
     :param output_template_filename: name of the output template.
+    :param path: path to templates folder. string.
     :param steps: number of growing steps.
     :return: template modified that will be used as starting point to do the growing process.
     """
@@ -513,8 +537,9 @@ def grow_parameters_in_template(starting_template_file, initial_template_file, f
     :param initial_template_file: template file of the core ligand.
     :param final_template_file: template file of the ligand with the fragment that we want to add.
     :param original_atom_to_mod: PDB atom name of the atom that we want to transform into another (in initial template).
-    :param final_atom_to_mod: PDB atom name of the atom that will be transformed (in final template).
+    :param heavy_atom: PDB atom name of the atom that will be transformed (in final template).
     :param output_template_filename: name of the output template.
+    :param path: path to templates folder. string
     :param step: current step of the growing loop.
     :return: template with the parameters increased linearly.
     """
