@@ -194,12 +194,11 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         # Running PELE simulation
         if not os.path.exists(result):
             os.chdir("growing_results")
-            os.mkdir(result)
+            os.mkdir("{}_{}".format(resfold, (int(i))))
             os.chdir("../")
 
-        logger.info(c.FINISH_SIM_MESSAGE.format(result))
         Growing.simulations_linker.simulation_runner(pele_dir, contrl)
-
+        logger.info(c.FINISH_SIM_MESSAGE.format(result))
         # Before selecting a step from a trajectory we will save the input PDB file in a folder
         shutil.copy(pdb_initialize, os.path.join(pdbout, pdb_file))
 
