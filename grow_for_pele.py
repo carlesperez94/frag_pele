@@ -192,8 +192,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                     os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, c.TEMPLATES_FOLDER), template))
 
         # Running PELE simulation
+        if not os.path.exists(c.OUTPUT_FOLDER):
+            os.mkdir(c.OUTPUT_FOLDER)
         if not os.path.exists(result):
-            os.chdir("growing_results")
+            os.chdir(c.OUTPUT_FOLDER)
             os.mkdir("{}_{}".format(resfold, (int(i))))
             os.chdir("../")
 
