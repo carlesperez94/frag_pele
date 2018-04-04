@@ -428,7 +428,6 @@ def get_specific_atom_properties(atom_pdb_names, atom_dictionary, properties_dic
     """
     dictionary = {}
     for name in atom_pdb_names:
-        print(atom_dictionary[name])
         index = atom_dictionary[name]
         dictionary[index] = properties_dictionary[index]
     return dictionary

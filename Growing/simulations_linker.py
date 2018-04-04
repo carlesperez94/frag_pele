@@ -48,7 +48,7 @@ def control_file_modifier(control_template, pdb, step, pele_dir, results_path="/
     logger.info("{}_{} has been created successfully!".format(step, control_template))
 
 
-def simulation_runner(path_to_pele, control_in):
+def simulation_runner(path_to_pele, control_in, cpus=4):
     """
     Runs a PELE simulation with the parameters described in the input control file.
 
@@ -58,9 +58,22 @@ def simulation_runner(path_to_pele, control_in):
 
     control_in --> Name of the control file with the parameters to run PELE
     """
-    path_to_serial = os.path.abspath("{}/bin/Pele_serial".format(path_to_pele))
-    cmd = "{} {}".format(path_to_serial, control_in)
-    subprocess.call(cmd.split())
+    if cpus:
+        cpus = int(cpus)
+        if cpus < 2:
+            logger.critical("Sorry, to run mpi PELE you need at least 2 CPUs!")
+        else:
+            path_to_mpi = os.path.abspath("{}/bin/Pele_mpi".format(path_to_pele))
+            logger.info("Starting PELE simulation. You will run mpi PELE with {} cores.".format(cpus))
+            cmd = "mpirun -np {} {} {}".format(cpus, path_to_mpi, control_in)
+            subprocess.call(cmd.split())
+    else:
+        path_to_serial = os.path.abspath("{}/bin/Pele_serial".format(path_to_pele))
+        logger.info("Starting PELE simulation. You will run serial PELE.")
+        cmd = "{} {}".format(path_to_serial, control_in)
+        subprocess.call(cmd.split())
+
+
 
 
 

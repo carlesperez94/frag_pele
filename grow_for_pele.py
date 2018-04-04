@@ -7,7 +7,7 @@ from logging.config import fileConfig
 import shutil
 import subprocess
 # Local imports
-import Growing.template_selector
+import Growing.bestStructs
 import Growing.template_fragmenter
 import Growing.simulations_linker
 import Growing.add_fragment_from_pdbs
@@ -73,13 +73,15 @@ def parse_arguments():
                         help="Suffix name of the trajectory file from PELE.")
     parser.add_argument("-pdbf", "--pdbout", default=c.PDBS_OUTPUT_FOLDER,
                         help="PDBs output folder")
+    parser.add_argument("-cs", "--cpus", default=c.CPUS,
+                        help="Amount of CPU's that you want to use in mpirun of PELE")
     args = parser.parse_args()
 
-    return args.complex_pdb, args.fragment_pdb, args.core_atom, args.fragment_atom, args.iterations, args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.resfold, args.report, args.traject, args.pdbout
+    return args.complex_pdb, args.fragment_pdb, args.core_atom, args.fragment_atom, args.iterations, args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.resfold, args.report, args.traject, args.pdbout, args.cpus
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
-         pele_dir, contrl, resfold, report, traject, pdbout):
+         pele_dir, contrl, resfold, report, traject, pdbout, cpus):
     """
         Description: This function is the main core of the program. It creates N intermediate templates
         and control files for PELE. Then, it perform N successive simulations automatically.
@@ -199,16 +201,18 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
             os.mkdir("{}_{}".format(resfold, (int(i))))
             os.chdir("../")
 
-        Growing.simulations_linker.simulation_runner(pele_dir, contrl)
+        Growing.simulations_linker.simulation_runner(pele_dir, contrl, cpus)
         logger.info(c.FINISH_SIM_MESSAGE.format(result))
         # Before selecting a step from a trajectory we will save the input PDB file in a folder
         shutil.copy(pdb_initialize, os.path.join(pdbout, pdb_file))
 
         # Selection of the trajectory used as new input
-        Growing.template_selector.trajectory_selector(pdb_initialize, result, report, traject, criteria)
+        Growing.bestStructs.main(c.SELECTION_CRITERIA, pdb_initialize, path=result)
+
+    shutil.copy(pdb_initialize, os.path.join(pdbout, "final_{}.pdb".format(pdb_initialize)))
 
 
 if __name__ == '__main__':
-    complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, contrl, resfold, report, traject, pdbout = parse_arguments()
+    complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, contrl, resfold, report, traject, pdbout, cpus = parse_arguments()
     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir,
-         contrl, resfold, report, traject, pdbout)
+         contrl, resfold, report, traject, pdbout, cpus)

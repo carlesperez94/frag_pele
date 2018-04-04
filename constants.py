@@ -17,6 +17,7 @@ RESULTS_FOLDER = "growing_output"
 PATH_TO_PELE = "/opt/PELErev12492"
 REPORT_NAME = "report"
 TRAJECTORY_NAME = "trajectory.pdb"
+CPUS = 4
 # PlopRotTemp parameters
 PLOP_PATH = "/home/carlespl/project/growing/Ligand_growing/PlopRotTemp_S_2017/ligand_prep.py"
 SCHRODINGER_PY_PATH = "/opt/schrodinger2016-4/utilities/python"

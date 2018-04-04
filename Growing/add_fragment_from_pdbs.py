@@ -27,6 +27,8 @@ def extract_heteroatoms_pdbs(pdb, create_file = True, ligand_chain="L"):
     """
     # Parse the complex file and isolate the ligand core and the fragment
     ligand = c2p.pdb_parser_ligand(pdb, ligand_chain)
+    if ligand is None:
+        logger.critical("The ligand can not be found. Ensure that the ligand of {} is the chain L".format(pdb))
     # Check if the ligand has H
     c2p.check_protonation(ligand)
     # Save the ligand in a PDB (the name of the file is the name of the residue)
@@ -160,9 +162,7 @@ def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fra
     transform_coords_from_bio2prody(fragment_structure, list_of_atoms)
     # Now, we have to remove the hydrogens of the binding
     h_atom_names = [core_bond[1].name, fragment_bond[0].name]
-    print(h_atom_names)
     merged_structure = bond(h_atom_names, [core_structure, fragment_structure])
-    print(merged_structure[0].getNames())
     return merged_structure
 
 
@@ -216,7 +216,11 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
     clashes) around the axis of the bond.
     """
     core_resname = bond[0].get_parent().get_resname()
-    check_possible_collision = merged_structure.select("resname {} and within 1.7 of resname FRG".format(core_resname))
+    frag_resname = bond[1].get_parent().get_resname()
+    if core_resname is frag_resname:
+        logger.critical("The resname of the core and the fragment is the same. Please, change one of both")
+    check_possible_collision = merged_structure.select("resname {} and within 1.7 of resname {}".format(core_resname,
+                                                                                                        frag_resname))
     # This list only should have the atom of the fragment that will be bonded to the core, so if not we will have to
     # solve it
     if len(check_possible_collision.getNames()) > 1 or check_possible_collision.getNames()[0] != bond[0].name:
