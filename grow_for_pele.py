@@ -15,7 +15,10 @@ import Growing.AddingFragHelpers
 import constants as c
 
 # Calling configuration file for log system
-fileConfig(c.CONFIG_PATH)
+FilePath = os.path.abspath(__file__)
+PackagePath = os.path.dirname(FilePath)
+LogPath = os.path.join(PackagePath, c.CONFIG_PATH)
+fileConfig(LogPath)
 
 # Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
