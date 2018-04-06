@@ -11,13 +11,12 @@ import Helpers.templatize as tp
 logger = logging.getLogger(__name__)
 
 
-def control_file_modifier(control_template, pdb, step, pele_dir, results_path="/growing_output"):
+def control_file_modifier(control_template, pdb, step, license, results_path="/growing_output"):
     """
     This function creates n control files for each intermediate template created in order to change
     the logPath, reportPath and trajectoryPath to have all control files prepared for PELE simulations.
     """
 
-    license = os.path.join(pele_dir, "licenses")
     ctrl_fold_name = "control_folder"
 
     # Then, in the main loop we will do a copy of control files, so we will print this in the logger
@@ -63,14 +62,13 @@ def simulation_runner(path_to_pele, control_in, cpus=4):
         if cpus < 2:
             logger.critical("Sorry, to run mpi PELE you need at least 2 CPUs!")
         else:
-            path_to_mpi = os.path.abspath("{}/bin/Pele_mpi".format(path_to_pele))
             logger.info("Starting PELE simulation. You will run mpi PELE with {} cores.".format(cpus))
-            cmd = "mpirun -np {} {} {}".format(cpus, path_to_mpi, control_in)
+            cmd = "mpirun -np {} {} {}".format(cpus, path_to_pele, control_in)
+            print(cmd)
             subprocess.call(cmd.split())
     else:
-        path_to_serial = os.path.abspath("{}/bin/Pele_serial".format(path_to_pele))
         logger.info("Starting PELE simulation. You will run serial PELE.")
-        cmd = "{} {}".format(path_to_serial, control_in)
+        cmd = "{} {}".format(path_to_pele, control_in)
         subprocess.call(cmd.split())
 
 

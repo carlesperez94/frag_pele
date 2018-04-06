@@ -9,7 +9,8 @@ SELECTION_CRITERIA = "Binding Energy"
 # PELE parameters
 CONTROL_TEMPLATE = "control_template.conf"
 RESULTS_FOLDER = "growing_output"
-PATH_TO_PELE = "/opt/PELErev12492"
+PATH_TO_PELE = "/opt/PELErev12492/bin/Pele_mpi"
+PATH_TO_LICENSE = "/opt/PELErev12492/licenses"
 REPORT_NAME = "report"
 TRAJECTORY_NAME = "trajectory.pdb"
 CPUS = 4

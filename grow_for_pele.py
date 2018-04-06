@@ -68,6 +68,8 @@ def parse_arguments():
                         help="Complete path to Pele_serial")
     parser.add_argument("-c", "--contrl", default=c.CONTROL_TEMPLATE,
                         help="Control file templatized.")
+    parser.add_argument("-l", "--license", default=c.PATH_TO_LICENSE,
+                        help="Absolute path to PELE's licenses folder.")
     parser.add_argument("-r", "--resfold", default=c.RESULTS_FOLDER,
                         help="Name for results folder")
     parser.add_argument("-rp", "--report", default=c.REPORT_NAME,
@@ -80,11 +82,11 @@ def parse_arguments():
                         help="Amount of CPU's that you want to use in mpirun of PELE")
     args = parser.parse_args()
 
-    return args.complex_pdb, args.fragment_pdb, args.core_atom, args.fragment_atom, args.iterations, args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.resfold, args.report, args.traject, args.pdbout, args.cpus
+    return args.complex_pdb, args.fragment_pdb, args.core_atom, args.fragment_atom, args.iterations, args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, args.resfold, args.report, args.traject, args.pdbout, args.cpus
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
-         pele_dir, contrl, resfold, report, traject, pdbout, cpus):
+         pele_dir, contrl, license, resfold, report, traject, pdbout, cpus):
     """
         Description: This function is the main core of the program. It creates N intermediate templates
         and control files for PELE. Then, it perform N successive simulations automatically.
@@ -117,7 +119,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         This process will be repeated until get the final grown ligand (protein + ligand).
         """
     # MAIN LOOP
-
+    plop_relative_path = os.path.join(PackagePath, plop_path)
     # Pre-growing part - Preparation
 
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = Growing.\
@@ -125,7 +127,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     # Create the templates for the initial and final structures
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
-        cmd = "{} {} {}".format(sch_python, plop_path, os.path.join(curr_dir,
+        cmd = "{} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
                                 Growing.add_fragment_from_pdbs.PRE_WORKING_DIR, pdb_to_template))
         subprocess.call(cmd.split())
         template_resname = Growing.add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(
@@ -177,7 +179,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
         # Control file modification
         logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
-        Growing.simulations_linker.control_file_modifier(contrl, pdb_initialize, i, pele_dir, result)
+        Growing.simulations_linker.control_file_modifier(contrl, pdb_initialize, i, license, result)
 
         if i != 0 and i != iterations:
             Growing.template_fragmenter.grow_parameters_in_template("{}_ref".format(template_final),
@@ -216,6 +218,6 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
 
 if __name__ == '__main__':
-    complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, contrl, resfold, report, traject, pdbout, cpus = parse_arguments()
+    complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold, report, traject, pdbout, cpus = parse_arguments()
     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir,
-         contrl, resfold, report, traject, pdbout, cpus)
+         contrl, license, resfold, report, traject, pdbout, cpus)

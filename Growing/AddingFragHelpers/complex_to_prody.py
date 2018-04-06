@@ -1,5 +1,5 @@
 import prody
-import pybel
+#import pybel
 import logging
 import sys
 
@@ -32,16 +32,16 @@ def selection_to_pdb(selection):
     return "{}.pdb".format(selection.getResnames()[0])
 
 
-def pdb_to_smile(pdb_file):
-    """
-    :param pdb_file: input pdb file
-    :return: string with the translation of the pdb content to smile format
-    """
-    pdb = pybel.readfile("pdb", pdb_file).__next__()
-    smile_and_name = pdb.write("smi")
-    logger.info("SMILE of the pdb: {}".format(smile_and_name))
-    smile = smile_and_name.split("\t")[0]
-    return smile
+#def pdb_to_smile(pdb_file):
+#    """
+#    :param pdb_file: input pdb file
+#    :return: string with the translation of the pdb content to smile format
+#    """
+#    pdb = pybel.readfile("pdb", pdb_file).__next__()
+#    smile_and_name = pdb.write("smi")
+#    logger.info("SMILE of the pdb: {}".format(smile_and_name))
+#    smile = smile_and_name.split("\t")[0]
+#    return smile
 
 
 def check_protonation(selection):
