@@ -22,10 +22,17 @@ def control_file_modifier(control_template, pdb, step, license, results_path="/g
     # Then, in the main loop we will do a copy of control files, so we will print this in the logger
     logger.info("Intermediate control files created will be stored in '{}'".format(ctrl_fold_name))
 
+    # As pdb is a list of complexes, we have to create one line per complex in pdb and then put them all in the control
+    list_of_lines_complex = []
+    for complex in pdb:
+        control_file_complex = '{"files" : [{"path": "%s" }] }' % (complex)
+        list_of_lines_complex.append(control_file_complex)
+    lines_complex = ",\n".join(list_of_lines_complex)
+
     # Definition of the keywords that we are going to substitute from the template
     keywords = {"LICENSE": license,
                 "RESULTS_PATH": results_path,
-                "PDB": pdb
+                "PDB": lines_complex
                 }
     # Creation of a folder where we are going to contain our control files, just if needed
     if not os.path.exists(ctrl_fold_name):

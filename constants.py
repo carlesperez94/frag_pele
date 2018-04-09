@@ -14,6 +14,7 @@ PATH_TO_LICENSE = "/opt/PELErev12492/licenses"
 REPORT_NAME = "report"
 TRAJECTORY_NAME = "trajectory.pdb"
 CPUS = 4
+N_INI_STRUCTURES = 2
 # PlopRotTemp parameters
 SCHRODINGER_PY_PATH = "/opt/schrodinger2016-4/utilities/python"
 
@@ -29,6 +30,7 @@ CONFIG_PATH = "log_configure.ini"
 PLOP_PATH = "PlopRotTemp_S_2017/ligand_prep.py"
 # Messages constants
 TEMPLATE_MESSAGE = "We are going to transform the template _{}_ into _{}_ in _{}_ steps! Starting..."
+LINES_MESSAGE = "•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•"
 SELECTED_MESSAGE = "\n============ Files selected ============\nControl file: {}\nPDB file: {}\nResults folder name: {}\nStep: {}\n"
 FINISH_SIM_MESSAGE = "SIMULATION {} COMPLETED!!! "
 

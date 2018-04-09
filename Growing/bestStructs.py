@@ -94,7 +94,7 @@ def main(criteria, file_name, path=DIR, n_structs=1, sort_order="min", out_freq=
     step_indexes = min_values[steps].tolist()
     files_out = ["epoch{}_trajectory_{}.{}_{}{}.pdb".format(epoch, report, int(step), criteria.replace(" ",""), value) \
        for epoch, step, report, value in zip(epochs, step_indexes, file_ids, values)]
-    for f_id, f_out, step, path in zip(file_ids, files_out, step_indexes, paths):
+    for f_id, f_out, step, path, n in zip(file_ids, files_out, step_indexes, paths, range(0, n_structs)):
 
         # Read Trajetory from PELE's output
         f_in = glob.glob(os.path.join(os.path.dirname(path), "*trajectory*_{}.pdb".format(f_id)))
@@ -112,7 +112,7 @@ def main(criteria, file_name, path=DIR, n_structs=1, sort_order="min", out_freq=
             pass
 
         traj = []
-        with open(os.path.join(file_name),'w') as f:
+        with open(os.path.join("sel_{}_{}".format(n, file_name)),'w') as f:
             traj.append("MODEL     %d" %int((step)/out_freq+1))
             try:
                 traj.append(trajectory_selected.group(1))
@@ -183,3 +183,5 @@ def mkdir_p(path):
 if __name__ == "__main__":
     filename, path, criteria, interval, sort_order, out_freq, output, steps, numfolders = parse_args()
     main(criteria, filename, path, interval, sort_order, out_freq, output, steps, numfolders)
+
+#main("Binding Energy", "initialization_grow.pdb", path="growing_results/growing_output_0", n_structs=2)

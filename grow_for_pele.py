@@ -80,13 +80,15 @@ def parse_arguments():
                         help="PDBs output folder")
     parser.add_argument("-cs", "--cpus", default=c.CPUS,
                         help="Amount of CPU's that you want to use in mpirun of PELE")
+    parser.add_argument("-ns", "--nstructs", default=c.N_INI_STRUCTURES,
+                        help="Number of initial structures that we want to use in each simulation.")
     args = parser.parse_args()
 
-    return args.complex_pdb, args.fragment_pdb, args.core_atom, args.fragment_atom, args.iterations, args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, args.resfold, args.report, args.traject, args.pdbout, args.cpus
+    return args.complex_pdb, args.fragment_pdb, args.core_atom, args.fragment_atom, args.iterations, args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, args.resfold, args.report, args.traject, args.pdbout, args.cpus, args.nstructs
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
-         pele_dir, contrl, license, resfold, report, traject, pdbout, cpus):
+         pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, n_structs):
     """
         Description: This function is the main core of the program. It creates N intermediate templates
         and control files for PELE. Then, it perform N successive simulations automatically.
@@ -118,9 +120,9 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         as input for the next growing step.
         This process will be repeated until get the final grown ligand (protein + ligand).
         """
-    # MAIN LOOP
+    # Path definition
     plop_relative_path = os.path.join(PackagePath, plop_path)
-    # Pre-growing part - Preparation
+    #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
 
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = Growing.\
         add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations)
@@ -144,13 +146,16 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         shutil.copy("{}.rot.assign".format(resname), os.path.join(curr_dir, c.ROTAMERS_PATH))
     template_initial, template_final = template_names
 
-    # Growing part
+    # --------------------------------------------GROWING SECTION-------------------------------------------------------
+    # Lists definitions
 
     templates = ["{}_{}".format(template_final, n) for n in range(0, iterations+1)]
 
     results = ["{}{}_{}".format(c.OUTPUT_FOLDER, resfold, n) for n in range(0, iterations+1)]
 
     pdbs = [pdb_initialize if n == 0 else "{}_{}".format(n, pdb_initialize) for n in range(0, iterations+1)]
+
+    pdb_selected_names = ["sel_{}_{}".format(n, pdb_initialize) for n in range(0, n_structs)]
 
     # Create a copy of the original templates in growing_templates folder
     shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, template_initial),
@@ -174,13 +179,20 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, "{}_0".format(template_final)),
                 os.path.join(curr_dir, c.TEMPLATES_PATH, template_final))  # Replace the original template in the folder
 
-    # Simulation loop
+    # Simulation loop - LOOP CORE
     for i, (template, pdb_file, result) in enumerate(zip(templates, pdbs, results)):
 
         # Control file modification
-        logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
-        Growing.simulations_linker.control_file_modifier(contrl, pdb_initialize, i, license, result)
 
+        if i != 0:
+            logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_selected_names, result, i))
+            Growing.simulations_linker.control_file_modifier(contrl, pdb_selected_names, i, license, result)
+        else:
+            logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
+            Growing.simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license, result) #  We have put [] in pdb_initialize
+                                                                                                           #  because by default we have to use
+                                                                                                           #  a list as input
+        logger.info(c.LINES_MESSAGE)
         if i != 0 and i != iterations:
             Growing.template_fragmenter.grow_parameters_in_template("{}_ref".format(template_final),
                                                                     os.path.join(curr_dir, c.TEMPLATES_PATH
@@ -207,17 +219,32 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
             os.chdir("../")
 
         Growing.simulations_linker.simulation_runner(pele_dir, contrl, cpus)
+        logger.info(c.LINES_MESSAGE)
         logger.info(c.FINISH_SIM_MESSAGE.format(result))
         # Before selecting a step from a trajectory we will save the input PDB file in a folder
-        shutil.copy(pdb_initialize, os.path.join(pdbout, pdb_file))
+        if i == 0:
+            if not os.path.exists(pdbout):  # Create the folder if it does not exist
+                os.mkdir(pdbout)
+            if not os.path.exists(os.path.join(pdbout, "{}".format(i))):  # The same if the subfolder does not exist
+                os.chdir(pdbout)
+                os.mkdir("{}".format(i))  # Put the name of the iteration
+                os.chdir("../../")
+            shutil.copy(pdb_initialize, os.path.join(pdbout, "{}".format(i), pdb_initialize))  # Copy the input file in the
+                                                                                                     # folder 0
+        else:
+            if not os.path.exists(os.path.join(pdbout, "{}".format(i))):
+                os.chdir(pdbout)
+                os.mkdir("{}".format(i))
+                os.chdir("../")
+            for pdb_name in pdb_selected_names:  # Now we will convert pdb_initialize in a list because we will start with n
+                                                              # structures. For this reason we will iterate on it.
+                shutil.copy(pdb_name, os.path.join(pdbout, "{}".format(i), "{}".format(pdb_name)))
 
         # Selection of the trajectory used as new input
-        Growing.bestStructs.main(c.SELECTION_CRITERIA, pdb_initialize, path=result)
-
-    shutil.copy(pdb_initialize, os.path.join(pdbout, "final_{}.pdb".format(pdb_initialize)))
+        Growing.bestStructs.main(criteria, pdb_initialize, path=result, n_structs=n_structs)
 
 
 if __name__ == '__main__':
-    complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold, report, traject, pdbout, cpus = parse_arguments()
+    complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, n_structs = parse_arguments()
     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir,
-         contrl, license, resfold, report, traject, pdbout, cpus)
+         contrl, license, resfold, report, traject, pdbout, cpus, n_structs)
