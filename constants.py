@@ -12,9 +12,13 @@ RESULTS_FOLDER = "growing_output"
 PATH_TO_PELE = "/opt/PELErev12492/bin/Pele_mpi"
 PATH_TO_LICENSE = "/opt/PELErev12492/licenses"
 REPORT_NAME = "report"
-TRAJECTORY_NAME = "trajectory.pdb"
+TRAJECTORY_NAME = "trajectory"
 CPUS = 4
 N_INI_STRUCTURES = 2
+# Clustering parameters
+DISTANCE_COUNTER = 4
+CONTACT_THRESHOLD = 0.3
+EPSILON = 0.5
 # PlopRotTemp parameters
 SCHRODINGER_PY_PATH = "/opt/schrodinger2016-4/utilities/python"
 
@@ -28,9 +32,13 @@ OUTPUT_FOLDER = "growing_results/"
 TEMPLATES_FOLDER = "growing_templates"
 CONFIG_PATH = "log_configure.ini"
 PLOP_PATH = "PlopRotTemp_S_2017/ligand_prep.py"
+# Clustering constants
+CONDITION = "min"   #   min or max
+METRICS_WEIGHTS = "linear"
+NUM_CLUSTERS = 5
 # Messages constants
 TEMPLATE_MESSAGE = "We are going to transform the template _{}_ into _{}_ in _{}_ steps! Starting..."
-LINES_MESSAGE = "•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•"
+LINES_MESSAGE = "\n•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•\n"
 SELECTED_MESSAGE = "\n============ Files selected ============\nControl file: {}\nPDB file: {}\nResults folder name: {}\nStep: {}\n"
 FINISH_SIM_MESSAGE = "SIMULATION {} COMPLETED!!! "
 

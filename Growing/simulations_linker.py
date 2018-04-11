@@ -71,11 +71,12 @@ def simulation_runner(path_to_pele, control_in, cpus=4):
         else:
             logger.info("Starting PELE simulation. You will run mpi PELE with {} cores.".format(cpus))
             cmd = "mpirun -np {} {} {}".format(cpus, path_to_pele, control_in)
-            print(cmd)
+            logger.info("Running {}".format(cmd))
             subprocess.call(cmd.split())
     else:
         logger.info("Starting PELE simulation. You will run serial PELE.")
         cmd = "{} {}".format(path_to_pele, control_in)
+        logger.info("Running {}".format(cmd))
         subprocess.call(cmd.split())
 
 

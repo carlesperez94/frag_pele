@@ -7,7 +7,7 @@ from logging.config import fileConfig
 import shutil
 import subprocess
 # Local imports
-import Growing.bestStructs
+import Helpers.clusterizer
 import Growing.template_fragmenter
 import Growing.simulations_linker
 import Growing.add_fragment_from_pdbs
@@ -80,15 +80,30 @@ def parse_arguments():
                         help="PDBs output folder")
     parser.add_argument("-cs", "--cpus", default=c.CPUS,
                         help="Amount of CPU's that you want to use in mpirun of PELE")
-    parser.add_argument("-ns", "--nstructs", default=c.N_INI_STRUCTURES,
+    # Clustering related arguments
+    parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
+                        help="Name for results folder")
+    parser.add_argument("-ct", "--threshold", default=c.CONTACT_THRESHOLD,
+                        help="Suffix name of the report file from PELE.")
+    parser.add_argument("-e", "--epsilon", default=c.EPSILON,
+                        help="Suffix name of the trajectory file from PELE.")
+    parser.add_argument("-cn", "--condition", default=c.CONDITION,
+                        help="PDBs output folder")
+    parser.add_argument("-mw", "--metricweights", default=c.METRICS_WEIGHTS,
+                        help="Amount of CPU's that you want to use in mpirun of PELE")
+    parser.add_argument("-ncl", "--nclusters", default=c.NUM_CLUSTERS,
                         help="Number of initial structures that we want to use in each simulation.")
     args = parser.parse_args()
 
-    return args.complex_pdb, args.fragment_pdb, args.core_atom, args.fragment_atom, args.iterations, args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, args.resfold, args.report, args.traject, args.pdbout, args.cpus, args.nstructs
+    return args.complex_pdb, args.fragment_pdb, args.core_atom, args.fragment_atom, args.iterations, \
+           args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, \
+           args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
+           args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
-         pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, n_structs):
+         pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
+         epsilon, condition, metricweights, nclusters):
     """
         Description: This function is the main core of the program. It creates N intermediate templates
         and control files for PELE. Then, it perform N successive simulations automatically.
@@ -122,6 +137,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         """
     # Path definition
     plop_relative_path = os.path.join(PackagePath, plop_path)
+
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
 
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = Growing.\
@@ -155,7 +171,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     pdbs = [pdb_initialize if n == 0 else "{}_{}".format(n, pdb_initialize) for n in range(0, iterations+1)]
 
-    pdb_selected_names = ["sel_{}_{}".format(n, pdb_initialize) for n in range(0, n_structs)]
+    pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, cpus-1)]
+
 
     # Create a copy of the original templates in growing_templates folder
     shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, template_initial),
@@ -182,11 +199,13 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     # Simulation loop - LOOP CORE
     for i, (template, pdb_file, result) in enumerate(zip(templates, pdbs, results)):
 
+        pdb_input_paths = ["{}".format(os.path.join(pdbout, str(i-1), pdb_file)) for pdb_file in pdb_selected_names]
+
         # Control file modification
 
         if i != 0:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_selected_names, result, i))
-            Growing.simulations_linker.control_file_modifier(contrl, pdb_selected_names, i, license, result)
+            Growing.simulations_linker.control_file_modifier(contrl, pdb_input_paths, i, license, result)
         else:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
             Growing.simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license, result) #  We have put [] in pdb_initialize
@@ -229,22 +248,30 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                 os.chdir(pdbout)
                 os.mkdir("{}".format(i))  # Put the name of the iteration
                 os.chdir("../../")
-            shutil.copy(pdb_initialize, os.path.join(pdbout, "{}".format(i), pdb_initialize))  # Copy the input file in the
-                                                                                                     # folder 0
         else:
             if not os.path.exists(os.path.join(pdbout, "{}".format(i))):
                 os.chdir(pdbout)
                 os.mkdir("{}".format(i))
                 os.chdir("../")
-            for pdb_name in pdb_selected_names:  # Now we will convert pdb_initialize in a list because we will start with n
-                                                              # structures. For this reason we will iterate on it.
-                shutil.copy(pdb_name, os.path.join(pdbout, "{}".format(i), "{}".format(pdb_name)))
 
+        # ---------------------------------------------------CLUSTERING-------------------------------------------------
+        # Transform column name of the criteria to column number
+        result = os.path.abspath(result)
+        print(result)
+        column_number = Helpers.clusterizer.get_column_num(result, criteria, report)
         # Selection of the trajectory used as new input
-        Growing.bestStructs.main(criteria, pdb_initialize, path=result, n_structs=n_structs)
+
+        Helpers.clusterizer.cluster_traject(str(template_resnames[1]), cpus, column_number, distance_contact,
+                                            clusterThreshold, "{}*".format(os.path.join(result, traject)),
+                                            os.path.join(pdbout, str(i)), epsilon, report, condition, metricweights,
+                                            nclusters)
 
 
 if __name__ == '__main__':
-    complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, n_structs = parse_arguments()
+    complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, \
+    contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
+    nclusters = parse_arguments()
+
     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir,
-         contrl, license, resfold, report, traject, pdbout, cpus, n_structs)
+         contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
+         metricweights, nclusters)
