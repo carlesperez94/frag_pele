@@ -183,12 +183,14 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     original_atom = hydrogen_atoms[0].get_name()  # Hydrogen of the core that we will use as growing point
     # Generate starting templates
+    replacement_atom = fragment_names_dict[fragment_atom]
+    print(original_atom, core_atom, replacement_atom)
     Growing.template_fragmenter.create_initial_template(template_initial, template_final, [original_atom], core_atom,
-                                                        "{}_0".format(template_final),
+                                                        replacement_atom, "{}_0".format(template_final),
                                                         os.path.join(curr_dir, c.TEMPLATES_PATH),
                                                         iterations)
-    Growing.template_fragmenter.generate_starting_template(template_initial, template_final, [original_atom],
-                                                           core_atom, "{}_ref".format(template_final),
+    Growing.template_fragmenter.generate_starting_template(template_initial, template_final, [original_atom],core_atom,
+                                                           replacement_atom, "{}_ref".format(template_final),
                                                            os.path.join(curr_dir, c.TEMPLATES_PATH),
                                                            iterations)
 
@@ -218,9 +220,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                     , c.TEMPLATES_FOLDER, template_initial),
                                                                     os.path.join(curr_dir, c.TEMPLATES_PATH
                                                                     , c.TEMPLATES_FOLDER, template_final),
-                                                                    [original_atom], core_atom, template_final,
+                                                                    [original_atom], core_atom, replacement_atom,
+                                                                    template_final,
                                                                     os.path.join(curr_dir, c.TEMPLATES_PATH),
-                                                                    i)
+                                                                    i, iterations)
         elif i == iterations:
             shutil.copy(os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, c.TEMPLATES_FOLDER), template_final),
                         os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, template_final)))
@@ -257,7 +260,6 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         # ---------------------------------------------------CLUSTERING-------------------------------------------------
         # Transform column name of the criteria to column number
         result = os.path.abspath(result)
-        print(result)
         column_number = Helpers.clusterizer.get_column_num(result, criteria, report)
         # Selection of the trajectory used as new input
 

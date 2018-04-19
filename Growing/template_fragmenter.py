@@ -173,7 +173,8 @@ def get_specific_bonds(atoms_dictionary, bonds_dictionary):
 
 
 # We will need to change this function in further updates
-def transform_bond_length(original_atom, heavy_atom, initial_atm_dictionary, initial_bnd_dictionary, final_bnd_dictionary):
+def transform_bond_length(original_atom, heavy_atom, atom_to_transform, initial_atm_dictionary, final_atm_dictionary,
+                          initial_bnd_dictionary, final_bnd_dictionary, step, total_steps, modification = False):
     """
     :param original_atom: name of the atom of the original template whose bond length will be used to be replaced
     for the final bond
@@ -186,15 +187,90 @@ def transform_bond_length(original_atom, heavy_atom, initial_atm_dictionary, ini
     # Collect indexes from original and final dictionaries
     index_original = initial_atm_dictionary[original_atom]
     index_heavyatom = initial_atm_dictionary[heavy_atom]
+    index_atom_to_transform = final_atm_dictionary[atom_to_transform]
 
     # Use this indexes to transform the bonds of the final dictionary to the original ones
     # We are only using original atom and initial dictionaries because the keys of the dictionary
     # (bonds) are repeated in both, initial and final, so we can replace the value of the correspondent key.
     initial_bonds = initial_bnd_dictionary.keys()
+    final_bonds = final_bnd_dictionary.keys()
+    step = step+1
     for bonds in initial_bonds:
         if bonds[1] == index_original and bonds[0] == index_heavyatom:
-            final_bnd_dictionary[bonds] = initial_bnd_dictionary[bonds]
+            # Check this condition because in the final dictionary is not necessary to have the same key in bonds
+            original_bond_length = initial_bnd_dictionary[bonds]
+            for final_bond in final_bonds:
+                if final_bond[0] == index_heavyatom and final_bond[1] == index_atom_to_transform:
+                    # Add linearly bond length to the transformed atom
+                    print("STEP : {}".format(step))
+                    print("TOTAL STEPS : {}".format(total_steps))
+                    if modification:
+                        final_bond_length = float(final_bnd_dictionary[final_bond])
+                    else:
+                        final_bond_length = float(final_bnd_dictionary[final_bond]) * (total_steps + 1)
+                    print("FINAL BOND LENGTH : {}".format(final_bond_length))
+                    difference_of_len = abs(final_bond_length - float(original_bond_length))
+                    print("DIFFERENCE OF LENGTH: {}".format(difference_of_len))
+                    increase_of_len = difference_of_len / (total_steps+1)
+                    print("INCREASE OF LENGTH: {}".format(increase_of_len))
+                    original_bond_length = float(original_bond_length) + (step*increase_of_len)
+                    print("STEP BOND LENGTH : {}".format(original_bond_length))
+                    print(final_bnd_dictionary[final_bond])
+                    final_bnd_dictionary[final_bond] = original_bond_length
+                    print(final_bnd_dictionary[final_bond])
+
     return final_bnd_dictionary
+
+
+# We will need to change this function in further updates
+def transform_bond_length_grow(original_atom, heavy_atom, atom_to_transform, initial_atm_dictionary, final_atm_dictionary,
+                               initial_bnd_dictionary, starting_bnd_dictionary, final_bnd_dictionary, step, total_steps,
+                               modification = False):
+    """
+    :param original_atom: name of the atom of the original template whose bond length will be used to be replaced
+    for the final bond
+    :param initial_atm_dictionary: dictionary with {"PDB atom names" : "index"} of the atoms of the original template
+    :param initial_bnd_dictionary: dictionary {("index_1", "index_2"): "bond length" } of the initial template
+    :param final_bnd_dictionary: dictionary {("index_1", "index_2"): "bond length" } of the final template
+    :return: final_bnd_dictionary will be modified, getting the bond length of the original bonded atom in order to
+    replace it in the final dictionary.
+    """
+    # Collect indexes from original and final dictionaries
+    index_original = initial_atm_dictionary[original_atom]
+    index_heavyatom = initial_atm_dictionary[heavy_atom]
+    index_atom_to_transform = final_atm_dictionary[atom_to_transform]
+
+    # Use this indexes to transform the bonds of the final dictionary to the original ones
+    # We are only using original atom and initial dictionaries because the keys of the dictionary
+    # (bonds) are repeated in both, initial and final, so we can replace the value of the correspondent key.
+    initial_bonds = initial_bnd_dictionary.keys()
+    final_bonds = final_bnd_dictionary.keys()
+    step = step+1
+    for bonds in initial_bonds:
+        if bonds[1] == index_original and bonds[0] == index_heavyatom:
+            # Check this condition because in the final dictionary is not necessary to have the same key in bonds
+            original_bond_length = initial_bnd_dictionary[bonds]
+            for final_bond in final_bonds:
+                if final_bond[0] == index_heavyatom and final_bond[1] == index_atom_to_transform:
+                    # Add linearly bond length to the transformed atom
+                    print("STEP : {}".format(step))
+                    print("TOTAL STEPS : {}".format(total_steps))
+                    if modification:
+                        final_bond_length = float(final_bnd_dictionary[final_bond])
+                    else:
+                        final_bond_length = float(final_bnd_dictionary[final_bond]) * (total_steps + 1)
+                    print("FINAL BOND LENGTH : {}".format(final_bond_length))
+                    difference_of_len = abs(final_bond_length - float(original_bond_length))
+                    print("DIFFERENCE OF LENGTH: {}".format(difference_of_len))
+                    increase_of_len = difference_of_len / (total_steps+1)
+                    print("INCREASE OF LENGTH: {}".format(increase_of_len))
+                    original_bond_length = float(original_bond_length) + (step*increase_of_len)
+                    print("STEP BOND LENGTH : {}".format(original_bond_length))
+                    print(final_bnd_dictionary[final_bond])
+                    starting_bnd_dictionary[final_bond] = original_bond_length
+                    print(starting_bnd_dictionary[final_bond])
+
+    return starting_bnd_dictionary
 
 
 def modify_properties(properties_dict, new_atoms_properties_dict, step):
@@ -437,7 +513,7 @@ def get_specific_atom_properties(atom_pdb_names, atom_dictionary, properties_dic
 # in order to avoid final templates)
 
 
-def create_initial_template(initial_template, final_template, original_atom_to_mod, heavy_atom,
+def create_initial_template(initial_template, final_template, original_atom_to_mod, heavy_atom,  atom_to_transform,
                             output_template_filename="grwz_0", path="DataLocal/Templates/OPLS2005/HeteroAtoms/",
                             steps=10):
     """
@@ -480,14 +556,15 @@ def create_initial_template(initial_template, final_template, original_atom_to_m
     initial_bonds = get_bonds(initial_template_content)
 
     set_bonds(bonds, nbon_properties_new, steps)
-    transform_bond_length(original_atom_to_mod[0], heavy_atom, initial_atoms, initial_bonds, bonds)
+    transform_bond_length(original_atom_to_mod[0], heavy_atom, atom_to_transform, initial_atoms, final_atoms,
+                          initial_bonds, bonds, step=0, total_steps=steps)  #  step 0 because we are in the i = 0 in the main loop
 
     bond_section = write_bond_section(final_template_content, bonds)
 
     write_template(final_template_content, output_template_filename, nbon_section, bond_section, path)
 
 
-def generate_starting_template(initial_template_file, final_template_file, original_atom_to_mod, heavy_atom,
+def generate_starting_template(initial_template_file, final_template_file, original_atom_to_mod, heavy_atom, atom_to_transform,
                                output_template_filename="grwz_pre", path="DataLocal/Templates/OPLS2005/HeteroAtoms/",
                                steps=10):
     """
@@ -518,7 +595,8 @@ def generate_starting_template(initial_template_file, final_template_file, origi
     set_properties(properties_final, new_atoms_properties, steps)
     # Now, we will repeat the same process for bonding data
     set_bonds(bonds_final, new_atoms_properties, steps)
-    transform_bond_length(original_atom_to_mod[0], heavy_atom, atoms_selected_initial, bonds_initial, bonds_final)
+    transform_bond_length(original_atom_to_mod[0], heavy_atom, atom_to_transform, atoms_selected_initial, atoms_selected_final,
+                          bonds_initial, bonds_final, step=0, total_steps=steps)  #  step 0 because we are in the i = 0 in the main loop
     # Once we have all data in place, we will replace the current content of the final template for the starting
     # values needed to grow
     nbon_section = write_nbon_section(final_template, properties_final)
@@ -528,8 +606,8 @@ def generate_starting_template(initial_template_file, final_template_file, origi
 
 
 def grow_parameters_in_template(starting_template_file, initial_template_file, final_template_file,
-                                original_atom_to_mod, heavy_atom, output_template_filename,
-                                path, step):
+                                original_atom_to_mod, heavy_atom, atom_to_transform, output_template_filename,
+                                path, step, total_steps):
     """
     :param starting_template_file: template file resultant of generate_starting_template() which contain the properties
     of the atoms and bonds modified to start the growing.
@@ -561,17 +639,21 @@ def grow_parameters_in_template(starting_template_file, initial_template_file, f
     bonds_final = get_bonds(final_template)
     # We want to add values to a starting template
     modify_properties(properties_starting, new_atoms_properties, step)
-    #transform_properties(original_atom_to_mod, final_atom_to_mod, atoms_selected_initial, atoms_selected_starting,
-    #                     properties_initial, properties_starting)
     # Now, we will repeat the same process for bonding data
     modify_bonds(bonds_starting, new_atoms_properties, step)
     # Here we will set again the bonding distance of the original bond to the initial template one
-    transform_bond_length(original_atom_to_mod[0], heavy_atom, atoms_selected_initial, bonds_initial, bonds_starting)
+    print(atoms_selected_initial)
+    print(atoms_selected_starting)
+    print(bonds_starting)
+    transform_bond_length_grow(original_atom_to_mod[0], heavy_atom, atom_to_transform, atoms_selected_initial,
+                               atoms_selected_starting, bonds_initial, bonds_starting, bonds_final, step, total_steps,
+                               True)
+    print(bonds_starting)
     # Once we have all data in place, we will replace the current content of the final template for the starting
     # values needed to grow
-
     nbon_section = write_nbon_section(final_template, properties_starting)
     bond_section = write_bond_section(final_template, bonds_starting)
+
     # Finally, join everything and write a file with the output template
     write_template(final_template, output_template_filename, nbon_section, bond_section, path)
 
