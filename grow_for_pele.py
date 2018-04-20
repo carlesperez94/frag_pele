@@ -12,6 +12,7 @@ import Growing.template_fragmenter
 import Growing.simulations_linker
 import Growing.add_fragment_from_pdbs
 import Growing.AddingFragHelpers
+import Growing.bestStructs
 import constants as c
 
 # Calling configuration file for log system
@@ -267,6 +268,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                             clusterThreshold, "{}*".format(os.path.join(result, traject)),
                                             os.path.join(pdbout, str(i)), epsilon, report, condition, metricweights,
                                             nclusters)
+    Growing.bestStructs.main(criteria, "best_structure.pdb", path=results[iterations+1], n_structs=10)
 
 
 if __name__ == '__main__':

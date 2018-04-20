@@ -53,7 +53,7 @@ def parse_args():
     return args.filename, os.path.abspath(args.path), " ".join(args.crit), args.nst, args.sort, args.ofreq, args.out, args.steps, args.numfolders
 
 
-def main(criteria, file_name, path=DIR, n_structs=1, sort_order="min", out_freq=FREQ, output="".join(CRITERIA), steps = ACCEPTED_STEPS, numfolders=False):
+def main(criteria, file_name, path=DIR, n_structs=10, sort_order="min", out_freq=FREQ, output="".join(CRITERIA), steps = ACCEPTED_STEPS, numfolders=False):
     """
 
       Description: Rank the traj found in the report files under path
@@ -178,10 +178,3 @@ def mkdir_p(path):
             pass
         else:
             raise
-
-
-if __name__ == "__main__":
-    filename, path, criteria, interval, sort_order, out_freq, output, steps, numfolders = parse_args()
-    main(criteria, filename, path, interval, sort_order, out_freq, output, steps, numfolders)
-
-#main("Binding Energy", "initialization_grow.pdb", path="growing_results/growing_output_0", n_structs=2)

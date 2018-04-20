@@ -253,22 +253,22 @@ def transform_bond_length_grow(original_atom, heavy_atom, atom_to_transform, ini
             for final_bond in final_bonds:
                 if final_bond[0] == index_heavyatom and final_bond[1] == index_atom_to_transform:
                     # Add linearly bond length to the transformed atom
-                    print("STEP : {}".format(step))
-                    print("TOTAL STEPS : {}".format(total_steps))
+                    logger.info("STEP : {}".format(step))
+                    logger.info("TOTAL STEPS : {}".format(total_steps))
                     if modification:
                         final_bond_length = float(final_bnd_dictionary[final_bond])
                     else:
                         final_bond_length = float(final_bnd_dictionary[final_bond]) * (total_steps + 1)
-                    print("FINAL BOND LENGTH : {}".format(final_bond_length))
+                        logger.info("FINAL BOND LENGTH : {}".format(final_bond_length))
                     difference_of_len = abs(final_bond_length - float(original_bond_length))
-                    print("DIFFERENCE OF LENGTH: {}".format(difference_of_len))
+                    logger.info("DIFFERENCE OF LENGTH: {}".format(difference_of_len))
                     increase_of_len = difference_of_len / (total_steps+1)
-                    print("INCREASE OF LENGTH: {}".format(increase_of_len))
+                    logger.info("INCREASE OF LENGTH: {}".format(increase_of_len))
                     original_bond_length = float(original_bond_length) + (step*increase_of_len)
-                    print("STEP BOND LENGTH : {}".format(original_bond_length))
-                    print(final_bnd_dictionary[final_bond])
+                    logger.info("STEP BOND LENGTH : {}".format(original_bond_length))
+                    logger.info(final_bnd_dictionary[final_bond])
                     starting_bnd_dictionary[final_bond] = original_bond_length
-                    print(starting_bnd_dictionary[final_bond])
+                    logger.info(starting_bnd_dictionary[final_bond])
 
     return starting_bnd_dictionary
 
@@ -642,13 +642,9 @@ def grow_parameters_in_template(starting_template_file, initial_template_file, f
     # Now, we will repeat the same process for bonding data
     modify_bonds(bonds_starting, new_atoms_properties, step)
     # Here we will set again the bonding distance of the original bond to the initial template one
-    print(atoms_selected_initial)
-    print(atoms_selected_starting)
-    print(bonds_starting)
     transform_bond_length_grow(original_atom_to_mod[0], heavy_atom, atom_to_transform, atoms_selected_initial,
                                atoms_selected_starting, bonds_initial, bonds_starting, bonds_final, step, total_steps,
                                True)
-    print(bonds_starting)
     # Once we have all data in place, we will replace the current content of the final template for the starting
     # values needed to grow
     nbon_section = write_nbon_section(final_template, properties_starting)
