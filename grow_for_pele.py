@@ -261,6 +261,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         # ---------------------------------------------------CLUSTERING-------------------------------------------------
         # Transform column name of the criteria to column number
         result = os.path.abspath(result)
+        logger.info("Looking structures to cluster in '{}'".format(result))
         column_number = Helpers.clusterizer.get_column_num(result, criteria, report)
         # Selection of the trajectory used as new input
 

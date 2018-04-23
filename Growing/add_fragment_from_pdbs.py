@@ -333,16 +333,19 @@ def extract_protein_from_complex(pdb_file):
     return protein
 
 
-def add_ter_in_pdb(pdb_file):
-    with open(pdb_file) as pdb:
-        content = pdb.read()
-    list_of_lines = content.split("\n")
-    for n, line in enumerate(list_of_lines):
-        row = line.split()
-        if len(row) > 1:
-            print(str(row[4]), str(list_of_lines[0]))
-            if str(row[4]) == str(list_of_lines[n][4]):
-                print("HEY")
+def get_waters_in_pdb(pdb_input):
+    """
+    Given a pdb file return a string with the waters contained in the file.
+    :param pdb_input: pdb input file
+    :return: part of the pdb that contains the waters
+    """
+    water_lines = []
+    with open(pdb_input) as pdb:
+        for line in pdb:
+            if line.split()[0] == "HETATM" and line.split()[3] == "HOH":
+                water_lines.append(line)
+    return "".join(water + "TER\n" * (n % 3 == 2) for n, water in enumerate(water_lines))
+
 
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
          fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb"):
@@ -457,6 +460,8 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
         content_lig = "".join(content_lig)
     output_file = []
     output_file.append("{}TER\n".format(content_prot))
+    waters = get_waters_in_pdb(pdb_complex_core)
+    output_file.append(waters)
     output_file.append("{}TER".format(content_lig))
     out_joined = "".join(output_file)
     with open(output_file_to_grow, "w") as output :
