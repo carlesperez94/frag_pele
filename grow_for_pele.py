@@ -185,7 +185,6 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     original_atom = hydrogen_atoms[0].get_name()  # Hydrogen of the core that we will use as growing point
     # Generate starting templates
     replacement_atom = fragment_names_dict[fragment_atom]
-    print(original_atom, core_atom, replacement_atom)
     Growing.template_fragmenter.create_initial_template(template_initial, template_final, [original_atom], core_atom,
                                                         replacement_atom, "{}_0".format(template_final),
                                                         os.path.join(curr_dir, c.TEMPLATES_PATH),
@@ -269,7 +268,20 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                             clusterThreshold, "{}*".format(os.path.join(result, traject)),
                                             os.path.join(pdbout, str(i)), epsilon, report, condition, metricweights,
                                             nclusters)
-    Growing.bestStructs.main(criteria, "best_structure.pdb", path=results[iterations+1], n_structs=10)
+    # ----------------------------------------------------EQUILIBRATION-------------------------------------------------
+    # Set input PDBs
+    pdb_inputs = ["{}".format(os.path.join(pdbout, str(iterations), pdb_file)) for pdb_file in pdb_selected_names]
+    logger.info(".....STARTING EQUILIBRATION.....")
+    if not os.path.exists("equilibration_result"):  # Create the folder if it does not exist
+        os.mkdir("equilibration_result")
+    # Modify the control file to increase the steps to 20 and change the output path
+    Growing.simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license,
+                                                     "equilibration_result", steps=20)
+    # Call PELE to run the simulation
+    Growing.simulations_linker.simulation_runner(pele_dir, contrl, cpus)
+    equilibration_path = os.path.join(os.path.curdir, "equilibration_result")
+    Growing.bestStructs.main(criteria, "best_structure.pdb", path=equilibration_path,
+                             n_structs=10)
 
 
 if __name__ == '__main__':
