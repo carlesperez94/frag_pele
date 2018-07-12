@@ -57,6 +57,7 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex):
     """
     # Select the hydrogens bonded to the heavy atom 'PDB_atom_name'
     selected_h = prody_complex.select("chain L and hydrogen within 1.5 of name {}".format(PDB_atom_name))
+    print(selected_h.getNames())
     # In case that we found more than one we have to select one of them
     try:
         number_of_h = len(selected_h)
@@ -67,14 +68,17 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex):
             # We will select atoms of the protein in interaction distance
             select_h_bonds = prody_complex.select("protein and within 2.5 of (name {} and chain L)"
                                                   .format(selected_h.getNames()[idx]))
+            print(hydrogen,idx)
             if select_h_bonds is not None:
-                logger.warning("WARNING: {} is forming a close interaction with the protein! We will try to grow"
+                print("WARNING: {} is forming a close interaction with the protein! We will try to grow"
                                " in another direction.".format(selected_h.getNames()[idx]))
-            # We put this elif to select one of H randomly if all of them have contacts
-            elif (select_h_bonds is not None) and (idx == len(selected_h) -1):
-                hydrogen_pdbatomname = selected_h.getNames()[0]
-                return hydrogen_pdbatomname
+                # We put this elif to select one of H randomly if all of them have contacts
+                if (select_h_bonds is not None) and (int(idx) == int(len(selected_h)-1)):
+                    print("I should be here if {} is {} -1.".format(idx, len(selected_h)))
+                    hydrogen_pdbatomname = selected_h.getNames()[1]
+                    return hydrogen_pdbatomname
             else:
+                print("Hi, here I am")
                 hydrogen_pdbatomname = selected_h.getNames()[idx]
                 return hydrogen_pdbatomname
     else:

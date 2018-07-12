@@ -94,17 +94,19 @@ def parse_arguments():
                         help="Amount of CPU's that you want to use in mpirun of PELE")
     parser.add_argument("-ncl", "--nclusters", default=c.NUM_CLUSTERS,
                         help="Number of initial structures that we want to use in each simulation.")
+    parser.add_argument("-rr", "--rotres", default=c.ROTRES,
+                        help="")
     args = parser.parse_args()
 
     return args.complex_pdb, args.fragment_pdb, args.core_atom, args.fragment_atom, args.iterations, \
            args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, \
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
-           args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters
+           args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, args.rotres
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
-         epsilon, condition, metricweights, nclusters):
+         epsilon, condition, metricweights, nclusters, rotres):
     """
         Description: This function is the main core of the program. It creates N intermediate templates
         and control files for PELE. Then, it perform N successive simulations automatically.
@@ -143,11 +145,13 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = Growing.\
         add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations)
+    print(hydrogen_atoms)
     # Create the templates for the initial and final structures
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
         cmd = "{} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
-                                Growing.add_fragment_from_pdbs.PRE_WORKING_DIR, pdb_to_template))
+                                  Growing.add_fragment_from_pdbs.PRE_WORKING_DIR, pdb_to_template))
+		                  #,"--gridres {}".format(rotres))
         subprocess.call(cmd.split())
         template_resname = Growing.add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(
                                                                                    Growing.add_fragment_from_pdbs.
@@ -160,7 +164,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         template_name = "{}z".format(resname.lower())
         template_names.append(template_name)
         shutil.copy(template_name, os.path.join(curr_dir, c.TEMPLATES_PATH))
-        shutil.copy("{}.rot.assign".format(resname), os.path.join(curr_dir, c.ROTAMERS_PATH))
+        #shutil.copy("{}.rot.assign".format(resname), os.path.join(curr_dir, c.ROTAMERS_PATH))
     template_initial, template_final = template_names
 
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
@@ -183,6 +187,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                 os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, c.TEMPLATES_FOLDER), template_final))
 
     original_atom = hydrogen_atoms[0].get_name()  # Hydrogen of the core that we will use as growing point
+    print(original_atom)
     # Generate starting templates
     replacement_atom = fragment_names_dict[fragment_atom]
     Growing.template_fragmenter.create_initial_template(template_initial, template_final, [original_atom], core_atom,
@@ -287,8 +292,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 if __name__ == '__main__':
     complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
-    nclusters = parse_arguments()
+    nclusters, rotres = parse_arguments()
 
     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir,
          contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
-         metricweights, nclusters)
+         metricweights, nclusters, rotres)

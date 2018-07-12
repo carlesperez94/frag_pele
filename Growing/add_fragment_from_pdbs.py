@@ -87,10 +87,13 @@ def extract_hydrogens(pdb_atom_names, lists_of_bioatoms, list_of_pdbs):
     hydrogens = []
     for atom_name, pdb, list_of_bioatoms in zip(pdb_atom_names, list_of_pdbs, lists_of_bioatoms):
         complex = prody.parsePDB(pdb)
+        print(complex)
         # Select name of the H atoms bonded to this heavy atom (the place where we will grow)
         atom_name_hydrogens = pj.get_H_bonded_to_grow(atom_name, complex)
+        print(atom_name_hydrogens)
         # Select this hydrogen atoms
         atom_hydrogen = pj.select_atoms_from_list(atom_name_hydrogens, list_of_bioatoms)
+        print(atom_hydrogen)
         hydrogens.append(atom_hydrogen)
     return hydrogens
 
@@ -447,21 +450,28 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     logger.info("The result of core + fragment(small) has been saved in '{}'. This will be used to initialise the growing."
                 .format(output_file_to_grow))
     # Add the protein to the ligand
-    prot = extract_protein_from_complex(pdb_complex_core)
-    prody.writePDB("protein.pdb", prot)
     prody.writePDB("ligand_grown.pdb", molecule_names_changed)
-    with open("protein.pdb") as protein:
+    with open(pdb_complex_core) as protein:
         content_prot = protein.readlines()
-        content_prot = content_prot[1:]
-        content_prot = "".join(content_prot)
+        chainA = []
+        for line in content_prot:
+            if (line.startswith("ATOM") or line.startswith("HETATM") or line.startswith("TER")):
+                if len(line.split()) > 10:
+                    if line.split()[4] == "A" and len(line) > 4:
+                        chainA.append(line)
+                elif len(line.split()) == 1:
+                    chainA.append(line)
+        content_prot = "".join(chainA)
     with open("ligand_grown.pdb") as lig:
         content_lig = lig.readlines()
         content_lig = content_lig[1:]
         content_lig = "".join(content_lig)
     output_file = []
     output_file.append("{}TER\n".format(content_prot))
+    # Put waters
     waters = get_waters_in_pdb(pdb_complex_core)
     output_file.append(waters)
+    # Join all parts of the PDB
     output_file.append("{}TER".format(content_lig))
     out_joined = "".join(output_file)
     with open(output_file_to_grow, "w") as output :

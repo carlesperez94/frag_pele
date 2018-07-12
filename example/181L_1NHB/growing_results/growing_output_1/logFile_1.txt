@@ -1,0 +1,554 @@
+PELE version 1.5.0.12492_20170801
+[New Task] Task: 1
+* Complex
+Summary:
+Number of proteins: 1
+Number of DNA chains: 0
+Number of RNA chains: 0
+Number of Ligands: 1
+
+Loaded residues: 283
+All links
+
+Number of loaded atoms: 4610
+
+Topology Summary: 
+Number of parameterized bonds: 4674
+Number of parameterized angles: 8419
+Number of parameterized dihedrals: 11761
+Number of parameterized improper dihedrals: 987
+Number of 14 pairs: 12131
+
+Chain A_0 charge: -4.000
+Chain L_0 charge: -0.000
+Total charge: -4.000
+
+
+* Solvent.
+solventType: VDGBNP
+useDebyeLength: true
+ionicStrength: 0.15
+
+
+* Potential.
+ForceField: OPLS2005
+
+nonBondingVersion: NB_GEN_MSCALE
+shortNeutrumNeutrum: 10
+shortChargedNeutrum: 10
+shortChargedCharged: 15
+longNeutrumNeutrum: 15
+longChargedNeutrum: 20
+longChargedCharged: 30
+
+
+Simulation Permanent Constraints: Number of constraints: 30
+HarmonicConstraintOnAtom A:1:ASP_:_CA_ to coordinates (11.179, -22.128, 34.218) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:10:LEU_:_CA_ to coordinates (24.82, -19.104, 41.01) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:20:HIE_:_CA_ to coordinates (32.129, 0.284, 28.938) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:30:ASP_:_CA_ to coordinates (23.841, -25.435, 40.861) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:40:VAL_:_CA_ to coordinates (26.957, -20.121, 32.562) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:50:GLY_:_CA_ to coordinates (21.303, 5.593, 32.565) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:60:GLU_:_CA_ to coordinates (20.602, -6.743, 23.783) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:70:GLU_:_CA_ to coordinates (26.003, -22.219, 16.198) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:80:GLU_:_CA_ to coordinates (16.556, -11.82, 38.847) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:90:VAL_:_CA_ to coordinates (22.535, -15.549, 31.356) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:100:ARG_:_CA_ to coordinates (42.161, -11.344, 21.676) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:110:LEU_:_CA_ to coordinates (46.271, -19.687, 8.968) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:120:ILE_:_CA_ to coordinates (32.192, -15.444, 11.854) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:130:GLN_:_CA_ to coordinates (17.604, -11.285, 10.994) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:140:ARG_:_CA_ to coordinates (37.549, -9.22, 21.747) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:150:VAL_:_CA_ to coordinates (34.178, -19.437, 17.431) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:160:ALA_:_CA_ to coordinates (17.933, -3.58, 14.421) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:170:VAL_:_CA_ to coordinates (23.889, 6.062, 14.558) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:180:TRP_:_CA_ to coordinates (37.055, -0.827, 13.202) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:190:LYS_:_CA_ to coordinates (25.421, 5.859, 8.883) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:200:PHE_:_CA_ to coordinates (35.331, -7.95, 9.917) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:210:TYR_:_CA_ to coordinates (47.746, -12.778, 16.605) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:220:LYS_:_CA_ to coordinates (48.972, 1.227, 13.176) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:231:GLN_:_CA_ to coordinates (42.712, 13.332, 17.707) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:240:LEU_:_CA_ to coordinates (43.127, 8.79, 5.241) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:250:PRO_:_CA_ to coordinates (50.204, -9.277, 8.069) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:260:LEU_:_CA_ to coordinates (39.45, -9.815, 0.22) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:270:SER_:_CA_ to coordinates (27.738, -0.28, -1.776) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:180:TRP_:_CA_ to coordinates (37.055, -0.827, 13.202) equilibriumDistance: 0 k: 0.5
+HarmonicConstraintOnAtom A:290:GLN_:_CA_ to coordinates (45.659, -26.843, 5.305) equilibriumDistance: 0 k: 0.5
+
+Task Permanent Constraints
+Number of constraints: 0
+
+ANM Permanent Constraints
+Number of constraints: 0
+
+Atom Pulling Constraints
+Number of constraints: 0
+
+Constraints on Hydrogen Bonds
+Number of constraints: 0
+
+Perturbed Atom Set COM Constraints
+Number of constraints: 0
+
+
+
+
+
+* Pele parameters:
+temperature: 1000
+anmFrequency: 2
+minimizationFrequency: 10
+sideChainPredictionFrequency: 1
+minimizationRegionRadius: 1000
+sideChainPredictionRegionRadius: 6
+numberOfTopSideSelectedLinks: 0
+topSideRadius: 0
+activateProximityDetection: true, proximityDistance: 5
+perturbationCOMConstraintConstant: 1
+numberOfPeleSteps: 4
+
+* Movement step components:
+----------------------------
+** naive
+Parameters:
+gridResolution: 10
+overlapFactor: 0.5
+rotationScalingFactor: 0.5
+rotationRangeFactor: 0.25
+translationRange: 1
+TranslationRangeType: centered translation modulus generator
+TranslationDirection: RANDOM
+atLeastOneSelectedTrial: false
+numberOfStericTrials: 100
+numberOfTrials: 10
+
+
+** ANM:
+ANM Cartesian algorithm:
+Direction selection strategy:
+directionGeneration: random
+
+Mixing strategy:
+modesMixingOption: mixMainModeWithOthersModes
+mainModeWeightForMixModes: 0.75
+
+Magnitude calculation
+moveMagnitudeGeneration: noRandom
+
+Normal modes: 
+Modes calculated using Lapack
+cutoff: 12
+
+Modes picking strategy:
+pickingCase: RANDOM_MODE
+
+ANM parameters:
+numberOfModes: 6
+thermalScaling: true
+eigenUpdateFrequency: 1000000
+modesChangeFrequency: 4
+relaxationSpringConstant: 0.5
+Number of nodes: 282
+Node list: 
+A:1:ASP_:_CA_ A:2:PRO_:_CA_ A:3:THR_:_CA_ A:4:VAL_:_CA_ A:5:PHE_:_CA_ 
+A:6:HIE_:_CA_ A:7:LYS_:_CA_ A:8:ARG_:_CA_ A:9:TYR_:_CA_ A:10:LEU_:_CA_ 
+A:11:LYS_:_CA_ A:12:LYS_:_CA_ A:13:ILE_:_CA_ A:14:ARG_:_CA_ A:15:ASP_:_CA_ 
+A:16:LEU_:_CA_ A:17:GLY_:_CA_ A:18:GLU_:_CA_ A:19:GLY_:_CA_ A:20:HIE_:_CA_ 
+A:21:PHE_:_CA_ A:22:GLY_:_CA_ A:23:LYS_:_CA_ A:24:VAL_:_CA_ A:25:SER_:_CA_ 
+A:26:LEU_:_CA_ A:27:TYR_:_CA_ A:28:CYS_:_CA_ A:29:TYR_:_CA_ A:30:ASP_:_CA_ 
+A:31:PRO_:_CA_ A:32:THR_:_CA_ A:33:ASN_:_CA_ A:34:ASP_:_CA_ A:35:GLY_:_CA_ 
+A:36:THR_:_CA_ A:37:GLY_:_CA_ A:38:GLU_:_CA_ A:39:MET_:_CA_ A:40:VAL_:_CA_ 
+A:41:ALA_:_CA_ A:42:VAL_:_CA_ A:43:LYS_:_CA_ A:44:ALA_:_CA_ A:45:LEU_:_CA_ 
+A:46:LYS_:_CA_ A:47:GLU_:_CA_ A:48:GLY_:_CA_ A:49:CYS_:_CA_ A:50:GLY_:_CA_ 
+A:51:PRO_:_CA_ A:52:GLN_:_CA_ A:53:LEU_:_CA_ A:54:ARG_:_CA_ A:55:SER_:_CA_ 
+A:56:GLY_:_CA_ A:57:TRP_:_CA_ A:58:GLN_:_CA_ A:59:ARG_:_CA_ A:60:GLU_:_CA_ 
+A:61:ILE_:_CA_ A:62:GLU_:_CA_ A:63:ILE_:_CA_ A:64:LEU_:_CA_ A:65:ARG_:_CA_ 
+A:66:THR_:_CA_ A:67:LEU_:_CA_ A:68:TYR_:_CA_ A:69:HIE_:_CA_ A:70:GLU_:_CA_ 
+A:71:HID_:_CA_ A:72:ILE_:_CA_ A:73:VAL_:_CA_ A:74:LYS_:_CA_ A:75:TYR_:_CA_ 
+A:76:LYS_:_CA_ A:77:GLY_:_CA_ A:78:CYS_:_CA_ A:79:CYS_:_CA_ A:80:GLU_:_CA_ 
+A:81:ASP_:_CA_ A:86:SER_:_CA_ A:87:VAL_:_CA_ A:88:GLN_:_CA_ A:89:LEU_:_CA_ 
+A:90:VAL_:_CA_ A:91:MET_:_CA_ A:92:GLU_:_CA_ A:93:TYR_:_CA_ A:94:VAL_:_CA_ 
+A:95:PRO_:_CA_ A:96:LEU_:_CA_ A:97:GLY_:_CA_ A:98:SER_:_CA_ A:99:LEU_:_CA_ 
+A:100:ARG_:_CA_ A:101:ASP_:_CA_ A:102:TYR_:_CA_ A:103:LEU_:_CA_ A:104:PRO_:_CA_ 
+A:105:ARG_:_CA_ A:106:HID_:_CA_ A:107:CYS_:_CA_ A:108:VAL_:_CA_ A:109:GLY_:_CA_ 
+A:110:LEU_:_CA_ A:111:ALA_:_CA_ A:112:GLN_:_CA_ A:113:LEU_:_CA_ A:114:LEU_:_CA_ 
+A:115:LEU_:_CA_ A:116:PHE_:_CA_ A:117:ALA_:_CA_ A:118:GLN_:_CA_ A:119:GLN_:_CA_ 
+A:120:ILE_:_CA_ A:121:CYS_:_CA_ A:122:GLU_:_CA_ A:123:GLY_:_CA_ A:124:MET_:_CA_ 
+A:125:ALA_:_CA_ A:126:TYR_:_CA_ A:127:LEU_:_CA_ A:128:HIE_:_CA_ A:129:ALA_:_CA_ 
+A:130:GLN_:_CA_ A:131:HID_:_CA_ A:132:TYR_:_CA_ A:133:ILE_:_CA_ A:134:HIE_:_CA_ 
+A:135:ARG_:_CA_ A:136:ALA_:_CA_ A:137:LEU_:_CA_ A:138:ALA_:_CA_ A:139:ALA_:_CA_ 
+A:140:ARG_:_CA_ A:141:ASN_:_CA_ A:142:VAL_:_CA_ A:143:LEU_:_CA_ A:144:LEU_:_CA_ 
+A:145:ASP_:_CA_ A:146:ASN_:_CA_ A:147:ASP_:_CA_ A:148:ARG_:_CA_ A:149:LEU_:_CA_ 
+A:150:VAL_:_CA_ A:151:LYS_:_CA_ A:152:ILE_:_CA_ A:153:GLY_:_CA_ A:154:ASP_:_CA_ 
+A:155:PHE_:_CA_ A:156:GLY_:_CA_ A:157:LEU_:_CA_ A:158:ALA_:_CA_ A:159:LYS_:_CA_ 
+A:160:ALA_:_CA_ A:161:VAL_:_CA_ A:162:PRO_:_CA_ A:163:GLU_:_CA_ A:164:GLY_:_CA_ 
+A:165:HID_:_CA_ A:166:GLU_:_CA_ A:167:TYR_:_CA_ A:168:TYR_:_CA_ A:169:ARG_:_CA_ 
+A:170:VAL_:_CA_ A:171:ARG_:_CA_ A:172:GLU_:_CA_ A:173:ASP_:_CA_ A:174:GLY_:_CA_ 
+A:175:ASP_:_CA_ A:176:SER_:_CA_ A:177:PRO_:_CA_ A:178:VAL_:_CA_ A:179:PHE_:_CA_ 
+A:180:TRP_:_CA_ A:181:TYR_:_CA_ A:182:ALA_:_CA_ A:183:PRO_:_CA_ A:184:GLU_:_CA_ 
+A:185:CYS_:_CA_ A:186:LEU_:_CA_ A:187:LYS_:_CA_ A:188:GLU_:_CA_ A:189:CYS_:_CA_ 
+A:190:LYS_:_CA_ A:191:PHE_:_CA_ A:192:TYR_:_CA_ A:193:TYR_:_CA_ A:194:ALA_:_CA_ 
+A:195:SER_:_CA_ A:196:ASP_:_CA_ A:197:VAL_:_CA_ A:198:TRP_:_CA_ A:199:SER_:_CA_ 
+A:200:PHE_:_CA_ A:201:GLY_:_CA_ A:202:VAL_:_CA_ A:203:THR_:_CA_ A:204:LEU_:_CA_ 
+A:205:TYR_:_CA_ A:206:GLU_:_CA_ A:207:LEU_:_CA_ A:208:LEU_:_CA_ A:209:THR_:_CA_ 
+A:210:TYR_:_CA_ A:211:CYS_:_CA_ A:212:ASP_:_CA_ A:213:SER_:_CA_ A:214:ASN_:_CA_ 
+A:215:GLN_:_CA_ A:216:SER_:_CA_ A:217:PRO_:_CA_ A:218:HID_:_CA_ A:219:THR_:_CA_ 
+A:220:LYS_:_CA_ A:221:PHE_:_CA_ A:222:THR_:_CA_ A:223:GLU_:_CA_ A:224:LEU_:_CA_ 
+A:225:ILE_:_CA_ A:226:GLY_:_CA_ A:231:GLN_:_CA_ A:232:MET_:_CA_ A:233:THR_:_CA_ 
+A:234:VAL_:_CA_ A:235:LEU_:_CA_ A:236:ARG_:_CA_ A:237:LEU_:_CA_ A:238:THR_:_CA_ 
+A:239:GLU_:_CA_ A:240:LEU_:_CA_ A:241:LEU_:_CA_ A:242:GLU_:_CA_ A:243:ARG_:_CA_ 
+A:244:GLY_:_CA_ A:245:GLU_:_CA_ A:246:ARG_:_CA_ A:247:LEU_:_CA_ A:248:PRO_:_CA_ 
+A:249:ARG_:_CA_ A:250:PRO_:_CA_ A:251:ASP_:_CA_ A:252:ARG_:_CA_ A:253:CYS_:_CA_ 
+A:254:PRO_:_CA_ A:255:CYS_:_CA_ A:256:GLU_:_CA_ A:257:ILE_:_CA_ A:258:TYR_:_CA_ 
+A:259:HIE_:_CA_ A:260:LEU_:_CA_ A:261:MET_:_CA_ A:262:LYS_:_CA_ A:263:ASN_:_CA_ 
+A:264:CYS_:_CA_ A:265:TRP_:_CA_ A:266:GLU_:_CA_ A:267:THR_:_CA_ A:268:GLU_:_CA_ 
+A:269:ALA_:_CA_ A:270:SER_:_CA_ A:271:PHE_:_CA_ A:272:ARG_:_CA_ A:273:PRO_:_CA_ 
+A:274:THR_:_CA_ A:275:PHE_:_CA_ A:276:GLN_:_CA_ A:277:ASN_:_CA_ A:278:LEU_:_CA_ 
+A:279:VAL_:_CA_ A:280:PRO_:_CA_ A:281:ILE_:_CA_ A:282:LEU_:_CA_ A:283:GLN_:_CA_ 
+A:284:THR_:_CA_ A:285:ALA_:_CA_ A:286:GLN_:_CA_ A:287:GLU_:_CA_ A:288:LYS_:_CA_ 
+A:289:TYR_:_CA_ A:290:GLN_:_CA_A:1:ASP_:_CA_ A:2:PRO_:_CA_ A:3:THR_:_CA_ A:4:VAL_:_CA_ A:5:PHE_:_CA_ A:6:HIE_:_CA_ A:7:LYS_:_CA_ A:8:ARG_:_CA_ A:9:TYR_:_CA_ A:10:LEU_:_CA_ A:11:LYS_:_CA_ A:12:LYS_:_CA_ A:13:ILE_:_CA_ A:14:ARG_:_CA_ A:15:ASP_:_CA_ A:16:LEU_:_CA_ A:17:GLY_:_CA_ A:18:GLU_:_CA_ A:19:GLY_:_CA_ A:20:HIE_:_CA_ A:21:PHE_:_CA_ A:22:GLY_:_CA_ A:23:LYS_:_CA_ A:24:VAL_:_CA_ A:25:SER_:_CA_ A:26:LEU_:_CA_ A:27:TYR_:_CA_ A:28:CYS_:_CA_ A:29:TYR_:_CA_ A:30:ASP_:_CA_ A:31:PRO_:_CA_ A:32:THR_:_CA_ A:33:ASN_:_CA_ A:34:ASP_:_CA_ A:35:GLY_:_CA_ A:36:THR_:_CA_ A:37:GLY_:_CA_ A:38:GLU_:_CA_ A:39:MET_:_CA_ A:40:VAL_:_CA_ A:41:ALA_:_CA_ A:42:VAL_:_CA_ A:43:LYS_:_CA_ A:44:ALA_:_CA_ A:45:LEU_:_CA_ A:46:LYS_:_CA_ A:47:GLU_:_CA_ A:48:GLY_:_CA_ A:49:CYS_:_CA_ A:50:GLY_:_CA_ A:51:PRO_:_CA_ A:52:GLN_:_CA_ A:53:LEU_:_CA_ A:54:ARG_:_CA_ A:55:SER_:_CA_ A:56:GLY_:_CA_ A:57:TRP_:_CA_ A:58:GLN_:_CA_ A:59:ARG_:_CA_ A:60:GLU_:_CA_ A:61:ILE_:_CA_ A:62:GLU_:_CA_ A:63:ILE_:_CA_ A:64:LEU_:_CA_ A:65:ARG_:_CA_ A:66:THR_:_CA_ A:67:LEU_:_CA_ A:68:TYR_:_CA_ A:69:HIE_:_CA_ A:70:GLU_:_CA_ A:71:HID_:_CA_ A:72:ILE_:_CA_ A:73:VAL_:_CA_ A:74:LYS_:_CA_ A:75:TYR_:_CA_ A:76:LYS_:_CA_ A:77:GLY_:_CA_ A:78:CYS_:_CA_ A:79:CYS_:_CA_ A:80:GLU_:_CA_ A:81:ASP_:_CA_ A:86:SER_:_CA_ A:87:VAL_:_CA_ A:88:GLN_:_CA_ A:89:LEU_:_CA_ A:90:VAL_:_CA_ A:91:MET_:_CA_ A:92:GLU_:_CA_ A:93:TYR_:_CA_ A:94:VAL_:_CA_ A:95:PRO_:_CA_ A:96:LEU_:_CA_ A:97:GLY_:_CA_ A:98:SER_:_CA_ A:99:LEU_:_CA_ A:100:ARG_:_CA_ A:101:ASP_:_CA_ A:102:TYR_:_CA_ A:103:LEU_:_CA_ A:104:PRO_:_CA_ A:105:ARG_:_CA_ A:106:HID_:_CA_ A:107:CYS_:_CA_ A:108:VAL_:_CA_ A:109:GLY_:_CA_ A:110:LEU_:_CA_ A:111:ALA_:_CA_ A:112:GLN_:_CA_ A:113:LEU_:_CA_ A:114:LEU_:_CA_ A:115:LEU_:_CA_ A:116:PHE_:_CA_ A:117:ALA_:_CA_ A:118:GLN_:_CA_ A:119:GLN_:_CA_ A:120:ILE_:_CA_ A:121:CYS_:_CA_ A:122:GLU_:_CA_ A:123:GLY_:_CA_ A:124:MET_:_CA_ A:125:ALA_:_CA_ A:126:TYR_:_CA_ A:127:LEU_:_CA_ A:128:HIE_:_CA_ A:129:ALA_:_CA_ A:130:GLN_:_CA_ A:131:HID_:_CA_ A:132:TYR_:_CA_ A:133:ILE_:_CA_ A:134:HIE_:_CA_ A:135:ARG_:_CA_ A:136:ALA_:_CA_ A:137:LEU_:_CA_ A:138:ALA_:_CA_ A:139:ALA_:_CA_ A:140:ARG_:_CA_ A:141:ASN_:_CA_ A:142:VAL_:_CA_ A:143:LEU_:_CA_ A:144:LEU_:_CA_ A:145:ASP_:_CA_ A:146:ASN_:_CA_ A:147:ASP_:_CA_ A:148:ARG_:_CA_ A:149:LEU_:_CA_ A:150:VAL_:_CA_ A:151:LYS_:_CA_ A:152:ILE_:_CA_ A:153:GLY_:_CA_ A:154:ASP_:_CA_ A:155:PHE_:_CA_ A:156:GLY_:_CA_ A:157:LEU_:_CA_ A:158:ALA_:_CA_ A:159:LYS_:_CA_ A:160:ALA_:_CA_ A:161:VAL_:_CA_ A:162:PRO_:_CA_ A:163:GLU_:_CA_ A:164:GLY_:_CA_ A:165:HID_:_CA_ A:166:GLU_:_CA_ A:167:TYR_:_CA_ A:168:TYR_:_CA_ A:169:ARG_:_CA_ A:170:VAL_:_CA_ A:171:ARG_:_CA_ A:172:GLU_:_CA_ A:173:ASP_:_CA_ A:174:GLY_:_CA_ A:175:ASP_:_CA_ A:176:SER_:_CA_ A:177:PRO_:_CA_ A:178:VAL_:_CA_ A:179:PHE_:_CA_ A:180:TRP_:_CA_ A:181:TYR_:_CA_ A:182:ALA_:_CA_ A:183:PRO_:_CA_ A:184:GLU_:_CA_ A:185:CYS_:_CA_ A:186:LEU_:_CA_ A:187:LYS_:_CA_ A:188:GLU_:_CA_ A:189:CYS_:_CA_ A:190:LYS_:_CA_ A:191:PHE_:_CA_ A:192:TYR_:_CA_ A:193:TYR_:_CA_ A:194:ALA_:_CA_ A:195:SER_:_CA_ A:196:ASP_:_CA_ A:197:VAL_:_CA_ A:198:TRP_:_CA_ A:199:SER_:_CA_ A:200:PHE_:_CA_ A:201:GLY_:_CA_ A:202:VAL_:_CA_ A:203:THR_:_CA_ A:204:LEU_:_CA_ A:205:TYR_:_CA_ A:206:GLU_:_CA_ A:207:LEU_:_CA_ A:208:LEU_:_CA_ A:209:THR_:_CA_ A:210:TYR_:_CA_ A:211:CYS_:_CA_ A:212:ASP_:_CA_ A:213:SER_:_CA_ A:214:ASN_:_CA_ A:215:GLN_:_CA_ A:216:SER_:_CA_ A:217:PRO_:_CA_ A:218:HID_:_CA_ A:219:THR_:_CA_ A:220:LYS_:_CA_ A:221:PHE_:_CA_ A:222:THR_:_CA_ A:223:GLU_:_CA_ A:224:LEU_:_CA_ A:225:ILE_:_CA_ A:226:GLY_:_CA_ A:231:GLN_:_CA_ A:232:MET_:_CA_ A:233:THR_:_CA_ A:234:VAL_:_CA_ A:235:LEU_:_CA_ A:236:ARG_:_CA_ A:237:LEU_:_CA_ A:238:THR_:_CA_ A:239:GLU_:_CA_ A:240:LEU_:_CA_ A:241:LEU_:_CA_ A:242:GLU_:_CA_ A:243:ARG_:_CA_ A:244:GLY_:_CA_ A:245:GLU_:_CA_ A:246:ARG_:_CA_ A:247:LEU_:_CA_ A:248:PRO_:_CA_ A:249:ARG_:_CA_ A:250:PRO_:_CA_ A:251:ASP_:_CA_ A:252:ARG_:_CA_ A:253:CYS_:_CA_ A:254:PRO_:_CA_ A:255:CYS_:_CA_ A:256:GLU_:_CA_ A:257:ILE_:_CA_ A:258:TYR_:_CA_ A:259:HIE_:_CA_ A:260:LEU_:_CA_ A:261:MET_:_CA_ A:262:LYS_:_CA_ A:263:ASN_:_CA_ A:264:CYS_:_CA_ A:265:TRP_:_CA_ A:266:GLU_:_CA_ A:267:THR_:_CA_ A:268:GLU_:_CA_ A:269:ALA_:_CA_ A:270:SER_:_CA_ A:271:PHE_:_CA_ A:272:ARG_:_CA_ A:273:PRO_:_CA_ A:274:THR_:_CA_ A:275:PHE_:_CA_ A:276:GLN_:_CA_ A:277:ASN_:_CA_ A:278:LEU_:_CA_ A:279:VAL_:_CA_ A:280:PRO_:_CA_ A:281:ILE_:_CA_ A:282:LEU_:_CA_ A:283:GLN_:_CA_ A:284:THR_:_CA_ A:285:ALA_:_CA_ A:286:GLN_:_CA_ A:287:GLU_:_CA_ A:288:LYS_:_CA_ A:289:TYR_:_CA_ A:290:GLN_:_CA_ 
+
+Minimizer Truncated Newton algorithm:
+Parameters:
+EnergyDifference: 1
+MinimumRMS: 0.1
+MaximumMinimizationIterations: 1
+MaximumNewtonIterations: 30
+nonBondingListUpdatedEachMinStep: false
+sgbUpdated: false
+alphaUpdated: false
+iterationsBetweenNBlistLongUpdate: 2
+
+* Relaxation step components:
+----------------------------
+** Side Chain Prediction:
+Zhexin Algorithm:
+Parameters:
+discardHighEnergySolutions: false
+resolution: 10
+initialOverlapFactor: 0.75
+minimalOverlapFactor: 0.6
+numberOfIterations: 100
+randomize: false
+
+
+Minimizer Null minimizer algorithm:
+No parameters for the minimizer.
+
+** Relaxation constrained minimization
+Minimizer Truncated Newton algorithm:
+Parameters:
+EnergyDifference: 1
+MinimumRMS: 0.1
+MaximumMinimizationIterations: 3
+MaximumNewtonIterations: 65
+nonBondingListUpdatedEachMinStep: true
+sgbUpdated: true
+alphaUpdated: false
+iterationsBetweenNBlistLongUpdate: 2
+
+
+
+
+Value of metrics at beginning of Task 1
+numberOfAcceptedPeleSteps    currentEnergy    Binding Energy    sasaLig    
+0    -331.661    -54.3141    0.150713    
+[Parameter change]  Task: 1, Step: 1, Perturbation::parameters -> {rotationScalingFactor: 0.1}
+[Parameter change]  Task: 1, Step: 1, Perturbation::parameters -> {translationRange: 0.15}
+
+
+[New Step] Step: 1
+[Energy] Task: 1, Step: 1, Initial energy:  -331.661
+ENERGY BOND: 189.1195870913555
+ENERGY BOND SGB: 19383.39292293149
+ENERGY ANGLE: 641.1657268640741
+ENERGY ANGLE SGB: -8737.159093613222
+ENERGY TORSION: 851.4949568720738
+ENERGY 14: 19145.63296279841
+ENERGY 14 SGB: -5626.442476331489
+ENERGY NBOND: -20004.08843512219
+ENERGY NBOND SGB: 7419.52664114924
+ENERGY CONSTRAINTS: 0
+ENERGY VACUUM + SGB + CONSTRAINTS: 13262.64279263974
+ENERGY NON POLAR: 28.97169584779419
+ENERGY SELF: -13623.27539060525
+ENERGY VACUUM + SGB + CONSTRAINTS + SELF + NON POLAR: -331.6609021177161
+
+Perturbation:
+beginning: atomSet is not too far
+Clash in side chain! Residue: A:24:VAL
+Included current side chain conformation as rotamer:
+Residue: A:105:ARG
+New Rotamer: -6 -18 -16 14 1
+Original Angles: -56.9116 -178.964 -155.137 143.418 5.2089
+Current trial energy: 4532.63 best: 4532.63
+Clash in side chain! Residue: L:1:GRWZ
+Current trial energy: 492.954 best: 492.954
+Current trial energy: 410.206 best: 410.206
+Current trial energy: 4394.72 best: 410.206
+Current trial energy: 4108.33 best: 410.206
+Current trial energy: 3007.75 best: 410.206
+Current trial energy: 6519.54 best: 410.206
+Current trial energy: 499.194 best: 410.206
+Current trial energy: 2773.26 best: 410.206
+Clash in side chain! Residue: L:1:GRWZ
+Current trial energy: 900.206 best: 410.206
+Best trial: 3 out of 10
+atomSet is not too far
+Perturbation Ef: 410.206 Ei: -331.661 dE: 741.867 dt: 13.4624 s
+
+ANM:
+Computing Eigenvalues and Eigenvectors...
+Pick new mode...
+Picked mode: 0
+Selected direction: -1
+Magnitude: 0.75
+Minimizing atoms from residues: all residues
+ANM Ef: -10802.3 Ei: 276.381 dE: -11078.6 dt: 30.3617 s
+
+Side Chain Prediction:
+Running side chain prediction on 28 residues
+Side chain prediction for links: A:14, A:16, A:18, A:20, A:23-A:26, A:43, A:64, A:73, A:91-A:96, A:98, A:100-A:101, A:105, A:140-A:144, A:154, L:1
+computeNonPolarNonClashingRotamers, dt: 0.516441 s
+iteration 1 dt: 3.98368 s
+iteration 2 dt: 4.27144 s
+iteration 3 dt: 4.30062 s
+Minimizing atoms from residues: A:14, A:16, A:18, A:20, A:23-A:26, A:43, A:64, A:73, A:91-A:96, A:98, A:100-A:101, A:105, A:140-A:144, A:154, L:1
+Side Chain Prediction minimization, dt: 0.08074 s
+Iteration 1 dt: 12.6372 s
+(findMinimumInEnergyUsingRotamerLibrary, dt: 12.6373 s)
+Side Chain Prediction Ef: -13350.5 Ei: -10802.3 dE: -2548.29 dt: 16.7514 s
+
+Minimization:
+Minimizing atoms from residues: all residues
+Minimization Ef: -10845.3 Ei: -13350.5 dE: 2505.21 dt: 36.8108 s
+
+Metropolis Ef: -10848.2 Ei: -331.661 dE: -10516.5 Probability: 1 Accepted Step: true
+[Energy] Task: 1, Step: 1, Final energy:  -10848.2
+Accepted!
+Total step time: 104.797 s
+
+
+Value of metrics after Step 1
+numberOfAcceptedPeleSteps    currentEnergy    Binding Energy    sasaLig    
+1    -10848.2    -55.475    0.147179    
+[Parameter change]  Task: 1, Step: 1, Perturbation::parameters -> {rotationScalingFactor: 0.05}
+[Parameter change]  Task: 1, Step: 1, Perturbation::parameters -> {translationRange: 0.3}
+
+
+[New Step] Step: 2
+[Energy] Task: 1, Step: 2, Initial energy:  -10848.2
+ENERGY BOND: 118.0581081610707
+ENERGY BOND SGB: 19244.34444901332
+ENERGY ANGLE: 640.1150763396006
+ENERGY ANGLE SGB: -8676.255580476356
+ENERGY TORSION: 823.2486633493743
+ENERGY 14: 8998.835977335559
+ENERGY 14 SGB: -5587.545378020732
+ENERGY NBOND: -20287.26840970043
+ENERGY NBOND SGB: 7374.327705611884
+ENERGY CONSTRAINTS: 0.5398401390877798
+ENERGY VACUUM + SGB + CONSTRAINTS: 2648.400451752384
+ENERGY NON POLAR: 29.4198106231878
+ENERGY SELF: -13526.0235186197
+ENERGY VACUUM + SGB + CONSTRAINTS + SELF + NON POLAR: -10848.20325624413
+
+Perturbation:
+beginning: atomSet is not too far
+Current trial energy: -5377.58 best: -5377.58
+Current trial energy: -8512.48 best: -8512.48
+Current trial energy: -10301.7 best: -10301.7
+Current trial energy: -9672.75 best: -10301.7
+Current trial energy: -9675 best: -10301.7
+Current trial energy: -6221.87 best: -10301.7
+Current trial energy: -10217.4 best: -10301.7
+Clash in side chain! Residue: L:1:GRWZ
+Current trial energy: -7969.23 best: -10301.7
+Current trial energy: -10667.9 best: -10667.9
+Included current side chain conformation as rotamer:
+Residue: A:74:LYS
+New Rotamer: -7 16 -16 6
+Original Angles: -68.045 155.446 -158.998 62.6845
+Current trial energy: -7445 best: -10667.9
+Best trial: 9 out of 10
+atomSet is not too far
+Perturbation Ef: -10667.9 Ei: -10848.2 dE: 180.289 dt: 12.0869 s
+
+Side Chain Prediction:
+Running side chain prediction on 28 residues
+Side chain prediction for links: A:14, A:16, A:18, A:23-A:24, A:43, A:64, A:73, A:89, A:91-A:96, A:98-A:101, A:105, A:140-A:145, A:154, L:1
+computeNonPolarNonClashingRotamers, dt: 0.522337 s
+iteration 1 dt: 4.92008 s
+iteration 2 dt: 4.89797 s
+Minimizing atoms from residues: A:14, A:16, A:18, A:23-A:24, A:43, A:64, A:73, A:89, A:91-A:96, A:98-A:101, A:105, A:140-A:145, A:154, L:1
+Side Chain Prediction minimization, dt: 0.086747 s
+Iteration 1 dt: 9.90536 s
+(findMinimumInEnergyUsingRotamerLibrary, dt: 9.90542 s)
+Side Chain Prediction Ef: -13355 Ei: -10798.9 dE: -2556.06 dt: 14.2444 s
+
+Minimization:
+Minimizing atoms from residues: all residues
+Minimization Ef: -10846.4 Ei: -13355 dE: 2508.53 dt: 17.7755 s
+
+Metropolis Ef: -10849.1 Ei: -10848.2 dE: -0.87966 Probability: 1 Accepted Step: true
+[Energy] Task: 1, Step: 2, Final energy:  -10849.1
+Accepted!
+Total step time: 50.6373 s
+
+
+Value of metrics after Step 2
+numberOfAcceptedPeleSteps    currentEnergy    Binding Energy    sasaLig    
+2    -10849.1    -55.0664    0.148751    
+[Parameter change]  Task: 1, Step: 2, Perturbation::parameters -> {rotationScalingFactor: 0.1}
+[Parameter change]  Task: 1, Step: 2, Perturbation::parameters -> {translationRange: 0.15}
+
+
+[New Step] Step: 3
+[Energy] Task: 1, Step: 3, Initial energy:  -10849.1
+ENERGY BOND: 117.4365269161209
+ENERGY BOND SGB: 19235.42860670823
+ENERGY ANGLE: 639.9285147230486
+ENERGY ANGLE SGB: -8669.418071241622
+ENERGY TORSION: 822.699690326446
+ENERGY 14: 8999.985682728966
+ENERGY 14 SGB: -5593.066584864545
+ENERGY NBOND: -20290.25911029224
+ENERGY NBOND SGB: 7378.105409845617
+ENERGY CONSTRAINTS: 0.6732020277604515
+ENERGY VACUUM + SGB + CONSTRAINTS: 2641.513866877781
+ENERGY NON POLAR: 29.14788939857505
+ENERGY SELF: -13519.74467255701
+ENERGY VACUUM + SGB + CONSTRAINTS + SELF + NON POLAR: -10849.08291628065
+
+Perturbation:
+beginning: atomSet is not too far
+Included current side chain conformation as rotamer:
+Residue: A:14:ARG
+New Rotamer: 6 -18 -18 11 -1
+Original Angles: 64.4617 178.019 -178.304 108.723 -6.50814
+Current trial energy: -10249.1 best: -10249.1
+Current trial energy: -9260.58 best: -10249.1
+Current trial energy: -7479.23 best: -10249.1
+Clash in side chain! Residue: A:24:VAL
+Current trial energy: -8383.11 best: -10249.1
+Clash in side chain! Residue: L:1:GRWZ
+Current trial energy: -9190.74 best: -10249.1
+Current trial energy: -10238 best: -10249.1
+Current trial energy: -6452.93 best: -10249.1
+Current trial energy: -4177.2 best: -10249.1
+Current trial energy: -8726.54 best: -10249.1
+Clash in side chain! Residue: L:1:GRWZ
+Current trial energy: -10545.6 best: -10545.6
+Best trial: 10 out of 10
+atomSet is not too far
+Perturbation Ef: -10545.6 Ei: -10849.1 dE: 303.44 dt: 14.1291 s
+
+ANM:
+Magnitude: 0.75
+Minimizing atoms from residues: all residues
+ANM Ef: -10827.5 Ei: -10673.9 dE: -153.582 dt: 10.1662 s
+
+Side Chain Prediction:
+Included current side chain conformation as rotamer:
+Residue: A:100:ARG
+New Rotamer: -17 -18 -7 -18 0
+Original Angles: -170.643 176.229 -73.6926 177.808 -0.438567
+Running side chain prediction on 29 residues
+Side chain prediction for links: A:14-A:16, A:18, A:24, A:26, A:43, A:60, A:64, A:73, A:89, A:91-A:95, A:98, A:100-A:101, A:105, A:140-A:144, A:152, A:154-A:155, L:1
+computeNonPolarNonClashingRotamers, dt: 0.65854 s
+iteration 1 dt: 4.68143 s
+iteration 2 dt: 4.66564 s
+iteration 3 dt: 4.65967 s
+Minimizing atoms from residues: A:14-A:16, A:18, A:24, A:26, A:43, A:60, A:64, A:73, A:89, A:91-A:95, A:98, A:100-A:101, A:105, A:140-A:144, A:152, A:154-A:155, L:1
+Side Chain Prediction minimization, dt: 0.089258 s
+Iteration 1 dt: 14.0968 s
+(findMinimumInEnergyUsingRotamerLibrary, dt: 14.0968 s)
+Side Chain Prediction Ef: -13298.6 Ei: -10827.5 dE: -2471.06 dt: 18.3996 s
+
+Minimization:
+Minimizing atoms from residues: all residues
+Minimization Ef: -10836.7 Ei: -13298.6 dE: 2461.92 dt: 23.7876 s
+
+Metropolis Ef: -10838.9 Ei: -10849.1 dE: 10.173 Probability: 0.00598056 Accepted Step: false
+Total step time: 72.6762 s
+
+
+Value of metrics after Step 3
+numberOfAcceptedPeleSteps    currentEnergy    Binding Energy    sasaLig    
+2    -10849.1    -55.0664    0.148751    
+[Parameter change]  Task: 1, Step: 3, Perturbation::parameters -> {rotationScalingFactor: 0.1}
+[Parameter change]  Task: 1, Step: 3, Perturbation::parameters -> {translationRange: 0.15}
+
+
+[New Step] Step: 4
+[Energy] Task: 1, Step: 4, Initial energy:  -10849.1
+ENERGY BOND: 117.4365269161209
+ENERGY BOND SGB: 19235.42860670823
+ENERGY ANGLE: 639.9285147230486
+ENERGY ANGLE SGB: -8669.418071241622
+ENERGY TORSION: 822.699690326446
+ENERGY 14: 8999.985682728966
+ENERGY 14 SGB: -5593.066584864545
+ENERGY NBOND: -20290.25911029224
+ENERGY NBOND SGB: 7378.105409845617
+ENERGY CONSTRAINTS: 0.6732020277604515
+ENERGY VACUUM + SGB + CONSTRAINTS: 2641.513866877781
+ENERGY NON POLAR: 29.14788939857505
+ENERGY SELF: -13519.74467255701
+ENERGY VACUUM + SGB + CONSTRAINTS + SELF + NON POLAR: -10849.08291628065
+
+Perturbation:
+beginning: atomSet is not too far
+Current trial energy: -4781.84 best: -4781.84
+Clash in side chain! Residue: L:1:GRWZ
+Current trial energy: -5079.41 best: -5079.41
+Current trial energy: -6035.52 best: -6035.52
+Clash in side chain! Residue: A:24:VAL
+Current trial energy: -8505.09 best: -8505.09
+Clash in side chain! Residue: L:1:GRWZ
+Clash in side chain! Residue: L:1:GRWZ
+Current trial energy: -8482.64 best: -8505.09
+Current trial energy: -6781.98 best: -8505.09
+Clash in side chain! Residue: A:24:VAL
+Current trial energy: -6580.99 best: -8505.09
+Clash in side chain! Residue: A:24:VAL
+Current trial energy: -6367.63 best: -8505.09
+Current trial energy: -6724.16 best: -8505.09
+Current trial energy: -6451.46 best: -8505.09
+Best trial: 4 out of 10
+atomSet is not too far
+Perturbation Ef: -8505.09 Ei: -10849.1 dE: 2343.99 dt: 14.546 s
+
+Side Chain Prediction:
+Running side chain prediction on 29 residues
+Side chain prediction for links: A:16, A:18, A:23-A:25, A:42-A:43, A:57, A:60, A:64, A:73, A:89, A:91-A:92, A:94, A:98, A:100-A:101, A:105, A:140-A:144, A:151-A:152, A:154-A:155, L:1
+computeNonPolarNonClashingRotamers, dt: 0.421608 s
+SIDE CHAIN CLASH!! GRW_1 :L clashed!!
+SIDE CHAIN CLASH!! LEU_89 :A clashed!!
+SIDE CHAIN CLASH!! LEU_143 :A clashed!!
+iteration 1 dt: 4.76085 s
+SIDE CHAIN CLASH!! GRW_1 :L clashed!!
+SIDE CHAIN CLASH!! LEU_143 :A clashed!!
+iteration 2 dt: 5.05671 s
+SIDE CHAIN CLASH!! GRW_1 :L clashed!!
+SIDE CHAIN CLASH!! LEU_143 :A clashed!!
+iteration 3 dt: 5.00236 s
+SIDE CHAIN CLASH!! GRW_1 :L clashed!!
+SIDE CHAIN CLASH!! LEU_143 :A clashed!!
+iteration 4 dt: 4.92399 s
+Iteration 1 dt: 19.7448 s
+(findMinimumInEnergyUsingRotamerLibrary, dt: 19.7449 s)
+Side Chain Prediction Ef: -12320.2 Ei: -8637.44 dE: -3682.78 dt: 23.8322 s
+
+Minimization:
+Minimizing atoms from residues: all residues
+Minimization Ef: -10814.1 Ei: -12320.2 dE: 1506.14 dt: 22.5043 s
+
+Metropolis Ef: -10816.8 Ei: -10849.1 dE: 32.3302 Probability: 8.59789e-08 Accepted Step: false
+Total step time: 66.468 s
+
+
+Value of metrics after Step 4
+numberOfAcceptedPeleSteps    currentEnergy    Binding Energy    sasaLig    
+2    -10849.1    -55.0664    0.148751    
+[Parameter change]  Task: 1, Step: 4, Perturbation::parameters -> {rotationScalingFactor: 0.1}
+[Parameter change]  Task: 1, Step: 4, Perturbation::parameters -> {translationRange: 0.3}
