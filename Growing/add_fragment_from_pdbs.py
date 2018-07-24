@@ -350,6 +350,23 @@ def get_waters_in_pdb(pdb_input):
     return "".join(water + "TER\n" * (n % 3 == 2) for n, water in enumerate(water_lines))
 
 
+def check_water(pdb_input):
+    """
+    Given a pdb file checks if it contains water molecules.
+    :param pdb_input: pdb input file
+    :return: True or False
+    """
+    checker = False
+    with open(pdb_input) as pdb:
+        for line in pdb:
+            if "HETATM" in line:
+                if line.split()[3] == "HOH":
+                    print("Your pdb file contains water molecules")
+                    checker = True
+                    break
+    return checker
+
+
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
          fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb"):
     """
@@ -455,7 +472,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
         content_prot = protein.readlines()
         chainA = []
         for line in content_prot:
-            if (line.startswith("ATOM") or line.startswith("HETATM") or line.startswith("TER")):
+            if (line.startswith("ATOM") or line.startswith("TER")):
                 if len(line.split()) > 10:
                     if line.split()[4] == "A" and len(line) > 4:
                         chainA.append(line)
@@ -469,8 +486,9 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     output_file = []
     output_file.append("{}TER\n".format(content_prot))
     # Put waters
-    waters = get_waters_in_pdb(pdb_complex_core)
-    output_file.append(waters)
+    if check_water(pdb_complex_core):
+        waters = get_waters_in_pdb(pdb_complex_core)
+        output_file.append(waters)
     # Join all parts of the PDB
     output_file.append("{}TER".format(content_lig))
     out_joined = "".join(output_file)

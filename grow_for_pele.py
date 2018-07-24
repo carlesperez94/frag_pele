@@ -164,7 +164,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         template_name = "{}z".format(resname.lower())
         template_names.append(template_name)
         shutil.copy(template_name, os.path.join(curr_dir, c.TEMPLATES_PATH))
-        #shutil.copy("{}.rot.assign".format(resname), os.path.join(curr_dir, c.ROTAMERS_PATH))
+        shutil.copy("{}.rot.assign".format(resname), os.path.join(curr_dir, c.ROTAMERS_PATH))
     template_initial, template_final = template_names
 
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
