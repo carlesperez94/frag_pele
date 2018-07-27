@@ -186,7 +186,8 @@ def transform_bond_length(original_atom, heavy_atom, atom_to_transform, initial_
     """
     # Collect indexes from original and final dictionaries
     index_original = initial_atm_dictionary[original_atom]
-    index_heavyatom = initial_atm_dictionary[heavy_atom]
+    index_heavyatom_final = final_atm_dictionary[heavy_atom]
+    index_heavyatom_initial = initial_atm_dictionary[heavy_atom]
     index_atom_to_transform = final_atm_dictionary[atom_to_transform]
 
     # Use this indexes to transform the bonds of the final dictionary to the original ones
@@ -196,11 +197,11 @@ def transform_bond_length(original_atom, heavy_atom, atom_to_transform, initial_
     final_bonds = final_bnd_dictionary.keys()
     step = step+1
     for bonds in initial_bonds:
-        if bonds[1] == index_original and bonds[0] == index_heavyatom:
+        if bonds[1] == index_original and bonds[0] == index_heavyatom_initial:
             # Check this condition because in the final dictionary is not necessary to have the same key in bonds
             original_bond_length = initial_bnd_dictionary[bonds]
             for final_bond in final_bonds:
-                if final_bond[0] == index_heavyatom and final_bond[1] == index_atom_to_transform:
+                if final_bond[0] == index_heavyatom_final and final_bond[1] == index_atom_to_transform:
                     # Add linearly bond length to the transformed atom
                     print("STEP : {}".format(step))
                     print("TOTAL STEPS : {}".format(total_steps))
@@ -237,7 +238,8 @@ def transform_bond_length_grow(original_atom, heavy_atom, atom_to_transform, ini
     """
     # Collect indexes from original and final dictionaries
     index_original = initial_atm_dictionary[original_atom]
-    index_heavyatom = initial_atm_dictionary[heavy_atom]
+    index_heavyatom_final = final_atm_dictionary[heavy_atom]
+    index_heavyatom_initial = initial_atm_dictionary[heavy_atom]
     index_atom_to_transform = final_atm_dictionary[atom_to_transform]
 
     # Use this indexes to transform the bonds of the final dictionary to the original ones
@@ -247,28 +249,29 @@ def transform_bond_length_grow(original_atom, heavy_atom, atom_to_transform, ini
     final_bonds = final_bnd_dictionary.keys()
     step = step+1
     for bonds in initial_bonds:
-        if bonds[1] == index_original and bonds[0] == index_heavyatom:
+        if bonds[1] == index_original and bonds[0] == index_heavyatom_initial:
             # Check this condition because in the final dictionary is not necessary to have the same key in bonds
             original_bond_length = initial_bnd_dictionary[bonds]
+            print(original_bond_length)
             for final_bond in final_bonds:
-                if final_bond[0] == index_heavyatom and final_bond[1] == index_atom_to_transform:
+                if final_bond[0] == index_heavyatom_final and final_bond[1] == index_atom_to_transform:
                     # Add linearly bond length to the transformed atom
-                    logger.info("STEP : {}".format(step))
-                    logger.info("TOTAL STEPS : {}".format(total_steps))
+                    print("STEP : {}".format(step))
+                    print("TOTAL STEPS : {}".format(total_steps))
                     if modification:
                         final_bond_length = float(final_bnd_dictionary[final_bond])
                     else:
                         final_bond_length = float(final_bnd_dictionary[final_bond]) * (total_steps + 1)
-                        logger.info("FINAL BOND LENGTH : {}".format(final_bond_length))
+                        print("FINAL BOND LENGTH : {}".format(final_bond_length))
                     difference_of_len = abs(final_bond_length - float(original_bond_length))
-                    logger.info("DIFFERENCE OF LENGTH: {}".format(difference_of_len))
+                    print("DIFFERENCE OF LENGTH: {}".format(difference_of_len))
                     increase_of_len = difference_of_len / (total_steps+1)
-                    logger.info("INCREASE OF LENGTH: {}".format(increase_of_len))
+                    print("INCREASE OF LENGTH: {}".format(increase_of_len))
                     original_bond_length = float(original_bond_length) + (step*increase_of_len)
-                    logger.info("STEP BOND LENGTH : {}".format(original_bond_length))
-                    logger.info(final_bnd_dictionary[final_bond])
+                    print("STEP BOND LENGTH : {}".format(original_bond_length))
+                    print(final_bnd_dictionary[final_bond])
                     starting_bnd_dictionary[final_bond] = original_bond_length
-                    logger.info(starting_bnd_dictionary[final_bond])
+                    print(starting_bnd_dictionary[final_bond])
 
     return starting_bnd_dictionary
 
@@ -382,14 +385,14 @@ def set_properties(properties_dict, new_atoms_properties_dict, steps):
         # In fact, we are only using the index of the new_atoms_properties_dict to get the changing atoms
         for new_index in new_atoms_properties_dict.keys():
             if index == new_index:
-                if float(properties_dict[index][1]) != 0:
-                    # We are setting value/steps to the current data of VDW and charge
-                    properties_dict[index] = ((float(properties_dict[index][0]) / (steps+1)),
-                                             (float(properties_dict[index][1]) / (steps+1)))
-                else:
-                    # We expect always to find positives or negatives values, otherwise we put this warning
-                    # just in case...
-                    logger.warning("Charges of the atom are 0, we can not add charge if we do not know the sign")
+                try:
+                    properties_dict[index] = ((float(properties_dict[index][0]) / (steps + 1)),
+                                              (float(properties_dict[index][1]) / (steps + 1)))
+                except ZeroDivisionError:
+                # We expect always to find positives or negatives values, otherwise we put this warning
+                # just in case...
+                    logger.warning("Charges of the atom are 0, we can not add charge if we do not know the sign...")
+                    continue
             else:
                 pass
     return properties_dict
@@ -409,16 +412,17 @@ def set_pretemplate_properties(properties_dict, new_atoms_properties_dict, selec
         # In fact, we are only using the index of the new_atoms_properties_dict to get the changing atoms
         for new_index in new_atoms_properties_dict.keys():
             if index == new_index:
-                if float(properties_dict[index][1]) != 0:
+                try:
                     # We are setting value/steps to the current data of VDW and charge
                     properties_dict[index] = ((float(properties_dict[index][0]) / (steps+1)),
                                              ((float(selected_atom_properties_dict[at_index][1]) / (steps+1))
                                                /
                                                len(new_atoms_properties_dict)))
-                else:
-                    # We expect always to find positives or negatives values, otherwise we put this warning
-                    # just in case...
-                    logger.warning("Charges of the atom are 0, we can not add charge if we do not know the sign")
+                except ZeroDivisionError:
+                # We expect always to find positives or negatives values, otherwise we put this warning
+                # just in case...
+                    logger.warning("Charges of the atom are 0, we can not add charge if we do not know the sign...")
+                continue
             else:
                 pass
     return properties_dict
@@ -436,14 +440,15 @@ def set_properties_initial(properties_dict, new_atoms_properties_dict, steps):
         # In fact, we are only using the index of the new_atoms_properties_dict to get the changing atoms
         for new_index in new_atoms_properties_dict.keys():
             if index == new_index:
-                if float(properties_dict[index][1]) != 0:
-                    # We are setting value/steps to the current data of VDW and charge
+                try:
+                # We are setting value/steps to the current data of VDW and charge
                     properties_dict[index] = ((float(properties_dict[index][0]) / (steps)),
                                              (float(properties_dict[index][1]) / (steps)))
-                else:
-                    # We expect always to find positives or negatives values, otherwise we put this warning
-                    # just in case...
+                except ZeroDivisionError:
+                # We expect always to find positives or negatives values, otherwise we put this warning
+                # just in case...
                     logger.warning("Charges of the atom are 0, we can not add charge if we do not know the sign")
+                    continue
             else:
                 pass
     return properties_dict
@@ -461,8 +466,12 @@ def set_bonds(bonds_dictionary, new_atoms_properties_dict, steps):
         # We are only using the index of the new_atoms_properties_dict to get the changing atoms
         for new_index in new_atoms_properties_dict.keys():
             if index2 == new_index:
+                try:
                 # We are adding value/steps to the current value of length
-                bonds_dictionary[(index1, index2)] = (float(bonds_dictionary[(index1, index2)]) / (steps+1))
+                    bonds_dictionary[(index1, index2)] = (float(bonds_dictionary[(index1, index2)]) / (steps+1))
+                except ZeroDivisionError:
+                    logger.warning("Charges of the atom are 0, we can not add charge if we do not know the sign")
+                    continue
             else:
                 pass
     return bonds_dictionary
@@ -480,15 +489,12 @@ def write_template(reference_template, output_filename, nbon_content, bond_conte
     atoms_section = section_selector(reference_template, "\*", "NBON")
     angles_section = section_selector(reference_template, "THET", "END")
     content_list.append("* LIGAND DATABASE FILE (OPLS2005)\n")
-    #content_list.append("*\n")
     content_list.append(atoms_section)
     content_list.append("\n")
     content_list.append(nbon_content)
     content_list.append("BOND\n")
     content_list.append(bond_content)
-    #content_list.append("THET\n")
     content_list.append(angles_section)
-    #content_list.append("END")
     with open(os.path.join(output_path, output_filename), "w") as template_to_write:
         template_to_write.write("".join(content_list))
 
@@ -565,7 +571,7 @@ def create_initial_template(initial_template, final_template, original_atom_to_m
 
 
 def generate_starting_template(initial_template_file, final_template_file, original_atom_to_mod, heavy_atom, atom_to_transform,
-                               output_template_filename="grwz_pre", path="DataLocal/Templates/OPLS2005/HeteroAtoms/",
+                               output_template_filename="grwz_ref", path="DataLocal/Templates/OPLS2005/HeteroAtoms/",
                                steps=10):
     """
     :param initial_template_file: template file of the initial ligand.
@@ -597,6 +603,7 @@ def generate_starting_template(initial_template_file, final_template_file, origi
     set_bonds(bonds_final, new_atoms_properties, steps)
     transform_bond_length(original_atom_to_mod[0], heavy_atom, atom_to_transform, atoms_selected_initial, atoms_selected_final,
                           bonds_initial, bonds_final, step=0, total_steps=steps)  #  step 0 because we are in the i = 0 in the main loop
+
     # Once we have all data in place, we will replace the current content of the final template for the starting
     # values needed to grow
     nbon_section = write_nbon_section(final_template, properties_final)
@@ -654,3 +661,4 @@ def grow_parameters_in_template(starting_template_file, initial_template_file, f
     write_template(final_template, output_template_filename, nbon_section, bond_section, path)
 
 
+#grow_parameters_in_template("grwz_ref","0kkz","grwz", ['H15'] ,"C15" ,"G4","grwz_2", "/home/carlespl/project/growing/grow/4DJU_4DJV/DataLocal/Templates/OPLS2005/HeteroAtoms/growing_templates",9,10)
