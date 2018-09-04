@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#SBATCH --qos=debug
+
+#SBATCH --job-name=mup
+
+#SBATCH --output=mpi_%j.out
+
+#SBATCH --error=mpi_%j.err
+
+#SBATCH --ntasks=48
+
+#SBATCH --time=00-2:00:00
+
+python3 ~/projects/FrAG/Ligand_growing_MN/grow_for_pele.py -cp 181l_prepared.pdb -fp methyl.pdb -ca C4 -fa C1
+

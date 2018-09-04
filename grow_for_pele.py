@@ -81,7 +81,7 @@ def parse_arguments():
                         help="PDBs output folder")
     parser.add_argument("-cs", "--cpus", default=c.CPUS,
                         help="Amount of CPU's that you want to use in mpirun of PELE")
-    parser.add_argument("-es", "--eqstep", default=c.PELE_EQ_STEPS,
+    parser.add_argument("-es", "--pele_eq_steps", default=c.PELE_EQ_STEPS,
                         help="Number of PELE steps in equilibration")
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,

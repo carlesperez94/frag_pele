@@ -1,0 +1,40 @@
+#------------------------------------
+# Disulphide Bond
+#------------------------------------
+NAME DISULPHIDE_BOND
+
+#-----------------------------------
+# ATOM IDS
+#-----------------------------------
+
+ATOID  1 _SG__
+ATOID  2 _SG_*
+ATOID  3 _CB__
+ATOID  4 _CA__
+ATOID  5 _HB2_
+ATOID  6 _HB3_
+ATOID  7 _CA_*
+ATOID  8 _HB2*
+ATOID  9 _HB3*
+ATOID 10 _CB_*
+
+#-----------------------------------
+# GEOMETRY
+#-----------------------------------
+BOND   SG    SG * 166.000   2.038
+
+ANGL   CB    SG    SG *  68.000 103.700
+ANGL   SG    SG *  CB *  68.000 103.700
+
+TORS   CA    CB    SG    SG *  0.9705  1.0 1                     
+TORS   CA    CB    SG    SG * -0.4180 -1.0 2                   
+TORS   CA    CB    SG    SG *  0.4675  1.0 3                  
+TORS   HB2   CB    SG    SG *  0.2790  1.0 3                  
+TORS   HB3   CB    SG    SG *  0.2790  1.0 3                  
+TORS   CB    SG    SG *  CB * -3.7070 -1.0 2                  
+TORS   CB    SG    SG *  CB *  0.8525  1.0 3                  
+TORS   SG    SG *  CB *  HB2*  0.2790  1.0 3                  
+TORS   SG    SG *  CB *  HB3*  0.2790  1.0 3                  
+TORS   SG    SG *  CB *  CA *  0.9705  1.0 1                  
+TORS   SG    SG *  CB *  CA * -0.4180 -1.0 2                  
+TORS   SG    SG *  CB *  CA *  0.4675  1.0 3                  

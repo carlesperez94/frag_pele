@@ -1,0 +1,169 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Complex Block in Pele++ control file &#8212; PELE 1.5.rev12492 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/naturemodified.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.5.rev12492',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Additional features in control file using MPI" href="../PELEinMulticorePlatforms/AdditionalFeaturesUsingMPI.html" />
+    <link rel="prev" title="General description" href="../Initialization/Initialization_general.html" /> 
+    <script type="text/javascript" >
+    MathJax.Hub.Config({
+        TeX: { 
+	  Macros: {
+	    AA: '{\\unicode{xC5}}'
+	  }
+	}
+    });
+    </script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../PELEinMulticorePlatforms/AdditionalFeaturesUsingMPI.html" title="Additional features in control file using MPI"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../Initialization/Initialization_general.html" title="General description"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12492 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../Initialization/Initialization.html" accesskey="U">Initialization Block in Pele++ control file</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="complex-block-in-pele-control-file">
+<span id="sec-complex"></span><h1>Complex Block in Pele++ control file<a class="headerlink" href="#complex-block-in-pele-control-file" title="Permalink to this headline">¶</a></h1>
+<p>It sets the complex to be used throughout the simulation.</p>
+<p>Plop info: “load pdb” command.</p>
+<div class="section" id="location">
+<h2>Location<a class="headerlink" href="#location" title="Permalink to this headline">¶</a></h2>
+<p>The Complex block must be defined inside the initialization block as
+shown in the following example:</p>
+<pre>
+{
+    ...
+
+    "Initialization":
+    {
+        ...
+
+        "Complex":
+        {
+          "files": [{"path": "complex.pdb"}],
+        }
+    },
+    ...
+}
+</pre></div>
+<div class="section" id="options-and-parameters">
+<h2>Options and parameters<a class="headerlink" href="#options-and-parameters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="files">
+<h3>files<a class="headerlink" href="#files" title="Permalink to this headline">¶</a></h3>
+<p>An array of paths, since the PDB can be split in different files. It
+will define the complex to be used throughout the simulation.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Complex Block in Pele++ control file</a><ul>
+<li><a class="reference internal" href="#location">Location</a></li>
+<li><a class="reference internal" href="#options-and-parameters">Options and parameters</a><ul>
+<li><a class="reference internal" href="#files">files</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../Initialization/Initialization_general.html"
+                        title="previous chapter">General description</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../PELEinMulticorePlatforms/AdditionalFeaturesUsingMPI.html"
+                        title="next chapter">Additional features in control file using MPI</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Complex/Complex.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../PELEinMulticorePlatforms/AdditionalFeaturesUsingMPI.html" title="Additional features in control file using MPI"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../Initialization/Initialization_general.html" title="General description"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12492 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../Initialization/Initialization.html" >Initialization Block in Pele++ control file</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2016 BARCELONA SUPERCOMPUTING CENTER. See the COPYRIGHT file at the top-level directory of this distribution. 
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.1.
+    <a href="../index.html#license">License</a>.
+    </div>
+  </body>
+</html>

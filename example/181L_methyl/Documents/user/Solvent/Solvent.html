@@ -1,0 +1,198 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Solvent Block in Pele++ control file &#8212; PELE 1.5.rev12492 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/naturemodified.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.5.rev12492',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Commands block in Pele++" href="../Commands/commands.html" />
+    <link rel="prev" title="Additional features in control file using MPI" href="../PELEinMulticorePlatforms/AdditionalFeaturesUsingMPI.html" /> 
+    <script type="text/javascript" >
+    MathJax.Hub.Config({
+        TeX: { 
+	  Macros: {
+	    AA: '{\\unicode{xC5}}'
+	  }
+	}
+    });
+    </script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../Commands/commands.html" title="Commands block in Pele++"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../PELEinMulticorePlatforms/AdditionalFeaturesUsingMPI.html" title="Additional features in control file using MPI"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12492 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../Initialization/Initialization.html" accesskey="U">Initialization Block in Pele++ control file</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="solvent-block-in-pele-control-file">
+<span id="sec-solvent"></span><h1>Solvent Block in Pele++ control file<a class="headerlink" href="#solvent-block-in-pele-control-file" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="location">
+<h2>Location<a class="headerlink" href="#location" title="Permalink to this headline">¶</a></h2>
+<p>The Solvent block must be defined inside the initialization block as
+shown in the following example:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>{
+    ...
+
+    &quot;Initialization&quot;:
+    {
+        ...
+
+        &quot;Solvent&quot;:
+        {
+            &quot;solventType&quot;: &quot;SGBNP&quot;,
+            &quot;useDebyeLength&quot;: true,
+            &quot;ionicStrength&quot;: 0.15
+        }
+    },
+    ...
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="options-and-parameters">
+<h2>Options and parameters<a class="headerlink" href="#options-and-parameters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="solventtype">
+<span id="sec-solvent-solventtype"></span><h3>solventType<a class="headerlink" href="#solventtype" title="Permalink to this headline">¶</a></h3>
+<p>Uses: It sets the solvent type to be used throughout the whole
+simulation.</p>
+<p>Possible options:</p>
+<ul class="simple">
+<li>“VACUUM”: Vacuum.</li>
+<li>“VDGBNP”: Variable-Dielectric Generalized Born + Non-Polar model.</li>
+<li>“SGBNP”: Surface Generalized Born + Non-Polar.</li>
+<li>“OBC”: OBC + ACE Non-Polar model.</li>
+</ul>
+<p>Default value: “SGBNP”, unless the “Solvent” block is not defined, in which case the “VACUUM” solvent is used.</p>
+</div>
+<div class="section" id="usedebyelength">
+<h3>useDebyeLength<a class="headerlink" href="#usedebyelength" title="Permalink to this headline">¶</a></h3>
+<p>Uses: Permits the use of ionic strength. This parameter only makes sense for non-vacuum solvent types. For vacuum, the value of this parameter is ignored.</p>
+<p>Default value: true</p>
+<p>Plop info: No direct correspondence, if ‘energy_params%kappa’ &gt; 0.001
+it is set to True.</p>
+</div>
+<div class="section" id="ionicstrength">
+<h3>ionicStrength<a class="headerlink" href="#ionicstrength" title="Permalink to this headline">¶</a></h3>
+<p>Use: If useDebyeLength is true, the ionic strenght to be used</p>
+<p>Default value: 0.15</p>
+<p>Plop info:</p>
+<ul class="simple">
+<li>Plop control file name: ‘ionic’</li>
+<li>Plop parameter name: ‘energy_params%ionic_strength’</li>
+<li>Plop default value: 0</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Solvent Block in Pele++ control file</a><ul>
+<li><a class="reference internal" href="#location">Location</a></li>
+<li><a class="reference internal" href="#options-and-parameters">Options and parameters</a><ul>
+<li><a class="reference internal" href="#solventtype">solventType</a></li>
+<li><a class="reference internal" href="#usedebyelength">useDebyeLength</a></li>
+<li><a class="reference internal" href="#ionicstrength">ionicStrength</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../PELEinMulticorePlatforms/AdditionalFeaturesUsingMPI.html"
+                        title="previous chapter">Additional features in control file using MPI</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../Commands/commands.html"
+                        title="next chapter">Commands block in Pele++</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Solvent/Solvent.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../Commands/commands.html" title="Commands block in Pele++"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../PELEinMulticorePlatforms/AdditionalFeaturesUsingMPI.html" title="Additional features in control file using MPI"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12492 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../Initialization/Initialization.html" >Initialization Block in Pele++ control file</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2016 BARCELONA SUPERCOMPUTING CENTER. See the COPYRIGHT file at the top-level directory of this distribution. 
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.1.
+    <a href="../index.html#license">License</a>.
+    </div>
+  </body>
+</html>

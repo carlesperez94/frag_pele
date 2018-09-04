@@ -1,0 +1,226 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PELESimulation command &#8212; PELE 1.5.rev12492 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/naturemodified.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.5.rev12492',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PeleSimulation block in PELE++" href="PELESimulation.html" />
+    <link rel="prev" title="Commands block in Pele++" href="../Commands/commands.html" /> 
+    <script type="text/javascript" >
+    MathJax.Hub.Config({
+        TeX: { 
+	  Macros: {
+	    AA: '{\\unicode{xC5}}'
+	  }
+	}
+    });
+    </script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="PELESimulation.html" title="PeleSimulation block in PELE++"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../Commands/commands.html" title="Commands block in Pele++"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12492 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" accesskey="U">Reference Manual</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pelesimulation-command">
+<h1>PELESimulation command<a class="headerlink" href="#pelesimulation-command" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="PELESimulation.html">PeleSimulation block in PELE++</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PELESimulation.html#commandtype">commandType</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELESimulation.html#algorithms">Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELESimulation.html#randomgenerator">RandomGenerator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELESimulation.html#selectiontoperturb">selectionToPerturb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELESimulation.html#nonbonding">NonBonding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELESimulation.html#pele-parameters">Pele_parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELESimulation.html#pele-output">Pele_Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELESimulation.html#constraints">Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELESimulation.html#peletasks">PeleTasks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="PeleOutput.html">PELE output parameters in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PeleOutput.html#output-options-and-parameters">Output options and parameters.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PeleOutput.html#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PeleOutput.html#simulations-using-mpi">Simulations using MPI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="PeleParameters.html">PELE parameters in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PeleParameters.html#parameters">Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="PeleTasks.html">PeleTasks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PeleTasks.html#contents">Contents:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PeleTasks.html#constraints">Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PeleTasks.html#metrics">metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PeleTasks.html#jumpif-jumpcontroller-block">jumpif/jumpController block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PeleTasks.html#parameterschanges">parametersChanges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PeleTasks.html#exitcondition">exitCondition</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../RandomGenerator/RandomGenerator.html">Random Generator in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../RandomGenerator/RandomGenerator.html#example-using-a-seed">Example using a seed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../RandomGenerator/RandomGenerator.html#example-using-a-previous-random-generator-stored-in-a-file">Example using a previous random generator stored in a file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../NonBonding/NonBondingAlgorithms.html">NonBonding in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../NonBonding/NonBondingAlgorithms.html#nonbonding-v2-algorithm">NonBonding v2 algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../NonBonding/NonBondingAlgorithms.html#nonbonding-multiscale-algorithm">NonBonding multiscale algorithm</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Perturbation/Perturbation.html">Perturbation Block in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Perturbation/Perturbation.html#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Perturbation/Perturbation.html#perturbation-selection">Perturbation selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Perturbation/Perturbation.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Perturbation/Perturbation.html#boxes">Boxes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ANM/Anm.html">ANM Block in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ANM/Anm.html#location">Location</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ANM/Anm.html#algorithm-selection">Algorithm selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ANM/Anm.html#nodes-selection">Nodes selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ANM/Anm.html#modes-computation">Modes computation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ANM/Anm.html#options">Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ANM/Anm.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ANM/Anm.html#linkstoinclude">linksToInclude</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ANM/Anm.html#linkstoomit">linksToOmit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ANM/Anm.html#anmminimizer">anmMinimizer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ANM/EigenvectorsAndEigenvalues.html">Treatment of eigenvector and eigenvalues by the PELE ANM module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SideChainPrediction/SideChainPrediction.html">SideChainPrediction Block in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../SideChainPrediction/SideChainPrediction.html#algorithm-selection">Algorithm selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../SideChainPrediction/SideChainPrediction.html#links-selection">Links selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../SideChainPrediction/SideChainPrediction.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../SideChainPrediction/SideChainPrediction.html#sidechainminimizer">sideChainMinimizer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Minimization/Minimization.html">Minimization in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Minimization/Minimization.html#algorithm-selection">Algorithm selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Minimization/Minimization.html#selection-of-links-to-minimize">Selection of links to minimize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Minimization/Minimization.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Minimization/Minimization.html#truncated-newton-parameters">Truncated Newton Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../PermanentConstraints/PermanentConstraints.html">Permanent constraints in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../PermanentConstraints/PermanentConstraints.html#constraint-types">Constraint types</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Sensors/Sensors.html">Sensors Block in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Sensors/MetricTypes.html">Metrics block in Pele++ control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Sensors/StateTrackerTypes.html">StateTracker types in Pele++ control file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../JumpController/JumpController.html">Jump Controller in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../JumpController/JumpController.html#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../JumpController/JumpController.html#jumpif-section">jumpIf section</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../JumpController/JumpController.html#jumpcontroller-section">jumpController section</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../JumpController/JumpController.html#mpi-vs-serial-execution">MPI vs Serial execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../JumpController/JumpController.html#who-takes-the-decisions">Who takes the decisions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../JumpController/JumpController.html#jumping-spawning">Jumping (Spawning)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../PELEDynamicChangesInSimulationParameters/ParametersThatCanChange.html">Changeable Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../PELEDynamicChangesInSimulationParameters/PELEDynamicChangesInSimulationParameters.html">PELE: Dynamic Changes in simulation parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ExitConditions/ExitConditions.html">Exit Conditions</a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../Commands/commands.html"
+                        title="previous chapter">Commands block in Pele++</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="PELESimulation.html"
+                        title="next chapter">PeleSimulation block in PELE++</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/PELE/PELESimulation_index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="PELESimulation.html" title="PeleSimulation block in PELE++"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../Commands/commands.html" title="Commands block in Pele++"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12492 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2016 BARCELONA SUPERCOMPUTING CENTER. See the COPYRIGHT file at the top-level directory of this distribution. 
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.1.
+    <a href="../index.html#license">License</a>.
+    </div>
+  </body>
+</html>

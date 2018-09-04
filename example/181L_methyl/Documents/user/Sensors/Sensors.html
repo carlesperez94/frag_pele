@@ -1,0 +1,163 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Sensors Block in Pele++ control file &#8212; PELE 1.5.rev12492 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/naturemodified.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.5.rev12492',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Metrics block in Pele++ control file" href="MetricTypes.html" />
+    <link rel="prev" title="Permanent constraints in Pele++ control file" href="../PermanentConstraints/PermanentConstraints.html" /> 
+    <script type="text/javascript" >
+    MathJax.Hub.Config({
+        TeX: { 
+	  Macros: {
+	    AA: '{\\unicode{xC5}}'
+	  }
+	}
+    });
+    </script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="MetricTypes.html" title="Metrics block in Pele++ control file"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../PermanentConstraints/PermanentConstraints.html" title="Permanent constraints in Pele++ control file"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12492 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../PELE/PELESimulation_index.html" accesskey="U">PELESimulation command</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sensors-block-in-pele-control-file">
+<span id="sec-sensors"></span><h1>Sensors Block in Pele++ control file<a class="headerlink" href="#sensors-block-in-pele-control-file" title="Permalink to this headline">¶</a></h1>
+<p>Pele++ sensors measure the value of different observable variables in
+the landscape that is being explored.</p>
+<p>Depending on what they observe, Pele++ sensors can be classified in two
+groups:</p>
+<ul class="simple">
+<li>Metrics: They measure the value of external observable variables,
+such as, binding energy, rmsd, distance, etc.</li>
+<li>StateTrackers: They track the value of internal simulation variables,
+such as, steps, accepted steps, current energy, etc.</li>
+</ul>
+<p>Each type of sensors has its own configuration block in the
+configuration file which are defined at Pele task level, so you can
+observe, if you wish, different variables in each different Pele task.</p>
+<p>The values measured by any Sensor can be used in any logical condition
+as long as the Sensors have been previously tagged (check the following
+examples). To refer to the sensors, the tag name is used (in StateTrackers, this corresponds to the variable name). Notice that the tag name is also used in the metrics file as the header for that metric, unless it is not specified, in which case a standard description for the metric is used.</p>
+<p>To learn how to write logical conditions based on Sensor measurements
+see <a class="reference internal" href="../LogicalConditions/ConditionsByExample.html#sec-conditionsbyexample"><span class="std std-ref">Conditions By Example</span></a>,</p>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="MetricTypes.html">Metrics block in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="MetricTypes.html#metrics-block-example">Metrics block example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MetricTypes.html#metric-types">Metric types</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="StateTrackerTypes.html">StateTracker types in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="StateTrackerTypes.html#current-energy">Current energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StateTrackerTypes.html#steps-since-last-accepted">Steps since last accepted</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StateTrackerTypes.html#current-step">Current step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StateTrackerTypes.html#number-of-accepted-pele-steps">Number of accepted PELE steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StateTrackerTypes.html#statetrackers-block-example">StateTrackers block example</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../PermanentConstraints/PermanentConstraints.html"
+                        title="previous chapter">Permanent constraints in Pele++ control file</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="MetricTypes.html"
+                        title="next chapter">Metrics block in Pele++ control file</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Sensors/Sensors.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="MetricTypes.html" title="Metrics block in Pele++ control file"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../PermanentConstraints/PermanentConstraints.html" title="Permanent constraints in Pele++ control file"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12492 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../PELE/PELESimulation_index.html" >PELESimulation command</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2016 BARCELONA SUPERCOMPUTING CENTER. See the COPYRIGHT file at the top-level directory of this distribution. 
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.1.
+    <a href="../index.html#license">License</a>.
+    </div>
+  </body>
+</html>
