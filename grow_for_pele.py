@@ -97,6 +97,10 @@ def parse_arguments():
                         help="Amount of CPU's that you want to use in mpirun of PELE")
     parser.add_argument("-ncl", "--nclusters", default=c.NUM_CLUSTERS,
                         help="Number of initial structures that we want to use in each simulation.")
+    parser.add_argument("-miov", "--min_overlap", default=c.MIN_OVERLAP,
+                        help="Minimum value of overlapping factor used in the control_file of PELE.")
+    parser.add_argument("-maov", "--max_overlap", default=c.MAX_OVERLAP,
+                        help="Maximum value of overlapping factor used in the control_file of PELE.")
     parser.add_argument("-rst", "--restart", action="store_true",
                         help="If restart is true FrAG will continue from the last epoch detected.")
     args = parser.parse_args()
@@ -105,12 +109,12 @@ def parse_arguments():
            args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, \
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
-           args.pele_eq_steps, args.restart
+           args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
-         epsilon, condition, metricweights, nclusters, pele_eq_steps, restart):
+         epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap):
     """
         Description: This function is the main core of the program. It creates N intermediate templates
         and control files for PELE. Then, it perform N successive simulations automatically.
@@ -224,14 +228,19 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
         # Control file modification
 
+        overlapping_factor = min_overlap + (((max_overlap - min_overlap)*i) / iterations)
+        overlapping_factor = "{0:.2f}".format(overlapping_factor)
+
         if i != 0:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_selected_names, result, i))
-            Growing.simulations_linker.control_file_modifier(contrl, pdb_input_paths, i, license, result)
+            Growing.simulations_linker.control_file_modifier(contrl, pdb_input_paths, i, license, overlapping_factor,
+                                                             result)
         else:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
-            Growing.simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license, result) #  We have put [] in pdb_initialize
-                                                                                                           #  because by default we have to use
-                                                                                                           #  a list as input
+            Growing.simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license, overlapping_factor,
+                                                             result) #  We have put [] in pdb_initialize
+                                                                     #  because by default we have to use
+                                                                     #  a list as input
         logger.info(c.LINES_MESSAGE)
         if i != 0 and i != iterations:
             Growing.template_fragmenter.grow_parameters_in_template("{}_ref".format(template_final),
@@ -294,7 +303,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     if not os.path.exists("equilibration_result"):  # Create the folder if it does not exist
         os.mkdir("equilibration_result")
     # Modify the control file to increase the steps to 20 and change the output path
-    Growing.simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license,
+    Growing.simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
                                                      "equilibration_result", pele_eq_steps)
     # Call PELE to run the simulation
     Growing.simulations_linker.simulation_runner(pele_dir, contrl, cpus)
@@ -306,8 +315,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 if __name__ == '__main__':
     complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
-    nclusters, pele_eq_steps, restart = parse_arguments()
+    nclusters, pele_eq_steps, restart, min_overlap, max_overlap = parse_arguments()
 
     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir,
          contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
-         metricweights, nclusters, pele_eq_steps, restart)
+         metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap)

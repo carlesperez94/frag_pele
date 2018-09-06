@@ -11,7 +11,7 @@ import Helpers.templatize as tp
 logger = logging.getLogger(__name__)
 
 
-def control_file_modifier(control_template, pdb, step, license, results_path="/growing_output", steps=6):
+def control_file_modifier(control_template, pdb, step, license, overlap, results_path="/growing_output", steps=6):
     """
     This function creates n control files for each intermediate template created in order to change
     the logPath, reportPath and trajectoryPath to have all control files prepared for PELE simulations.
@@ -33,9 +33,8 @@ def control_file_modifier(control_template, pdb, step, license, results_path="/g
     keywords = {"LICENSE": license,
                 "RESULTS_PATH": results_path,
                 "PDB": lines_complex,
-                "STEPS": steps
-     #           "MIN_OVERLAP": min_overlap,
-     #           "MAX_OVERLAP": max_overlap
+                "STEPS": steps,
+                "OVERLAP": overlap,
                 }
     # Creation of a folder where we are going to contain our control files, just if needed
     if not os.path.exists(ctrl_fold_name):
