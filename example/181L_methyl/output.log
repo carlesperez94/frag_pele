@@ -1,20 +1,65 @@
-2018-09-04 14:37:15,879 - Growing.add_fragment_from_pdbs - INFO : The ligand of 181l_prepared.pdb has been extracted and saved in 'BNZ.pdb'
-2018-09-04 14:37:15,880 - Growing.add_fragment_from_pdbs - INFO : The ligand of methyl.pdb has been extracted and saved in 'FRG.pdb'
-2018-09-04 14:37:15,907 - Growing.add_fragment_from_pdbs - INFO : Performing a superimposition of bond [<Atom H1>, <Atom C1>] of the fragment on bond [<Atom C4>, <Atom H4>] of the core...
-2018-09-04 14:37:15,961 - Growing.add_fragment_from_pdbs - INFO : The following names of the fragment have been changed:
-2018-09-04 14:37:15,961 - Growing.add_fragment_from_pdbs - INFO : H3 --> G2
-2018-09-04 14:37:15,961 - Growing.add_fragment_from_pdbs - INFO : C1 --> G0
-2018-09-04 14:37:15,961 - Growing.add_fragment_from_pdbs - INFO : H2 --> G1
-2018-09-04 14:37:15,961 - Growing.add_fragment_from_pdbs - INFO : H4 --> G3
-2018-09-04 14:37:15,961 - Growing.add_fragment_from_pdbs - INFO : The result of core + fragment has been saved in 'growing_result.pdb'. This will be used to create the template file.
-2018-09-04 14:37:15,962 - Growing.add_fragment_from_pdbs - INFO : The result of core + fragment(small) has been saved in 'initialization_grow.pdb'. This will be used to initialise the growing.
-2018-09-04 14:37:18,942 - __main__ - INFO : 
+2018-09-06 11:27:35,256 - Growing.add_fragment_from_pdbs - INFO : The ligand of 181l_prepared.pdb has been extracted and saved in 'BNZ.pdb'
+2018-09-06 11:27:35,257 - Growing.add_fragment_from_pdbs - INFO : The ligand of methyl.pdb has been extracted and saved in 'FRG.pdb'
+2018-09-06 11:27:35,284 - Growing.add_fragment_from_pdbs - INFO : Performing a superimposition of bond [<Atom H1>, <Atom C1>] of the fragment on bond [<Atom C4>, <Atom H4>] of the core...
+2018-09-06 11:27:35,286 - Growing.add_fragment_from_pdbs - INFO : The following names of the fragment have been changed:
+2018-09-06 11:27:35,286 - Growing.add_fragment_from_pdbs - INFO : C1 --> G0
+2018-09-06 11:27:35,286 - Growing.add_fragment_from_pdbs - INFO : H2 --> G1
+2018-09-06 11:27:35,286 - Growing.add_fragment_from_pdbs - INFO : H4 --> G3
+2018-09-06 11:27:35,286 - Growing.add_fragment_from_pdbs - INFO : H3 --> G2
+2018-09-06 11:27:35,287 - Growing.add_fragment_from_pdbs - INFO : The result of core + fragment has been saved in 'growing_result.pdb'. This will be used to create the template file.
+2018-09-06 11:27:35,288 - Growing.add_fragment_from_pdbs - INFO : The result of core + fragment(small) has been saved in 'initialization_grow.pdb'. This will be used to initialise the growing.
+2018-09-06 11:27:38,030 - __main__ - INFO : 
 ============ Files selected ============
 Control file: control_template.conf
-PDB file: initialization_grow.pdb
-Results folder name: growing_results/growing_output_0
-Step: 0
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/growing_output_5
+Step: 5
 
-2018-09-04 14:37:18,942 - __main__ - INFO : 
+2018-09-06 11:27:38,031 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-06 11:30:15,147 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-06 11:30:15,147 - __main__ - INFO : SIMULATION growing_results/growing_output_5 COMPLETED!!! 
+2018-09-06 11:30:15,147 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/growing_output_5'
+2018-09-06 11:30:15,244 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/growing_output_6
+Step: 6
+
+2018-09-06 11:30:15,245 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-06 11:32:49,948 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-06 11:32:49,949 - __main__ - INFO : SIMULATION growing_results/growing_output_6 COMPLETED!!! 
+2018-09-06 11:32:49,949 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/growing_output_6'
+2018-09-06 11:32:50,052 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/growing_output_7
+Step: 7
+
+2018-09-06 11:32:50,052 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-06 11:35:29,253 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-06 11:35:29,254 - __main__ - INFO : SIMULATION growing_results/growing_output_7 COMPLETED!!! 
+2018-09-06 11:35:29,254 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/growing_output_7'
+2018-09-06 11:35:29,349 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/growing_output_8
+Step: 8
+
+2018-09-06 11:35:29,350 - __main__ - INFO : 
 •*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
 

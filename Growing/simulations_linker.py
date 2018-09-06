@@ -34,6 +34,8 @@ def control_file_modifier(control_template, pdb, step, license, results_path="/g
                 "RESULTS_PATH": results_path,
                 "PDB": lines_complex,
                 "STEPS": steps
+     #           "MIN_OVERLAP": min_overlap,
+     #           "MAX_OVERLAP": max_overlap
                 }
     # Creation of a folder where we are going to contain our control files, just if needed
     if not os.path.exists(ctrl_fold_name):

@@ -1,6 +1,5 @@
 # General imports
 import sys
-import glob
 import argparse
 import os
 import logging
@@ -97,20 +96,18 @@ def parse_arguments():
                         help="Amount of CPU's that you want to use in mpirun of PELE")
     parser.add_argument("-ncl", "--nclusters", default=c.NUM_CLUSTERS,
                         help="Number of initial structures that we want to use in each simulation.")
-    parser.add_argument("-rst", "--restart", action="store_true",
-                        help="If restart is true FrAG will continue from the last epoch detected.")
     args = parser.parse_args()
 
     return args.complex_pdb, args.fragment_pdb, args.core_atom, args.fragment_atom, args.iterations, \
            args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, \
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
-           args.pele_eq_steps, args.restart
+           args.pele_eq_steps
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
-         epsilon, condition, metricweights, nclusters, pele_eq_steps, restart):
+         epsilon, condition, metricweights, nclusters, pele_eq_steps):
     """
         Description: This function is the main core of the program. It creates N intermediate templates
         and control files for PELE. Then, it perform N successive simulations automatically.
@@ -204,21 +201,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, "{}_0".format(template_final)),
                 os.path.join(curr_dir, c.TEMPLATES_PATH, template_final))  # Replace the original template in the folder
 
-    # Clear PDBs folder
-    if not restart:
-        list_of_subfolders = glob.glob("{}*".format(pdbout))
-        for subfolder in list_of_subfolders:
-            shutil.rmtree(subfolder)
-
     # Simulation loop - LOOP CORE
     for i, (template, pdb_file, result) in enumerate(zip(templates, pdbs, results)):
-
-        if restart:
-            if os.path.exists(os.path.join(pdbout, "{}".format(i))) and os.path.exists(os.path.join(pdbout,
-                                                                                                    "{}".format(i),
-                                                                                                    "initial_0_0.pdb")):
-                print("STEP {} ALREADY DONE, JUMPING TO THE NEXT STEP...".format(i))
-                continue
 
         pdb_input_paths = ["{}".format(os.path.join(pdbout, str(i-1), pdb_file)) for pdb_file in pdb_selected_names]
 
@@ -269,7 +253,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
             if not os.path.exists(os.path.join(pdbout, "{}".format(i))):  # The same if the subfolder does not exist
                 os.chdir(pdbout)
                 os.mkdir("{}".format(i))  # Put the name of the iteration
-                os.chdir("../")
+                os.chdir("../../")
         else:
             if not os.path.exists(os.path.join(pdbout, "{}".format(i))):
                 os.chdir(pdbout)
@@ -278,13 +262,13 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
         # ---------------------------------------------------CLUSTERING-------------------------------------------------
         # Transform column name of the criteria to column number
-        result_abs = os.path.abspath(result)
-        logger.info("Looking structures to cluster in '{}'".format(result_abs))
-        column_number = Helpers.clusterizer.get_column_num(result_abs, criteria, report)
+        result = os.path.abspath(result)
+        logger.info("Looking structures to cluster in '{}'".format(result))
+        column_number = Helpers.clusterizer.get_column_num(result, criteria, report)
         # Selection of the trajectory used as new input
 
         Helpers.clusterizer.cluster_traject(str(template_resnames[1]), cpus, column_number, distance_contact,
-                                            clusterThreshold, "{}*".format(os.path.join(result_abs, traject)),
+                                            clusterThreshold, "{}*".format(os.path.join(result, traject)),
                                             os.path.join(pdbout, str(i)), epsilon, report, condition, metricweights,
                                             nclusters)
     # ----------------------------------------------------EQUILIBRATION-------------------------------------------------
@@ -306,8 +290,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 if __name__ == '__main__':
     complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
-    nclusters, pele_eq_steps, restart = parse_arguments()
+    nclusters, pele_eq_steps = parse_arguments()
 
     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir,
          contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
-         metricweights, nclusters, pele_eq_steps, restart)
+         metricweights, nclusters, pele_eq_steps)

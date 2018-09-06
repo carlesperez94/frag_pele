@@ -13,8 +13,9 @@ PATH_TO_PELE = "/opt/PELErev12492/bin/Pele_mpi"
 PATH_TO_LICENSE = "/opt/PELErev12492/licenses/"
 REPORT_NAME = "report"
 TRAJECTORY_NAME = "trajectory"
-CPUS = 48
+CPUS = 4
 PELE_EQ_STEPS = 20
+RESTART = False
 # Clustering parameters
 DISTANCE_COUNTER = 4
 CONTACT_THRESHOLD = 0.3
