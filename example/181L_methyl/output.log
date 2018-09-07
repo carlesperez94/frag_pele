@@ -1,11 +1,176 @@
-2018-09-06 12:40:16,765 - Growing.add_fragment_from_pdbs - INFO : The ligand of 181l_prepared.pdb has been extracted and saved in 'BNZ.pdb'
-2018-09-06 12:40:16,766 - Growing.add_fragment_from_pdbs - INFO : The ligand of methyl.pdb has been extracted and saved in 'FRG.pdb'
-2018-09-06 12:40:16,792 - Growing.add_fragment_from_pdbs - INFO : Performing a superimposition of bond [<Atom H1>, <Atom C1>] of the fragment on bond [<Atom C4>, <Atom H4>] of the core...
-2018-09-06 12:40:16,794 - Growing.add_fragment_from_pdbs - INFO : The following names of the fragment have been changed:
-2018-09-06 12:40:16,794 - Growing.add_fragment_from_pdbs - INFO : H4 --> G3
-2018-09-06 12:40:16,794 - Growing.add_fragment_from_pdbs - INFO : H3 --> G2
-2018-09-06 12:40:16,794 - Growing.add_fragment_from_pdbs - INFO : H2 --> G1
-2018-09-06 12:40:16,794 - Growing.add_fragment_from_pdbs - INFO : C1 --> G0
-2018-09-06 12:40:16,795 - Growing.add_fragment_from_pdbs - INFO : The result of core + fragment has been saved in 'growing_result.pdb'. This will be used to create the template file.
-2018-09-06 12:40:16,796 - Growing.add_fragment_from_pdbs - INFO : The result of core + fragment(small) has been saved in 'initialization_grow.pdb'. This will be used to initialise the growing.
-2018-09-06 12:40:19,497 - __main__ - INFO : .....STARTING EQUILIBRATION.....
+2018-09-07 12:52:20,964 - Growing.add_fragment_from_pdbs - INFO : The ligand of 181l_prepared.pdb has been extracted and saved in 'BNZ.pdb'
+2018-09-07 12:52:20,965 - Growing.add_fragment_from_pdbs - INFO : The ligand of methyl.pdb has been extracted and saved in 'FRG.pdb'
+2018-09-07 12:52:20,994 - Growing.add_fragment_from_pdbs - INFO : Performing a superimposition of bond [<Atom H1>, <Atom C1>] of the fragment on bond [<Atom C4>, <Atom H4>] of the core...
+2018-09-07 12:52:20,996 - Growing.add_fragment_from_pdbs - INFO : The following names of the fragment have been changed:
+2018-09-07 12:52:20,996 - Growing.add_fragment_from_pdbs - INFO : H4 --> G3
+2018-09-07 12:52:20,996 - Growing.add_fragment_from_pdbs - INFO : H2 --> G1
+2018-09-07 12:52:20,996 - Growing.add_fragment_from_pdbs - INFO : H3 --> G2
+2018-09-07 12:52:20,996 - Growing.add_fragment_from_pdbs - INFO : C1 --> G0
+2018-09-07 12:52:20,997 - Growing.add_fragment_from_pdbs - INFO : The result of core + fragment has been saved in 'growing_result.pdb'. This will be used to create the template file.
+2018-09-07 12:52:20,998 - Growing.add_fragment_from_pdbs - INFO : The result of core + fragment(small) has been saved in 'initialization_grow.pdb'. This will be used to initialise the growing.
+2018-09-07 12:52:23,734 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: initialization_grow.pdb
+Results folder name: growing_results/methylC4C1_growing_output0
+Step: 0
+
+2018-09-07 12:52:23,735 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 12:55:22,154 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 12:55:22,154 - __main__ - INFO : SIMULATION growing_results/methylC4C1_growing_output0 COMPLETED!!! 
+2018-09-07 12:55:22,155 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/methylC4C1_growing_output0'
+2018-09-07 12:55:22,260 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/methylC4C1_growing_output1
+Step: 1
+
+2018-09-07 12:55:22,261 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 12:57:59,666 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 12:57:59,667 - __main__ - INFO : SIMULATION growing_results/methylC4C1_growing_output1 COMPLETED!!! 
+2018-09-07 12:57:59,667 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/methylC4C1_growing_output1'
+2018-09-07 12:57:59,770 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/methylC4C1_growing_output2
+Step: 2
+
+2018-09-07 12:57:59,770 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:00:29,059 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:00:29,059 - __main__ - INFO : SIMULATION growing_results/methylC4C1_growing_output2 COMPLETED!!! 
+2018-09-07 13:00:29,059 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/methylC4C1_growing_output2'
+2018-09-07 13:00:29,151 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/methylC4C1_growing_output3
+Step: 3
+
+2018-09-07 13:00:29,152 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:03:02,646 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:03:02,646 - __main__ - INFO : SIMULATION growing_results/methylC4C1_growing_output3 COMPLETED!!! 
+2018-09-07 13:03:02,646 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/methylC4C1_growing_output3'
+2018-09-07 13:03:02,727 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/methylC4C1_growing_output4
+Step: 4
+
+2018-09-07 13:03:02,728 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:05:37,733 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:05:37,733 - __main__ - INFO : SIMULATION growing_results/methylC4C1_growing_output4 COMPLETED!!! 
+2018-09-07 13:05:37,734 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/methylC4C1_growing_output4'
+2018-09-07 13:05:37,827 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/methylC4C1_growing_output5
+Step: 5
+
+2018-09-07 13:05:37,837 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:08:17,338 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:08:17,338 - __main__ - INFO : SIMULATION growing_results/methylC4C1_growing_output5 COMPLETED!!! 
+2018-09-07 13:08:17,351 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/methylC4C1_growing_output5'
+2018-09-07 13:08:17,426 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/methylC4C1_growing_output6
+Step: 6
+
+2018-09-07 13:08:17,427 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:10:51,531 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:10:51,531 - __main__ - INFO : SIMULATION growing_results/methylC4C1_growing_output6 COMPLETED!!! 
+2018-09-07 13:10:51,531 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/methylC4C1_growing_output6'
+2018-09-07 13:10:51,621 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/methylC4C1_growing_output7
+Step: 7
+
+2018-09-07 13:10:51,622 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:13:21,504 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:13:21,505 - __main__ - INFO : SIMULATION growing_results/methylC4C1_growing_output7 COMPLETED!!! 
+2018-09-07 13:13:21,505 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/methylC4C1_growing_output7'
+2018-09-07 13:13:21,590 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/methylC4C1_growing_output8
+Step: 8
+
+2018-09-07 13:13:21,591 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:15:54,184 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:15:54,184 - __main__ - INFO : SIMULATION growing_results/methylC4C1_growing_output8 COMPLETED!!! 
+2018-09-07 13:15:54,184 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/methylC4C1_growing_output8'
+2018-09-07 13:15:54,280 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/methylC4C1_growing_output9
+Step: 9
+
+2018-09-07 13:15:54,281 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:18:31,379 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:18:31,380 - __main__ - INFO : SIMULATION growing_results/methylC4C1_growing_output9 COMPLETED!!! 
+2018-09-07 13:18:31,380 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/methylC4C1_growing_output9'
+2018-09-07 13:18:31,465 - __main__ - INFO : 
+============ Files selected ============
+Control file: control_template.conf
+PDB file: ['initial_0_0.pdb', 'initial_0_1.pdb', 'initial_0_2.pdb']
+Results folder name: growing_results/methylC4C1_growing_output10
+Step: 10
+
+2018-09-07 13:18:31,466 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:21:06,469 - __main__ - INFO : 
+•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•
+
+2018-09-07 13:21:06,469 - __main__ - INFO : SIMULATION growing_results/methylC4C1_growing_output10 COMPLETED!!! 
+2018-09-07 13:21:06,470 - __main__ - INFO : Looking structures to cluster in '/home/carlespl/project/growing/Ligand_growing/example/181L_methyl/growing_results/methylC4C1_growing_output10'
+2018-09-07 13:21:06,568 - __main__ - INFO : .....STARTING EQUILIBRATION.....

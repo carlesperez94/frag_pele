@@ -9,6 +9,7 @@ import shutil
 import subprocess
 # Local imports
 import Helpers.clusterizer
+import Helpers.modify_rotamers
 import Growing.template_fragmenter
 import Growing.simulations_linker
 import Growing.add_fragment_from_pdbs
@@ -60,6 +61,15 @@ def parse_arguments():
     parser.add_argument("-cr", "--criteria", default=c.SELECTION_CRITERIA,
                         help="""Name of the column used as criteria in order to select the template used as input for 
                                  successive simulations.""")
+    parser.add_argument("-rst", "--restart", action="store_true",
+                        help="If restart is true FrAG will continue from the last epoch detected.")
+    parser.add_argument("-dose", "--doserie", action="store_true",
+                        help="""If doserie is true FrAG will do several successive growings with the same complex using
+                              different fragments or different growing positions (information given by a configuration
+                              serie file).""")
+    parser.add_argument("-sef", "--serie_file", default=c.SERIE_FILE,
+                        help="""Name of the file which contains the information required to perform several successive
+                             growings using different fragments or different growing positions.""")
     # Plop related arguments
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
                         help="Absolute path to PlopRotTemp.py.")
@@ -84,6 +94,11 @@ def parse_arguments():
                         help="Amount of CPU's that you want to use in mpirun of PELE")
     parser.add_argument("-es", "--pele_eq_steps", default=c.PELE_EQ_STEPS,
                         help="Number of PELE steps in equilibration")
+    parser.add_argument("-miov", "--min_overlap", default=c.MIN_OVERLAP,
+                        help="Minimum value of overlapping factor used in the control_file of PELE.")
+    parser.add_argument("-maov", "--max_overlap", default=c.MAX_OVERLAP,
+                        help="Maximum value of overlapping factor used in the control_file of PELE.")
+
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
                         help="Name for results folder")
@@ -97,24 +112,20 @@ def parse_arguments():
                         help="Amount of CPU's that you want to use in mpirun of PELE")
     parser.add_argument("-ncl", "--nclusters", default=c.NUM_CLUSTERS,
                         help="Number of initial structures that we want to use in each simulation.")
-    parser.add_argument("-miov", "--min_overlap", default=c.MIN_OVERLAP,
-                        help="Minimum value of overlapping factor used in the control_file of PELE.")
-    parser.add_argument("-maov", "--max_overlap", default=c.MAX_OVERLAP,
-                        help="Maximum value of overlapping factor used in the control_file of PELE.")
-    parser.add_argument("-rst", "--restart", action="store_true",
-                        help="If restart is true FrAG will continue from the last epoch detected.")
+
     args = parser.parse_args()
 
     return args.complex_pdb, args.fragment_pdb, args.core_atom, args.fragment_atom, args.iterations, \
            args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, \
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
-           args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap
+           args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.doserie, args.serie_file
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
-         epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap):
+         epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie,
+         serie_file):
     """
         Description: This function is the main core of the program. It creates N intermediate templates
         and control files for PELE. Then, it perform N successive simulations automatically.
@@ -147,7 +158,11 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         This process will be repeated until get the final grown ligand (protein + ligand).
         """
     # Path definition
+    identifier = "{}{}{}".format(os.path.splitext(fragment_pdb)[0], core_atom, fragment_atom)
     plop_relative_path = os.path.join(PackagePath, plop_path)
+    templates_folder = "{}_{}".format(c.TEMPLATES_FOLDER, identifier)
+    pdbout_folder = "{}_{}".format(pdbout, identifier)
+    growing_results_folder = "{}_{}".format(c.OUTPUT_FOLDER, identifier)
 
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
 
@@ -171,14 +186,14 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         template_names.append(template_name)
         shutil.copy(template_name, os.path.join(curr_dir, c.TEMPLATES_PATH))
         shutil.copy("{}.rot.assign".format(resname), os.path.join(curr_dir, c.ROTAMERS_PATH))
+    Helpers.modify_rotamers.change_angle(os.path.join(curr_dir, c.ROTAMERS_PATH, "{}.rot.assign"), c.ROTRES)
     template_initial, template_final = template_names
 
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
     # Lists definitions
-
     templates = ["{}_{}".format(template_final, n) for n in range(0, iterations+1)]
 
-    results = ["{}{}_{}".format(c.OUTPUT_FOLDER, resfold, n) for n in range(0, iterations+1)]
+    results = ["{}{}_{}{}".format(c.OUTPUT_FOLDER, identifier, resfold, n) for n in range(0, iterations+1)]
 
     pdbs = [pdb_initialize if n == 0 else "{}_{}".format(n, pdb_initialize) for n in range(0, iterations+1)]
 
@@ -186,11 +201,14 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
 
     # Create a copy of the original templates in growing_templates folder
+    if not os.path.exists(os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder))):  # Create the folder if it does not exist
+        os.mkdir(os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder)))
+
     shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, template_initial),
-                os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, c.TEMPLATES_FOLDER), template_initial))
+                os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder), template_initial))
 
     shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, template_final),
-                os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, c.TEMPLATES_FOLDER), template_final))
+                os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder), template_final))
 
     original_atom = hydrogen_atoms[0].get_name()  # Hydrogen of the core that we will use as growing point
     # Generate starting templates
@@ -210,21 +228,22 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     # Clear PDBs folder
     if not restart:
-        list_of_subfolders = glob.glob("{}*".format(pdbout))
+        list_of_subfolders = glob.glob("{}*".format(pdbout_folder))
         for subfolder in list_of_subfolders:
             shutil.rmtree(subfolder)
 
     # Simulation loop - LOOP CORE
     for i, (template, pdb_file, result) in enumerate(zip(templates, pdbs, results)):
 
+        # Only if reset
         if restart:
-            if os.path.exists(os.path.join(pdbout, "{}".format(i))) and os.path.exists(os.path.join(pdbout,
+            if os.path.exists(os.path.join(pdbout_folder, "{}".format(i))) and os.path.exists(os.path.join(pdbout_folder,
                                                                                                     "{}".format(i),
                                                                                                     "initial_0_0.pdb")):
                 print("STEP {} ALREADY DONE, JUMPING TO THE NEXT STEP...".format(i))
                 continue
-
-        pdb_input_paths = ["{}".format(os.path.join(pdbout, str(i-1), pdb_file)) for pdb_file in pdb_selected_names]
+        # Otherwise start from the beggining
+        pdb_input_paths = ["{}".format(os.path.join(pdbout_folder, str(i-1), pdb_file)) for pdb_file in pdb_selected_names]
 
         # Control file modification
 
@@ -245,26 +264,26 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         if i != 0 and i != iterations:
             Growing.template_fragmenter.grow_parameters_in_template("{}_ref".format(template_final),
                                                                     os.path.join(curr_dir, c.TEMPLATES_PATH
-                                                                    , c.TEMPLATES_FOLDER, template_initial),
+                                                                    , templates_folder, template_initial),
                                                                     os.path.join(curr_dir, c.TEMPLATES_PATH
-                                                                    , c.TEMPLATES_FOLDER, template_final),
+                                                                    , templates_folder, template_final),
                                                                     [original_atom], core_atom, replacement_atom,
                                                                     template_final,
                                                                     os.path.join(curr_dir, c.TEMPLATES_PATH),
                                                                     i, iterations)
         elif i == iterations:
-            shutil.copy(os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, c.TEMPLATES_FOLDER), template_final),
+            shutil.copy(os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder), template_final),
                         os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, template_final)))
 
         # Make a copy of the template file in growing_templates folder
         shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, template_final),
-                    os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, c.TEMPLATES_FOLDER), template))
+                    os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder), template))
 
         # Running PELE simulation
-        if not os.path.exists(c.OUTPUT_FOLDER):
-            os.mkdir(c.OUTPUT_FOLDER)
         if not os.path.exists(result):
-            os.chdir(c.OUTPUT_FOLDER)
+            os.mkdir(result)
+        if not os.path.exists(result):
+            os.chdir(result)
             os.mkdir("{}_{}".format(resfold, (int(i))))
             os.chdir("../")
 
@@ -273,15 +292,15 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         logger.info(c.FINISH_SIM_MESSAGE.format(result))
         # Before selecting a step from a trajectory we will save the input PDB file in a folder
         if i == 0:
-            if not os.path.exists(pdbout):  # Create the folder if it does not exist
-                os.mkdir(pdbout)
-            if not os.path.exists(os.path.join(pdbout, "{}".format(i))):  # The same if the subfolder does not exist
-                os.chdir(pdbout)
+            if not os.path.exists(pdbout_folder):  # Create the folder if it does not exist
+                os.mkdir(pdbout_folder)
+            if not os.path.exists(os.path.join(pdbout_folder, "{}".format(i))):  # The same if the subfolder does not exist
+                os.chdir(pdbout_folder)
                 os.mkdir("{}".format(i))  # Put the name of the iteration
                 os.chdir("../")
         else:
-            if not os.path.exists(os.path.join(pdbout, "{}".format(i))):
-                os.chdir(pdbout)
+            if not os.path.exists(os.path.join(pdbout_folder, "{}".format(i))):
+                os.chdir(pdbout_folder)
                 os.mkdir("{}".format(i))
                 os.chdir("../")
 
@@ -294,20 +313,23 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
         Helpers.clusterizer.cluster_traject(str(template_resnames[1]), cpus, column_number, distance_contact,
                                             clusterThreshold, "{}*".format(os.path.join(result_abs, traject)),
-                                            os.path.join(pdbout, str(i)), epsilon, report, condition, metricweights,
+                                            os.path.join(pdbout_folder, str(i)), epsilon, report, condition, metricweights,
                                             nclusters)
     # ----------------------------------------------------EQUILIBRATION-------------------------------------------------
     # Set input PDBs
-    pdb_inputs = ["{}".format(os.path.join(pdbout, str(iterations), pdb_file)) for pdb_file in pdb_selected_names]
+    pdb_inputs = ["{}".format(os.path.join(pdbout_folder, str(iterations), pdb_file)) for pdb_file in pdb_selected_names]
     logger.info(".....STARTING EQUILIBRATION.....")
-    if not os.path.exists("equilibration_result"):  # Create the folder if it does not exist
-        os.mkdir("equilibration_result")
+    if not os.path.exists("equilibration_result_{}".format(identifier)):  # Create the folder if it does not exist
+        os.mkdir("equilibration_result_{}".format(identifier))
     # Modify the control file to increase the steps to 20 and change the output path
     Growing.simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
-                                                     "equilibration_result", pele_eq_steps)
+                                                     "equilibration_result_{}".format(identifier), pele_eq_steps)
     # Call PELE to run the simulation
     Growing.simulations_linker.simulation_runner(pele_dir, contrl, cpus)
-    equilibration_path = os.path.join(os.path.curdir, "equilibration_result")
+    equilibration_path = os.path.join(os.path.curdir, "equilibration_result_{}".format(identifier))
+    if not os.path.exists("selected_result_{}".format(identifier)):  # Create the folder if it does not exist
+        os.mkdir("selected_result_{}".format(identifier))
+    #os.chdir("selected_result_{}".format(identifier))
     Growing.bestStructs.main(criteria, "best_structure.pdb", path=equilibration_path,
                              n_structs=10)
 
@@ -315,8 +337,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 if __name__ == '__main__':
     complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
-    nclusters, pele_eq_steps, restart, min_overlap, max_overlap = parse_arguments()
+    nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file = parse_arguments()
 
     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir,
          contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
-         metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap)
+         metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file)
