@@ -1,5 +1,6 @@
 # General imports
 import sys
+import time
 import glob
 import argparse
 import os
@@ -157,6 +158,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         as input for the next growing step.
         This process will be repeated until get the final grown ligand (protein + ligand).
         """
+    # Time computations
+    start_time = time.time()
     # Path definition
     identifier = "{}{}{}".format(os.path.splitext(fragment_pdb)[0], core_atom, fragment_atom)
     plop_relative_path = os.path.join(PackagePath, plop_path)
@@ -330,9 +333,12 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     if not os.path.exists("selected_result_{}".format(identifier)):  # Create the folder if it does not exist
         os.mkdir("selected_result_{}".format(identifier))
     os.chdir("selected_result_{}".format(identifier))
-    print(equilibration_path)
     Growing.bestStructs.main(criteria, "best_structure.pdb", path=equilibration_path,
                              n_structs=10)
+    os.chdir("../")
+    end_time = time.time()
+    total_time = (end_time - start_time) / 60
+    logging.info("Growing of {} in {} min".format(fragment_pdb, total_time))
 
 
 if __name__ == '__main__':
@@ -340,6 +346,20 @@ if __name__ == '__main__':
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file = parse_arguments()
 
-    main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir,
-         contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
-         metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file)
+    if doserie:
+        with open(serie_file) as sf:
+            instructions = sf.readlines()
+        for line in instructions:
+            # Read from file the required information
+            fragment_pdb = line.split()[0]
+            core_atom = line.split()[1]
+            fragment_atom = line.split()[2]
+            # Initialize the growing for each line in the file
+            main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
+                 pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
+                 metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file)
+    else:
+
+        main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir,
+             contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
+             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file)
