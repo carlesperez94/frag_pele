@@ -1,5 +1,10 @@
 import sys
 import re
+import logging
+
+# Getting the name of the module for the log system
+logger = logging.getLogger(__name__)
+
 
 def change_angle(filename, new_angle):
     with open(filename) as rotamers_file:

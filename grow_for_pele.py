@@ -186,7 +186,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         template_names.append(template_name)
         shutil.copy(template_name, os.path.join(curr_dir, c.TEMPLATES_PATH))
         shutil.copy("{}.rot.assign".format(resname), os.path.join(curr_dir, c.ROTAMERS_PATH))
-    Helpers.modify_rotamers.change_angle(os.path.join(curr_dir, c.ROTAMERS_PATH, "{}.rot.assign"), c.ROTRES)
+        Helpers.modify_rotamers.change_angle(os.path.join(curr_dir, c.ROTAMERS_PATH, "{}.rot.assign".format(resname)), c.ROTRES)
     template_initial, template_final = template_names
 
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
@@ -326,10 +326,11 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                      "equilibration_result_{}".format(identifier), pele_eq_steps)
     # Call PELE to run the simulation
     Growing.simulations_linker.simulation_runner(pele_dir, contrl, cpus)
-    equilibration_path = os.path.join(os.path.curdir, "equilibration_result_{}".format(identifier))
+    equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "equilibration_result_{}".format(identifier))
     if not os.path.exists("selected_result_{}".format(identifier)):  # Create the folder if it does not exist
         os.mkdir("selected_result_{}".format(identifier))
-    #os.chdir("selected_result_{}".format(identifier))
+    os.chdir("selected_result_{}".format(identifier))
+    print(equilibration_path)
     Growing.bestStructs.main(criteria, "best_structure.pdb", path=equilibration_path,
                              n_structs=10)
 
