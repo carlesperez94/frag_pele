@@ -4,6 +4,7 @@ import numpy as np
 import math
 import os
 import shutil
+import re
 import sys
 import Bio.PDB as bio
 # Local imports
@@ -367,6 +368,40 @@ def check_water(pdb_input):
     return checker
 
 
+def lignames_replacer(pdb_file, original_ligname, new_ligname):
+    """
+    Given a PDB file it replace the name of a ligand for a new one.
+    :param pdb_file: file in PDB format
+    :param original_ligname: original name of the ligand
+    :param new_ligname: new name of the ligand that will replace the original name
+    :return:
+    """
+    with open(pdb_file) as pdb:
+        content = pdb.readlines()
+    for index, line in enumerate(content):
+        if line.startswith("HETATM"):
+            line = line.replace(original_ligname, new_ligname)
+            content[index] = line
+    pdb_modified = "".join(content)
+    with open(pdb_file, "w") as overwrite_pdb:
+        overwrite_pdb.write(pdb_modified)
+
+
+def check_and_fix_repeated_lignames(pdb1,pdb2):
+    """
+    It checks if two pdbs have the same ligand name or if the pdb file 1 has as ligand name "GRW" and it is replaced
+    by "LIG".
+    :param pdb1: pdb file 1
+    :param pdb2: pdb file 2
+    :return:
+    """
+    ligname_1 = extract_heteroatoms_pdbs(pdb1, create_file=False, ligand_chain="L")
+    ligname_2 = extract_heteroatoms_pdbs(pdb2, create_file=False, ligand_chain="L")
+    if ligname_1 == ligname_2 or ligname_1 == "GRW":
+        logging.warning("REPEATED NAMES IN LIGANDS FOR THE FILES: '{}' and '{}'. {} replaced to LIG ".format(pdb1, pdb2, ligname_1))
+        lignames_replacer(pdb1, ligname_1, "LIG")
+
+
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
          fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb"):
     """
@@ -400,6 +435,8 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
         os.chdir(PRE_WORKING_DIR)
     else:
         os.chdir(PRE_WORKING_DIR)
+    # Check that ligand names are not repeated
+    check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment)
     # Get the selected chain from the core and the fragment and convert them into ProDy molecules.
     ligand_core = c2p.pdb_parser_ligand(pdb_complex_core, core_chain)
     fragment = c2p.pdb_parser_ligand(pdb_fragment, fragment_chain)
