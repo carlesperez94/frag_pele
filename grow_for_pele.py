@@ -10,6 +10,7 @@ import shutil
 import subprocess
 # Local imports
 import Helpers.clusterizer
+import Helpers.checker
 import Helpers.modify_rotamers
 import Growing.template_fragmenter
 import Growing.simulations_linker
@@ -171,6 +172,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = Growing.\
         add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations)
+
     # Create the templates for the initial and final structures
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:

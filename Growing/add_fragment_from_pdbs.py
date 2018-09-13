@@ -8,6 +8,7 @@ import re
 import sys
 import Bio.PDB as bio
 # Local imports
+import Helpers.checker
 import Growing.AddingFragHelpers.complex_to_prody as c2p
 import Growing.AddingFragHelpers.pdb_joiner as pj
 
@@ -387,7 +388,7 @@ def lignames_replacer(pdb_file, original_ligname, new_ligname):
         overwrite_pdb.write(pdb_modified)
 
 
-def check_and_fix_repeated_lignames(pdb1,pdb2):
+def check_and_fix_repeated_lignames(pdb1, pdb2):
     """
     It checks if two pdbs have the same ligand name or if the pdb file 1 has as ligand name "GRW" and it is replaced
     by "LIG".
@@ -398,7 +399,7 @@ def check_and_fix_repeated_lignames(pdb1,pdb2):
     ligname_1 = extract_heteroatoms_pdbs(pdb1, create_file=False, ligand_chain="L")
     ligname_2 = extract_heteroatoms_pdbs(pdb2, create_file=False, ligand_chain="L")
     if ligname_1 == ligname_2 or ligname_1 == "GRW":
-        logging.warning("REPEATED NAMES IN LIGANDS FOR THE FILES: '{}' and '{}'. {} replaced to LIG ".format(pdb1, pdb2, ligname_1))
+        logging.warning("REPEATED NAMES IN LIGANDS FOR THE FILES: '{}' and '{}'. {} replaced by LIG ".format(pdb1, pdb2, ligname_1))
         lignames_replacer(pdb1, ligname_1, "LIG")
 
 
@@ -437,6 +438,9 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
         os.chdir(PRE_WORKING_DIR)
     # Check that ligand names are not repeated
     check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment)
+    for pdb_file in (pdb_complex_core, pdb_fragment):
+        logging.info("Checking {} ...".format(pdb_file))
+        Helpers.checker.check_and_fix_pdbatomnames(pdb_file)
     # Get the selected chain from the core and the fragment and convert them into ProDy molecules.
     ligand_core = c2p.pdb_parser_ligand(pdb_complex_core, core_chain)
     fragment = c2p.pdb_parser_ligand(pdb_fragment, fragment_chain)
