@@ -13,8 +13,11 @@ PATH_TO_PELE = "/opt/PELErev12492/bin/Pele_mpi"
 PATH_TO_LICENSE = "/opt/PELErev12492/licenses/"
 REPORT_NAME = "report"
 TRAJECTORY_NAME = "trajectory"
-CPUS = 48
+CPUS = 4
 PELE_EQ_STEPS = 20
+RESTART = False
+MAX_OVERLAP = 0.7
+MIN_OVERLAP = 0.5
 # Clustering parameters
 DISTANCE_COUNTER = 4
 CONTACT_THRESHOLD = 0.3
