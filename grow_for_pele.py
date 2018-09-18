@@ -8,13 +8,13 @@ from logging.config import fileConfig
 import shutil
 import subprocess
 # Local imports
-import Helpers.clusterizer
-import Growing.template_fragmenter
-import Growing.simulations_linker
-import Growing.add_fragment_from_pdbs
-import Growing.AddingFragHelpers
-import Growing.bestStructs
-import constants as c
+import Ligand_growing.Helpers.clusterizer
+import Ligand_growing.Growing.template_fragmenter
+import Ligand_growing.Growing.simulations_linker
+import Ligand_growing.Growing.add_fragment_from_pdbs
+import Ligand_growing.Growing.AddingFragHelpers
+import Ligand_growing.Growing.bestStructs
+import Ligand_growing.constants as c
 
 # Calling configuration file for log system
 FilePath = os.path.abspath(__file__)
