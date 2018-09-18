@@ -337,6 +337,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     os.chdir("selected_result_{}".format(identifier))
     Growing.bestStructs.main(criteria, "best_structure.pdb", path=equilibration_path,
                              n_structs=10)
+    shutil.copy("sel_0_best_structure.pdb", "../pregrow/selection_{}".format(identifier))
     os.chdir("../")
     end_time = time.time()
     total_time = (end_time - start_time) / 60
@@ -352,8 +353,9 @@ if __name__ == '__main__':
         with open(serie_file) as sf:
             instructions = sf.readlines()
         for line in instructions:
-            if len(line.split()) >= 3:
+            if len(line.split()) <= 3:
                 # Read from file the required information
+                print("3 length")
                 fragment_pdb = line.split()[0]
                 core_atom = line.split()[1]
                 fragment_atom = line.split()[2]
@@ -361,25 +363,46 @@ if __name__ == '__main__':
                 main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                      pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
                      metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file)
-            elif len(line.split()) == 6:
-                # Read from file the required information
-                fragment_pdb = line.split()[0]
-                core_atom = line.split()[1]
-                fragment_atom = line.split()[2]
-                # Initialize the growing for each line in the file
-                main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
-                     pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
-                     condition,
-                     metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file)
+            elif len(line.split()) > 3:
+                growing_counter = len(line.split()) / 3
+                for i in range(int(growing_counter)):
+                    if i > 0:
+                        print("HIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
+                        identifier = "{}{}{}".format(os.path.splitext(line.split()[(i-1)*3])[0], line.split()[((i-1)*3)+1], line.split()[((i-1)*3)+2])
+                        complex_pdb_new = "selection_{}".format(identifier)
+                        fragment_pdb = line.split()[i*3]
+                        core_atom = line.split()[(i*3)+1]
+                        fragment_atom = line.split()[(i*3)+2]
+                        print(identifier, fragment_pdb, complex_pdb_new, core_atom, fragment_atom)
+                        main(complex_pdb_new, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
+                             sch_python,
+                             pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold,
+                             epsilon,
+                             condition,
+                             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie,
+                             serie_file)
+                    else:
+                        # Read from file the required information
+                        fragment_pdb = line.split()[i*3]
+                        core_atom = line.split()[(i*3)+1]
+                        fragment_atom = line.split()[(i*3)+2]
+                        # Initialize the growing for each line in the file
+                        main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
+                             pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
+                             condition,
+                             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file)
+
                 # Repeat the process for a new fragment
-                fragment_pdb = line.split()[3]
-                core_atom = line.split()[4]
-                fragment_atom = line.split()[5]
+                #complex_pdb2 = "selection_{}".format(identifier)
+                #fragment_pdb2 = line.split()[3]
+                #core_atom2 = line.split()[4]
+                #fragment_atom2 = line.split()[5]
+                #logging.info("{} {} {} {}".format(complex_pdb, fragment_pdb, core_atom2, fragment_atom2))
                 # Initialize the growing for each line in the file
-                main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
-                     pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
-                     condition,
-                     metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file)
+                #main(complex_pdb2, fragment_pdb2, core_atom2, fragment_atom2, iterations, criteria, plop_path, sch_python,
+                #     pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
+                #     condition,
+                #     metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file)
             else:
                 logging.critical("Incorrect amount of arguments in {}, check if you have 6 arguments properly separated.".format(serie_file))
 

@@ -238,7 +238,7 @@ Current trial energy: -5967.77 best: -5970.79
 Current trial energy: -5969.46 best: -5970.79
 Best trial: 2 out of 10
 atomSet is not too far
-Perturbation Ef: -5970.79 Ei: -6045.89 dE: 75.0938 dt: 4.97943 s
+Perturbation Ef: -5970.79 Ei: -6045.89 dE: 75.0938 dt: 3.3477 s
 
 ANM:
 Computing Eigenvalues and Eigenvectors...
@@ -247,29 +247,29 @@ Picked mode: 4
 Selected direction: -1
 Magnitude: 0.75
 Minimizing atoms from residues: all residues
-ANM Ef: -6727.61 Ei: -6034.06 dE: -693.553 dt: 13.8387 s
+ANM Ef: -6727.61 Ei: -6034.06 dE: -693.553 dt: 10.2083 s
 
 Side Chain Prediction:
 Running side chain prediction on 27 residues
 Side chain prediction for links: A:78, A:81, A:83-A:91, A:95-A:96, A:100, A:102-A:103, A:106, A:108, A:111, A:114, A:117-A:118, A:121-A:122, A:133, A:153, L:1
-computeNonPolarNonClashingRotamers, dt: 0.11293 s
-iteration 1 dt: 3.26061 s
-iteration 2 dt: 3.12299 s
-iteration 3 dt: 3.27458 s
+computeNonPolarNonClashingRotamers, dt: 0.156542 s
+iteration 1 dt: 2.64448 s
+iteration 2 dt: 2.56247 s
+iteration 3 dt: 2.99913 s
 Minimizing atoms from residues: A:78, A:81, A:83-A:91, A:95-A:96, A:100, A:102-A:103, A:106, A:108, A:111, A:114, A:117-A:118, A:121-A:122, A:133, A:153, L:1
-Side Chain Prediction minimization, dt: 0.050111 s
-Iteration 1 dt: 9.70885 s
-(findMinimumInEnergyUsingRotamerLibrary, dt: 9.70889 s)
-Side Chain Prediction Ef: -8397.64 Ei: -6727.61 dE: -1670.03 dt: 12.0094 s
+Side Chain Prediction minimization, dt: 0.097286 s
+Iteration 1 dt: 8.30376 s
+(findMinimumInEnergyUsingRotamerLibrary, dt: 8.30379 s)
+Side Chain Prediction Ef: -8397.64 Ei: -6727.61 dE: -1670.03 dt: 10.8042 s
 
 Minimization:
 Minimizing atoms from residues: all residues
-Minimization Ef: -6741.87 Ei: -8397.64 dE: 1655.77 dt: 10.1978 s
+Minimization Ef: -6741.87 Ei: -8397.64 dE: 1655.77 dt: 10.3865 s
 
 Metropolis Ef: -6753.3 Ei: -6045.89 dE: -707.408 Probability: 1 Accepted Step: true
 [Energy] Task: 1, Step: 1, Final energy:  -6753.3
 Accepted!
-Total step time: 45.8007 s
+Total step time: 38.4671 s
 
 
 Value of metrics after Step 1
@@ -310,29 +310,29 @@ Current trial energy: -6673.69 best: -6678.37
 Current trial energy: -6675.91 best: -6678.37
 Best trial: 4 out of 10
 atomSet is not too far
-Perturbation Ef: -6678.37 Ei: -6753.3 dE: 74.9284 dt: 3.63825 s
+Perturbation Ef: -6678.37 Ei: -6753.3 dE: 74.9284 dt: 3.18807 s
 
 Side Chain Prediction:
 Running side chain prediction on 28 residues
 Side chain prediction for links: A:78, A:81, A:83-A:91, A:95-A:96, A:100, A:102-A:103, A:108, A:111, A:114, A:117-A:118, A:121-A:122, A:126, A:133, A:149, A:153, L:1
-computeNonPolarNonClashingRotamers, dt: 0.119338 s
-iteration 1 dt: 2.69199 s
-iteration 2 dt: 2.67236 s
-iteration 3 dt: 2.56609 s
+computeNonPolarNonClashingRotamers, dt: 0.112814 s
+iteration 1 dt: 2.46732 s
+iteration 2 dt: 2.50344 s
+iteration 3 dt: 2.48292 s
 Minimizing atoms from residues: A:78, A:81, A:83-A:91, A:95-A:96, A:100, A:102-A:103, A:108, A:111, A:114, A:117-A:118, A:121-A:122, A:126, A:133, A:149, A:153, L:1
-Side Chain Prediction minimization, dt: 0.052087 s
-Iteration 1 dt: 7.98306 s
-(findMinimumInEnergyUsingRotamerLibrary, dt: 7.98309 s)
-Side Chain Prediction Ef: -8326.33 Ei: -6740.07 dE: -1586.26 dt: 10.0448 s
+Side Chain Prediction minimization, dt: 0.050942 s
+Iteration 1 dt: 7.50508 s
+(findMinimumInEnergyUsingRotamerLibrary, dt: 7.50511 s)
+Side Chain Prediction Ef: -8326.33 Ei: -6740.07 dE: -1586.26 dt: 9.43356 s
 
 Minimization:
 Minimizing atoms from residues: all residues
-Minimization Ef: -6744.47 Ei: -8326.33 dE: 1581.86 dt: 7.49932 s
+Minimization Ef: -6744.47 Ei: -8326.33 dE: 1581.86 dt: 7.16138 s
 
 Metropolis Ef: -6755.65 Ei: -6753.3 dE: -2.3518 Probability: 1 Accepted Step: true
 [Energy] Task: 1, Step: 2, Final energy:  -6755.65
 Accepted!
-Total step time: 24.6977 s
+Total step time: 23.0576 s
 
 
 Value of metrics after Step 2
@@ -373,35 +373,35 @@ Current trial energy: -6609.98 best: -6676.73
 Current trial energy: -6669.03 best: -6676.73
 Best trial: 1 out of 10
 atomSet is not too far
-Perturbation Ef: -6676.73 Ei: -6755.65 dE: 78.9218 dt: 3.26948 s
+Perturbation Ef: -6676.73 Ei: -6755.65 dE: 78.9218 dt: 3.14129 s
 
 ANM:
 Magnitude: 0.75
 Minimizing atoms from residues: all residues
-ANM Ef: -6734.63 Ei: -6738.37 dE: 3.74028 dt: 2.87392 s
+ANM Ef: -6734.63 Ei: -6738.37 dE: 3.74028 dt: 2.79925 s
 
 Side Chain Prediction:
 Running side chain prediction on 27 residues
 Side chain prediction for links: A:78, A:81, A:83-A:91, A:95-A:96, A:100, A:102-A:103, A:106, A:108, A:111, A:114, A:117-A:118, A:121-A:122, A:133, A:153, L:1
-computeNonPolarNonClashingRotamers, dt: 0.115643 s
-iteration 1 dt: 2.65329 s
-iteration 2 dt: 2.63906 s
-iteration 3 dt: 2.65973 s
-iteration 4 dt: 2.65273 s
+computeNonPolarNonClashingRotamers, dt: 0.113246 s
+iteration 1 dt: 2.54342 s
+iteration 2 dt: 2.53524 s
+iteration 3 dt: 2.5205 s
+iteration 4 dt: 2.63097 s
 Minimizing atoms from residues: A:78, A:81, A:83-A:91, A:95-A:96, A:100, A:102-A:103, A:106, A:108, A:111, A:114, A:117-A:118, A:121-A:122, A:133, A:153, L:1
-Side Chain Prediction minimization, dt: 0.051723 s
-Iteration 1 dt: 10.6571 s
-(findMinimumInEnergyUsingRotamerLibrary, dt: 10.6571 s)
-Side Chain Prediction Ef: -8344.05 Ei: -6734.63 dE: -1609.42 dt: 12.6918 s
+Side Chain Prediction minimization, dt: 0.053041 s
+Iteration 1 dt: 10.2837 s
+(findMinimumInEnergyUsingRotamerLibrary, dt: 10.2838 s)
+Side Chain Prediction Ef: -8344.05 Ei: -6734.63 dE: -1609.42 dt: 12.2076 s
 
 Minimization:
 Minimizing atoms from residues: all residues
-Minimization Ef: -6742.91 Ei: -8344.05 dE: 1601.14 dt: 8.17082 s
+Minimization Ef: -6742.91 Ei: -8344.05 dE: 1601.14 dt: 6.98984 s
 
 Metropolis Ef: -6754.1 Ei: -6755.65 dE: 1.54659 Probability: 0.459198 Accepted Step: true
 [Energy] Task: 1, Step: 3, Final energy:  -6754.1
 Accepted!
-Total step time: 30.8009 s
+Total step time: 29.0002 s
 
 
 Value of metrics after Step 3
@@ -442,29 +442,29 @@ Current trial energy: -6678.27 best: -6679.63
 Current trial energy: -6679.27 best: -6679.63
 Best trial: 8 out of 10
 atomSet is not too far
-Perturbation Ef: -6679.63 Ei: -6754.1 dE: 74.4669 dt: 3.26585 s
+Perturbation Ef: -6679.63 Ei: -6754.1 dE: 74.4669 dt: 3.14278 s
 
 Side Chain Prediction:
 Running side chain prediction on 27 residues
 Side chain prediction for links: A:78, A:81, A:83-A:91, A:95-A:96, A:100, A:102-A:103, A:106, A:108, A:111, A:114, A:117-A:118, A:121-A:122, A:133, A:153, L:1
-computeNonPolarNonClashingRotamers, dt: 0.113097 s
-iteration 1 dt: 2.79503 s
-iteration 2 dt: 3.34693 s
-iteration 3 dt: 3.078 s
+computeNonPolarNonClashingRotamers, dt: 0.112875 s
+iteration 1 dt: 2.52508 s
+iteration 2 dt: 2.52413 s
+iteration 3 dt: 2.51345 s
 Minimizing atoms from residues: A:78, A:81, A:83-A:91, A:95-A:96, A:100, A:102-A:103, A:106, A:108, A:111, A:114, A:117-A:118, A:121-A:122, A:133, A:153, L:1
-Side Chain Prediction minimization, dt: 0.052371 s
-Iteration 1 dt: 9.2726 s
-(findMinimumInEnergyUsingRotamerLibrary, dt: 9.27263 s)
-Side Chain Prediction Ef: -8349.97 Ei: -6741.34 dE: -1608.64 dt: 11.4192 s
+Side Chain Prediction minimization, dt: 0.0491 s
+Iteration 1 dt: 7.612 s
+(findMinimumInEnergyUsingRotamerLibrary, dt: 7.61203 s)
+Side Chain Prediction Ef: -8349.97 Ei: -6741.34 dE: -1608.64 dt: 9.53159 s
 
 Minimization:
 Minimizing atoms from residues: all residues
-Minimization Ef: -6747.15 Ei: -8349.97 dE: 1602.82 dt: 9.62563 s
+Minimization Ef: -6747.15 Ei: -8349.97 dE: 1602.82 dt: 9.51484 s
 
 Metropolis Ef: -6758.63 Ei: -6754.1 dE: -4.52558 Probability: 1 Accepted Step: true
 [Energy] Task: 1, Step: 4, Final energy:  -6758.63
 Accepted!
-Total step time: 28.3113 s
+Total step time: 25.7966 s
 
 
 Value of metrics after Step 4
@@ -505,33 +505,33 @@ Current trial energy: -6682.75 best: -6684.46
 Current trial energy: -6683.58 best: -6684.46
 Best trial: 8 out of 10
 atomSet is not too far
-Perturbation Ef: -6684.46 Ei: -6758.63 dE: 74.1655 dt: 3.7761 s
+Perturbation Ef: -6684.46 Ei: -6758.63 dE: 74.1655 dt: 4.02657 s
 
 ANM:
 Magnitude: 0.75
 Minimizing atoms from residues: all residues
-ANM Ef: -6736.5 Ei: -6745.18 dE: 8.67658 dt: 2.87599 s
+ANM Ef: -6736.5 Ei: -6745.18 dE: 8.67658 dt: 3.92478 s
 
 Side Chain Prediction:
 Running side chain prediction on 29 residues
 Side chain prediction for links: A:78, A:81, A:83-A:91, A:95-A:96, A:100, A:102-A:103, A:106, A:108, A:111, A:114, A:117-A:118, A:121-A:122, A:126, A:133, A:149, A:153, L:1
-computeNonPolarNonClashingRotamers, dt: 0.125117 s
-iteration 1 dt: 2.73033 s
-iteration 2 dt: 3.07861 s
+computeNonPolarNonClashingRotamers, dt: 0.163211 s
+iteration 1 dt: 2.98425 s
+iteration 2 dt: 2.97835 s
 Minimizing atoms from residues: A:78, A:81, A:83-A:91, A:95-A:96, A:100, A:102-A:103, A:106, A:108, A:111, A:114, A:117-A:118, A:121-A:122, A:126, A:133, A:149, A:153, L:1
-Side Chain Prediction minimization, dt: 0.060901 s
-Iteration 1 dt: 5.87015 s
-(findMinimumInEnergyUsingRotamerLibrary, dt: 5.87018 s)
-Side Chain Prediction Ef: -8319.46 Ei: -6736.5 dE: -1582.96 dt: 7.96055 s
+Side Chain Prediction minimization, dt: 0.062724 s
+Iteration 1 dt: 6.02552 s
+(findMinimumInEnergyUsingRotamerLibrary, dt: 6.02555 s)
+Side Chain Prediction Ef: -8319.46 Ei: -6736.5 dE: -1582.96 dt: 8.32397 s
 
 Minimization:
 Minimizing atoms from residues: all residues
-Minimization Ef: -6744.94 Ei: -8319.46 dE: 1574.52 dt: 8.33713 s
+Minimization Ef: -6744.94 Ei: -8319.46 dE: 1574.52 dt: 8.41781 s
 
 Metropolis Ef: -6756.39 Ei: -6758.63 dE: 2.24018 Probability: 0.323906 Accepted Step: true
 [Energy] Task: 1, Step: 5, Final energy:  -6756.39
 Accepted!
-Total step time: 27.0851 s
+Total step time: 29.1159 s
 
 
 Value of metrics after Step 5
@@ -572,28 +572,28 @@ Current trial energy: -6636.56 best: -6680.48
 Current trial energy: -6675.13 best: -6680.48
 Best trial: 4 out of 10
 atomSet is not too far
-Perturbation Ef: -6680.48 Ei: -6756.39 dE: 75.9047 dt: 3.75892 s
+Perturbation Ef: -6680.48 Ei: -6756.39 dE: 75.9047 dt: 3.98196 s
 
 Side Chain Prediction:
 Running side chain prediction on 26 residues
 Side chain prediction for links: A:78, A:81, A:84-A:85, A:87-A:91, A:95-A:96, A:100, A:102-A:103, A:106, A:108, A:111, A:114, A:117-A:118, A:121-A:122, A:126, A:133, A:153, L:1
-computeNonPolarNonClashingRotamers, dt: 0.105204 s
-iteration 1 dt: 1.85456 s
-iteration 2 dt: 2.19906 s
+computeNonPolarNonClashingRotamers, dt: 0.094083 s
+iteration 1 dt: 1.80012 s
+iteration 2 dt: 1.56283 s
 Minimizing atoms from residues: A:78, A:81, A:84-A:85, A:87-A:91, A:95-A:96, A:100, A:102-A:103, A:106, A:108, A:111, A:114, A:117-A:118, A:121-A:122, A:126, A:133, A:153, L:1
-Side Chain Prediction minimization, dt: 0.055219 s
-Iteration 1 dt: 4.10912 s
-(findMinimumInEnergyUsingRotamerLibrary, dt: 4.10916 s)
-Side Chain Prediction Ef: -8333.18 Ei: -6741.33 dE: -1591.84 dt: 6.37838 s
+Side Chain Prediction minimization, dt: 0.049657 s
+Iteration 1 dt: 3.41279 s
+(findMinimumInEnergyUsingRotamerLibrary, dt: 3.41282 s)
+Side Chain Prediction Ef: -8333.18 Ei: -6741.33 dE: -1591.84 dt: 5.71596 s
 
 Minimization:
 Minimizing atoms from residues: all residues
-Minimization Ef: -6748.1 Ei: -8333.18 dE: 1585.07 dt: 9.63897 s
+Minimization Ef: -6748.1 Ei: -8333.18 dE: 1585.07 dt: 10.4315 s
 
 Metropolis Ef: -6759.66 Ei: -6756.39 dE: -3.27355 Probability: 1 Accepted Step: true
 [Energy] Task: 1, Step: 6, Final energy:  -6759.66
 Accepted!
-Total step time: 23.7356 s
+Total step time: 24.2389 s
 
 
 Value of metrics after Step 6
