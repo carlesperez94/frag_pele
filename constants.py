@@ -9,21 +9,18 @@ SELECTION_CRITERIA = "Binding Energy"
 # PELE parameters
 CONTROL_TEMPLATE = "control_template.conf"
 RESULTS_FOLDER = "growing_output"
-PATH_TO_PELE = "/home/dsoler/cleanPELE_rev/build_gnu/Pele_mpi"
-PATH_TO_LICENSE = "/sNow/easybuild/centos/7.4.1708/Skylake/software/PELE/licenses/"
+PATH_TO_PELE = "/opt/PELErev12492/bin/Pele_mpi"
+PATH_TO_LICENSE = "/opt/PELErev12492/licenses/"
 REPORT_NAME = "report"
 TRAJECTORY_NAME = "trajectory"
-CPUS = 4
+CPUS = 48
 PELE_EQ_STEPS = 20
-RESTART = False
-MAX_OVERLAP = 0.7
-MIN_OVERLAP = 0.5
 # Clustering parameters
 DISTANCE_COUNTER = 4
 CONTACT_THRESHOLD = 0.3
 EPSILON = 0.5
 # PlopRotTemp parameters
-SCHRODINGER_PY_PATH = "/sNow/easybuild/centos/7.4.1708/Skylake/software/schrodinger2017-4/utilities/python"
+SCHRODINGER_PY_PATH = "/opt/schrodinger2016-4/utilities/python"
 
 ##############################################
 
