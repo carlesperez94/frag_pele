@@ -130,6 +130,7 @@ dummy_atom3 = [0.1, 0.2, 0.3]
 DUMMY_COORD = 17.21606
 DUMMY_ANGLE = 45.73961
 DUMMY_DIHEDRAL = 13.21566
+DEFAULT_ATOMTYPE = [0.000, 0.000, 1.500, 1.250, 0.005000000, 0.000000000] 
 DEFAULT_RADIUS_VDW = '0.5000'  
 DEFAULT_EPSILON = '0.0300'
 STANDARD_RESIDUE_NAME = 'LIG'
@@ -559,7 +560,7 @@ def find_bonds_in_mae(filename):
             out_bond.append(b)
     f.close()
     if not out_bond:
-      print("NOT CONNECTIVITY REGION IN MAE")
+      raise Exception("CONNECTIVITY REGION IN MAE CORRUPTED")
     return out_bond
 
 
@@ -1644,36 +1645,36 @@ def get_torsions_from_mae(mae_file, residue_name):
 
 def remove_amide_bonds(structure, torsions):
 
-	to_delete = []
+        to_delete = []
 
-	atoms = structure.atom
+        atoms = structure.atom
 
-	for i, torsion in enumerate(torsions):
+        for i, torsion in enumerate(torsions):
 
 
-		atom1, atom2 = torsion
-		atom1 = atoms[atom1]
-		atom2 = atoms[atom2]
+                atom1, atom2 = torsion
+                atom1 = atoms[atom1]
+                atom2 = atoms[atom2]
 
-		boolean = is_amide(atom1, atom2)
+                boolean = is_amide(atom1, atom2)
 
-		if boolean:
-			to_delete.append(torsion)
+                if boolean:
+                        to_delete.append(torsion)
 
-		boolean = is_amide(atom2, atom1)
+                boolean = is_amide(atom2, atom1)
 
-		if boolean:
-			to_delete.append(torsion)
-	new_torsions = [torsion for torsion in torsions if torsion not in to_delete]
-	return new_torsions
+                if boolean:
+                        to_delete.append(torsion)
+        new_torsions = [torsion for torsion in torsions if torsion not in to_delete]
+        return new_torsions
 
 def is_amide(atom1, atom2):
-	if atom1.element == 'N' and atom2.element == 'C':
-			for atom in atom2.bonded_atoms:
-				if atom.element == 'O':
-					return True
+        if atom1.element == 'N' and atom2.element == 'C':
+                        for atom in atom2.bonded_atoms:
+                                if atom.element == 'O':
+                                        return True
 
-	return False
+        return False
 
 ####################################
 def ReorderTemplate(ordering, new_parent, rank, in_file, out_file, mae_file, R_group_root_atom_name='None'):
@@ -2742,7 +2743,7 @@ def convert_gridres(gridres):
     elif (eval(gridres) == 180.0):
         lib_name = "FRE180"
     else:
-        raise Exception('Incorrect grid resolution (5,10,15,20,30,40,45,50,60,90,180)')
+        raise Exception('Incorrect grid resolution (5,10,15,20,30,40,45,60,90,180)')
     return lib_name
 
 
@@ -2809,14 +2810,21 @@ def find_build_lib(resname, mae_file, root, tors, names, group, gridres, gridres
     f.write("rot assign res " + resname.upper() + ' &\n')
     if (back_lib != ""):
         f.write(" backlib " + back_lib + " &\n");
-    for grp in range(max(group) + 1):
+    
+    max_rotatable_bonds = check_max_rotatable_bonds(group, tors, tors_ring_num)
+
+    for grp, max_rotatable in zip(range(max(group) + 1), max_rotatable_bonds):
+        rotatable_bonds = 0
         for i in range(len(tors)):
             if ( group[tors[i][0]] == grp or group[tors[i][1]] == grp):
                 if (tors_ring_num[i] == 0):
+                    rotatable_bonds
                     if (is_oh[i] == 1):
                         lib_name = lib_name_oh
                     else:
                         lib_name = lib_name_nom
+                    if max_rotatable:
+                        lib_name = convert_gridres("30.0")
                     if(len(names[tors[i][0]]) < 4 and len(names[tors[i][1]])<4):
                       f.write("   sidelib {0} _{1:_^3} _{2:_^3} &\n".format(lib_name, names[tors[i][0]], names[tors[i][1]]))
                     elif(len(names[tors[i][0]] < 4) and len(names[tors[i][1]]>4)):
@@ -2835,7 +2843,28 @@ def find_build_lib(resname, mae_file, root, tors, names, group, gridres, gridres
             f.write("     newgrp &\n")
     f.close();
     return assign_filename
-    
+
+def check_max_rotatable_bonds(group, tors, tors_ring_num):
+    """
+        Check if some sidechain has more
+        than 2 rotatable bonds to lower
+        its resolution
+    """
+
+    LIMIT_ROTATABLE_BONDS = 2
+
+    max_rotatable_bonds = []
+    for grp in range(max(group) + 1):
+        count = 0
+        for i in range(len(tors)):
+            if ( group[tors[i][0]] == grp or group[tors[i][1]] == grp):
+                if (tors_ring_num[i] == 0):
+                    count += 1
+        if count > LIMIT_ROTATABLE_BONDS:
+            max_rotatable_bonds.append(True)
+        else:
+            max_rotatable_bonds.append(False)
+    return max_rotatable_bonds
 
 
 #################################################
@@ -3120,3 +3149,4 @@ def printGlobalVariables():
     d["R_group_root_atom_name"] = R_group_root_atom_name
 
     print(d)
+
