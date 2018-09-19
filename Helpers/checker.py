@@ -1,5 +1,6 @@
 import sys
 import logging
+import glob
 import prody
 
 

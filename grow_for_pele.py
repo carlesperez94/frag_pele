@@ -72,6 +72,7 @@ def parse_arguments():
     parser.add_argument("-sef", "--serie_file", default=c.SERIE_FILE,
                         help="""Name of the file which contains the information required to perform several successive
                              growings using different fragments or different growing positions.""")
+
     # Plop related arguments
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
                         help="Absolute path to PlopRotTemp.py.")
@@ -126,8 +127,7 @@ def parse_arguments():
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
-         epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie,
-         serie_file):
+         epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID):
     """
         Description: This function is the main core of the program. It creates N intermediate templates
         and control files for PELE. Then, it perform N successive simulations automatically.
@@ -162,11 +162,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     # Time computations
     start_time = time.time()
     # Path definition
-    identifier = "{}{}{}".format(os.path.splitext(fragment_pdb)[0], core_atom, fragment_atom)
     plop_relative_path = os.path.join(PackagePath, plop_path)
-    templates_folder = "{}_{}".format(c.TEMPLATES_FOLDER, identifier)
-    pdbout_folder = "{}_{}".format(pdbout, identifier)
-    growing_results_folder = "{}_{}".format(c.OUTPUT_FOLDER, identifier)
+    templates_folder = "{}_{}".format(c.TEMPLATES_FOLDER, ID)
+    pdbout_folder = "{}_{}".format(pdbout, ID)
+    growing_results_folder = "{}_{}".format(c.OUTPUT_FOLDER, ID)
 
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
 
@@ -198,7 +197,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     # Lists definitions
     templates = ["{}_{}".format(template_final, n) for n in range(0, iterations+1)]
 
-    results = ["{}{}_{}{}".format(c.OUTPUT_FOLDER, identifier, resfold, n) for n in range(0, iterations+1)]
+    results = ["{}{}_{}{}".format(c.OUTPUT_FOLDER, ID, resfold, n) for n in range(0, iterations+1)]
 
     pdbs = [pdb_initialize if n == 0 else "{}_{}".format(n, pdb_initialize) for n in range(0, iterations+1)]
 
@@ -324,20 +323,20 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     # Set input PDBs
     pdb_inputs = ["{}".format(os.path.join(pdbout_folder, str(iterations), pdb_file)) for pdb_file in pdb_selected_names]
     logger.info(".....STARTING EQUILIBRATION.....")
-    if not os.path.exists("equilibration_result_{}".format(identifier)):  # Create the folder if it does not exist
-        os.mkdir("equilibration_result_{}".format(identifier))
+    if not os.path.exists("equilibration_result_{}".format(ID)):  # Create the folder if it does not exist
+        os.mkdir("equilibration_result_{}".format(ID))
     # Modify the control file to increase the steps to 20 and change the output path
     Growing.simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
-                                                     "equilibration_result_{}".format(identifier), pele_eq_steps)
+                                                     "equilibration_result_{}".format(ID), pele_eq_steps)
     # Call PELE to run the simulation
     Growing.simulations_linker.simulation_runner(pele_dir, contrl, cpus)
-    equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "equilibration_result_{}".format(identifier))
-    if not os.path.exists("selected_result_{}".format(identifier)):  # Create the folder if it does not exist
-        os.mkdir("selected_result_{}".format(identifier))
-    os.chdir("selected_result_{}".format(identifier))
+    equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "equilibration_result_{}".format(ID))
+    if not os.path.exists("selected_result_{}".format(ID)):  # Create the folder if it does not exist
+        os.mkdir("selected_result_{}".format(ID))
+    os.chdir("selected_result_{}".format(ID))
     Growing.bestStructs.main(criteria, "best_structure.pdb", path=equilibration_path,
                              n_structs=10)
-    shutil.copy("sel_0_best_structure.pdb", "../pregrow/selection_{}".format(identifier))
+    shutil.copy("sel_0_best_structure.pdb", "../pregrow/selection_{}.pdb".format(ID))
     os.chdir("../")
     end_time = time.time()
     total_time = (end_time - start_time) / 60
@@ -355,59 +354,51 @@ if __name__ == '__main__':
         for line in instructions:
             if len(line.split()) <= 3:
                 # Read from file the required information
-                print("3 length")
                 fragment_pdb = line.split()[0]
                 core_atom = line.split()[1]
                 fragment_atom = line.split()[2]
+                ID = "{}{}{}".format(os.path.splitext(fragment_pdb)[0], core_atom, fragment_atom)
                 # Initialize the growing for each line in the file
                 main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                      pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
-                     metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file)
+                     metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID)
             elif len(line.split()) > 3:
                 growing_counter = len(line.split()) / 3
                 for i in range(int(growing_counter)):
+                    fragment_pdb = line.split()[i * 3]
+                    core_atom = line.split()[(i * 3) + 1]
+                    fragment_atom = line.split()[(i * 3) + 2]
+
                     if i > 0:
-                        print("HIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
-                        identifier = "{}{}{}".format(os.path.splitext(line.split()[(i-1)*3])[0], line.split()[((i-1)*3)+1], line.split()[((i-1)*3)+2])
-                        complex_pdb_new = "selection_{}".format(identifier)
+                        ID = "{}{}{}".format(os.path.splitext(line.split()[(i-1)*3])[0],
+                                             line.split()[((i-1)*3)+1], line.split()[((i-1)*3)+2])
+                        complex_pdb_new = "selection_{}.pdb".format(ID)
+                        ID = "{}{}{}{}{}{}".format(os.path.splitext(line.split()[(i-1)*3])[0],
+                                                   line.split()[((i-1)*3)+1], line.split()[((i-1)*3)+2],
+                                                   os.path.splitext(line.split()[i * 3])[0],
+                                                   line.split()[(i * 3) + 1], line.split()[(i * 3) + 2])
                         fragment_pdb = line.split()[i*3]
                         core_atom = line.split()[(i*3)+1]
                         fragment_atom = line.split()[(i*3)+2]
-                        print(identifier, fragment_pdb, complex_pdb_new, core_atom, fragment_atom)
                         main(complex_pdb_new, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                              sch_python,
                              pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold,
                              epsilon,
                              condition,
-                             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie,
-                             serie_file)
+                             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID)
                     else:
-                        # Read from file the required information
-                        fragment_pdb = line.split()[i*3]
-                        core_atom = line.split()[(i*3)+1]
-                        fragment_atom = line.split()[(i*3)+2]
                         # Initialize the growing for each line in the file
+                        ID = "{}{}{}".format(os.path.splitext(fragment_pdb)[0], core_atom, fragment_atom)
                         main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                              pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                              condition,
-                             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file)
+                             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID)
 
-                # Repeat the process for a new fragment
-                #complex_pdb2 = "selection_{}".format(identifier)
-                #fragment_pdb2 = line.split()[3]
-                #core_atom2 = line.split()[4]
-                #fragment_atom2 = line.split()[5]
-                #logging.info("{} {} {} {}".format(complex_pdb, fragment_pdb, core_atom2, fragment_atom2))
-                # Initialize the growing for each line in the file
-                #main(complex_pdb2, fragment_pdb2, core_atom2, fragment_atom2, iterations, criteria, plop_path, sch_python,
-                #     pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
-                #     condition,
-                #     metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file)
             else:
                 logging.critical("Incorrect amount of arguments in {}, check if you have 6 arguments properly separated.".format(serie_file))
 
     else:
-
+        ID = "{}{}{}".format(os.path.splitext(fragment_pdb)[0], core_atom, fragment_atom)
         main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir,
              contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
-             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file)
+             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID)
