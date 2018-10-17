@@ -177,6 +177,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
         cmd = "{} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
                                   Growing.add_fragment_from_pdbs.PRE_WORKING_DIR, pdb_to_template))
+
         subprocess.call(cmd.split())
         template_resname = Growing.add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(
                                                                                    Growing.add_fragment_from_pdbs.
@@ -201,7 +202,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     pdbs = [pdb_initialize if n == 0 else "{}_{}".format(n, pdb_initialize) for n in range(0, iterations+1)]
 
-    pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, cpus-1)]
+    pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, int(cpus)-1)]
 
 
     # Create a copy of the original templates in growing_templates folder
@@ -291,7 +292,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
             os.mkdir("{}_{}".format(resfold, (int(i))))
             os.chdir("../")
 
-        Growing.simulations_linker.simulation_runner(pele_dir, contrl, cpus)
+        Growing.simulations_linker.simulation_runner(pele_dir, contrl, int(cpus))
         logger.info(c.LINES_MESSAGE)
         logger.info(c.FINISH_SIM_MESSAGE.format(result))
         # Before selecting a step from a trajectory we will save the input PDB file in a folder
@@ -315,7 +316,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         column_number = Helpers.clusterizer.get_column_num(result_abs, criteria, report)
         # Selection of the trajectory used as new input
 
-        Helpers.clusterizer.cluster_traject(str(template_resnames[1]), cpus, column_number, distance_contact,
+        Helpers.clusterizer.cluster_traject(str(template_resnames[1]), int(cpus), column_number, distance_contact,
                                             clusterThreshold, "{}*".format(os.path.join(result_abs, traject)),
                                             os.path.join(pdbout_folder, str(i)), epsilon, report, condition, metricweights,
                                             nclusters)
@@ -329,7 +330,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     Growing.simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
                                                      "equilibration_result_{}".format(ID), pele_eq_steps)
     # Call PELE to run the simulation
-    Growing.simulations_linker.simulation_runner(pele_dir, contrl, cpus)
+    Growing.simulations_linker.simulation_runner(pele_dir, contrl, int(cpus))
     equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "equilibration_result_{}".format(ID))
     if not os.path.exists("selected_result_{}".format(ID)):  # Create the folder if it does not exist
         os.mkdir("selected_result_{}".format(ID))

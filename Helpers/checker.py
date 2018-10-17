@@ -18,6 +18,8 @@ def check_duplicated_pdbatomnames(pdb_content):
     list_to_check = sorted(list(set_to_check))
     sorted_list_names = sorted(pdb_atom_names_list)
     if list_to_check != sorted_list_names:
+        print(list_to_check)
+        print(sorted_list_names)
         sys.exit("REPEATED PDB ATOM NAMES IN PDB FILES!!")
 
 
