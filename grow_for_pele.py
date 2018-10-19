@@ -252,7 +252,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
         # Control file modification
 
-        overlapping_factor = min_overlap + (((max_overlap - min_overlap)*i) / iterations)
+        overlapping_factor = float(min_overlap) + (((float(max_overlap) - float(min_overlap))*i) / iterations)
         overlapping_factor = "{0:.2f}".format(overlapping_factor)
 
         if i != 0:
