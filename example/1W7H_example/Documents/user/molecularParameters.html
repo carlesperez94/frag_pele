@@ -1,0 +1,339 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PELE Molecular Parameters &#8212; PELE 1.5.rev12492 documentation</title>
+    
+    <link rel="stylesheet" href="_static/naturemodified.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.5.rev12492',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Adaptive PELE" href="adaptive.html" />
+    <link rel="prev" title="Energy Function" href="theory/energyFunction.html" /> 
+    <script type="text/javascript" >
+    MathJax.Hub.Config({
+        TeX: { 
+	  Macros: {
+	    AA: '{\\unicode{xC5}}'
+	  }
+	}
+    });
+    </script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="adaptive.html" title="Adaptive PELE"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="theory/energyFunction.html" title="Energy Function"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PELE 1.5.rev12492 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pele-molecular-parameters">
+<span id="sec-molecularparameters"></span><h1>PELE Molecular Parameters<a class="headerlink" href="#pele-molecular-parameters" title="Permalink to this headline">¶</a></h1>
+<p>The parameters for the force fields used in PELE and the rotamer libraries used during side chain prediction (and the side chain exploration done when needed during the perturbation), are located in the <code class="file docutils literal"><span class="pre">Data/</span></code> directory or, for non-standard molecules and residues, in your <code class="file docutils literal"><span class="pre">DataLocal/</span></code> directory. In particular:</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">&lt;DataDir&gt;/Templates/&lt;forcefield&gt;/HeteroAtoms/</span></code> contains the force field parameters for non-protein and non-nucleic acid residues (ligands, water molecules, etc.).</li>
+<li><code class="file docutils literal"><span class="pre">&lt;DataDir&gt;/Templates/&lt;forcefield&gt;/DNA/</span></code> contains the force field parameters for DNA residues.</li>
+<li><code class="file docutils literal"><span class="pre">&lt;DataDir&gt;/Templates/&lt;forcefield&gt;/RNA/</span></code> contains the force field parameters for RNA residues.</li>
+<li><code class="file docutils literal"><span class="pre">&lt;DataDir&gt;/Templates/&lt;forcefield&gt;/Protein/</span></code> contains the force field parameters for protein residues.</li>
+<li><code class="file docutils literal"><span class="pre">&lt;DataDir&gt;/SGB/</span></code> contains parameters for the solvent-related energy when using either VDGBNP or SGBNP (see <a class="reference internal" href="Solvent/Solvent.html#sec-solvent-solventtype"><span class="std std-ref">solventType</span></a>).</li>
+<li><code class="file docutils literal"><span class="pre">&lt;DataDir&gt;/OBC/solventParamsHCTOBC.txt</span></code> contains parameters for the solvent-related energy when using OBC (see <a class="reference internal" href="Solvent/Solvent.html#sec-solvent-solventtype"><span class="std std-ref">solventType</span></a>).</li>
+<li><code class="file docutils literal"><span class="pre">&lt;DataDir&gt;/LigandRotamerLibs/</span></code> contains the rotamer libraries for non-protein and non-nucleic acid residues (usually ligands and cofactors).</li>
+<li><code class="file docutils literal"><span class="pre">&lt;DataDir&gt;/RotamerLibs/</span></code> contains the rotamer libraries for DNA, RNA and protein residues.</li>
+</ul>
+<p>where <code class="docutils literal"><span class="pre">&lt;DataDir&gt;</span></code> refers to either <code class="file docutils literal"><span class="pre">Data/</span></code> or <code class="file docutils literal"><span class="pre">DataLocal/</span></code>, and the <code class="docutils literal"><span class="pre">&lt;forcefield&gt;</span></code> directory is one of the currently supported ones (see <a class="reference internal" href="Initialization/Initialization_general.html#sec-initialization-general-forcefield"><span class="std std-ref">ForceField</span></a>).</p>
+<p>If you use an hetero group not included in the data directories, then you should create and add both the template file with the force field parameters (under <code class="file docutils literal"><span class="pre">&lt;DataDir&gt;/Templates/&lt;forcefield&gt;/HeteroAtoms/</span></code>), the OBC parameters for that group at the end of <code class="file docutils literal"><span class="pre">solventParamsHCTOBC.txt</span></code> (only if you use the OBC solvent model),  and the rotamer library definition file (at <code class="file docutils literal"><span class="pre">&lt;DataDir&gt;/LigandRotamerLibs/</span></code>). The following sections explain how to generate the different data needed.</p>
+<div class="section" id="solvent-parameters">
+<h2>Solvent parameters<a class="headerlink" href="#solvent-parameters" title="Permalink to this headline">¶</a></h2>
+<p>You only need to create solvent parameters if you are using OBC, because parameters for other solvent models are generic and already apply to any atom in your molecules.</p>
+<div class="section" id="obc">
+<span id="sec-molecularparameters-obc"></span><h3>OBC<a class="headerlink" href="#obc" title="Permalink to this headline">¶</a></h3>
+<p>To run a PELE simulation using the OBC implicit solvent model, you need the atomic parameters for all the atoms in your system. PELE already includes the parameters for the atoms of the residues appearing in a macromolecule (DNA or protein), and for some small molecules. If your molecule is not parameterized (PELE will complain with an error message), you can create the parameters in the following way:</p>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">$</span> cp /path/to/my/template mytemplate
+<span class="gp">$</span> python /path/to/PELE-1.5/scripts/solventOBCParamsGenerator.py mytemplate
+</pre></div>
+</div>
+<p>You will then obtain a file named <code class="file docutils literal"><span class="pre">mytemplate_OBCParams.txt</span></code> with a line per atom of your molecule, with the OBC parameters. Then, paste those lines at the end of PELE’s data file <code class="file docutils literal"><span class="pre">Data/OBC/solventParamsHCTOBC.txt</span></code> or, even better, make a copy of the <code class="file docutils literal"><span class="pre">solventParamsHCTOBC.txt</span></code> data file in your project’s directory, under <code class="file docutils literal"><span class="pre">./DataLocal/OBC/solventParamsHCTOBC.txt</span></code>, and paste the molecule parameters there, so that you don’t change your central data file, but instead use a local copy (PELE gives precedence to <code class="file docutils literal"><span class="pre">./DataLocal/</span></code> files over those in <code class="file docutils literal"><span class="pre">./Data/</span></code>).</p>
+<p>Notice that the parameters will be used whatever force field (OPLS2001, OPLS2005, etc.) you are using. The script uses atom types from <code class="file docutils literal"><span class="pre">mytemplate</span></code>. As long as they are the same in all the force fields, you can use whichever you prefer. If types differ, but are not one of the recognized type names (see the script), then the parameters will be assigned depending on the atom name. Finally, if the atom name is not recognized either, then default parameters will be assigned. Even in the case of differing atom types depending on the force field, it may happen that the OBC parameters for the specific atom types be the same.</p>
+<p>You will find further information in the documentation inside the PELE script <code class="file docutils literal"><span class="pre">scripts/solventOBCParamsGenerator.py</span></code>.</p>
+</div>
+</div>
+<div class="section" id="template-parameters">
+<h2>Template parameters<a class="headerlink" href="#template-parameters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="opls">
+<span id="sec-molecularparameters-templateparameters-opls"></span><h3>OPLS<a class="headerlink" href="#opls" title="Permalink to this headline">¶</a></h3>
+<p>You can create the template and rotamer library files from either a file in PDB format or in MAE format. In any case, it may be helpful to check with Maestro the topology and charges of your ligand.</p>
+<p>In the following examples, we will assume Schrödinger software is installed under <code class="file docutils literal"><span class="pre">/opt/schrodinger/</span></code>, and that <strong class="program">PlopRotTemp.py</strong> is in <code class="file docutils literal"><span class="pre">/opt/pele/scripts/PlopRotTemp.py</span></code>.</p>
+<p>From a PDB file, run:</p>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">$</span> /opt/schrodinger/utilities/pdbconvert -ipdb myligand.pdb -omae myligand.mae
+<span class="gp">$</span> /opt/schrodinger/utilities/python /opt/pele/scripts/PlopRotTemp.py -OPLS<span class="o">=</span><span class="m">2005</span> myligand.mae
+</pre></div>
+</div>
+<p>From a MAE file, first you have to make sure that your ligand has a PDB residue name assigned, and that all PDB atom names are unique. To do this:</p>
+<ul class="simple">
+<li>Open you ligand in Maestro.</li>
+<li>Select it.</li>
+<li>Go to <cite>Build</cite> and under <cite>Other Edits</cite> select <cite>Change Other Properties</cite>.</li>
+<li>Select property <cite>Residue / Chain Name</cite>.</li>
+<li>Enter the 3-letter name you want for your residue (see <a class="reference internal" href="#fig-molecularparameters-changeresiduenameinmaestro"><span class="std std-numref">Fig. 1</span></a>).</li>
+<li>Apply your changes.</li>
+<li>Select property <cite>PDB Atom Name</cite>.</li>
+<li>Mark option <cite>Set unique PDB atom names within residues</cite> (see <a class="reference internal" href="#fig-molecularparameters-setuniquepdbnamesinmaestro"><span class="std std-numref">Fig. 2</span></a>).</li>
+<li>Apply your changes and close the dialog.</li>
+<li>Save your ligand in a new MAE file.</li>
+</ul>
+<div class="figure" id="id1">
+<span id="fig-molecularparameters-changeresiduenameinmaestro"></span><img alt="_images/changeResidueNameInMaestro.png" src="_images/changeResidueNameInMaestro.png" />
+<p class="caption"><span class="caption-number">Fig. 1 </span><span class="caption-text">Dialog to set the PDB residue name for your ligand in Maestro.</span></p>
+</div>
+<div class="figure" id="id2">
+<span id="fig-molecularparameters-setuniquepdbnamesinmaestro"></span><img alt="_images/setUniquePDBNamesInMaestro.png" src="_images/setUniquePDBNamesInMaestro.png" />
+<p class="caption"><span class="caption-number">Fig. 2 </span><span class="caption-text">Dialog to set unique PDB atom names for your ligand in Maestro.</span></p>
+</div>
+<p>Once you have your ligand in a MAE file, run:</p>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">$</span> /opt/schrodinger/utilities/python /opt/pele/scripts/PlopRotTemp.py -OPLS<span class="o">=</span><span class="m">2005</span> myligand.mae
+</pre></div>
+</div>
+<p>If you have assigned special charges to your ligand (for example through a quantum calculation), then you can add the option <code class="docutils literal"><span class="pre">-mae_charges=yes</span></code> to preserve those charges.</p>
+<div class="section" id="adding-the-generated-template-and-rotamer-library-files-to-pele">
+<h4>Adding the generated template and rotamer library files to PELE<a class="headerlink" href="#adding-the-generated-template-and-rotamer-library-files-to-pele" title="Permalink to this headline">¶</a></h4>
+<p>Say your ligand is named with the PDB code <code class="docutils literal"><span class="pre">LIG</span></code>. then, your files will be named by <strong class="program">PlopRotTemp.py</strong> as:</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">lig</span></code></li>
+<li><code class="file docutils literal"><span class="pre">LIG.rot.assign</span></code></li>
+</ul>
+<p>If you want to add them to your PELE project’s <code class="file docutils literal"><span class="pre">./DataLocal/</span></code> directory, remember to add a <code class="docutils literal"><span class="pre">z</span></code> at the end of the template file (which, in the example, will be named <code class="file docutils literal"><span class="pre">ligz</span></code>). Place the template file under <code class="file docutils literal"><span class="pre">./DataLocal/Templates/OPLS2005/HeteroAtoms/</span></code>. If you are updating the central database, use <code class="file docutils literal"><span class="pre">Data/</span></code> instead of <code class="file docutils literal"><span class="pre">./DataLocal/</span></code>. As for the rotamer file, place it inside <code class="file docutils literal"><span class="pre">./DataLocal/LigandRotamerLibs/</span></code>; as before, use <code class="file docutils literal"><span class="pre">Data/</span></code> instead of <code class="file docutils literal"><span class="pre">./DataLocal/</span></code> if you are updating the central database.</p>
+</div>
+<div class="section" id="usage-documentation-for-ploprottemp-py">
+<h4>Usage documentation for <strong class="program">PlopRotTemp.py</strong><a class="headerlink" href="#usage-documentation-for-ploprottemp-py" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">$</span> python /path/to/scripts/PlopRotTemp.py
+
+<span class="gp">$</span>Revision: <span class="m">1</span>.13 $
+<span class="go">For ligands:</span>
+<span class="go">Reads in a maestro mae file and makes a &quot;rotamer enabled&quot; template and the rotamer library to accompany it.  This consists of finding the backbone core that results in the least number of child bonds rotated with any rotatable bond rotation.  Reads in the rotatable bonds from a macromodel atomtyping (should be easily modifyiable to read them from stdin).  Hetgrp_ffgen is used for atomtyping and to determine the geometry in the template fromt the mae.  The mae must only have the residue to atomtype in it.</span>
+
+<span class="go">Builds rotamer libraries for arbitrary ligand molecules by building and combining rotamer libraries.  There are two general algorithms that are implemented.  This first is using macromodel (or some other external tool) to sample the degrees of freedom and converting the resulting ensemble into a rotamer library.  The second is identifying the rotatable bonds, again using macromodel, and assigning rotamer libraries to these bonds.  For most bonds a simple freely rotatable library ( 0,10,20,30...360), but in the case of closed rings special libraries are built using macromodel sampling.  These component rotamer libraries are then arranged into groups for use in PLOP.  Each group consists of a single tree rooted at the central core.  This core can either be used chosen, or will be chosen based on an algorithm that minimizes the number of bond lengths from the farthest leeaf to the trunk.  Any built rotamer libraries are placed in the current directory and a file called &lt;resname&gt;.rot.assign is also written.  This tells PLOP how to assemble the full combinatoric library that will be used in sidehchain prediction/monte carlo.</span>
+
+<span class="go">For unnatural amino acids:</span>
+<span class="go">Requires: 1) a maestro mae file of an unnatural amino acid with no NMA or ACE termini; the N-H and C=0 are to be left as they are found in a peptide</span>
+<span class="go">          2) a template file (specified by -t=&lt;FILENAME&gt;) created by hetgrp-ffgen using a maestro mae file of an unnatural amino acid with NMA or ACE termini present</span>
+<span class="go">Option Settings Required:  -unnat=yes -t=&lt;FILENAME&gt; [other options] &lt;RESIDUE_WITHOUT_CAPPING_GROUPS&gt;.mae</span>
+<span class="go">Outputs: 1) a re-ordered template file (old one is backed up in FILENMAE.hetgrp_ffgen)</span>
+<span class="go">         2) a PLOP nonstandard residue specification for pasting into a PLOP control file, both to stdout and to &lt;maefile&gt;_torsions.txt</span>
+
+
+<span class="go">Options</span>
+<span class="go">   -core=&lt;an1&gt;      Give one atom of the core section</span>
+<span class="go">   -f=&lt;an1&gt;,&lt;an2&gt;   Fix this bond number in the mae file.</span>
+<span class="go">                    CANNOT USE MACORMODEL SAMPLING WITH THIS OPTION</span>
+<span class="go">   -tor=&lt;an1&gt;,&lt;an2&gt;      Define torsions instead of using macromodel to do it.</span>
+<span class="go">                         CANNOT USE MACORMODEL SAMPLING WITH THIS OPTION</span>
+<span class="go">                         YOU MUST ALSO SPECIFY WHETHER THERE ARE RINGS OR NOT (-r)</span>
+<span class="go">   -btor=&lt;an1&gt;,&lt;an2&gt;     Define torsions for the backbone</span>
+<span class="go">   -m=&lt;yes/no&gt;           Wheter  to split into multiple libraries</span>
+<span class="go">   -min=&lt;yes/no&gt;         Whether to minimize</span>
+<span class="go">   -r=&lt;yes/no/only&gt;      Whether to allow flexible rings</span>
+<span class="go">   -t=&lt;FILENAME&gt;         Use this original template instead of creating one</span>
+<span class="go">   -o=&lt;FILENAME&gt;         Write output to this filename (default is the residue name)</span>
+<span class="go">   -g=&lt;GRIDRES&gt;          Input the grid resolution for plop rotamer library</span>
+<span class="go">   -goh=&lt;GRIDRES&gt;        Input grid resolution for plop rotamer library (OHs)</span>
+<span class="go">   -OPLS=&lt;2001,2005&gt;     OPLS version to use</span>
+<span class="go">   -mae_charges=&lt;yes/no&gt; Use mae charges for template file</span>
+<span class="go">   -mtor=&lt;number&gt;        Gives the maximum number of torsions allowed in each</span>
+<span class="go">                         group.  Will freeze bonds to extend the core if</span>
+<span class="go">                         necessary.</span>
+<span class="go">   -clean=&lt;yes/no&gt;       Whether to clean up all the intermediate files</span>
+<span class="go">   -d                    Debuging mode, assume all external programs have been</span>
+<span class="go">                         already run and the intermediate files were not cleaned</span>
+
+<span class="go">Options for Macromodeling Sampling</span>
+<span class="go">   seting any of these options will do the sampling in macromodel to build</span>
+<span class="go">   a sidechain library.  Otherwise a series of libraries will be indentified</span>
+<span class="go">   to be combined together in plop later.</span>
+
+<span class="go">   -c=&lt;FILENAME&gt;    Use the following pdb/mae file as an exhaustive list of</span>
+<span class="go">                    all confomers.  This must be one file with multiple</span>
+<span class="go">                    models/entries.  Still uses macromodel to find rotatable</span>
+<span class="go">                    bonds.</span>
+<span class="go">   -n=&lt;number&gt;      Maximum Number of Entries in Rotamer File</span>
+<span class="go">   -a=&lt;CGEN,MCMM...&gt; Type of Search to Run for Sidechains, if none is specified</span>
+<span class="go">                    it will use PLOP sampling</span>
+<span class="go">   -ba=&lt;CGEN,MCMM...&gt;Type of Search to Run for Backbones, if none is specified it</span>
+<span class="go">                    will not be sampled and a backbone library and no backbone</span>
+<span class="go">                    library will be created</span>
+<span class="go">   -s=&lt;number&gt;      Maximum Conformers to Sample</span>
+<span class="go">   -e=&lt;number&gt;      Energy Cutoff (in kJ/mole)</span>
+<span class="go">   -md=&lt;number&gt;     Maximum distance between atoms in equivalent struct(A)</span>
+<span class="go">Options for Unnatural Amino Acids</span>
+<span class="go">   -chain=&lt;chain&gt;   For output of PLOP-style nonstandard residue specification,</span>
+<span class="go">                    set the chain name equal to what it would be in the whole</span>
+<span class="go">                    macromolecule</span>
+<span class="go">   -res=&lt;num&gt;       For output of PLOP-style nonstandard residue specification,</span>
+<span class="go">                    set the residue number equal to what it would be in the whole</span>
+<span class="go">                    macromolecule</span>
+
+<span class="go">Mae file should be properly atomtyped</span>
+
+<span class="go">Most common problem:  As part of this procedure the pdb atom names are often renamed when they are not unique. Alsothis procedure works best if the ligand is minimized.  For these two reasons an atomtyped, minimzed version of the input ligand is written to (input).PlopRotTemp.pdb.  If at all possible, use the ligand structure and atom names from this file in any subsequent plop runs.</span>
+
+<span class="go">examples:</span>
+<span class="go">Build a rotamer library for the following ligand at a grid resolution of 20 deg using PLOP/PRIME to combine libraries</span>
+<span class="gp">$</span>SCHRODINGER/utilities/python PlopRotTemp.py 3ert_lig.mae -g<span class="o">=</span><span class="m">20</span>
+
+<span class="go">Build a rotamer library for the following ligand at using CGEN sampling in macromodel.</span>
+<span class="gp">$</span>SCHRODINGER/utilities/python PlopRotTemp.py 3ert_lig.mae -a<span class="o">=</span>CGEN
+
+<span class="go">Build a rotamer library for the following ligand at a grid resolution of 20 deg using macromodel to sample any rings and combining this with freely rotatable libraries in PLOP to create combined libraries for the ligand.</span>
+<span class="gp">$</span>SCHRODINGER/utilities/python PlopRotTemp.py 1rth_lig.mae -r<span class="o">=</span>yes
+
+<span class="go">Make libraries for rotatable bonds in ligand.mae up to a maximum of 4 rotatable bonds in each library</span>
+<span class="go">All additional bonds are defined as backbone and are sampled with CGEN to produce a backbone libary</span>
+<span class="gp">$</span>SCHRODINGER/utilities/python PlopRotTemp.py ligand.mae -mtor<span class="o">=</span><span class="m">4</span> -ba<span class="o">=</span>CGEN
+
+<span class="go">For a given ligand named LIG the following files will be created:</span>
+<span class="go">lig                - Template file for use in PLOP, its zmatrix matches the libraries created</span>
+<span class="go">LIG.rot.assign     - Summary of all libraries build or used for this ligand read into plop with the command</span>
+<span class="go">                     &quot;rot assign all&quot;</span>
+<span class="go">LIG???.side        - (OPTIONAL) Component sidechains libraries created if there are closed rings or CGEN sampling is used</span>
+<span class="go">LIG__B.back        - (OPTIONAL) Backbone sidechain library</span>
+
+<span class="go">---------------------------------------------------------------------------------------------------------</span>
+
+<span class="go">All jobs run on the localhost</span>
+
+<span class="go">usage: &quot;$SCHRODINGER/utilities/python PlopRotTemp.py [file.mae]&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="amber">
+<h3>AMBER<a class="headerlink" href="#amber" title="Permalink to this headline">¶</a></h3>
+<p>A quick way to create a template file for any of the AMBER force fields used in PELE is by using the <code class="file docutils literal"><span class="pre">scripts/transformLigandOPLSTemplateToAmber.py</span></code> script that comes with PELE. Notice that this script needs an existing OPLS template file to work, and that it uses exactly the same parameters as in OPLS, but transforms them as needed by AMBER. This only affects the radii, which are expressed as diameters in OPLS, but as radii in AMBER. The OPLS parameters may, or may not, work for your system, so proceed with caution.</p>
+<p>To create the AMBER template for your ligand template <code class="docutils literal"><span class="pre">lig</span></code> (without the ending character <code class="docutils literal"><span class="pre">z</span></code>), run the script as:</p>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">$</span> python /path/to/pele/scripts/transformLigandOPLSTemplateToAmber.py lig
+</pre></div>
+</div>
+<p>You will find your AMBER template as <code class="file docutils literal"><span class="pre">amberTemplatesResults/ligz</span></code>.</p>
+</div>
+</div>
+<div class="section" id="hetero-group-rotamer-library-files">
+<h2>Hetero group rotamer library files<a class="headerlink" href="#hetero-group-rotamer-library-files" title="Permalink to this headline">¶</a></h2>
+<p>If you have the template file for your molecule, but not the rotamer file, you can create it using, as before, <strong class="program">PlopRotTemp.py</strong> (see <a class="reference internal" href="#sec-molecularparameters-templateparameters-opls"><span class="std std-ref">OPLS</span></a>). Notice that, since <strong class="program">PlopRotTemp.py</strong> works with OPLS, your template file may need to be an OPLS template file (though the rotamer file will be useful for any force field). You will still need as input a MAE file. The output will be, again, a template file with the name of the ligand (this will be a copy of the input template file), and a rotamer file.</p>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">$</span> python /path/to/scripts/PlopRotTemp.py -t<span class="o">=</span>myligand.template myligand.mae
+</pre></div>
+</div>
+<p>As before (for the template and rotamer files generation), you can place your rotamer file inside <code class="file docutils literal"><span class="pre">./DataLocal/LigandRotamerLibs/</span></code>; use <code class="file docutils literal"><span class="pre">Data/</span></code> instead of <code class="file docutils literal"><span class="pre">./DataLocal/</span></code> if you are updating the central database.</p>
+<p>It is important that you review the rotamer library file generated, since PELE will become inefficient with side chains of over 5 or 6 rotatable bonds. It will usually be safe to remove the last rotatable bonds in each side chain (each group in the rotamer library file); these terminal groups are usually alcohol or methyl groups whose flexibility is not very important to be completely modeled as rotamers during a PELE simulation, since the most suitable conformation for those atoms will probably be found during the minimizations performed by PELE. If you still have many rotamers, you may try that <strong class="program">PlopRotTemp.py</strong> chooses the rotatable bonds for you, or you may remove the <code class="docutils literal"><span class="pre">sidelib</span></code> lines in the file that represent the rotatable bonds that you may sacrifice for your simulation.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PELE Molecular Parameters</a><ul>
+<li><a class="reference internal" href="#solvent-parameters">Solvent parameters</a><ul>
+<li><a class="reference internal" href="#obc">OBC</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#template-parameters">Template parameters</a><ul>
+<li><a class="reference internal" href="#opls">OPLS</a><ul>
+<li><a class="reference internal" href="#adding-the-generated-template-and-rotamer-library-files-to-pele">Adding the generated template and rotamer library files to PELE</a></li>
+<li><a class="reference internal" href="#usage-documentation-for-ploprottemp-py">Usage documentation for <strong class="program">PlopRotTemp.py</strong></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#amber">AMBER</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#hetero-group-rotamer-library-files">Hetero group rotamer library files</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="theory/energyFunction.html"
+                        title="previous chapter">Energy Function</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="adaptive.html"
+                        title="next chapter">Adaptive PELE</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/molecularParameters.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="adaptive.html" title="Adaptive PELE"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="theory/energyFunction.html" title="Energy Function"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PELE 1.5.rev12492 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2016 BARCELONA SUPERCOMPUTING CENTER. See the COPYRIGHT file at the top-level directory of this distribution. 
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.1.
+    <a href="index.html#license">License</a>.
+    </div>
+  </body>
+</html>

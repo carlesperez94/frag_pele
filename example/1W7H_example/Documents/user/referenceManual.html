@@ -1,0 +1,224 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Reference Manual &#8212; PELE 1.5.rev12492 documentation</title>
+    
+    <link rel="stylesheet" href="_static/naturemodified.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.5.rev12492',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="General Structure of a control file in Pele++" href="GeneralStructure/GeneralStructure.html" />
+    <link rel="prev" title="Adaptive PELE" href="adaptive.html" /> 
+    <script type="text/javascript" >
+    MathJax.Hub.Config({
+        TeX: { 
+	  Macros: {
+	    AA: '{\\unicode{xC5}}'
+	  }
+	}
+    });
+    </script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="GeneralStructure/GeneralStructure.html" title="General Structure of a control file in Pele++"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="adaptive.html" title="Adaptive PELE"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PELE 1.5.rev12492 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="reference-manual">
+<h1>Reference Manual<a class="headerlink" href="#reference-manual" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="GeneralStructure/GeneralStructure.html">General Structure of a control file in Pele++</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="GeneralStructure/GeneralStructure.html#the-top-level-configuration-block">The top-level configuration block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GeneralStructure/GeneralStructure.html#initialization">Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GeneralStructure/GeneralStructure.html#commands">commands</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Initialization/Initialization.html">Initialization Block in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Initialization/Initialization_general.html">General description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Complex/Complex.html">Complex Block in Pele++ control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELEinMulticorePlatforms/AdditionalFeaturesUsingMPI.html">Additional features in control file using MPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Solvent/Solvent.html">Solvent Block in Pele++ control file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Commands/commands.html">Commands block in Pele++</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Commands/commands.html#commands">commands</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="PELE/PELESimulation_index.html">PELESimulation command</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PELE/PELESimulation.html">PeleSimulation block in PELE++</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELE/PeleOutput.html">PELE output parameters in Pele++ control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELE/PeleParameters.html">PELE parameters in Pele++ control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELE/PeleTasks.html">PeleTasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RandomGenerator/RandomGenerator.html">Random Generator in Pele++ control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="NonBonding/NonBondingAlgorithms.html">NonBonding in Pele++ control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Perturbation/Perturbation.html">Perturbation Block in Pele++ control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ANM/Anm.html">ANM Block in Pele++ control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ANM/EigenvectorsAndEigenvalues.html">Treatment of eigenvector and eigenvalues by the PELE ANM module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SideChainPrediction/SideChainPrediction.html">SideChainPrediction Block in Pele++ control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Minimization/Minimization.html">Minimization in Pele++ control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PermanentConstraints/PermanentConstraints.html">Permanent constraints in Pele++ control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Sensors/Sensors.html">Sensors Block in Pele++ control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="JumpController/JumpController.html">Jump Controller in Pele++ control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELEDynamicChangesInSimulationParameters/ParametersThatCanChange.html">Changeable Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELEDynamicChangesInSimulationParameters/PELEDynamicChangesInSimulationParameters.html">PELE: Dynamic Changes in simulation parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ExitConditions/ExitConditions.html">Exit Conditions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="LogicalConditions/ConditionsByExample.html">Conditions in Pele++ control file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="LogicalConditions/ConditionsByExample.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="LogicalConditions/ConditionsByExample.html#configuration-blocks-where-logical-conditions-are-used">Configuration blocks where logical conditions are used</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Selections/SelectionExamples.html">Selections By Example</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-1">Example 1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-2">Example 2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-3">Example 3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-4">Example 4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-5">Example 5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-6">Example 6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-7">Example 7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-8">Example 8</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-9">Example 9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-10">Example 10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-11">Example 11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-12">Example 12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-13">Example 13</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-14">Example 14</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-15">Example 15</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Selections/SelectionExamples.html#example-16">Example 16</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="PELEinMulticorePlatforms/HowToRunPeleInMulticorePlatforms.html">How to run PELE in multicore platforms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PELEinMulticorePlatforms/HowToRunPeleInMulticorePlatforms.html#openmp">OpenMP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELEinMulticorePlatforms/HowToRunPeleInMulticorePlatforms.html#mpi">MPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELEinMulticorePlatforms/HowToRunPeleInMulticorePlatforms.html#mpi-openmp">MPI + OpenMP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PELEinMulticorePlatforms/HowToRunPeleInMulticorePlatforms.html#cuda-experimental">CUDA (Experimental)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pca.html">PCA for the perturbation phase of PELE</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pca.html#usage">Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="realTimeControl.html">Real Time Control of PELE simulations (experimental)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="realTimeControl.html#configure-real-time-control-of-a-pele-simulation">Configure real time control of a PELE simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="realTimeControl.html#write-commands-to-the-command-input-file">Write commands to the command input file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fileFormats.html">PELE File Formats</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fileFormats.html#impact-template-file-format">IMPACT template file format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fileFormats.html#pele-custom-template-file-format">PELE custom template file format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fileFormats.html#non-ligand-rotamer-library-file">Non-ligand rotamer library file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fileFormats.html#ligand-rotamer-library-file">Ligand rotamer library file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fileFormats.html#elements-parameters-file">Elements Parameters file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fileFormats.html#solvent-parameters-for-sgb">Solvent parameters for SGB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fileFormats.html#solvent-penalty-terms">Solvent penalty terms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fileFormats.html#normal-modes-file-format-nmd">Normal modes file format (NMD)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="defaultParameters.html">PELE default parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorMessages.html">PELE Error Messages</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="errorMessages.html#general-errors-in-the-control-file">General errors in the control file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errorMessages.html#template-and-parameter-related-errors">Template and parameter related errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errorMessages.html#selection-errors">Selection errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errorMessages.html#miscellanea">Miscellanea</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="adaptive.html"
+                        title="previous chapter">Adaptive PELE</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="GeneralStructure/GeneralStructure.html"
+                        title="next chapter">General Structure of a control file in Pele++</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/referenceManual.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="GeneralStructure/GeneralStructure.html" title="General Structure of a control file in Pele++"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="adaptive.html" title="Adaptive PELE"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PELE 1.5.rev12492 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2016 BARCELONA SUPERCOMPUTING CENTER. See the COPYRIGHT file at the top-level directory of this distribution. 
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.1.
+    <a href="index.html#license">License</a>.
+    </div>
+  </body>
+</html>

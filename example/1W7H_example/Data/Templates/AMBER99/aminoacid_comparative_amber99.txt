@@ -1,0 +1,765 @@
+	############################################################
+	###########################TESTER###########################
+	############################################################
+
+	*) Program that runs pele, tinker or plop and compares
+	the results given by pele with those given by tinker or plop
+	*)For the tests involving tinker it must be afforded a valid
+	and unique force field
+	*) Add the samples that you want to work with as an argument
+	in the following way: "plop_sample.pdb", or, alternatively,
+	add "All" to work with all the non-isolated
+	samples in the pdbxyzPath folder
+
+
+Samples:
+['plop_trp.pdb', 'plop_ser.pdb', 'plop_phe.pdb', 'plop_asp.pdb', 'plop_hid.pdb', 'plop_arg.pdb', 'plop_glu.pdb', 'plop_isr_out.pdb', 'plop_ash.pdb', 'plop_hip.pdb', 'plop_met.pdb', 'plop_lyn.pdb', 'plop_thr.pdb', 'plop_ile.pdb', 'plop_pro.pdb', 'plop_gln.pdb', 'plop_leu.pdb', 'plop_val.pdb', 'plop_ala.pdb', 'plop_arn.pdb', 'plop_gly.pdb', 'plop_hie.pdb', 'plop_tyr.pdb', 'plop_lys.pdb', 'plop_glh.pdb', 'plop_cys.pdb', 'plop_asn.pdb']
+
+DOING ..... plop_trp.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['ATRP2C-ATRP2CA-ATRP2N-ATRP3N-_2_-tor', 'ATRP2C-ATRP2CA-ATRP2N-ATRP3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['ATRP3C-ATRP3CA-ATRP3O-ATRP4N-_2_-imptor', 'ATRP2C-ATRP3CA-ATRP3H-ATRP3N-_2_-imptor', 'ATRP2C-ATRP2CA-ATRP2O-ATRP3N-_2_-imptor', 'ATRP3C-ATRP4CA-ATRP4H-ATRP4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+ATRP2C-ATRP2CA-ATRP2N-ATRP3N-_2_-2.0--1.0-tor
+ATRP2C-ATRP2CA-ATRP2N-ATRP3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+ATRP2C-ATRP2CA-ATRP2O-ATRP3N-_2_-10.5--1.0-imptor
+ATRP3C-ATRP3CA-ATRP3O-ATRP4N-_2_-10.5--1.0-imptor
+ATRP2C-ATRP3CA-ATRP3H-ATRP3N-_2_-1.0--1.0-imptor
+ATRP3C-ATRP4CA-ATRP4H-ATRP4N-_2_-1.0--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_ser.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['ASER2C-ASER2CA-ASER2N-ASER3N-_2_-tor', 'ASER2C-ASER2CA-ASER2N-ASER3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['ASER2C-ASER3CA-ASER3H-ASER3N-_2_-imptor', 'ASER3C-ASER3CA-ASER3O-ASER4N-_2_-imptor', 'ASER2C-ASER2CA-ASER2O-ASER3N-_2_-imptor', 'ASER3C-ASER4CA-ASER4H-ASER4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+ASER2C-ASER2CA-ASER2N-ASER3N-_2_-2.0--1.0-tor
+ASER2C-ASER2CA-ASER2N-ASER3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+ASER3C-ASER3CA-ASER3O-ASER4N-_2_-10.5--1.0-imptor
+ASER3C-ASER4CA-ASER4H-ASER4N-_2_-1.0--1.0-imptor
+ASER2C-ASER3CA-ASER3H-ASER3N-_2_-1.0--1.0-imptor
+ASER2C-ASER2CA-ASER2O-ASER3N-_2_-10.5--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_phe.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['APHE2C-APHE2CA-APHE2N-APHE3N-_2_-tor', 'APHE2C-APHE2CA-APHE2N-APHE3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['APHE3C-APHE3CA-APHE3O-APHE4N-_2_-imptor', 'APHE2C-APHE2CA-APHE2O-APHE3N-_2_-imptor', 'APHE3C-APHE4CA-APHE4H-APHE4N-_2_-imptor', 'APHE2C-APHE3CA-APHE3H-APHE3N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+APHE2C-APHE2CA-APHE2N-APHE3N-_2_-2.0--1.0-tor
+APHE2C-APHE2CA-APHE2N-APHE3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+APHE2C-APHE3CA-APHE3H-APHE3N-_2_-1.0--1.0-imptor
+APHE2C-APHE2CA-APHE2O-APHE3N-_2_-10.5--1.0-imptor
+APHE3C-APHE3CA-APHE3O-APHE4N-_2_-10.5--1.0-imptor
+APHE3C-APHE4CA-APHE4H-APHE4N-_2_-1.0--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_asp.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AASP2C-AASP2CA-AASP2N-AASP3N-_2_-tor', 'AASP2C-AASP2CA-AASP2N-AASP3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['AASP3C-AASP3CA-AASP3O-AASP4N-_2_-imptor', 'AASP2C-AASP2CA-AASP2O-AASP3N-_2_-imptor', 'AASP3C-AASP4CA-AASP4H-AASP4N-_2_-imptor', 'AASP2C-AASP3CA-AASP3H-AASP3N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+AASP2C-AASP2CA-AASP2N-AASP3N-_2_-2.0--1.0-tor
+AASP2C-AASP2CA-AASP2N-AASP3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+AASP2C-AASP3CA-AASP3H-AASP3N-_2_-1.0--1.0-imptor
+AASP2C-AASP2CA-AASP2O-AASP3N-_2_-10.5--1.0-imptor
+AASP3C-AASP3CA-AASP3O-AASP4N-_2_-10.5--1.0-imptor
+AASP3C-AASP4CA-AASP4H-AASP4N-_2_-1.0--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_hid.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AHID2C-AHID2CA-AHID2N-AHID3N-_2_-tor', 'AHID2C-AHID2CA-AHID2N-AHID3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['AHID3C-AHID3CA-AHID3O-AHID4N-_2_-imptor', 'AHID2C-AHID3CA-AHID3H-AHID3N-_2_-imptor', 'AHID2C-AHID2CA-AHID2O-AHID3N-_2_-imptor', 'AHID3C-AHID4CA-AHID4H-AHID4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+AHID2C-AHID2CA-AHID2N-AHID3N-_2_-2.0--1.0-tor
+AHID2C-AHID2CA-AHID2N-AHID3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+AHID2C-AHID2CA-AHID2O-AHID3N-_2_-10.5--1.0-imptor
+AHID3C-AHID3CA-AHID3O-AHID4N-_2_-10.5--1.0-imptor
+AHID2C-AHID3CA-AHID3H-AHID3N-_2_-1.0--1.0-imptor
+AHID3C-AHID4CA-AHID4H-AHID4N-_2_-1.0--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_arg.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AARG2C-AARG2CA-AARG2N-AARG3N-_2_-tor', 'AARG2C-AARG2CA-AARG2N-AARG3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['AARG3C-AARG3CA-AARG3O-AARG4N-_2_-imptor', 'AARG2C-AARG3CA-AARG3H-AARG3N-_2_-imptor', 'AARG2C-AARG2CA-AARG2O-AARG3N-_2_-imptor', 'AARG3C-AARG4CA-AARG4H-AARG4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+AARG2C-AARG2CA-AARG2N-AARG3N-_2_-2.0--1.0-tor
+AARG2C-AARG2CA-AARG2N-AARG3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+AARG3C-AARG3CA-AARG3O-AARG4N-_2_-10.5--1.0-imptor
+AARG2C-AARG3CA-AARG3H-AARG3N-_2_-1.0--1.0-imptor
+AARG3C-AARG4CA-AARG4H-AARG4N-_2_-1.0--1.0-imptor
+AARG2C-AARG2CA-AARG2O-AARG3N-_2_-10.5--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_glu.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AGLU2C-AGLU2CA-AGLU2N-AGLU3N-_2_-tor', 'AGLU2C-AGLU2CA-AGLU2N-AGLU3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['AGLU3C-AGLU3CA-AGLU3O-AGLU4N-_2_-imptor', 'AGLU2C-AGLU3CA-AGLU3H-AGLU3N-_2_-imptor', 'AGLU2C-AGLU2CA-AGLU2O-AGLU3N-_2_-imptor', 'AGLU3C-AGLU4CA-AGLU4H-AGLU4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+AGLU2C-AGLU2CA-AGLU2N-AGLU3N-_2_-2.0--1.0-tor
+AGLU2C-AGLU2CA-AGLU2N-AGLU3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+AGLU2C-AGLU2CA-AGLU2O-AGLU3N-_2_-10.5--1.0-imptor
+AGLU3C-AGLU3CA-AGLU3O-AGLU4N-_2_-10.5--1.0-imptor
+AGLU2C-AGLU3CA-AGLU3H-AGLU3N-_2_-1.0--1.0-imptor
+AGLU3C-AGLU4CA-AGLU4H-AGLU4N-_2_-1.0--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_isr_out.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AGLY2N-AILE1C-AILE1CA-AILE1N-_2_-tor', 'AGLY2N-AILE1C-AILE1CA-AILE1N-_1_-tor'])
+	xtra terms in TOR tinker 10
+	xtra terms in TOR pele PARAMS 2
+AGLY2N-AILE1C-AILE1CA-AILE1N-_2_-2.0--1.0-tor
+AGLY2N-AILE1C-AILE1CA-AILE1N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 10
+AGLY6N-ATYR5C-ATYR5CA-ATYR5O-_2_-10.5--1.0-imptor
+APHE4C-APHE4CA-APHE4O-ATYR5N-_2_-10.5--1.0-imptor
+AGLY2C-AGLY2CA-AGLY2O-ALEU3N-_2_-10.5--1.0-imptor
+AGLY2C-ALEU3CA-ALEU3H-ALEU3N-_2_-1.0--1.0-imptor
+AGLY6CA-AGLY6H-AGLY6N-ATYR5C-_2_-1.0--1.0-imptor
+ALEU3C-ALEU3CA-ALEU3O-APHE4N-_2_-10.5--1.0-imptor
+ALEU3C-APHE4CA-APHE4H-APHE4N-_2_-1.0--1.0-imptor
+AGLY2CA-AGLY2H-AGLY2N-AILE1C-_2_-1.0--1.0-imptor
+AGLY2N-AILE1C-AILE1CA-AILE1O-_2_-10.5--1.0-imptor
+APHE4C-ATYR5CA-ATYR5H-ATYR5N-_2_-1.0--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_ash.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	List  Tor OK
+	List  torsion PARAMS OK
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_hip.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AHIP2C-AHIP2CA-AHIP2N-AHIP3N-_2_-tor', 'AHIP2C-AHIP2CA-AHIP2N-AHIP3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['AHIP3C-AHIP3CA-AHIP3O-AHIP4N-_2_-imptor', 'AHIP2C-AHIP3CA-AHIP3H-AHIP3N-_2_-imptor', 'AHIP2C-AHIP2CA-AHIP2O-AHIP3N-_2_-imptor', 'AHIP3C-AHIP4CA-AHIP4H-AHIP4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+AHIP2C-AHIP2CA-AHIP2N-AHIP3N-_2_-2.0--1.0-tor
+AHIP2C-AHIP2CA-AHIP2N-AHIP3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+AHIP2C-AHIP2CA-AHIP2O-AHIP3N-_2_-10.5--1.0-imptor
+AHIP3C-AHIP3CA-AHIP3O-AHIP4N-_2_-10.5--1.0-imptor
+AHIP2C-AHIP3CA-AHIP3H-AHIP3N-_2_-1.0--1.0-imptor
+AHIP3C-AHIP4CA-AHIP4H-AHIP4N-_2_-1.0--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_met.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AMET2C-AMET2CA-AMET2N-AMET3N-_2_-tor', 'AMET2C-AMET2CA-AMET2N-AMET3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['AMET2C-AMET3CA-AMET3H-AMET3N-_2_-imptor', 'AMET3C-AMET3CA-AMET3O-AMET4N-_2_-imptor', 'AMET2C-AMET2CA-AMET2O-AMET3N-_2_-imptor', 'AMET3C-AMET4CA-AMET4H-AMET4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+AMET2C-AMET2CA-AMET2N-AMET3N-_2_-2.0--1.0-tor
+AMET2C-AMET2CA-AMET2N-AMET3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+AMET3C-AMET3CA-AMET3O-AMET4N-_2_-10.5--1.0-imptor
+AMET3C-AMET4CA-AMET4H-AMET4N-_2_-1.0--1.0-imptor
+AMET2C-AMET3CA-AMET3H-AMET3N-_2_-1.0--1.0-imptor
+AMET2C-AMET2CA-AMET2O-AMET3N-_2_-10.5--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_lyn.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	List  Tor OK
+	List  torsion PARAMS OK
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_thr.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['ATHR2C-ATHR2CA-ATHR2N-ATHR3N-_2_-tor', 'ATHR2C-ATHR2CA-ATHR2N-ATHR3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['ATHR3C-ATHR3CA-ATHR3O-ATHR4N-_2_-imptor', 'ATHR2C-ATHR3CA-ATHR3H-ATHR3N-_2_-imptor', 'ATHR2C-ATHR2CA-ATHR2O-ATHR3N-_2_-imptor', 'ATHR3C-ATHR4CA-ATHR4H-ATHR4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+ATHR2C-ATHR2CA-ATHR2N-ATHR3N-_2_-2.0--1.0-tor
+ATHR2C-ATHR2CA-ATHR2N-ATHR3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+ATHR2C-ATHR2CA-ATHR2O-ATHR3N-_2_-10.5--1.0-imptor
+ATHR3C-ATHR3CA-ATHR3O-ATHR4N-_2_-10.5--1.0-imptor
+ATHR2C-ATHR3CA-ATHR3H-ATHR3N-_2_-1.0--1.0-imptor
+ATHR3C-ATHR4CA-ATHR4H-ATHR4N-_2_-1.0--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_ile.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AILE2C-AILE2CA-AILE2N-AILE3N-_2_-tor', 'AILE2C-AILE2CA-AILE2N-AILE3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['AILE3C-AILE3CA-AILE3O-AILE4N-_2_-imptor', 'AILE2C-AILE3CA-AILE3H-AILE3N-_2_-imptor', 'AILE2C-AILE2CA-AILE2O-AILE3N-_2_-imptor', 'AILE3C-AILE4CA-AILE4H-AILE4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+AILE2C-AILE2CA-AILE2N-AILE3N-_2_-2.0--1.0-tor
+AILE2C-AILE2CA-AILE2N-AILE3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+AILE3C-AILE3CA-AILE3O-AILE4N-_2_-10.5--1.0-imptor
+AILE2C-AILE3CA-AILE3H-AILE3N-_2_-1.0--1.0-imptor
+AILE3C-AILE4CA-AILE4H-AILE4N-_2_-1.0--1.0-imptor
+AILE2C-AILE2CA-AILE2O-AILE3N-_2_-10.5--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_pro.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['APRO2C-APRO2CA-APRO2N-APRO3N-_2_-tor', 'APRO2C-APRO2CA-APRO2N-APRO3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['APRO3C-APRO3CA-APRO3O-APRO4N-_2_-imptor', 'APRO2C-APRO2CA-APRO2O-APRO3N-_2_-imptor', 'APRO2C-APRO3CA-APRO3CD-APRO3N-_2_-imptor', 'APRO3C-APRO4CA-APRO4CD-APRO4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+APRO2C-APRO2CA-APRO2N-APRO3N-_2_-2.0--1.0-tor
+APRO2C-APRO2CA-APRO2N-APRO3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+APRO2C-APRO3CA-APRO3CD-APRO3N-_2_-0.5--1.0-imptor
+APRO2C-APRO2CA-APRO2O-APRO3N-_2_-10.5--1.0-imptor
+APRO3C-APRO3CA-APRO3O-APRO4N-_2_-10.5--1.0-imptor
+APRO3C-APRO4CA-APRO4CD-APRO4N-_2_-0.5--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_gln.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AGLN2C-AGLN2CA-AGLN2N-AGLN3N-_2_-tor', 'AGLN2C-AGLN2CA-AGLN2N-AGLN3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['AGLN3C-AGLN3CA-AGLN3O-AGLN4N-_2_-imptor', 'AGLN2C-AGLN2CA-AGLN2O-AGLN3N-_2_-imptor', 'AGLN3C-AGLN4CA-AGLN4H-AGLN4N-_2_-imptor', 'AGLN2C-AGLN3CA-AGLN3H-AGLN3N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+AGLN2C-AGLN2CA-AGLN2N-AGLN3N-_2_-2.0--1.0-tor
+AGLN2C-AGLN2CA-AGLN2N-AGLN3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+AGLN2C-AGLN3CA-AGLN3H-AGLN3N-_2_-1.0--1.0-imptor
+AGLN2C-AGLN2CA-AGLN2O-AGLN3N-_2_-10.5--1.0-imptor
+AGLN3C-AGLN3CA-AGLN3O-AGLN4N-_2_-10.5--1.0-imptor
+AGLN3C-AGLN4CA-AGLN4H-AGLN4N-_2_-1.0--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_leu.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['ALEU2C-ALEU2CA-ALEU2N-ALEU3N-_2_-tor', 'ALEU2C-ALEU2CA-ALEU2N-ALEU3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['ALEU2C-ALEU3CA-ALEU3H-ALEU3N-_2_-imptor', 'ALEU3C-ALEU3CA-ALEU3O-ALEU4N-_2_-imptor', 'ALEU2C-ALEU2CA-ALEU2O-ALEU3N-_2_-imptor', 'ALEU3C-ALEU4CA-ALEU4H-ALEU4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+ALEU2C-ALEU2CA-ALEU2N-ALEU3N-_2_-2.0--1.0-tor
+ALEU2C-ALEU2CA-ALEU2N-ALEU3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+ALEU3C-ALEU3CA-ALEU3O-ALEU4N-_2_-10.5--1.0-imptor
+ALEU3C-ALEU4CA-ALEU4H-ALEU4N-_2_-1.0--1.0-imptor
+ALEU2C-ALEU3CA-ALEU3H-ALEU3N-_2_-1.0--1.0-imptor
+ALEU2C-ALEU2CA-ALEU2O-ALEU3N-_2_-10.5--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_val.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AVAL2C-AVAL2CA-AVAL2N-AVAL3N-_2_-tor', 'AVAL2C-AVAL2CA-AVAL2N-AVAL3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['AVAL3C-AVAL3CA-AVAL3O-AVAL4N-_2_-imptor', 'AVAL2C-AVAL3CA-AVAL3H-AVAL3N-_2_-imptor', 'AVAL2C-AVAL2CA-AVAL2O-AVAL3N-_2_-imptor', 'AVAL3C-AVAL4CA-AVAL4H-AVAL4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+AVAL2C-AVAL2CA-AVAL2N-AVAL3N-_2_-2.0--1.0-tor
+AVAL2C-AVAL2CA-AVAL2N-AVAL3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+AVAL3C-AVAL3CA-AVAL3O-AVAL4N-_2_-10.5--1.0-imptor
+AVAL2C-AVAL3CA-AVAL3H-AVAL3N-_2_-1.0--1.0-imptor
+AVAL3C-AVAL4CA-AVAL4H-AVAL4N-_2_-1.0--1.0-imptor
+AVAL2C-AVAL2CA-AVAL2O-AVAL3N-_2_-10.5--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_ala.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AALA2C-AALA2CA-AALA2N-AALA3N-_2_-tor', 'AALA2C-AALA2CA-AALA2N-AALA3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['AALA3C-AALA3CA-AALA3O-AALA4N-_2_-imptor', 'AALA2C-AALA3CA-AALA3H-AALA3N-_2_-imptor', 'AALA2C-AALA2CA-AALA2O-AALA3N-_2_-imptor', 'AALA3C-AALA4CA-AALA4H-AALA4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+AALA2C-AALA2CA-AALA2N-AALA3N-_2_-2.0--1.0-tor
+AALA2C-AALA2CA-AALA2N-AALA3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+AALA3C-AALA3CA-AALA3O-AALA4N-_2_-10.5--1.0-imptor
+AALA2C-AALA3CA-AALA3H-AALA3N-_2_-1.0--1.0-imptor
+AALA3C-AALA4CA-AALA4H-AALA4N-_2_-1.0--1.0-imptor
+AALA2C-AALA2CA-AALA2O-AALA3N-_2_-10.5--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_arn.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	List  Tor OK
+	List  torsion PARAMS OK
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_gly.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AGLY2C-AGLY2CA-AGLY2N-AGLY3N-_2_-tor', 'AGLY2C-AGLY2CA-AGLY2N-AGLY3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['AGLY3C-AGLY3CA-AGLY3O-AGLY4N-_2_-imptor', 'AGLY2C-AGLY3CA-AGLY3H-AGLY3N-_2_-imptor', 'AGLY2C-AGLY2CA-AGLY2O-AGLY3N-_2_-imptor', 'AGLY3C-AGLY4CA-AGLY4H-AGLY4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+AGLY2C-AGLY2CA-AGLY2N-AGLY3N-_2_-2.0--1.0-tor
+AGLY2C-AGLY2CA-AGLY2N-AGLY3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+AGLY2C-AGLY2CA-AGLY2O-AGLY3N-_2_-10.5--1.0-imptor
+AGLY3C-AGLY3CA-AGLY3O-AGLY4N-_2_-10.5--1.0-imptor
+AGLY2C-AGLY3CA-AGLY3H-AGLY3N-_2_-1.0--1.0-imptor
+AGLY3C-AGLY4CA-AGLY4H-AGLY4N-_2_-1.0--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_hie.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AHIE2C-AHIE2CA-AHIE2N-AHIE3N-_2_-tor', 'AHIE2C-AHIE2CA-AHIE2N-AHIE3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['AHIE2C-AHIE3CA-AHIE3H-AHIE3N-_2_-imptor', 'AHIE3C-AHIE3CA-AHIE3O-AHIE4N-_2_-imptor', 'AHIE2C-AHIE2CA-AHIE2O-AHIE3N-_2_-imptor', 'AHIE3C-AHIE4CA-AHIE4H-AHIE4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+AHIE2C-AHIE2CA-AHIE2N-AHIE3N-_2_-2.0--1.0-tor
+AHIE2C-AHIE2CA-AHIE2N-AHIE3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+AHIE3C-AHIE3CA-AHIE3O-AHIE4N-_2_-10.5--1.0-imptor
+AHIE3C-AHIE4CA-AHIE4H-AHIE4N-_2_-1.0--1.0-imptor
+AHIE2C-AHIE3CA-AHIE3H-AHIE3N-_2_-1.0--1.0-imptor
+AHIE2C-AHIE2CA-AHIE2O-AHIE3N-_2_-10.5--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_tyr.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['ATYR2C-ATYR2CA-ATYR2N-ATYR3N-_2_-tor', 'ATYR2C-ATYR2CA-ATYR2N-ATYR3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['ATYR3C-ATYR3CA-ATYR3O-ATYR4N-_2_-imptor', 'ATYR2C-ATYR3CA-ATYR3H-ATYR3N-_2_-imptor', 'ATYR2C-ATYR2CA-ATYR2O-ATYR3N-_2_-imptor', 'ATYR3C-ATYR4CA-ATYR4H-ATYR4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+ATYR2C-ATYR2CA-ATYR2N-ATYR3N-_2_-2.0--1.0-tor
+ATYR2C-ATYR2CA-ATYR2N-ATYR3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+ATYR3C-ATYR3CA-ATYR3O-ATYR4N-_2_-10.5--1.0-imptor
+ATYR2C-ATYR3CA-ATYR3H-ATYR3N-_2_-1.0--1.0-imptor
+ATYR3C-ATYR4CA-ATYR4H-ATYR4N-_2_-1.0--1.0-imptor
+ATYR2C-ATYR2CA-ATYR2O-ATYR3N-_2_-10.5--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_lys.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['ALYS2C-ALYS2CA-ALYS2N-ALYS3N-_2_-tor', 'ALYS2C-ALYS2CA-ALYS2N-ALYS3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['ALYS3C-ALYS3CA-ALYS3O-ALYS4N-_2_-imptor', 'ALYS2C-ALYS2CA-ALYS2O-ALYS3N-_2_-imptor', 'ALYS3C-ALYS4CA-ALYS4H-ALYS4N-_2_-imptor', 'ALYS2C-ALYS3CA-ALYS3H-ALYS3N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+ALYS2C-ALYS2CA-ALYS2N-ALYS3N-_2_-2.0--1.0-tor
+ALYS2C-ALYS2CA-ALYS2N-ALYS3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+ALYS2C-ALYS3CA-ALYS3H-ALYS3N-_2_-1.0--1.0-imptor
+ALYS2C-ALYS2CA-ALYS2O-ALYS3N-_2_-10.5--1.0-imptor
+ALYS3C-ALYS3CA-ALYS3O-ALYS4N-_2_-10.5--1.0-imptor
+ALYS3C-ALYS4CA-ALYS4H-ALYS4N-_2_-1.0--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_glh.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	List  Tor OK
+	List  torsion PARAMS OK
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_cys.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['ACYS2C-ACYS2CA-ACYS2N-ACYS3N-_2_-tor', 'ACYS2C-ACYS2CA-ACYS2N-ACYS3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['ACYS3C-ACYS3CA-ACYS3O-ACYS4N-_2_-imptor', 'ACYS2C-ACYS3CA-ACYS3H-ACYS3N-_2_-imptor', 'ACYS2C-ACYS2CA-ACYS2O-ACYS3N-_2_-imptor', 'ACYS3C-ACYS4CA-ACYS4H-ACYS4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+ACYS2C-ACYS2CA-ACYS2N-ACYS3N-_2_-2.0--1.0-tor
+ACYS2C-ACYS2CA-ACYS2N-ACYS3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+ACYS2C-ACYS2CA-ACYS2O-ACYS3N-_2_-10.5--1.0-imptor
+ACYS3C-ACYS3CA-ACYS3O-ACYS4N-_2_-10.5--1.0-imptor
+ACYS2C-ACYS3CA-ACYS3H-ACYS3N-_2_-1.0--1.0-imptor
+ACYS3C-ACYS4CA-ACYS4H-ACYS4N-_2_-1.0--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_asn.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	xtra terms in TOR pele 2
+set(['AASN2C-AASN2CA-AASN2N-AASN3N-_2_-tor', 'AASN2C-AASN2CA-AASN2N-AASN3N-_1_-tor'])
+	xtra terms in TOR tinker 4
+set(['AASN2C-AASN3CA-AASN3H-AASN3N-_2_-imptor', 'AASN3C-AASN3CA-AASN3O-AASN4N-_2_-imptor', 'AASN2C-AASN2CA-AASN2O-AASN3N-_2_-imptor', 'AASN3C-AASN4CA-AASN4H-AASN4N-_2_-imptor'])
+	xtra terms in TOR pele PARAMS 2
+AASN2C-AASN2CA-AASN2N-AASN3N-_2_-2.0--1.0-tor
+AASN2C-AASN2CA-AASN2N-AASN3N-_1_-1.7--1.0-tor
+	xtra terms in TOR tinker PARAMS 4
+AASN3C-AASN3CA-AASN3O-AASN4N-_2_-10.5--1.0-imptor
+AASN3C-AASN4CA-AASN4H-AASN4N-_2_-1.0--1.0-imptor
+AASN2C-AASN3CA-AASN3H-AASN3N-_2_-1.0--1.0-imptor
+AASN2C-AASN2CA-AASN2O-AASN3N-_2_-10.5--1.0-imptor
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED

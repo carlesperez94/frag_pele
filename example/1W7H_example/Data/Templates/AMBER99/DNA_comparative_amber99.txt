@@ -1,0 +1,93 @@
+	############################################################
+	###########################TESTER###########################
+	############################################################
+
+	*) Program that runs pele, tinker or plop and compares
+	the results given by pele with those given by tinker or plop
+	*)For the tests involving tinker it must be afforded a valid
+	and unique force field
+	*) Add the samples that you want to work with as an argument
+	in the following way: "plop_sample.pdb", or, alternatively,
+	add "All" to work with all the non-isolated
+	samples in the pdbxyzPath folder
+
+
+Samples:
+['plop_da.pdb', 'plop_dt.pdb', 'plop_dg.pdb', 'plop_dc.pdb']
+
+DOING ..... plop_da.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	List  Tor OK
+	List  torsion PARAMS OK
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_dt.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	List  Tor OK
+	List  torsion PARAMS OK
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_dg.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	List  Tor OK
+	List  torsion PARAMS OK
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED
+DOING ..... plop_dc.pdb
+	Pele list read
+	Tinker list read
+	List  bond  OK
+	List  bond PARAMS OK
+	Bond done
+	List  angle OK
+	List  angle PARAMS OK
+	Angle done
+	List  Tor OK
+	List  torsion PARAMS OK
+	Tor done
+	List  vdw OK
+	List  VDW PARAMS OK
+	VDW done
+	List  charge OK
+	List  charge PARAMS OK
+	Charge done
+FINISHED

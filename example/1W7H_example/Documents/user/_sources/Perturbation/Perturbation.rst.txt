@@ -1,0 +1,371 @@
+.. _sec-perturbation:
+
+Perturbation Block in Pele++ control file
+=========================================
+
+Example
+-------
+
+.. code-block:: json
+
+    "Perturbation": {
+        "perturbationType": "naive",
+        "rotationAngles": "nonCoupled",
+        "translationDirection": "steered",
+        "translationRangeType": "spherical",
+        "parameters": {
+            "numberOfStericTrials": 200,
+            "numberOfTrials": 5,
+            "translationRange": 1.75,
+            "rotationScalingFactor": 0.1,
+        "rotationMidrangeFactor": 0.25,
+            "streeringUpdateFrequency": 5,
+            "overlapFactor":0.5
+        }
+    }
+
+Perturbation selection
+----------------------
+
+perturbationType
+^^^^^^^^^^^^^^^^
+
+Use: It selects the ligand perturbation that is going to be used.
+
+Possible values:
+
+-  "naive": Selects the best ligand conformation (i.e. the one with
+   lowest energy) of a certain number of random movements.
+-  "metropolis": The ligand performs a random walk using the Metropolis
+   algorithm.
+
+Default value: No default value. You must indicate it.
+
+translationDirection
+^^^^^^^^^^^^^^^^^^^^
+
+Parameter: TranslationDirectionGenerator \*
+translationDirectionGenerator
+
+Use: Selects the translation direction generation.
+
+Note for developers: Used in AtomSetMover.
+
+Possible values:
+
+-  "random": Chooses a complete random direction.
+-  "steered": Chooses a direction with a Gaussian dispersion with
+   respect to the steering vector. The steering vector is updated
+   according to the "steeringUpdateFrequency".
+
+Default value: "random"
+
+Plop info:
+
+-  Plop control file name: steered
+-  Plop parameter name: liga\_lig%steered
+-  Plop default value: 0
+
+translationRangeType
+^^^^^^^^^^^^^^^^^^^^
+
+Use: Select how to generate the translation vector modules using the
+"translationRange".
+
+Possible values:
+
+-  "spherical": The translation vector is allowed to be inside a sphere
+   centered in the perturbed atom set. That is, the vector modulus is
+   drawn from a uniform distribution in [0,"translationRange"].
+
+-  "centered": The translation vector modulus is drawn from a uniform
+   distribution centered on "translatinRange", [0.75 \*
+   "translationRange", 1.25 \* "translationRange"].
+
+Default value: "centered"
+
+Plop info: There is no equivalence in Plop
+
+rotationAngles
+^^^^^^^^^^^^^^
+
+There are two options to generate the rotation angles using the
+rotationScalingFactor.
+
+Default value: "nonCoupled"
+
+-  coupled: The same rotationScalingFactor is used for every angle.
+
+    - :math:`\phi = \text{rotationScalingFactor} * \text{rand}(-2\pi, 2\pi)`
+
+    - :math:`\psi = \text{rotationScalingFactor} * \text{rand}(-2\pi, 2\pi)`
+
+    - :math:`\theta = \text{rotationScalingFactor} * \text{rand}(-\pi, \pi)`
+
+where :math:`\phi`, :math:`\psi`, and :math:`\theta` are the rotation angles and :math:`\text{rand}(a,b)` is a random
+number in the interval between brackets.
+
+-  nonCoupled: Randomly, rotationScalingFactor is assigned to either 1,
+   2 or 3 angles at random. For the rest, a rotationScalingFactor of
+   0.02 is assigned. The angle is computed as follows: for a target
+   angle :math:`\text{TA} = \text{FAR} * \text{rotationScalingFactor}`, :math:`\text{angle} = \text{sign}(\text{rand}) * \text{rand}((1-\text{RRF})*\text{TA}, (1+\text{RRF}) * \text{TA})`, where FAR (full angle range) is :math:`2\pi` for
+   :math:`\phi` and :math:`\psi`, and :math:`\pi` for :math:`\theta`, and RRF is the rotationRangeFactor.
+
+.. _sec-perturbation-parameters:
+
+Parameters
+----------
+
+numberOfSteps
+^^^^^^^^^^^^^
+
+Parameter: unsigned int numberOfSteps
+
+Use: Number of steps in the 'metropolis' algorithm.
+
+Note for developers: Used in LigandPerturbationMetropolis::perturbLigand
+
+Range: An integer in [1,inf).
+
+Units: Dimensionless.
+
+Default value: 1000.
+
+Plop info: There is no equivalence in Plop
+
+numberOfTrials
+^^^^^^^^^^^^^^
+
+Parameter: unsigned int numberOfTrials.
+
+Use: Number of iterations in the 'naive' algorithm.
+
+Note for developers: Used in LigandPerturbationNaive::perturbLigand.
+
+Range: An integer in [1,inf).
+
+Units: Dimensionless.
+
+Default value: 10
+
+Plop info:
+
+-  Plop control file name: 'tries'
+-  Plop parameter name: liga\_params%tries
+-  Plop default value: 1
+
+numberOfStericTrials
+^^^^^^^^^^^^^^^^^^^^
+
+Parameter: unsigned int numberOfStericTries.
+
+Use: Number of tries to get a non-clashing conformation for each trial
+in 'numberOfTrials'.
+
+Note for developers: Used in LigandPerturbationNaive::perturbLigand.
+
+Range: An integer in [1,inf).
+
+Units: Dimensionless.
+
+Default value: 500
+
+Plop info:
+
+-  Plop control file name: 'steric\_tr'
+-  Plop parameter name: liga\_params%max\_steric\_tries
+-  Plop default value: 1000
+
+atLeastOneSelectedTrial
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Parameter: boolean atLeastOneSelectedTrial.
+
+Use: Whether to do the perturbation phase to last until, at least, one
+trial has been selected. However, at most maxTrialsForAtLeastOne trials
+would ever be done.
+
+Default value: false
+
+Plop info: There is no equivalence in Plop.
+
+maxTrialsForAtLeastOne
+^^^^^^^^^^^^^^^^^^^^^^
+
+Parameter: unsigned int numberOfStericTries.
+
+Use: Only considered if atLeastOneSelectedTrial is true. In such a case,
+it is the maximum number of iterations/steps done in the perturbation.
+
+Range: An integer in [1,inf).
+
+Units: Dimensionless.
+
+Default value: 1000
+
+Plop info: There is no equivalence in Plop.
+
+rotationScalingFactor
+^^^^^^^^^^^^^^^^^^^^^
+
+Parameter: double rotationScalingFactor.
+
+Use: Factor used to generate the rotation angles.
+
+Note for developers: Used in LigandPerturbation::rotateRandomly.
+
+Range: [0, 0.5]
+
+Units: Dimensionless.
+
+Default value: 0.5
+
+Plop info:
+
+-  Plop control file name: 'rot\_r'
+-  Plop parameter name: liga\_params%rot\_range
+-  Plop default value: 0
+
+rotationRangeFactor
+^^^^^^^^^^^^^^^^^^^
+
+Parameter: double rotationRangeFactor.
+
+Use: Factor used to generate the range of allowed rotation angles. Given
+a rotation angle target value TA, the allowed range of angles will be
+[(1-RRF)*TA, (1+RRF)*\ TA)], being RRF the rotationRangeFactor.
+
+Note for developers: Used in LigandPerturbation::rotateRandomly.
+
+Range: [0, 1.0]
+
+Units: Dimensionless.
+
+Default value: 0.25
+
+Plop info: There is no equivalence in Plop.
+
+translationRange
+^^^^^^^^^^^^^^^^
+
+Parameter: double translationRange.
+
+Use: Factor in the length of the random translation.
+
+:math:`\text{shift} = \text{translationRange} * \text{rand}(1,2)`
+
+Note for developers: Used in LigandPerturbation::translateRandomly.
+
+Range: (0,inf)
+
+Units: :math:`\AA{}`
+
+Default value: 1
+
+Plop info:
+
+-  Plop control file name: 'tra\_r'
+-  Plop parameter name: liga\_params%tr\_range
+-  Plop default value: 0
+
+overlapFactor
+^^^^^^^^^^^^^
+
+Parameter: double overlapFactor.
+
+Use: See side chain section for more information.
+
+Note for developers: Used to find and relieve ligand side chain clashes
+in ClashesReliever and Perturbation.
+
+Range: [0,inf)
+
+Units: Dimensionless.
+
+Default value: 0.6
+
+Plop info: Plop uses the same overlap factor that uses for the proteins.
+
+-  Plop control file name: 'ofac\_min'
+-  Plop parameter name: side\_params%tree\_params%ofac\_min
+-  Plop default value: 0.7
+
+temperature
+^^^^^^^^^^^
+
+Parameter: double temperature.
+
+Use: Used in the acceptance criterion in the ligand perturbation
+Metropolis algorithm.
+
+Note for developers: Used in
+LigandPerturbationMetropolis::perturbLigand.
+
+Range: (0,inf)
+
+Units: K
+
+Default value: 200000 (this makes for a 0.5 probability of accepting
+energies about 275 kcal/mol higher)
+
+Plop info: There is no equivalence in Plop.
+
+steeringUpdateFrequency
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Parameter: unsigned int steeringVectorUpdateFrequency
+
+Use: If steering, frequency to update the steering direction. If it is
+set to 0, then steering is deactivated and a random translation
+direction is used, until this parameter is changed again to a value
+greater than 0.
+
+If this parameter is modified using the parametersChanges option, and
+the new value is the same as before, then simulation continues as if
+this parameter had not been changed (that is, if there remained two
+steps for updating the steering vector, there still remain those two
+steps).
+
+Note for developers: Used in the translation direction generation.
+
+Range: (0,inf)
+
+Units: Dimensionless
+
+Default value: 2
+
+Plop info:
+
+-  Plop control file name: waitfor
+-  Plop parameter name: liga\_params%wait
+-  Plop default value: 1
+
+gridResolution
+^^^^^^^^^^^^^^
+
+Parameter: double gridResolution
+
+Use: Resolution of the rotamer library to be used for the 'non-polar'
+part of non-ligand links (the polar part always uses the resolution
+given in the link-type rotamer library file for the polar atom) when
+relieving clashes in the perturbation. Ligand links always use the
+resolution stated in the rotamer library file for that link; therefore
+this parameter does not affect them. The angles a rotamer can take are
+divided in bins of length 'gridResolution' degrees.
+
+Units: Degrees
+
+Range: It can take any value, generally 10, 20, 30, 40 (these are the
+only values allowed for standard protein residues). If an unsupported
+resolution is chosen, it is set to the base resolution for each type of
+link, which is 10 in the standard protein residues.
+
+Default value: 10
+
+Plop info: ??
+
+Boxes
+-----
+
+See :ref:`box <sec-boxes>`.
+

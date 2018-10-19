@@ -1,0 +1,238 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>General description &#8212; PELE 1.5.rev12492 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/naturemodified.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.5.rev12492',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Complex Block in Pele++ control file" href="../Complex/Complex.html" />
+    <link rel="prev" title="Initialization Block in Pele++ control file" href="Initialization.html" /> 
+    <script type="text/javascript" >
+    MathJax.Hub.Config({
+        TeX: { 
+	  Macros: {
+	    AA: '{\\unicode{xC5}}'
+	  }
+	}
+    });
+    </script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../Complex/Complex.html" title="Complex Block in Pele++ control file"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Initialization.html" title="Initialization Block in Pele++ control file"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12492 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Initialization.html" accesskey="U">Initialization Block in Pele++ control file</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="general-description">
+<span id="sec-initialization-general"></span><h1>General description<a class="headerlink" href="#general-description" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="location">
+<h2>Location<a class="headerlink" href="#location" title="Permalink to this headline">¶</a></h2>
+<p>Outermost layer, typically at the beginning of the document.</p>
+<p>Example:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>{
+   &quot;Initialization&quot; : {
+          &quot;fixTrees&quot;: true,
+          &quot;fixChainNames&quot;: false,
+      &quot;allowMissingTerminals&quot;: false,
+      &quot;Complex&quot; : {
+         &quot;files&quot; : [
+            {
+               &quot;path&quot;: &quot;pdbs/ain_fixed.pdb&quot;
+            }
+         ]
+      },
+      &quot;ForceField&quot; : &quot;OPLS2005&quot;,
+      &quot;Solvent&quot; : {
+         &quot;ionicStrength&quot; : 0.250,
+         &quot;solventType&quot; : &quot;VDGBNP&quot;,
+         &quot;useDebyeLength&quot; : true
+      }
+   },
+   &quot;commands&quot; : [ ... ]
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="options-and-parameters">
+<h2>Options and parameters<a class="headerlink" href="#options-and-parameters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="fixtrees">
+<h3>fixTrees<a class="headerlink" href="#fixtrees" title="Permalink to this headline">¶</a></h3>
+<p>Use: Bolean. When it is set to true, for any complex being built,
+it builds the trees equal to Plop.</p>
+<p>Note for developers: Used in generateAtomsTrees</p>
+<p>Default value: true</p>
+</div>
+<div class="section" id="fixchainnames">
+<h3>fixChainNames<a class="headerlink" href="#fixchainnames" title="Permalink to this headline">¶</a></h3>
+<p>Use: Boolean. When true, for any complex being built,
+it renames all chains starting at ‘A’ through ‘Z’ and then ‘1’ through ‘0’.</p>
+<p>Notice that if you have many molecules (such as water molecules) you may
+run out of chain identifiers. In such a case, chain ids will get reused
+(it will restart from ‘A’ again).</p>
+<p>Note for developers: Used in
+ComplexBuilder::createComplexBuilder.</p>
+<p>Default value: false</p>
+</div>
+<div class="section" id="allowmissingterminals">
+<span id="sec-initialization-general-allowmissingterminals"></span><h3>allowMissingTerminals<a class="headerlink" href="#allowmissingterminals" title="Permalink to this headline">¶</a></h3>
+<p>Use: Boolean. When true, when reading a complex, if a terminal residue in a chain does not have the atoms of the terminal type for that residue, then it is treated as a normal internal/middle residue. If this does not work either, then PELE fails as usual, since it is not able to assign the right template. Notice that this is valid for any chain, though only proteins and nucleic acids actually have terminal types of residues.</p>
+<p>This option is useful if you have gaps in your structure. In such a case, you mark the gaps with TER records, and instruct PELE to interpret the terminal residues at the gaps (which must not have terminal atoms such as OXT) as normal internal residues.</p>
+<p>Notice that, being internal residues, they will be treated as such in all parts of PELE. For example, in the VDGBNP case, those residues will be treated as internal as for the dielectric assignment.</p>
+<p>Default value: false</p>
+</div>
+<div class="section" id="complex">
+<h3>Complex<a class="headerlink" href="#complex" title="Permalink to this headline">¶</a></h3>
+<p>See <a class="reference internal" href="../Complex/Complex.html#sec-complex"><span class="std std-ref">Complex</span></a></p>
+</div>
+<div class="section" id="multiplecomplex">
+<h3>MultipleComplex<a class="headerlink" href="#multiplecomplex" title="Permalink to this headline">¶</a></h3>
+<p>See
+<a class="reference internal" href="../PELEinMulticorePlatforms/AdditionalFeaturesUsingMPI.html#sec-additionalfeaturesusingmpi"><span class="std std-ref">AdditionalFeaturesUsingMPI</span></a></p>
+</div>
+<div class="section" id="solvent">
+<span id="sec-initialization-general-solvent"></span><h3>Solvent<a class="headerlink" href="#solvent" title="Permalink to this headline">¶</a></h3>
+<p>See <a class="reference internal" href="../Solvent/Solvent.html#sec-solvent"><span class="std std-ref">Solvent</span></a></p>
+</div>
+<div class="section" id="forcefield">
+<span id="sec-initialization-general-forcefield"></span><h3>ForceField<a class="headerlink" href="#forcefield" title="Permalink to this headline">¶</a></h3>
+<p>Parameter: enum PotentialParameterization</p>
+<p>Use: Sets the force field to be used throughout the simulation</p>
+<p>Note for developers: Used in SgbAlphaSasaUpdater,
+NonBondingTermCalculator, EnergyAlgorithm and
+BindingEnergyMetricsBuilder.</p>
+<p>Note: The force field parameter files are found under <code class="file docutils literal"><span class="pre">Data/Templates/</span></code></p>
+<p>Possible options:</p>
+<ul class="simple">
+<li>“OPLS2005”</li>
+<li>“AMBER99sb” (not thouroghly tested in production, but it should work)</li>
+<li>“AMBER99” (not thoroughly tested in production, but it should work)</li>
+<li>“AMBER99sbBSC0”</li>
+</ul>
+<p>Defalut value: None, it must be specified</p>
+<p>Plop info: No correspondence, it just uses OPLS2005.</p>
+</div>
+<div class="section" id="usegpu">
+<h3>useGPU<a class="headerlink" href="#usegpu" title="Permalink to this headline">¶</a></h3>
+<p>Use: Boolean that enables the use of GPUs. We remind that its in an
+experimental stage.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">General description</a><ul>
+<li><a class="reference internal" href="#location">Location</a></li>
+<li><a class="reference internal" href="#options-and-parameters">Options and parameters</a><ul>
+<li><a class="reference internal" href="#fixtrees">fixTrees</a></li>
+<li><a class="reference internal" href="#fixchainnames">fixChainNames</a></li>
+<li><a class="reference internal" href="#allowmissingterminals">allowMissingTerminals</a></li>
+<li><a class="reference internal" href="#complex">Complex</a></li>
+<li><a class="reference internal" href="#multiplecomplex">MultipleComplex</a></li>
+<li><a class="reference internal" href="#solvent">Solvent</a></li>
+<li><a class="reference internal" href="#forcefield">ForceField</a></li>
+<li><a class="reference internal" href="#usegpu">useGPU</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Initialization.html"
+                        title="previous chapter">Initialization Block in Pele++ control file</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../Complex/Complex.html"
+                        title="next chapter">Complex Block in Pele++ control file</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Initialization/Initialization_general.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../Complex/Complex.html" title="Complex Block in Pele++ control file"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Initialization.html" title="Initialization Block in Pele++ control file"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12492 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Initialization.html" >Initialization Block in Pele++ control file</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2016 BARCELONA SUPERCOMPUTING CENTER. See the COPYRIGHT file at the top-level directory of this distribution. 
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.1.
+    <a href="../index.html#license">License</a>.
+    </div>
+  </body>
+</html>

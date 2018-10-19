@@ -1,0 +1,126 @@
+{
+    "description":"Format of a PELE control file",
+    "type":"object",
+    "additionalProperties" : false,
+    "properties":{
+        "controlFileSavingPath":{
+            "type":"string"
+        },
+        "commandFilePath":{
+            "type":"string"
+        },
+        "commandOutputFilePath":{
+            "type":"string"
+        },
+        "simulationLogPath": {
+            "type": "string"
+        },
+        "licenseDirectoryPath":{
+        	"type":"string"
+        },
+        "Initialization":{
+            "type":"object",
+            "required" : true,
+	    "additionalProperties" : false,
+            "properties" : {
+                "useGPU" : {
+                    "type" : "boolean"
+                }, "ForceField": {
+                    "type" : "string",
+                    "enum" : ["OPLS2005", "AMBER99", "AMBER99sb", "AMBER99sbBSC0"],
+                    "required" : true
+                }, 
+                "Complex" : {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "files": {
+            "type": "array",
+            "required": true,
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "additionalProperties": false
+                    }
+                }
+            }
+        }
+    }
+}
+,
+                "MultipleComplex" : {
+                    "type" : "array",
+                    "minItems" : 1,
+                    "items" : {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "files": {
+            "type": "array",
+            "required": true,
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "additionalProperties": false
+                    }
+                }
+            }
+        }
+    }
+}
+
+                },
+                "Solvent" : {
+                    "type" : "object",
+                    "additionalProperties" : false,
+                    "properties" : {
+                        "solventType" : {
+                            "type" : "string",
+                            "enum" : ["VDGBNP", "SGBNP", "VACUUM", "OBC"]
+                        },
+                        "useDebyeLength" : {
+                            "type" : "boolean"
+                        },
+                        "ionicStrength" : {
+                            "type" : "number"
+                        }
+                    }
+                },
+		"fixTrees": {
+		    "type": "boolean"
+		},
+		"fixChainNames": {
+		    "type": "boolean"
+		},
+		"fixLinking": {
+		    "type": "boolean"
+		},
+		"allowMissingTerminals": {
+		    "type": "boolean"
+		},
+		"minSquaredLinkageDist": {
+		    "type": "number"
+		},
+		"atomsToVisit": {
+		    "type": "integer"
+		}
+            }
+        },
+        "commands": {
+            "type": "array",
+            "required" : true,
+            "minItems": 1,
+            "items" : { 
+                "type" : "object"
+            }
+        }
+    }
+}

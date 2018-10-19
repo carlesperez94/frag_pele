@@ -1,0 +1,212 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Commands block in Pele++ &#8212; PELE 1.5.rev12492 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/naturemodified.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.5.rev12492',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PELESimulation command" href="../PELE/PELESimulation_index.html" />
+    <link rel="prev" title="Solvent Block in Pele++ control file" href="../Solvent/Solvent.html" /> 
+    <script type="text/javascript" >
+    MathJax.Hub.Config({
+        TeX: { 
+	  Macros: {
+	    AA: '{\\unicode{xC5}}'
+	  }
+	}
+    });
+    </script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../PELE/PELESimulation_index.html" title="PELESimulation command"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../Solvent/Solvent.html" title="Solvent Block in Pele++ control file"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12492 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" accesskey="U">Reference Manual</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="commands-block-in-pele">
+<span id="sec-commands"></span><h1>Commands block in Pele++<a class="headerlink" href="#commands-block-in-pele" title="Permalink to this headline">¶</a></h1>
+<p>A simulation is made up of a set of different commands. Once they all
+finish, the simulation also finishes.</p>
+<div class="section" id="commands">
+<h2>commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
+<p>Array containing the list of all the commands.</p>
+<div class="section" id="commandtype">
+<h3>commandType<a class="headerlink" href="#commandtype" title="Permalink to this headline">¶</a></h3>
+<p>Every command must contain this field. We can launch different kinds of
+command:</p>
+<ul class="simple">
+<li>“peleSimulation”: Most important block. It performs a <a class="reference internal" href="../PELE/PELESimulation.html#sec-pelesimulation"><span class="std std-ref">Pele simulation</span></a>.</li>
+<li>“energyComputation”: Performs an energy computation.</li>
+<li>“minimization”: Performs a minimization.</li>
+<li>“anmComputation”: Performs an ANM computation.</li>
+<li>“sideChainSimulation”: Performs a Side Chain Prediction simulation.</li>
+</ul>
+</div>
+<div class="section" id="example-1">
+<h3>Example 1<a class="headerlink" href="#example-1" title="Permalink to this headline">¶</a></h3>
+<p>Energy computation:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;controlFileSavingPath&quot;</span> <span class="p">:</span> <span class="s2">&quot;../../simulations/ain/originalControlFile.conf&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;Initialization&quot;</span> <span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;Complex&quot;</span> <span class="p">:</span> <span class="p">{</span>
+         <span class="nt">&quot;files&quot;</span> <span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+               <span class="nt">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;../proteins/ain_fixed.pdb&quot;</span>
+            <span class="p">}</span>
+         <span class="p">]</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;ForceField&quot;</span> <span class="p">:</span> <span class="s2">&quot;OPLS2005&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;Solvent&quot;</span> <span class="p">:</span> <span class="p">{</span>
+         <span class="nt">&quot;ionicStrength&quot;</span> <span class="p">:</span> <span class="mf">0.250</span><span class="p">,</span>
+         <span class="nt">&quot;solventType&quot;</span> <span class="p">:</span> <span class="s2">&quot;VDGBNP&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;useDebyeLength&quot;</span> <span class="p">:</span> <span class="kc">true</span>
+      <span class="p">}</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;commands&quot;</span> <span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+       <span class="nt">&quot;commandType&quot;</span><span class="p">:</span><span class="s2">&quot;energyComputation&quot;</span>
+      <span class="p">}</span>
+   <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-2">
+<h3>Example 2<a class="headerlink" href="#example-2" title="Permalink to this headline">¶</a></h3>
+<p>We can link together different commands. For example, we can minimize
+the structure before running a Pele simulation.</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>{
+    ...
+    &quot;commands&quot;: [
+        {
+            &quot;commandType&quot;: &quot;minimization&quot;,
+            &quot;Minimizer&quot;:
+            {
+                &quot;algorithm&quot;: &quot;TruncatedNewton&quot;,
+                &quot;parameters&quot;:
+                {
+                    &quot;MinimumRMS&quot;: 0.05
+                }
+            }
+        },
+        {
+            &quot;commandType&quot;: &quot;peleSimulation&quot;,
+            ...
+        }
+    ]
+}
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Commands block in Pele++</a><ul>
+<li><a class="reference internal" href="#commands">commands</a><ul>
+<li><a class="reference internal" href="#commandtype">commandType</a></li>
+<li><a class="reference internal" href="#example-1">Example 1</a></li>
+<li><a class="reference internal" href="#example-2">Example 2</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../Solvent/Solvent.html"
+                        title="previous chapter">Solvent Block in Pele++ control file</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../PELE/PELESimulation_index.html"
+                        title="next chapter">PELESimulation command</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Commands/commands.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../PELE/PELESimulation_index.html" title="PELESimulation command"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../Solvent/Solvent.html" title="Solvent Block in Pele++ control file"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PELE 1.5.rev12492 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../referenceManual.html" >Reference Manual</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2016 BARCELONA SUPERCOMPUTING CENTER. See the COPYRIGHT file at the top-level directory of this distribution. 
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.1.
+    <a href="../index.html#license">License</a>.
+    </div>
+  </body>
+</html>

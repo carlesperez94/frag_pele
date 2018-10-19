@@ -1,0 +1,64 @@
+#-----------------------------------
+# Peptide Bond
+#-----------------------------------
+NAME PEPTIDE_BOND
+
+#-----------------------------------
+# ATOM IDS
+#-----------------------------------
+ATOID  1 _O___
+ATOID  2 _C___
+ATOID  3 _CA__
+ATOID  4 _N___
+ATOID  5 _H___
+ATOID  6 _CB__
+ATOID  7 _CB_*
+ATOID  8 _CD_*
+ATOID  9 _CG_*
+ATOID 10 _CA_*
+ATOID 11 _N__*
+ATOID 12 _H__*
+ATOID 13 _C__*
+
+#-----------------------------------
+# GEOMETRY
+#-----------------------------------
+
+BOND   C     N  * 490.000   1.335 
+
+ANGL   CA    C     N  *  70.000 116.600
+ANGL   O     C     N  *  80.000 122.900
+ANGL   C     N  *  CA *  50.000 121.900
+ANGL   C     N  *  H  *  35.000 119.800
+ANGL   C     N  *  CD *  50.000 121.900
+
+TORS   O     C     N  *  H  *  2.4500 -1.0 2
+TORS   O     C     N  *  CA *  3.0445 -1.0 2
+TORS   C     N  *  CA *  CB *  0.2595  1.0 1
+TORS   C     N  *  CA *  CB *  0.4385 -1.0 2
+TORS   C     N  *  CA *  CB *  2.6165  1.0 3
+TORS   C     N  *  CA *  C  * -0.2980  1.0 1
+TORS   C     N  *  CA *  C  *  0.1395 -1.0 2
+TORS   C     N  *  CA *  C  * -2.4565  1.0 3
+TORS   CA    C     N  *  H  *  2.4500 -1.0 2
+TORS   CA    C     N  *  CA *  1.1500  1.0 1    
+TORS   CA    C     N  *  CA *  3.0445 -1.0 2    
+TORS   N     CA    C     N  *  0.3715  1.0 1
+TORS   N     CA    C     N  *  1.2540 -1.0 2
+TORS   N     CA    C     N  * -0.4025  1.0 3
+TORS   CB    CA    C     N  *  0.9325  1.0 1
+TORS   CB    CA    C     N  *  0.0445 -1.0 2
+TORS   CB    CA    C     N  *  0.1755  1.0 3
+TORS   O     C     N  *  CD *  3.0445 -1.0 2  #pro
+TORS   C     N     CA *  CB *  0.2595  1.0 1                   
+TORS   C     N     CA *  CB *  0.4385 -1.0 2                   
+TORS   C     N     CA *  CB *  2.6165  1.0 3                   
+TORS   C     N  *  CD *  CG *  0.2595  1.0 1                   
+TORS   C     N  *  CD *  CG *  0.4385 -1.0 2            
+TORS   C     N  *  CD *  CG *  2.6165  1.0 3                   
+TORS   CA    C     N  *  CD *  1.1500  1.0 1
+TORS   CA    C     N  *  CD *  3.0445 -1.0 2
+
+ITOR   CA    N  *  C     O     10.500 -1.0 2
+ITOR   CA *  C     N  *  H  *  1.0000 -1.0 2  #?????????????
+ITOR   CA *  C     N  *  CD *  1.0000 -1.0 2  #??????? or (1)
