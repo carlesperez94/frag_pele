@@ -56,7 +56,7 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex):
     :return: hydrogen atom of the ligand placed at bonding distance of the heavy atom
     """
     # Select the hydrogens bonded to the heavy atom 'PDB_atom_name'
-    selected_h = prody_complex.select("chain L and hydrogen within 1.5 of name {}".format(PDB_atom_name))
+    selected_h = prody_complex.select("chain L and hydrogen within 1.53 of name {}".format(PDB_atom_name))
     print(selected_h.getNames())
     # In case that we found more than one we have to select one of them
     try:

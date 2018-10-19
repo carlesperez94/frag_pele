@@ -178,3 +178,7 @@ def mkdir_p(path):
             pass
         else:
             raise
+
+if __name__ == "__main__":
+	filename, path, crit, nst, sort, ofreq, out, steps, numfolders = parse_args()
+	main(crit, "trial.pdb")

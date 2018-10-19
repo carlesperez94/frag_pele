@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#SBATCH --job-name=p38
+
+#SBATCH --output=mpi_%j.out
+
+#SBATCH --error=mpi_%j.err
+
+#SBATCH --ntasks=48
+
+#SBATCH --time=00-5:00:00
+
+python3 ~/projects/FrAG/Ligand_growing_MN/grow_for_pele.py -cp selection_aminoC1N1.pdb -fp phenyl.pdb -ca C6 -fa C1 -x 10 -dose -sef serie_file.conf

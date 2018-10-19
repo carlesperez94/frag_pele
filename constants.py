@@ -3,9 +3,10 @@ import sys
 ##############################################
 
 # PUBLIC CONSTANTS (to change by the user)
-# Preparation inputs to grow
+# GROWINGS parameters
 ITERATIONS = 10
 SELECTION_CRITERIA = "Binding Energy"
+SERIE_FILE = False
 # PELE parameters
 CONTROL_TEMPLATE = "control_template.conf"
 RESULTS_FOLDER = "growing_output"
