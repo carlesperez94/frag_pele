@@ -29,6 +29,7 @@ SCHRODINGER_PY_PATH = "/opt/schrodinger2016-4/utilities/python"
 ##############################################
 
 # PRIVATE CONSTANTS (not to change)
+PRE_WORKING_DIR = "pregrow"
 TEMPLATES_PATH = "DataLocal/Templates/OPLS2005/HeteroAtoms/"
 ROTAMERS_PATH = "DataLocal/LigandRotamerLibs/"
 PDBS_OUTPUT_FOLDER = "PDBs_growing"
@@ -36,7 +37,7 @@ OUTPUT_FOLDER = "growing_results/"
 TEMPLATES_FOLDER = "growing_templates"
 CONFIG_PATH = "log_configure.ini"
 PLOP_PATH = "PlopRotTemp_S_2017/ligand_prep.py"
-ROTRES = 30
+ROTRES = 10
 # Clustering constants
 CONDITION = "min"   #   min or max
 METRICS_WEIGHTS = "linear"

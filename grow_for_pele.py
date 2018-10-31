@@ -18,6 +18,7 @@ import Growing.add_fragment_from_pdbs
 import Growing.AddingFragHelpers
 import Growing.bestStructs
 import constants as c
+import serie_handler as sh
 
 # Calling configuration file for log system
 FilePath = os.path.abspath(__file__)
@@ -39,9 +40,9 @@ def parse_arguments():
         Output: list with all the user arguments
     """
     # All the docstrings are very provisional and some of them are old, they would be changed in further steps!!
-    parser = argparse.ArgumentParser(description="""From an input file, correspondent to the template of the initial 
-    structure of the ligand,this function will generate "x_fragments" intermediate templates until reach the final 
-    template,modifying Vann Der Waals, bond lengths and deleting charges.""")
+    parser = argparse.ArgumentParser(description="""Description: FrAG is a Fragment-based ligand growing software which
+    performs automatically the addition of several fragments to a core structure of the ligand in a protein-ligand 
+    complex.""")
     required_named = parser.add_argument_group('required named arguments')
     # Growing related arguments
     required_named.add_argument("-cp", "--complex_pdb", required=True,
@@ -72,6 +73,12 @@ def parse_arguments():
     parser.add_argument("-sef", "--serie_file", default=c.SERIE_FILE,
                         help="""Name of the file which contains the information required to perform several successive
                              growings using different fragments or different growing positions.""")
+    parser.add_argument("-hc", "--h_core", default=None,
+                        help="""String with the PDB atom name of the hydrogen atom of the core (the ligand contained in 
+                        the complex) where you would like to start the growing and create a new bond with the fragment.""")
+    parser.add_argument("-hf", "--h_frag", default=None,
+                        help="""String with the PDB atom name of the hydrogen atom of the fragment
+                         where you would like create a new bond with the core.""")
 
     # Plop related arguments
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
@@ -104,15 +111,17 @@ def parse_arguments():
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
-                        help="Name for results folder")
+                        help="""This distance will be used to determine which amino acids are in contact with the ligand.
+                        Then, this information will be useful to generate different clusters of structures to initialize
+                         the next iteration.""")
     parser.add_argument("-ct", "--threshold", default=c.CONTACT_THRESHOLD,
-                        help="Suffix name of the report file from PELE.")
+                        help="Threshold that will be used in the clustering step.")
     parser.add_argument("-e", "--epsilon", default=c.EPSILON,
-                        help="Suffix name of the trajectory file from PELE.")
+                        help="Epsilon parameter used in the clustering.")
     parser.add_argument("-cn", "--condition", default=c.CONDITION,
-                        help="PDBs output folder")
+                        help="Condition to select best values to cluster: minimum or maximum.")
     parser.add_argument("-mw", "--metricweights", default=c.METRICS_WEIGHTS,
-                        help="Amount of CPU's that you want to use in mpirun of PELE")
+                        help="")
     parser.add_argument("-ncl", "--nclusters", default=c.NUM_CLUSTERS,
                         help="Number of initial structures that we want to use in each simulation.")
 
@@ -122,43 +131,49 @@ def parse_arguments():
            args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, \
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
-           args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.doserie, args.serie_file
+           args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.doserie, args.serie_file, \
+           args.h_core, args.h_frag
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
-         epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID):
+         epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
+         h_frag):
     """
-        Description: This function is the main core of the program. It creates N intermediate templates
-        and control files for PELE. Then, it perform N successive simulations automatically.
-
-        Input:
-
-        :param: template_initial: Name of the input file correspondent to the initial template for the ligand that you
-        want to grow.
-        :param template_final: Name of the input file correspondent to the final template for the ligand that you want
-        to get.
-        :param n_files: Number of intermediate templates that you want to generate
-        :param original_atom: When an atom is transformed into another one we want to conserve the properties.
-        The PDB atom name of the initial template that we want to transform into another of the final template has to be
-        specified here.
-       :param final_atom: When an atom is transformed into another one we want to conserve the properties.
-        The PDB atom name of the final template that will be used as target to be transformed into the original atom.
-        :param control_template: Template control file used to generate intermediates control files.
-        :param pdb: Initial pdb file which already contain the ligand with the fragment that we want to grow
-        but with bond lengths correspondent to the initial ligand (dummy-like).
-        :param results_f_name: Name for results folder.
-        :param criteria: Name of the column of the report file used as criteria in order to select the template
-        used as input for successive simulations.
-        :param path_pele: Complete path to Pele_serial.
-        :param report: Name of the report file of PELE simulation's results.
-        :param traject: Name of the trajectory file of PELE simulation's results.
-        :return The algorithm is formed by two main parts:
-        First, it prepare the files needed in a PELE simulation: control file and ligand templates.
-        Second, after analyzing the report file it selects the best structure in the trajectory file in order to be used
-        as input for the next growing step.
-        This process will be repeated until get the final grown ligand (protein + ligand).
-        """
+    Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
+    fragments to a core structure of the ligand in a protein-ligand complex.
+    :param complex_pdb: name of the PDB file containing the protein and the core structure. Str
+    :param fragment_pdb: name of the PDB file containing the fragment. Str
+    :param core_atom: PDB-atom-name of the atom of the core that will be used as starting point to grow the fragment.
+    Str (len 4)
+    :param fragment_atom: PDB-atom-name of the atom of the fragment that will bond the core. Str (len 4)
+    :param iterations: number of growing steps. Int
+    :param criteria: Name of the report's column used as selection criteria to spawn the structures that will be used in
+    the next growing step. Str
+    :param plop_path: Absolute path to PlopRotTemp.py. Str
+    :param sch_python: Absolute path to Schrodinger's python. Str
+    :param pele_dir: Absolute path to PELE executables. Str
+    :param contrl: Name of the PELE's control file templatized. Str
+    :param license: Absolute path to PELE's license file. Str
+    :param resfold: Name of the results folder. Str
+    :param report: Prefix name of PELE's output file. Str
+    :param traject: Prefix name of the trajectory file generated by PELE. Str
+    :param pdbout: Prefix name of the output PDB extracted from FrAG in each iteration. Str
+    :param cpus: Number of CPUs that will be used to perform the simulation. Int
+    :param distance_contact: This distance will be used to determine which amino acids are in contact with the ligand.
+    Then, this information will be useful to generate different clusters of structures to initialize the next iteration.
+    :param clusterThreshold: Threshold that will be used in the clustering step. Float (0.0-1.0)
+    :param epsilon: Epsilon parameter used in the clustering. Float (0.0-1.0)
+    :param condition: Condition to select best values to cluster: minimum or maximum. Str "min" or "max".
+    :param metricweights: Str "linear"
+    :param nclusters: Number of cluster that we would like to generate. Int
+    :param pele_eq_steps: Number of PELE steps that we want to perform in the equilibration. Int
+    :param restart: If set FrAG will find your last iteration completed and will restart from this point. Bolean
+    :param min_overlap: Minimun value of overlapping factor that will be replaced in the control file. Float (0.0-1.0)
+    :param max_overlap: Maximum value of overlapping factor that will be replaced in the control file. Float (0.0-1.0)
+    :param ID: Name that will be generated to identify the new ligand in certain folder.
+    :return:
+    """
     # Time computations
     start_time = time.time()
     # Path definition
@@ -170,18 +185,19 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
 
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = Growing.\
-        add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations)
+        add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, h_core=h_core,
+                                    h_frag=h_frag)
 
     # Create the templates for the initial and final structures
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
         cmd = "{} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
-                                  Growing.add_fragment_from_pdbs.PRE_WORKING_DIR, pdb_to_template))
+                                  Growing.add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template))
 
         subprocess.call(cmd.split())
         template_resname = Growing.add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(
                                                                                    Growing.add_fragment_from_pdbs.
-                                                                                   PRE_WORKING_DIR, pdb_to_template),
+                                                                                   c.PRE_WORKING_DIR, pdb_to_template),
                                                                                    False)
         template_resnames.append(template_resname)
     # Now, move the templates to their respective folders
@@ -299,7 +315,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         if i == 0:
             if not os.path.exists(pdbout_folder):  # Create the folder if it does not exist
                 os.mkdir(pdbout_folder)
-            if not os.path.exists(os.path.join(pdbout_folder, "{}".format(i))):  # The same if the subfolder does not exist
+            if not os.path.exists(os.path.join(pdbout_folder, "{}".format(i))):  # Do the same if the subfolder does not exist
                 os.chdir(pdbout_folder)
                 os.mkdir("{}".format(i))  # Put the name of the iteration
                 os.chdir("../")
@@ -347,59 +363,40 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 if __name__ == '__main__':
     complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
-    nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file = parse_arguments()
+    nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file, h_core, h_frag = parse_arguments()
 
     if doserie:
-        with open(serie_file) as sf:
-            instructions = sf.readlines()
-        for line in instructions:
-            if len(line.split()) <= 3:
-                # Read from file the required information
-                fragment_pdb = line.split()[0]
-                core_atom = line.split()[1]
-                fragment_atom = line.split()[2]
-                ID = "{}{}{}".format(os.path.splitext(fragment_pdb)[0], core_atom, fragment_atom)
-                # Initialize the growing for each line in the file
-                main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
-                     pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
-                     metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID)
-            elif len(line.split()) > 3:
-                growing_counter = len(line.split()) / 3
+        list_of_instructions = sh.read_instructions_from_file(serie_file)
+        print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
+        sh.check_instructions(list_of_instructions, complex_pdb)
+        for instruction in list_of_instructions:
+            # We will iterate trough all individual instructions of file.
+            if type(instruction) == list:  #  If in the individual instruction we have more than one command means successive growing.
+                growing_counter = len(instruction)  #  Doing so we will determinate how many successive growings the user wants to do.
                 for i in range(int(growing_counter)):
-                    fragment_pdb = line.split()[i * 3]
-                    core_atom = line.split()[(i * 3) + 1]
-                    fragment_atom = line.split()[(i * 3) + 2]
-
-                    if i > 0:
-                        ID = "{}{}{}".format(os.path.splitext(line.split()[(i-1)*3])[0],
-                                             line.split()[((i-1)*3)+1], line.split()[((i-1)*3)+2])
-                        complex_pdb_new = "selection_{}.pdb".format(ID)
-                        ID = "{}{}{}{}{}{}".format(os.path.splitext(line.split()[(i-1)*3])[0],
-                                                   line.split()[((i-1)*3)+1], line.split()[((i-1)*3)+2],
-                                                   os.path.splitext(line.split()[i * 3])[0],
-                                                   line.split()[(i * 3) + 1], line.split()[(i * 3) + 2])
-                        fragment_pdb = line.split()[i*3]
-                        core_atom = line.split()[(i*3)+1]
-                        fragment_atom = line.split()[(i*3)+2]
-                        main(complex_pdb_new, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
-                             sch_python,
-                             pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold,
-                             epsilon,
-                             condition,
-                             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID)
-                    else:
-                        # Initialize the growing for each line in the file
-                        ID = "{}{}{}".format(os.path.splitext(fragment_pdb)[0], core_atom, fragment_atom)
-                        main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
-                             pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
-                             condition,
-                             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID)
-
+                    fragment_pdb, core_atom, fragment_atom = instruction[i][0], instruction[i][1], instruction[i][2]
+                    if i == 0:  # In the first iteration we will use the complex_pdb as input.
+                        ID = instruction[i][3]
+                    else:  # If is not the first we will use as input the output of the previous iteration
+                        complex_pdb = "selection_{}.pdb".format(ID)
+                        ID_completed = []
+                        for id in instruction:
+                            ID_completed.append(instruction[id][3])
+                        ID = "".join(ID_completed)
+                    main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
+                         sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
+                         threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
+                         max_overlap, ID, h_core, h_frag)
             else:
-                logging.critical("Incorrect amount of arguments in {}, check if you have 6 arguments properly separated.".format(serie_file))
+                # Initialize the growing for each line in the file
+                fragment_pdb, core_atom, fragment_atom, ID = instruction[0], instruction[1], instruction[2], instruction[3]
+                main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
+                     pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
+                     condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
+                     h_frag)
 
     else:
         ID = "{}{}{}".format(os.path.splitext(fragment_pdb)[0], core_atom, fragment_atom)
         main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir,
              contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
-             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID)
+             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core, h_frag)

@@ -8,19 +8,19 @@ import re
 import sys
 import Bio.PDB as bio
 # Local imports
+import constants as c
 import Helpers.checker
 import Growing.AddingFragHelpers.complex_to_prody as c2p
 import Growing.AddingFragHelpers.pdb_joiner as pj
 
 
-
 # Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
-# Working directory variable
-PRE_WORKING_DIR = "pregrow"
+# Lists
+LIST_OF_IONS = ["ZN","MN", "FE","CO","NI","CA", "CD"]
 
 
-def extract_heteroatoms_pdbs(pdb, create_file = True, ligand_chain="L"):
+def extract_heteroatoms_pdbs(pdb, create_file=True, ligand_chain="L", get_ligand=False):
     """
     From a pdb file, it extracts the chain L and checks if the structure has hydrogens. After that, the chain L is
     written in a new PDB file which will have the following format: "{residue name}.pdb".
@@ -30,7 +30,7 @@ def extract_heteroatoms_pdbs(pdb, create_file = True, ligand_chain="L"):
     # Parse the complex file and isolate the ligand core and the fragment
     ligand = c2p.pdb_parser_ligand(pdb, ligand_chain)
     if ligand is None:
-        logger.critical("The ligand can not be found. Ensure that the ligand of {} is the chain L".format(pdb))
+        logger.critical("The ligand can not be found. Ensure that the ligand of {} is the chain {}".format(pdb, ligand_chain))
     # Check if the ligand has H
     c2p.check_protonation(ligand)
     # Save the ligand in a PDB (the name of the file is the name of the residue)
@@ -38,7 +38,10 @@ def extract_heteroatoms_pdbs(pdb, create_file = True, ligand_chain="L"):
     if create_file:
         prody.writePDB(ligand_name, ligand)
         logger.info("The ligand of {} has been extracted and saved in '{}.pdb'".format(pdb, ligand_name))
-    return ligand_name
+    if get_ligand is True:
+        return ligand
+    else:
+        return ligand_name
 
 
 def from_pdb_to_bioatomlist(list_of_pdb_names):
@@ -74,7 +77,7 @@ def extract_heavy_atoms(pdb_atom_names, lists_of_bioatoms):
     return heavy_atoms
 
 
-def extract_hydrogens(pdb_atom_names, lists_of_bioatoms, list_of_pdbs):
+def extract_hydrogens(pdb_atom_names, lists_of_bioatoms, list_of_pdbs, h_core=None, h_frag=None):
     """
     Given a heavy atom name (string), a list of Bio.PDB.Atoms objects and a list of pdb files, it returns the hydrogens
     at bonding distance of the heavy atom. If there is more than one, a checking of contacts with the
@@ -87,15 +90,13 @@ def extract_hydrogens(pdb_atom_names, lists_of_bioatoms, list_of_pdbs):
     :return: Bio.PDB.Atom object correspondent to the hydrogen bonded to the heavy atom
     """
     hydrogens = []
-    for atom_name, pdb, list_of_bioatoms in zip(pdb_atom_names, list_of_pdbs, lists_of_bioatoms):
+    selected_hydrogens = [h_core, h_frag]
+    for atom_name, pdb, list_of_bioatoms, sel_h in zip(pdb_atom_names, list_of_pdbs, lists_of_bioatoms, selected_hydrogens):
         complex = prody.parsePDB(pdb)
-        print(complex)
         # Select name of the H atoms bonded to this heavy atom (the place where we will grow)
-        atom_name_hydrogens = pj.get_H_bonded_to_grow(atom_name, complex)
-        print(atom_name_hydrogens)
+        atom_name_hydrogens = pj.get_H_bonded_to_grow(atom_name, complex, sel_h)
         # Select this hydrogen atoms
         atom_hydrogen = pj.select_atoms_from_list(atom_name_hydrogens, list_of_bioatoms)
-        print(atom_hydrogen)
         hydrogens.append(atom_hydrogen)
     return hydrogens
 
@@ -338,18 +339,31 @@ def extract_protein_from_complex(pdb_file):
     return protein
 
 
-def get_waters_in_pdb(pdb_input):
+def get_waters_or_ions_in_pdb(pdb_input):
     """
     Given a pdb file return a string with the waters contained in the file.
     :param pdb_input: pdb input file
     :return: part of the pdb that contains the waters
     """
     water_lines = []
+    ion_lines = []
     with open(pdb_input) as pdb:
         for line in pdb:
-            if line.split()[0] == "HETATM" and line.split()[3] == "HOH":
-                water_lines.append(line)
-    return "".join(water + "TER\n" * (n % 3 == 2) for n, water in enumerate(water_lines))
+            if line.startswith("HETATM"):
+                if line[21] == "A" and line[17:20].split()[0] == "HOH":
+                    water_lines.append(line)
+                elif line[21] == "A" and line[17:20].split()[0] in LIST_OF_IONS:
+                    ion_lines.append(line)
+    if len(water_lines) > 0 and len(ion_lines) == 0:
+        water = "".join(water + "TER\n" * (n % 3 == 2) for n, water in enumerate(water_lines))
+        return water
+    if len(ion_lines) > 0 and len(water_lines) == 0:
+        ions = "".join(ion + "TER\n" for ion in ion_lines)
+        return ions
+    if len(ion_lines) > 0 and len(water_lines) > 0:
+        water = "".join(water + "TER\n" * (n % 3 == 2) for n, water in enumerate(water_lines))
+        ions = "".join(ion + "TER\n" for ion in ion_lines)
+        return "".join(ions+water)
 
 
 def check_water(pdb_input):
@@ -404,7 +418,8 @@ def check_and_fix_repeated_lignames(pdb1, pdb2):
 
 
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
-         fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb"):
+         fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb",
+         h_core = None, h_frag = None):
     """
     From a core (protein + ligand core = core_chain) and fragment (fragment_chain) pdb files, given the heavy atoms
     names that we want to connect, this function add the fragment to the core structure. We will get three PDB files:
@@ -431,11 +446,11 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     :param output_file_to_grow: name of the pdb file that will be used to initialise PELE simulations. string.
     "initialization_grow.pdb" by default.
     """
-    if not PRE_WORKING_DIR:
-        os.mkdir(PRE_WORKING_DIR)
-        os.chdir(PRE_WORKING_DIR)
+    if not c.PRE_WORKING_DIR:
+        os.mkdir(c.PRE_WORKING_DIR)
+        os.chdir(c.PRE_WORKING_DIR)
     else:
-        os.chdir(PRE_WORKING_DIR)
+        os.chdir(c.PRE_WORKING_DIR)
     # Check that ligand names are not repeated
     check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment)
     for pdb_file in (pdb_complex_core, pdb_fragment):
@@ -457,7 +472,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     heavy_atoms = extract_heavy_atoms(pdb_atom_names, bioatoms_core_and_frag)
     # Once we have the heavy atoms, for each structure we will obtain the hydrogens bonded to each heavy atom.
     # We will need pdbs because we will use the information of the protein to select the hydrogens properly.
-    hydrogen_atoms = extract_hydrogens(pdb_atom_names, bioatoms_core_and_frag, [pdb_complex_core, pdb_fragment])
+    hydrogen_atoms = extract_hydrogens(pdb_atom_names, bioatoms_core_and_frag, [pdb_complex_core, pdb_fragment], h_core, h_frag)
     # Create a list with the atoms that form a bond in core and fragment.
     core_bond = [heavy_atoms[0], hydrogen_atoms[0]]
     fragment_bond = [hydrogen_atoms[1], heavy_atoms[1]]  # This has to be in inverted order to do correctly the superimposition
@@ -528,8 +543,8 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     output_file.append("{}TER\n".format(content_prot))
     # Put waters
     if check_water(pdb_complex_core):
-        waters = get_waters_in_pdb(pdb_complex_core)
-        output_file.append(waters)
+        waters_or_ions = get_waters_or_ions_in_pdb(pdb_complex_core)
+        output_file.append(waters_or_ions)
     # Join all parts of the PDB
     output_file.append("{}TER".format(content_lig))
     out_joined = "".join(output_file)
