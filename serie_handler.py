@@ -8,6 +8,17 @@ logger = logging.getLogger(__name__)
 
 
 def read_instructions_from_file(file):
+    """
+    It reads an "instruction file". This file contains the information of all the growing's that the user wants to
+    perform, each one separated by newlines. Each instruction must have at least 3 columns, separated by tabulations:
+    (1) name of the fragment's PDB file,
+    (2) atom name of the core (if the user wants to add the H it must be separated by "-", example: C4-H2),
+    (3) atom name of the fragment.
+    If the line has more than 3 columns, it will be considered as successive growing's simulations, following the same
+    structure previously mentioned but several times.
+    :param file: filename of the instructions file.
+    :return: list with all instructions processed.
+    """
     list_of_instructions = []
     with open(file) as sf:
         instructions = sf.readlines()
@@ -41,6 +52,12 @@ def read_instructions_from_file(file):
 
 
 def get_pdb_fragments_and_atoms_from_instructions(list_of_instructions):
+    """
+    Given a list with the instructions processed it returns a list with containing the following elements:
+    [fragment_pdb_file, pdb_atom_name_of_the_core (and H if required), pdb_atom_name_of_the_fragment (and H if required)]
+    :param list_of_instructions: list with the instructions read from the instructions file. list
+    :return: list with all fragments and atoms that will be used in the future. list
+    """
     fragments_pdbs_and_atoms = []
     for instructions in list_of_instructions:
         if type(instructions) == list:
@@ -50,19 +67,53 @@ def get_pdb_fragments_and_atoms_from_instructions(list_of_instructions):
         else:
             fragment_pdb, atom_core, atom_fragment = instructions[0], instructions[1], instructions[2]
             fragments_pdbs_and_atoms.append((fragment_pdb, atom_core, atom_fragment))
+
     return fragments_pdbs_and_atoms
 
     
 def check_instructions(list_of_instructions, complex):
+    """
+    It checks if the selected atoms exists in their correspondent PDB file and also checks if there are repeated
+    PDB-atom-names in the PDB file.
+    :param list_of_instructions: list with the instructions read from the instructions file. list
+    :param complex: PDB file with the complex that contains the core
+    :return: if something is wrong it raises an exception.
+    """
     fragments_and_atoms = get_pdb_fragments_and_atoms_from_instructions(list_of_instructions)
     complex = os.path.join(c.PRE_WORKING_DIR, complex)
     for fragment, atom_core, atom_fr in fragments_and_atoms:
         fragment = os.path.join(c.PRE_WORKING_DIR, fragment)
-        ch.check_if_atom_exists_in_ligand(fragment, atom_fr)
-        ch.check_if_atom_exists_in_ligand(complex, atom_core)
+        atoms_if_bond = extract_hydrogens_from_instructions([fragment, atom_core, atom_fr])
+        if atoms_if_bond:
+            ch.check_if_atom_exists_in_ligand(complex, atoms_if_bond[0])
+            ch.check_if_atom_exists_in_ligand(complex, atoms_if_bond[1])
+            ch.check_if_atom_exists_in_ligand(fragment, atoms_if_bond[2])
+            ch.check_if_atom_exists_in_ligand(fragment, atoms_if_bond[3])
+        else:
+            ch.check_if_atom_exists_in_ligand(fragment, atom_fr)
+            ch.check_if_atom_exists_in_ligand(complex, atom_core)
         with open(fragment) as content:
             fr_content = content.readlines()
         ch.check_duplicated_pdbatomnames(fr_content)
 
 
+def extract_hydrogens_from_instructions(instruction):
+    """
+    If the core or the fragment atom contains a "-" means that the user is selecting an specific H to be bonded with
+    the heavy atom. For this reason, this detects if this option has been selected by the user and extract the PDB-atom-name
+    of each element.
+    :param instruction: list that follow this structure: [fragment_pdb_file, pdb_atom_name_of_the_core
+    (and H if required), pdb_atom_name_of_the_fragment (and H if required)]
+    :return: if the "-" is found in the pdb_atom_name_of_the_core or pdb_atom_name_of_the_fragment it returns a list with
+    PDB-atom-names split following this order: heavy_atom_core, hydrogen_core, heavy_atom_fragment, hydrogen_fragment.
+    Otherwise it returns False.
+    """
+    if "-" in instruction[1] or "-" in instruction[2]:
+        heavy_core = instruction[1].split("-")[0]
+        hydrogen_core = instruction[1].split("-")[1]
+        heavy_fragment = instruction[2].split("-")[0]
+        hydrogen_fragment = instruction[2].split("-")[1]
+        return heavy_core, hydrogen_core, heavy_fragment, hydrogen_fragment
+    else:
+        return False
 

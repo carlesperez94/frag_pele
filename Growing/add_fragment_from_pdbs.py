@@ -17,7 +17,7 @@ import Growing.AddingFragHelpers.pdb_joiner as pj
 # Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
 # Lists
-LIST_OF_IONS = ["ZN","MN", "FE","CO","NI","CA", "CD"]
+LIST_OF_IONS = ["ZN", "MN", "FE", "CO", "NI", "CA", "CD"]
 
 
 def extract_heteroatoms_pdbs(pdb, create_file=True, ligand_chain="L", get_ligand=False):

@@ -375,6 +375,14 @@ if __name__ == '__main__':
                 growing_counter = len(instruction)  #  Doing so we will determinate how many successive growings the user wants to do.
                 for i in range(int(growing_counter)):
                     fragment_pdb, core_atom, fragment_atom = instruction[i][0], instruction[i][1], instruction[i][2]
+                    atoms_if_bond = sh.extract_hydrogens_from_instructions([fragment_pdb, core_atom, fragment_atom])
+                    if atoms_if_bond:
+                        core_atom = atoms_if_bond[0]
+                        h_core = atoms_if_bond[1]
+                        fragment_atom = atoms_if_bond[2]
+                        h_frag = atoms_if_bond[3]
+                    else:
+                        pass
                     if i == 0:  # In the first iteration we will use the complex_pdb as input.
                         ID = instruction[i][3]
                     else:  # If is not the first we will use as input the output of the previous iteration
@@ -390,6 +398,12 @@ if __name__ == '__main__':
             else:
                 # Initialize the growing for each line in the file
                 fragment_pdb, core_atom, fragment_atom, ID = instruction[0], instruction[1], instruction[2], instruction[3]
+                atoms_if_bond = sh.extract_hydrogens_from_instructions([fragment_pdb, core_atom, fragment_atom])
+                if atoms_if_bond:
+                    core_atom = atoms_if_bond[0]
+                    h_core = atoms_if_bond[1]
+                    fragment_atom = atoms_if_bond[2]
+                    h_frag = atoms_if_bond[3]
                 main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                      pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
