@@ -80,6 +80,10 @@ def parse_arguments():
                         help="""String with the PDB atom name of the hydrogen atom of the fragment
                          where you would like create a new bond with the core.""")
 
+    parser.add_argument("-cc", "--c_chain", default="L", help="Chain name of the core")
+
+    parser.add_argument("-fc", "--f_chain", default="L", help="Chain name of the fragment")
+
     # Plop related arguments
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
                         help="Absolute path to PlopRotTemp.py.")
@@ -124,7 +128,6 @@ def parse_arguments():
                         help="")
     parser.add_argument("-ncl", "--nclusters", default=c.NUM_CLUSTERS,
                         help="Number of initial structures that we want to use in each simulation.")
-
     args = parser.parse_args()
 
     return args.complex_pdb, args.fragment_pdb, args.core_atom, args.fragment_atom, args.iterations, \
@@ -132,7 +135,7 @@ def parse_arguments():
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.doserie, args.serie_file, \
-           args.h_core, args.h_frag
+           args.h_core, args.h_frag, args.c_chain, args.f_chain
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -186,7 +189,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = Growing.\
         add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, h_core=h_core,
-                                    h_frag=h_frag)
+                                    h_frag=h_frag, core_chain=c_chain, fragment_chain=f_chain)
 
     # Create the templates for the initial and final structures
     template_resnames = []
@@ -363,12 +366,13 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 if __name__ == '__main__':
     complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
-    nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file, h_core, h_frag = parse_arguments()
+    nclusters, pele_eq_steps, restart, min_overlap, max_overlap, doserie, serie_file, h_core, h_frag, \
+    c_chain, f_chain = parse_arguments()
 
     if doserie:
         list_of_instructions = sh.read_instructions_from_file(serie_file)
         print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
-        sh.check_instructions(list_of_instructions, complex_pdb)
+        sh.check_instructions(list_of_instructions, complex_pdb, c_chain, f_chain)
         for instruction in list_of_instructions:
             # We will iterate trough all individual instructions of file.
             if type(instruction) == list:  #  If in the individual instruction we have more than one command means successive growing.
@@ -399,4 +403,4 @@ if __name__ == '__main__':
         ID = "{}{}{}".format(os.path.splitext(fragment_pdb)[0], core_atom, fragment_atom)
         main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python, pele_dir,
              contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition,
-             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core, h_frag)
+             metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core, h_frag, c_chain, f_chain)

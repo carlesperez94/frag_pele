@@ -28,6 +28,7 @@ def extract_heteroatoms_pdbs(pdb, create_file=True, ligand_chain="L", get_ligand
     :return: Writes a new pdb file "{residue name}.pdb" with the chain L isolated an returns the residue name (string).
     """
     # Parse the complex file and isolate the ligand core and the fragment
+    print(ligand_chain)
     ligand = c2p.pdb_parser_ligand(pdb, ligand_chain)
     if ligand is None:
         logger.critical("The ligand can not be found. Ensure that the ligand of {} is the chain {}".format(pdb, ligand_chain))
@@ -77,7 +78,7 @@ def extract_heavy_atoms(pdb_atom_names, lists_of_bioatoms):
     return heavy_atoms
 
 
-def extract_hydrogens(pdb_atom_names, lists_of_bioatoms, list_of_pdbs, h_core=None, h_frag=None):
+def extract_hydrogens(pdb_atom_names, lists_of_bioatoms, list_of_pdbs, h_core=None, h_frag=None, c_chain="L", f_chain="L"):
     """
     Given a heavy atom name (string), a list of Bio.PDB.Atoms objects and a list of pdb files, it returns the hydrogens
     at bonding distance of the heavy atom. If there is more than one, a checking of contacts with the
@@ -91,10 +92,11 @@ def extract_hydrogens(pdb_atom_names, lists_of_bioatoms, list_of_pdbs, h_core=No
     """
     hydrogens = []
     selected_hydrogens = [h_core, h_frag]
-    for atom_name, pdb, list_of_bioatoms, sel_h in zip(pdb_atom_names, list_of_pdbs, lists_of_bioatoms, selected_hydrogens):
+    chains = [c_chain, f_chain]
+    for atom_name, pdb, list_of_bioatoms, sel_h, chain in zip(pdb_atom_names, list_of_pdbs, lists_of_bioatoms, selected_hydrogens, chains):
         complex = prody.parsePDB(pdb)
         # Select name of the H atoms bonded to this heavy atom (the place where we will grow)
-        atom_name_hydrogens = pj.get_H_bonded_to_grow(atom_name, complex, sel_h)
+        atom_name_hydrogens = pj.get_H_bonded_to_grow(atom_name, complex, sel_h, chain=chain)
         # Select this hydrogen atoms
         atom_hydrogen = pj.select_atoms_from_list(atom_name_hydrogens, list_of_bioatoms)
         hydrogens.append(atom_hydrogen)
@@ -402,7 +404,7 @@ def lignames_replacer(pdb_file, original_ligname, new_ligname):
         overwrite_pdb.write(pdb_modified)
 
 
-def check_and_fix_repeated_lignames(pdb1, pdb2):
+def check_and_fix_repeated_lignames(pdb1, pdb2, ligand_chain_1="L", ligand_chain_2="L"):
     """
     It checks if two pdbs have the same ligand name or if the pdb file 1 has as ligand name "GRW" and it is replaced
     by "LIG".
@@ -410,8 +412,8 @@ def check_and_fix_repeated_lignames(pdb1, pdb2):
     :param pdb2: pdb file 2
     :return:
     """
-    ligname_1 = extract_heteroatoms_pdbs(pdb1, create_file=False, ligand_chain="L")
-    ligname_2 = extract_heteroatoms_pdbs(pdb2, create_file=False, ligand_chain="L")
+    ligname_1 = extract_heteroatoms_pdbs(pdb1, create_file=False, ligand_chain=ligand_chain_1)
+    ligname_2 = extract_heteroatoms_pdbs(pdb2, create_file=False, ligand_chain=ligand_chain_2)
     if ligname_1 == ligname_2 or ligname_1 == "GRW":
         logging.warning("REPEATED NAMES IN LIGANDS FOR THE FILES: '{}' and '{}'. {} replaced by LIG ".format(pdb1, pdb2, ligname_1))
         lignames_replacer(pdb1, ligname_1, "LIG")
@@ -452,7 +454,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     else:
         os.chdir(c.PRE_WORKING_DIR)
     # Check that ligand names are not repeated
-    check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment)
+    check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain)
     for pdb_file in (pdb_complex_core, pdb_fragment):
         logging.info("Checking {} ...".format(pdb_file))
         Helpers.checker.check_and_fix_pdbatomnames(pdb_file)
@@ -472,7 +474,8 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     heavy_atoms = extract_heavy_atoms(pdb_atom_names, bioatoms_core_and_frag)
     # Once we have the heavy atoms, for each structure we will obtain the hydrogens bonded to each heavy atom.
     # We will need pdbs because we will use the information of the protein to select the hydrogens properly.
-    hydrogen_atoms = extract_hydrogens(pdb_atom_names, bioatoms_core_and_frag, [pdb_complex_core, pdb_fragment], h_core, h_frag)
+    hydrogen_atoms = extract_hydrogens(pdb_atom_names, bioatoms_core_and_frag, [pdb_complex_core, pdb_fragment], h_core, h_frag,
+        core_chain, fragment_chain)
     # Create a list with the atoms that form a bond in core and fragment.
     core_bond = [heavy_atoms[0], hydrogen_atoms[0]]
     fragment_bond = [hydrogen_atoms[1], heavy_atoms[1]]  # This has to be in inverted order to do correctly the superimposition

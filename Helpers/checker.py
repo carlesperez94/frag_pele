@@ -11,9 +11,10 @@ logger = logging.getLogger(__name__)
 
 def check_duplicated_pdbatomnames(pdb_content):
     pdb_atom_names_list = []
+    print(pdb_content)
     for line in pdb_content:
         if line.startswith("HETATM") and line.split()[3] != "HOH":
-            pdb_atom_name = line[12:15]
+            pdb_atom_name = line[12:16]
             pdb_atom_names_list.append(pdb_atom_name)
     set_to_check = set(pdb_atom_names_list)
     list_to_check = sorted(list(set_to_check))
@@ -43,8 +44,8 @@ def check_and_fix_pdbatomnames(pdb_file):
         writepdb.write("{}".format(new_pdb))
 
 
-def check_if_atom_exists_in_ligand(pdb_file, atom_name):
-    ligand = addfr.extract_heteroatoms_pdbs(pdb_file, create_file=False, ligand_chain="L", get_ligand=True)
+def check_if_atom_exists_in_ligand(pdb_file, atom_name, ligand_chain="L"):
+    ligand = addfr.extract_heteroatoms_pdbs(pdb_file, create_file=False, ligand_chain=ligand_chain, get_ligand=True)
     atom = ligand.select("name {}".format(atom_name))
     try:
         print("PDB ATOM NAME selected: {} in {}.".format(atom.getNames(), pdb_file))

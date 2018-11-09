@@ -53,13 +53,13 @@ def get_pdb_fragments_and_atoms_from_instructions(list_of_instructions):
     return fragments_pdbs_and_atoms
 
     
-def check_instructions(list_of_instructions, complex):
+def check_instructions(list_of_instructions, complex, c_chain = "L", f_chain="L"):
     fragments_and_atoms = get_pdb_fragments_and_atoms_from_instructions(list_of_instructions)
     complex = os.path.join(c.PRE_WORKING_DIR, complex)
     for fragment, atom_core, atom_fr in fragments_and_atoms:
         fragment = os.path.join(c.PRE_WORKING_DIR, fragment)
-        ch.check_if_atom_exists_in_ligand(fragment, atom_fr)
-        ch.check_if_atom_exists_in_ligand(complex, atom_core)
+        ch.check_if_atom_exists_in_ligand(fragment, atom_fr, f_chain)
+        ch.check_if_atom_exists_in_ligand(complex, atom_core, c_chain)
         with open(fragment) as content:
             fr_content = content.readlines()
         ch.check_duplicated_pdbatomnames(fr_content)
