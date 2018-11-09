@@ -69,6 +69,7 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_hydrogen=None, c
             # We will select atoms of the protein in interaction distance
             select_h_bonds = prody_complex.select("protein and within 2.5 of (name {} and chain L)"
                                                   .format(selected_h.getNames()[idx]))
+
             if select_h_bonds is not None and PDB_atom_hydrogen is None:
                 print("WARNING: {} is forming a close interaction with the protein! We will try to grow"
                                " in another direction.".format(selected_h.getNames()[idx]))
@@ -76,7 +77,7 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_hydrogen=None, c
                 if (select_h_bonds is not None) and (int(idx) == int(len(selected_h)-1)):
                     hydrogen_pdbatomname = selected_h.getNames()[1]
                     return hydrogen_pdbatomname
-            elif select_h_bonds is not None:
+            elif select_h_bonds is None and PDB_atom_hydrogen is not None:
                 print("Forming a bond between {} and {}...".format(PDB_atom_name, PDB_atom_hydrogen))
                 select_specific_h_bonds = selected_h.select("name {}".format(PDB_atom_hydrogen))
                 hydrogen_pdbatomname = select_specific_h_bonds.getNames()[0]
@@ -154,9 +155,13 @@ def extract_and_change_atomnames(molecule, selected_resname):
     :return: ProDy molecule with atoms renamed and dictionary {"original atom name" : "new atom name"}
     """
     selection_to_change = molecule.select("resname {}".format(selected_resname))
+    atoms = []
+    for atom in selection_to_change:
+        atom_info = (atom.getName(), atom.getElement())
+        atoms.append(atom_info)
     names_dictionary = {}
-    for n, atomname in enumerate(selection_to_change.getNames()):
-        names_dictionary[atomname] = "G{}".format(n)
+    for n, atom in enumerate(atoms):
+        names_dictionary[atom[0]] = "{}G{}".format(atom[1], n)
     for atom in molecule:
         if atom.getResname() == selected_resname:
             atom.setName(names_dictionary[atom.getName()])

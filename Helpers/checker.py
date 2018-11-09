@@ -10,6 +10,11 @@ logger = logging.getLogger(__name__)
 
 
 def check_duplicated_pdbatomnames(pdb_content):
+    """
+    It checks if the content of a PDB file contains repeated PDB atom names.
+    :param pdb_content: string with the content of a PDB file.
+    :return: if repeated atom names: exit and complain.
+    """
     pdb_atom_names_list = []
     print(pdb_content)
     for line in pdb_content:
@@ -26,16 +31,22 @@ def check_duplicated_pdbatomnames(pdb_content):
 
 
 def check_and_fix_pdbatomnames(pdb_file):
+    """
+    It checks if atoms of the ligand of a PDB file contains the character 'G' (usually added by FrAG to identify atoms
+    that have been grown) and modify the name of these atoms adding it element symbol to the PDB atom name.
+    :param pdb_file: PDB file. str
+    :return: it rewrites the PDB file applying the modifications.
+    """
     with open(pdb_file) as pdb:
         content = pdb.readlines()
         check_duplicated_pdbatomnames(content)
         for i, line in enumerate(content):
             if line.startswith("HETATM"):
-                atom_name = line[12:15]
-                if atom_name.strip().startswith("G"):
+                atom_name = line[12:16]
+                if "G" in atom_name.strip():
                     new_atom_name = line[77:78]+atom_name.strip()
                     line_to_list = list(line)
-                    line_to_list[12:15] = new_atom_name
+                    line_to_list[12:16] = new_atom_name
                     line_to_list = "".join(line_to_list)
                     content[i] = line_to_list
         check_duplicated_pdbatomnames(content)
@@ -45,6 +56,12 @@ def check_and_fix_pdbatomnames(pdb_file):
 
 
 def check_if_atom_exists_in_ligand(pdb_file, atom_name, ligand_chain="L"):
+    """
+    It checks if an atom is found in a certain PDB file.
+    :param pdb_file: PDB file. str
+    :param atom_name: PDB atom name. str(len <= 4)
+    :return: if the atom is found it prints a text and if not raise an exception.
+    """
     ligand = addfr.extract_heteroatoms_pdbs(pdb_file, create_file=False, ligand_chain=ligand_chain, get_ligand=True)
     atom = ligand.select("name {}".format(atom_name))
     try:
