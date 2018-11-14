@@ -42,10 +42,10 @@ def check_and_fix_pdbatomnames(pdb_file):
         for i, line in enumerate(content):
             if line.startswith("HETATM"):
                 atom_name = line[12:16]
-                if "G" in atom_name.strip():
-                    new_atom_name = line[77:78]+atom_name.strip()
+                if atom_name.strip().startswith("G"):
+                    new_atom_name = line[77:78] + atom_name.strip()
                     line_to_list = list(line)
-                    line_to_list[12:16] = new_atom_name
+                    line_to_list[12:16] = new_atom_name + " " * (4-len(new_atom_name))
                     line_to_list = "".join(line_to_list)
                     content[i] = line_to_list
         check_duplicated_pdbatomnames(content)

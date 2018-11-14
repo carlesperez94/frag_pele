@@ -389,7 +389,7 @@ if __name__ == '__main__':
                         complex_pdb = "selection_{}.pdb".format(ID)
                         ID_completed = []
                         for id in instruction:
-                            ID_completed.append(instruction[id][3])
+                            ID_completed.append(id[3])
                         ID = "".join(ID_completed)
                     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                          sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,

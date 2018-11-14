@@ -200,6 +200,18 @@ def rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, 
     return rotated_structure
 
 
+def rotate_throught_bond(bond, angle, rotated_atoms, atoms_fixed, atoms_moved):
+    # Obtain the axis that we want to use as reference for the rotation
+    vector = bond[1].get_vector() - bond[0].get_vector()
+    # Obtain the rotation matrix for the vector (axis) and the angle (theta)
+    rot_mat = bio.rotaxis(angle, vector)
+    transformation = prody.Transformation()
+    transformation.setRotation(rot_mat)
+    prody.applyTransformation(transformation, rotated_atoms)
+    structure_result = atoms_fixed + atoms_moved
+    return structure_result
+
+
 def check_collision(merged_structure, bond, theta, theta_interval, core_bond, list_of_atoms, fragment_bond,
                     core_structure, fragment_structure):
     """
@@ -222,11 +234,13 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
     clashes) around the axis of the bond.
     """
     core_resname = bond[0].get_parent().get_resname()
+    core_pdb_name = bond[0].get_name()
     frag_resname = bond[1].get_parent().get_resname()
     if core_resname is frag_resname:
         logger.critical("The resname of the core and the fragment is the same. Please, change one of both")
     check_possible_collision = merged_structure.select("resname {} and within 1.7 of resname {}".format(core_resname,
                                                                                                         frag_resname))
+
     # This list only should have the atom of the fragment that will be bonded to the core, so if not we will have to
     # solve it
     if len(check_possible_collision.getNames()) > 1 or check_possible_collision.getNames()[0] != bond[0].name:
@@ -242,6 +256,12 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
             return recall
     else:
         return merged_structure
+
+
+def get_previous_bond(structure, core_atom, core_resname):
+    bond_selection = structure.select("resname {} and within 1.75 of name {}".format(core_resname, core_atom))
+    bond = bond_selection.getNames()
+    return bond
 
 
 def finishing_joining(molecule):
