@@ -16,6 +16,7 @@ def check_duplicated_pdbatomnames(pdb_content):
     :return: if repeated atom names: exit and complain.
     """
     pdb_atom_names_list = []
+    print(pdb_content)
     for line in pdb_content:
         if line.startswith("HETATM") and line.split()[3] != "HOH":
             pdb_atom_name = line[12:16]
@@ -54,14 +55,14 @@ def check_and_fix_pdbatomnames(pdb_file):
         writepdb.write("{}".format(new_pdb))
 
 
-def check_if_atom_exists_in_ligand(pdb_file, atom_name):
+def check_if_atom_exists_in_ligand(pdb_file, atom_name, ligand_chain="L"):
     """
     It checks if an atom is found in a certain PDB file.
     :param pdb_file: PDB file. str
     :param atom_name: PDB atom name. str(len <= 4)
     :return: if the atom is found it prints a text and if not raise an exception.
     """
-    ligand = addfr.extract_heteroatoms_pdbs(pdb_file, create_file=False, ligand_chain="L", get_ligand=True)
+    ligand = addfr.extract_heteroatoms_pdbs(pdb_file, create_file=False, ligand_chain=ligand_chain, get_ligand=True)
     atom = ligand.select("name {}".format(atom_name))
     try:
         print("PDB ATOM NAME selected: {} in {}.".format(atom.getNames(), pdb_file))

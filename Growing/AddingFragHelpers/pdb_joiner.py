@@ -44,7 +44,7 @@ def select_atoms_from_list(PDB_atom_name, atoms_list):
             return atom
 
 
-def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_hydrogen=None):
+def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_hydrogen=None, chain="L"):
     """
     Given a heavy atom name (string) and a complex (prody molecule) it returns the hydrogen atom of the chain L
     placed at bonding distance of the input atom name. If there is more than one, a checking of contacts with the
@@ -58,6 +58,7 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_hydrogen=None):
     """
     # Select the hydrogens bonded to the heavy atom 'PDB_atom_name'
     selected_h = prody_complex.select("chain L and hydrogen within 1.53 of name {}".format(PDB_atom_name)) # Replace for 1.53 :)
+
     # In case that we found more than one we have to select one of them
     try:
         number_of_h = len(selected_h)
