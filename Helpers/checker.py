@@ -16,9 +16,8 @@ def check_duplicated_pdbatomnames(pdb_content):
     :return: if repeated atom names: exit and complain.
     """
     pdb_atom_names_list = []
-    print(pdb_content)
     for line in pdb_content:
-        if line.startswith("HETATM") and line.split()[3] != "HOH":
+        if line.startswith("HETATM") and line[17:30] != "HOH" and line[21:22] == "L":
             pdb_atom_name = line[12:16]
             pdb_atom_names_list.append(pdb_atom_name)
     set_to_check = set(pdb_atom_names_list)
@@ -41,7 +40,7 @@ def check_and_fix_pdbatomnames(pdb_file):
         content = pdb.readlines()
         check_duplicated_pdbatomnames(content)
         for i, line in enumerate(content):
-            if line.startswith("HETATM"):
+            if line.startswith("HETATM") and line[21:22] == "L":
                 atom_name = line[12:16]
                 if atom_name.strip().startswith("G"):
                     new_atom_name = line[77:78] + atom_name.strip()
