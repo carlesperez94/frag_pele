@@ -8,6 +8,7 @@ import logging
 from logging.config import fileConfig
 import shutil
 import subprocess
+import traceback
 # Local imports
 import Helpers.clusterizer
 import Helpers.checker
@@ -397,10 +398,16 @@ if __name__ == '__main__':
                     for id in instruction:
                         ID_completed.append(id[3])
                     ID = "".join(ID_completed)
-                main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
+
+                try:
+                    main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                      sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                      threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                      max_overlap, ID, h_core, h_frag)
+
+                except Exception:
+                    traceback.print_exc()
+
         else:
             # Initialize the growing for each line in the file
             fragment_pdb, core_atom, fragment_atom, ID = instruction[0], instruction[1], instruction[2], instruction[3]
@@ -410,7 +417,11 @@ if __name__ == '__main__':
                 h_core = atoms_if_bond[1]
                 fragment_atom = atoms_if_bond[2]
                 h_frag = atoms_if_bond[3]
-            main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
+
+            try:
+                main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                  pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                  condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
                  h_frag)
+            except Exception:
+                traceback.print_exc()
