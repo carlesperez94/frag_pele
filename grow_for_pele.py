@@ -13,6 +13,8 @@ import traceback
 import Helpers.clusterizer
 import Helpers.checker
 import Helpers.modify_rotamers
+import Helpers.folder_handler
+import Helpers.runner
 import Growing.template_fragmenter
 import Growing.simulations_linker
 import Growing.add_fragment_from_pdbs
@@ -49,7 +51,7 @@ def parse_arguments():
     required_named.add_argument("-cp", "--complex_pdb", required=True,
                         help="""PDB file which contains a protein-ligand complex that we will use as 
                         core for growing (name the chain of the ligand "L")""")
-    required_named.add_argument("-sef", "--serie_file", required = True,
+    required_named.add_argument("-sef", "--serie_file", required=True,
                         help="""
                         Name of the tabular file which contains the information required to perform several 
                         successive growings using different fragments or different growing positions.
@@ -85,6 +87,9 @@ def parse_arguments():
     parser.add_argument("-cc", "--c_chain", default="L", help="Chain name of the core")
 
     parser.add_argument("-fc", "--f_chain", default="L", help="Chain name of the fragment")
+
+    parser.add_argument("-docon", "--docontrolsim", default=False,
+                        help="""When it is true FrAG runs a control simulation (without growing).""")
 
     # Plop related arguments
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
@@ -130,6 +135,7 @@ def parse_arguments():
                         help="")
     parser.add_argument("-ncl", "--nclusters", default=c.NUM_CLUSTERS,
                         help="Number of initial structures that we want to use in each simulation.")
+
     args = parser.parse_args()
 
     return args.complex_pdb, args.iterations, \
@@ -137,7 +143,7 @@ def parse_arguments():
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.serie_file, \
-           args.h_core, args.h_frag, args.c_chain, args.f_chain
+           args.h_core, args.h_frag, args.c_chain, args.f_chain, args.docontrolsim
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -186,8 +192,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     templates_folder = "{}_{}".format(c.TEMPLATES_FOLDER, ID)
     pdbout_folder = "{}_{}".format(pdbout, ID)
     # Creation of output folder
-    if not os.path.exists(os.path.join(curr_dir, c.TEMPLATES_PATH)):
-        os.mkdir(os.path.join(curr_dir, c.TEMPLATES_PATH))
+    Helpers.folder_handler.check_and_create_DataLocal()
 
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
 
@@ -274,7 +279,6 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         pdb_input_paths = ["{}".format(os.path.join(pdbout_folder, str(i-1), pdb_file)) for pdb_file in pdb_selected_names]
 
         # Control file modification
-
         overlapping_factor = float(min_overlap) + (((float(max_overlap) - float(min_overlap))*i) / iterations)
         overlapping_factor = "{0:.2f}".format(overlapping_factor)
 
@@ -308,29 +312,12 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                     os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder), template))
 
         # Running PELE simulation
-        if not os.path.exists(result):
-            os.mkdir(result)
-        if not os.path.exists(result):
-            os.chdir(result)
-            os.mkdir("{}_{}".format(resfold, (int(i))))
-            os.chdir("../")
-
+        Helpers.folder_handler.check_and_create_results_folder(result)
         Growing.simulations_linker.simulation_runner(pele_dir, contrl, int(cpus))
         logger.info(c.LINES_MESSAGE)
         logger.info(c.FINISH_SIM_MESSAGE.format(result))
         # Before selecting a step from a trajectory we will save the input PDB file in a folder
-        if i == 0:
-            if not os.path.exists(pdbout_folder):  # Create the folder if it does not exist
-                os.mkdir(pdbout_folder)
-            if not os.path.exists(os.path.join(pdbout_folder, "{}".format(i))):  # Do the same if the subfolder does not exist
-                os.chdir(pdbout_folder)
-                os.mkdir("{}".format(i))  # Put the name of the iteration
-                os.chdir("../")
-        else:
-            if not os.path.exists(os.path.join(pdbout_folder, "{}".format(i))):
-                os.chdir(pdbout_folder)
-                os.mkdir("{}".format(i))
-                os.chdir("../")
+        Helpers.folder_handler.check_and_create_pdb_clusters_folder(pdbout_folder, i)
 
         # ---------------------------------------------------CLUSTERING-------------------------------------------------
         # Transform column name of the criteria to column number
@@ -339,7 +326,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         column_number = Helpers.clusterizer.get_column_num(result_abs, criteria, report)
         # Selection of the trajectory used as new input
 
-        Helpers.clusterizer.cluster_traject(str(template_resnames[1]), int(cpus), column_number, distance_contact,
+        Helpers.clusterizer.cluster_traject(str(template_resnames[1]), int(cpus-1), column_number, distance_contact,
                                             clusterThreshold, "{}*".format(os.path.join(result_abs, traject)),
                                             os.path.join(pdbout_folder, str(i)), epsilon, report, condition, metricweights,
                                             nclusters)
@@ -371,7 +358,7 @@ if __name__ == '__main__':
     complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, h_core, h_frag, \
-    c_chain, f_chain = parse_arguments()
+    c_chain, f_chain, docontrolsim = parse_arguments()
 
     list_of_instructions = sh.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
@@ -425,3 +412,10 @@ if __name__ == '__main__':
                  h_frag)
             except Exception:
                 traceback.print_exc()
+    if docontrolsim:
+        logging.info("INITIALIZING NON-GROWING SIMULATION :)")
+        ID = "{}_cntrl".format(complex_pdb)
+        Helpers.runner.run_no_grow(complex_pdb, sch_python, resfold, iterations, cpus, ID, pele_dir,
+                                   pdbout, restart, min_overlap, max_overlap, contrl, criteria, report,
+                                   epsilon, threshold, distcont, condition, traject,
+                                   metricweights, nclusters, pele_eq_steps, license)
