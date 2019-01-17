@@ -479,11 +479,8 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     :param output_file_to_grow: name of the pdb file that will be used to initialise PELE simulations. string.
     "initialization_grow.pdb" by default.
     """
-    if not c.PRE_WORKING_DIR:
+    if not os.path.exists(c.PRE_WORKING_DIR):
         os.mkdir(c.PRE_WORKING_DIR)
-        os.chdir(c.PRE_WORKING_DIR)
-    else:
-        os.chdir(c.PRE_WORKING_DIR)
     # Check that ligand names are not repeated
     check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain)
     for pdb_file in (pdb_complex_core, pdb_fragment):
@@ -557,9 +554,10 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     logger.info("The result of core + fragment(small) has been saved in '{}'. This will be used to initialise the growing."
                 .format(output_file_to_grow))
     # Add the protein to the ligand
-    prody.writePDB("ligand_grown.pdb", molecule_names_changed)
+    output_ligand_grown_path = os.path.join(c.PRE_WORKING_DIR, "ligand_grown.pdb")
+    prody.writePDB(output_ligand_grown_path, molecule_names_changed)
 
-    with open("ligand_grown.pdb") as lig:
+    with open(output_ligand_grown_path) as lig:
         content_lig = lig.readlines()
         content_lig = content_lig[1:]
         content_lig = "".join(content_lig)
@@ -573,8 +571,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     with open(output_file_to_grow, "w") as output:
         output.write(out_joined)
     # Make a copy of output files in the main directory
-    shutil.copy(output_file_to_grow, "../")
-    os.chdir("../")
+    shutil.copy(output_file_to_grow, ".")  # We assume that the user will be running FrAG in PELE's main folder...
     # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
     # are returning this dictionary in the function.
     return changing_names_dictionary, hydrogen_atoms, "{}.pdb".format(core_residue_name), output_file_to_tmpl, output_file_to_grow

@@ -14,6 +14,7 @@ BOND_PATTERN = "\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
 WRITE_NBON_PATTERN = " {:5d}   {:3.4f}   {:3.4f}  {: 3.6f}   {:3.4f}   {:3.4f}   {:3.9f}  {: 3.9f}\n"
 WRITE_BOND_PATTERN = " {:5d} {:5d}   {:5.3f} {: 2.3f}\n"
 
+
 def template_reader(template_name, path_to_template="DataLocal/Templates/OPLS2005/HeteroAtoms/"):
     """
     This function reads the content of a PELE's template and return it
@@ -659,6 +660,3 @@ def grow_parameters_in_template(starting_template_file, initial_template_file, f
 
     # Finally, join everything and write a file with the output template
     write_template(final_template, output_template_filename, nbon_section, bond_section, path)
-
-
-#grow_parameters_in_template("grwz_ref","0kkz","grwz", ['H15'] ,"C15" ,"G4","grwz_2", "/home/carlespl/project/growing/grow/4DJU_4DJV/DataLocal/Templates/OPLS2005/HeteroAtoms/growing_templates",9,10)
