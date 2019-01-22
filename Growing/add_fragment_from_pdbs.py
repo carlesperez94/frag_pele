@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 LIST_OF_IONS = ["ZN", "MN", "FE", "CO", "NI", "CA", "CD"]
 
 
-def extract_heteroatoms_pdbs(pdb, create_file=True, ligand_chain="L", get_ligand=False):
+def extract_heteroatoms_pdbs(pdb, create_file=True, ligand_chain="L", get_ligand=False, output_folder="."):
     """
     From a pdb file, it extracts the chain L and checks if the structure has hydrogens. After that, the chain L is
     written in a new PDB file which will have the following format: "{residue name}.pdb".
@@ -36,8 +36,8 @@ def extract_heteroatoms_pdbs(pdb, create_file=True, ligand_chain="L", get_ligand
     # Save the ligand in a PDB (the name of the file is the name of the residue)
     ligand_name = ligand.getResnames()[0]
     if create_file:
-        prody.writePDB(ligand_name, ligand)
-        logger.info("The ligand of {} has been extracted and saved in '{}.pdb'".format(pdb, ligand_name))
+        prody.writePDB(os.path.join(output_folder, ligand_name), ligand)
+        print("The ligand of {} has been extracted and saved in '{}.pdb'".format(pdb, os.path.join(output_folder, ligand_name)))
     if get_ligand is True:
         return ligand
     else:
@@ -491,10 +491,11 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     fragment = c2p.pdb_parser_ligand(pdb_fragment, fragment_chain)
     # We will check that the structures are protonated. We will also create a new PDB file for each one and we will get
     # the residue name of each ligand.
-    core_residue_name = extract_heteroatoms_pdbs(pdb_complex_core, True, core_chain)
-    frag_residue_name = extract_heteroatoms_pdbs(pdb_fragment, True, fragment_chain)
+    core_residue_name = extract_heteroatoms_pdbs(pdb_complex_core, True, core_chain, output_folder=c.PRE_WORKING_DIR)
+    frag_residue_name = extract_heteroatoms_pdbs(pdb_fragment, True, fragment_chain, output_folder=c.PRE_WORKING_DIR)
     # We will use the PDBs previously generated to get a list of Bio.PDB.Atoms for each structure
-    bioatoms_core_and_frag = from_pdb_to_bioatomlist([core_residue_name, frag_residue_name])
+    bioatoms_core_and_frag = from_pdb_to_bioatomlist([os.path.join(c.PRE_WORKING_DIR, core_residue_name), 
+                                                     os.path.join(c.PRE_WORKING_DIR, frag_residue_name)])
     # Then, we will have to transform the atom names of the core and the fragment to a list object
     # (format required by functions)
     pdb_atom_names = [pdb_atom_core_name, pdb_atom_fragment_name]
@@ -538,7 +539,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
         logger.info("{} --> {}".format(transformation, changing_names_dictionary[transformation]))
     finishing_joining(molecule_names_changed)
     # Extract a PDB file to do the templates
-    prody.writePDB(output_file_to_tmpl, molecule_names_changed)
+    prody.writePDB(os.path.join(c.PRE_WORKING_DIR, output_file_to_tmpl), molecule_names_changed)
     logger.info("The result of core + fragment has been saved in '{}'. This will be used to create the template file."
                 .format(output_file_to_tmpl))
     # Now, we will use the original molecule to do the resizing of the fragment.
@@ -568,10 +569,12 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     output_file.append(chain_not_lig)
     output_file.append("{}TER".format(content_lig))
     out_joined = "".join(output_file)
-    with open(output_file_to_grow, "w") as output:
+    with open(os.path.join(c.PRE_WORKING_DIR, output_file_to_grow), "w") as output: # Save the file in the pregrow folder
         output.write(out_joined)
     # Make a copy of output files in the main directory
-    shutil.copy(output_file_to_grow, ".")  # We assume that the user will be running FrAG in PELE's main folder...
+    shutil.copy(os.path.join(c.PRE_WORKING_DIR, output_file_to_grow), ".")  # We assume that the user will be running FrAG in PELE's main folder...
     # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
     # are returning this dictionary in the function.
     return changing_names_dictionary, hydrogen_atoms, "{}.pdb".format(core_residue_name), output_file_to_tmpl, output_file_to_grow
+
+
