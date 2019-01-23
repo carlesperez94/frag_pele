@@ -1,4 +1,7 @@
 import sys
+import os
+
+DIR = os.path.dirname(__file__)
 
 ##############################################
 
@@ -8,7 +11,7 @@ ITERATIONS = 10
 SELECTION_CRITERIA = "Binding Energy"
 SERIE_FILE = False
 # PELE parameters
-CONTROL_TEMPLATE = "control_template.conf"
+CONTROL_TEMPLATE = os.path.join(DIR, "Templates/control_template.conf")
 RESULTS_FOLDER = "growing_output"
 PATH_TO_PELE = "/gpfs/projects/bsc72/PELE++/mniv/rev12536/bin/Pele_mpi"
 PATH_TO_LICENSE = "/gpfs/projects/bsc72/PELE++/license"
