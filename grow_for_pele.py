@@ -16,6 +16,7 @@ import Helpers.modify_rotamers
 import Helpers.folder_handler
 import Helpers.runner
 import Helpers.constraints as cs
+import Helpers.helpers as hp
 import Helpers.center_of_mass as cm
 import Growing.template_fragmenter
 import Growing.simulations_linker
@@ -197,6 +198,9 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     Helpers.folder_handler.check_and_create_DataLocal()
     # Creating constraints
     const = "\n".join(cs.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10))
+    # Creating symbolic links
+    hp.create_symlinks(c.PATH_TO_PELE_DATA, 'Data')
+    hp.create_symlinks(c.PATH_TO_PELE_DOCUMENTS, 'Documents')
 
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = Growing.\
