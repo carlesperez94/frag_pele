@@ -28,7 +28,6 @@ def extract_heteroatoms_pdbs(pdb, create_file=True, ligand_chain="L", get_ligand
     :return: Writes a new pdb file "{residue name}.pdb" with the chain L isolated an returns the residue name (string).
     """
     # Parse the complex file and isolate the ligand core and the fragment
-    print(ligand_chain)
     ligand = c2p.pdb_parser_ligand(pdb, ligand_chain)
     if ligand is None:
         logger.critical("The ligand can not be found. Ensure that the ligand of {} is the chain {}".format(pdb, ligand_chain))
@@ -92,10 +91,12 @@ def extract_hydrogens(pdb_atom_names, lists_of_bioatoms, list_of_pdbs, h_core=No
     """
     hydrogens = []
     selected_hydrogens = [h_core, h_frag]
+    print(selected_hydrogens)
     chains = [c_chain, f_chain]
     for atom_name, pdb, list_of_bioatoms, sel_h, chain in zip(pdb_atom_names, list_of_pdbs, lists_of_bioatoms, selected_hydrogens, chains):
         complex = prody.parsePDB(pdb)
         # Select name of the H atoms bonded to this heavy atom (the place where we will grow)
+        print(atom_name, complex, sel_h, chain)
         atom_name_hydrogens = pj.get_H_bonded_to_grow(atom_name, complex, sel_h, chain=chain)
         # Select this hydrogen atoms
         atom_hydrogen = pj.select_atoms_from_list(atom_name_hydrogens, list_of_bioatoms)
@@ -202,6 +203,22 @@ def rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, 
     return rotated_structure
 
 
+def rotate_throught_bond(bond, angle, rotated_atoms, atoms_fixed):
+    # Obtain the axis that we want to use as reference for the rotation
+    vector = bond.getCoords()[0] - bond.getCoords()[1]
+    vector = bio.Vector(vector)
+    # Obtain the rotation matrix for the vector (axis) and the angle (theta)
+    rot_mat = bio.rotaxis(angle, vector)
+    new_coords = []
+    for coords in rotated_atoms.getCoords():
+        new_coord = np.dot(coords, rot_mat)
+        print(new_coord)
+        new_coords.append(new_coord)
+    rotated_atoms.setCoords(new_coords)
+    structure_result = atoms_fixed + rotated_atoms
+    return structure_result
+
+
 def check_collision(merged_structure, bond, theta, theta_interval, core_bond, list_of_atoms, fragment_bond,
                     core_structure, fragment_structure):
     """
@@ -224,11 +241,26 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
     clashes) around the axis of the bond.
     """
     core_resname = bond[0].get_parent().get_resname()
+    core_pdb_name = bond[0].get_name()
     frag_resname = bond[1].get_parent().get_resname()
     if core_resname is frag_resname:
         logger.critical("The resname of the core and the fragment is the same. Please, change one of both")
     check_possible_collision = merged_structure.select("resname {} and within 1.7 of resname {}".format(core_resname,
                                                                                                         frag_resname))
+    ### TESTING AREA
+#    bond_prev = get_previous_bond(merged_structure, core_pdb_name, core_resname)
+#    fixed_atom_group = merged_structure.select("resname {} and not name {}".format(core_resname, core_pdb_name))
+#    moved_atom_group = merged_structure.select("resname {} or (resname {} and name {})".format(frag_resname, core_resname,
+#                                                                                                core_pdb_name))
+#    print(moved_atom_group)
+#    rotate_throught_bond(bond_prev, 0.5, moved_atom_group, fixed_atom_group)
+#    prody.writePDB("/home/carlespl/project/growing/grow/pepito_hyal/move.pdb", moved_atom_group)
+#    prody.writePDB("/home/carlespl/project/growing/grow/pepito_hyal/fixed.pdb", fixed_atom_group)
+#    rotation_result = moved_atom_group + fixed_atom_group
+#    prody.writePDB("/home/carlespl/project/growing/grow/pepito_hyal/rotation.pdb", rotation_result)
+#    print("CHECK THE ROTATION BOYYYY!!")
+    ###
+
     # This list only should have the atom of the fragment that will be bonded to the core, so if not we will have to
     # solve it
     if len(check_possible_collision.getNames()) > 1 or check_possible_collision.getNames()[0] != bond[0].name:
@@ -244,6 +276,11 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
             return recall
     else:
         return merged_structure
+
+
+def get_previous_bond(structure, core_atom, core_resname):
+    bond_selection = structure.select("resname {} and within 1.75 of name {}".format(core_resname, core_atom))
+    return bond_selection
 
 
 def finishing_joining(molecule):
@@ -368,6 +405,15 @@ def get_waters_or_ions_in_pdb(pdb_input):
         return "".join(ions+water)
 
 
+def get_everything_except_ligand(pdb_input, ligand_chain):
+    pdb_content = []
+    with open(pdb_input) as pdb:
+        for line in pdb:
+            if (line.startswith("ATOM") or line.startswith("HETATM") and line[21] != ligand_chain) or line.startswith("TER"):
+                pdb_content.append(line)
+    return "".join(pdb_content)
+
+
 def check_water(pdb_input):
     """
     Given a pdb file checks if it contains water molecules.
@@ -448,7 +494,8 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     :param output_file_to_grow: name of the pdb file that will be used to initialise PELE simulations. string.
     "initialization_grow.pdb" by default.
     """
-    if not c.PRE_WORKING_DIR:
+    c.PRE_WORKING_DIR = os.path.abspath(c.PRE_WORKING_DIR)
+    if not os.path.isdir(c.PRE_WORKING_DIR):
         os.mkdir(c.PRE_WORKING_DIR)
         os.chdir(c.PRE_WORKING_DIR)
     else:
@@ -495,7 +542,10 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     # Now, we want to extract this structure in a PDB to create the template file after the growing. We will do a copy
     # of the structure because then we will need to resize the fragment part, so be need to keep it as two different
     # residues.
-    structure_to_template = check_results.copy()
+    print(check_results)
+    prody.writePDB('Intermidiate.pdb', check_results)
+    structure_to_template = check_results[:].copy()
+    prody.writePDB('Intermidiate2.pdb', structure_to_template)
     # Once we have all the atom names unique, we will rename the resname and the resnum of both, core and fragment, to
     # GRW and 1. Doing this, the molecule composed by two parts will be transformed into a single one.
     changing_names = pj.extract_and_change_atomnames(structure_to_template, fragment.getResnames()[0])
@@ -508,6 +558,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     logger.info("The following names of the fragment have been changed:")
     for transformation in changing_names_dictionary:
         logger.info("{} --> {}".format(transformation, changing_names_dictionary[transformation]))
+    print(molecule_names_changed.getResnames())
     finishing_joining(molecule_names_changed)
     # Extract a PDB file to do the templates
     prody.writePDB(output_file_to_tmpl, molecule_names_changed)
@@ -527,31 +578,19 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                 .format(output_file_to_grow))
     # Add the protein to the ligand
     prody.writePDB("ligand_grown.pdb", molecule_names_changed)
-    with open(pdb_complex_core) as protein:
-        content_prot = protein.readlines()
-        chainA = []
-        for line in content_prot:
-            if (line.startswith("ATOM") or line.startswith("TER")):
-                if len(line.split()) > 10:
-                    if line.split()[4] == "A" and len(line) > 4:
-                        chainA.append(line)
-                elif len(line.split()) == 1:
-                    chainA.append(line)
-        content_prot = "".join(chainA)
+
     with open("ligand_grown.pdb") as lig:
         content_lig = lig.readlines()
         content_lig = content_lig[1:]
         content_lig = "".join(content_lig)
-    output_file = []
-    output_file.append("{}TER\n".format(content_prot))
-    # Put waters
-    if check_water(pdb_complex_core):
-        waters_or_ions = get_waters_or_ions_in_pdb(pdb_complex_core)
-        output_file.append(waters_or_ions)
+
     # Join all parts of the PDB
+    output_file = []
+    chain_not_lig = get_everything_except_ligand(pdb_complex_core, core_chain)
+    output_file.append(chain_not_lig)
     output_file.append("{}TER".format(content_lig))
     out_joined = "".join(output_file)
-    with open(output_file_to_grow, "w") as output :
+    with open(output_file_to_grow, "w") as output:
         output.write(out_joined)
     # Make a copy of output files in the main directory
     shutil.copy(output_file_to_grow, "../")

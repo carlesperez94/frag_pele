@@ -1,0 +1,913 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>atomset Package &mdash; AdaptivePELE  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="AdaptivePELE  documentation" href="index.html"/>
+        <link rel="up" title="AdaptivePELE – Package Description" href="AdaptivePELE.html"/>
+        <link rel="next" title="clustering Package" href="AdaptivePELE.clustering.html"/>
+        <link rel="prev" title="analysis Package" href="AdaptivePELE.analysis.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> AdaptivePELE
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v1.4.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Examples.html">User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Changelog.html">Changelog</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="AdaptivePELE.html">AdaptivePELE – Package Description</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.html#module-AdaptivePELE.adaptiveSampling"><code class="docutils literal"><span class="pre">adaptiveSampling</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.html#module-AdaptivePELE.automateRoundsAdaptive"><code class="docutils literal"><span class="pre">automateRoundsAdaptive</span></code> Module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="AdaptivePELE.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.analysis.html">analysis Package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">atomset Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-AdaptivePELE.atomset.atomset"><code class="docutils literal"><span class="pre">atomset</span></code> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.clustering.html">clustering Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.simulation.html">simulation Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.spawning.html">spawning Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.utilities.html">utilities Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.validator.html">validator Package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">AdaptivePELE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+        <li><a href="AdaptivePELE.html">AdaptivePELE – Package Description</a> &raquo;</li>
+      
+    <li>atomset Package</li>
+    <li class="wy-breadcrumbs-aside">
+      
+          
+          <a href="_sources/AdaptivePELE.atomset.rst.txt" rel="nofollow"> View page source</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="atomset-package">
+<h1>atomset Package<a class="headerlink" href="#atomset-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-AdaptivePELE.atomset.atomset">
+<span id="atomset-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">atomset</span></code> Module<a class="headerlink" href="#module-AdaptivePELE.atomset.atomset" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="AdaptivePELE.atomset.atomset.Atom">
+<em class="property">class </em><code class="descclassname">AdaptivePELE.atomset.atomset.</code><code class="descname">Atom</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Create an atom from a pdb line</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>atomContent</strong> (<em>basestring</em>) – Line of the pdb from which the atom will be created</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.Atom.atomSerial">
+<code class="descname">atomSerial</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.atomSerial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.Atom.getAtomCoords">
+<code class="descname">getAtomCoords</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.getAtomCoords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the coordinates of the atom</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">numpy.Array – Array with the coordinate of the atom</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.Atom.id">
+<code class="descname">id</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.Atom.isHeavyAtom">
+<code class="descname">isHeavyAtom</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.isHeavyAtom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if Atom is a heavy atom</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">bool – True if Atom is heavy atom, false otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.Atom.isHeteroAtom">
+<code class="descname">isHeteroAtom</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.isHeteroAtom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if Atom is an hetero atom</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">bool – True if Atom is an hetero atom, false otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.Atom.isProtein">
+<code class="descname">isProtein</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.isProtein" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if Atom is a protein atom</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">bool – True if Atom is a protein atom, false otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.Atom.mass">
+<code class="descname">mass</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.mass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.Atom.name">
+<code class="descname">name</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.Atom.printAtom">
+<code class="descname">printAtom</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.printAtom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print Atom information</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.Atom.protein">
+<code class="descname">protein</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.protein" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.Atom.resChain">
+<code class="descname">resChain</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.resChain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.Atom.resname">
+<code class="descname">resname</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.resname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.Atom.resnum">
+<code class="descname">resnum</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.resnum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.Atom.squaredDistance">
+<code class="descname">squaredDistance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.squaredDistance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the squared distance between two atoms</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>atom2</strong> (<a class="reference internal" href="#AdaptivePELE.atomset.atomset.Atom" title="AdaptivePELE.atomset.atomset.Atom"><em>Atom</em></a>) – Second Atom to whom the distance will be calculated</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">float – The distance between the atoms</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.Atom.type">
+<code class="descname">type</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.Atom.x">
+<code class="descname">x</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.Atom.y">
+<code class="descname">y</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.Atom.z">
+<code class="descname">z</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.Atom.z" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="AdaptivePELE.atomset.atomset.PDB">
+<em class="property">class </em><code class="descclassname">AdaptivePELE.atomset.atomset.</code><code class="descname">PDB</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Object that will contain the information of a PDB file. Has to call
+the initialise method to load the file</p>
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.PDB.CMAtoms">
+<code class="descname">CMAtoms</code><em class="property"> = {u'ILE': u'empty', u'GLN': u'empty', u'GLY': u'empty', u'GLU': u'OE1', u'CYS': u'empty', u'ASP': u'OD1', u'SER': u'empty', u'LYS': u'NZ', u'PRO': u'empty', u'HID': u'CE1', u'HIE': u'CE1', u'ASN': u'empty', u'HIP': u'CE1', u'VAL': u'empty', u'THR': u'empty', u'HIS': u'CE1', u'TRP': u'CH2', u'PHE': u'CZ', u'ALA': u'empty', u'MET': u'empty', u'LEU': u'empty', u'ARG': u'NE', u'TYR': u'OH'}</em><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.CMAtoms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.PDB.atomList">
+<code class="descname">atomList</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.atomList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.PDB.atoms">
+<code class="descname">atoms</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.atoms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.PDB.centroid">
+<code class="descname">centroid</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.centroid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.PDB.com">
+<code class="descname">com</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.com" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.PDB.computeTotalMass">
+<code class="descname">computeTotalMass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.computeTotalMass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the total mass of the PDB</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.PDB.countContacts">
+<code class="descname">countContacts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.countContacts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count the number of alpha carbons that are in contact with the
+protein (i.e. less than contactThresholdDistance Amstrogms away)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ligandResname</strong> (<em>basestring</em>) – Residue name of the ligand in the PDB</li>
+<li><strong>contactThresholdDistance</strong> (<em>int</em>) – Maximum distance at which two atoms are considered in contanct (in Angstroms)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int – The number of alpha carbons in contact with the ligand</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.PDB.extractCOM">
+<code class="descname">extractCOM</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.extractCOM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the PDB’s center of mass</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list – List with the center of mass coordinates</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.PDB.extractCentroid">
+<code class="descname">extractCentroid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.extractCentroid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the PDB centroid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">List – List with the centroid coordinates</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.PDB.getAtom">
+<code class="descname">getAtom</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.getAtom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an Atom in the PDB by its id</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>atomId</strong> (<em>basestring</em>) – Id of the Atom (in the format “atomserial:atomName:resname”)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">int – Number of atoms in the PDB</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">KeyError if the id is not in the PDB</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.PDB.getCOM">
+<code class="descname">getCOM</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.getCOM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the PDB’s center of mass</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list – List with the center of mass coordinates</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.PDB.getCentroid">
+<code class="descname">getCentroid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.getCentroid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the PDB’s centroid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list – List with the centroid coordinates</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.PDB.getNumberOfAtoms">
+<code class="descname">getNumberOfAtoms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.getNumberOfAtoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of Atoms in the PDB</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">int – Number of atoms in the PDB</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.PDB.initialise">
+<code class="descname">initialise</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.initialise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the information from a PDB file or a string with the PDB
+contents</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>PDBstr</strong> (<em>basestring</em>) – may be a path to the PDB file or a string with the contents of the PDB</li>
+<li><strong>heavyAtoms</strong> (<em>bool</em>) – wether to consider only heavy atoms (True if onl y heavy atoms have to be considered)</li>
+<li><strong>resname</strong> (<em>basestring</em>) – Residue name to select from the pdb (will only select the residues with that name)</li>
+<li><strong>atomname</strong> (<em>int</em>) – Residue name to select from the pdb (will only select the atoms with that name)</li>
+<li><strong>type</strong> (<em>basestring</em>) – type of atoms to select: may be ALL, PROTEIN or HETERO</li>
+<li><strong>chain</strong> (<em>basestring</em>) – Chain name to select from the pdb (will only select the atoms with that name)</li>
+<li><strong>resnum</strong> – Residue number to select from the pdb (will only select the atoms with that name)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">ValueError if the pdb contained no atoms</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.PDB.pdb">
+<code class="descname">pdb</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.pdb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.PDB.printAtoms">
+<code class="descname">printAtoms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.printAtoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print Atom information for all the atoms in the PDB</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.atomset.PDB.totalMass">
+<code class="descname">totalMass</code><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.totalMass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.atomset.PDB.writePDB">
+<code class="descname">writePDB</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.PDB.writePDB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the pdb contents of the file from wich the PDB object was
+created</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>basestring</em>) – Path of the file where to write the pdb</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.atomset.atomset.computeCOMDifference">
+<code class="descclassname">AdaptivePELE.atomset.atomset.</code><code class="descname">computeCOMDifference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.computeCOMDifference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the difference between the center of mass of two PDB</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>PDB1</strong> (<a class="reference internal" href="#AdaptivePELE.atomset.atomset.PDB" title="AdaptivePELE.atomset.atomset.PDB"><em>PDB</em></a>) – First PDB with which the RMSD will be calculated</li>
+<li><strong>PDB2</strong> (<a class="reference internal" href="#AdaptivePELE.atomset.atomset.PDB" title="AdaptivePELE.atomset.atomset.PDB"><em>PDB</em></a>) – First PDB with which the RMSD will be calculated</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">float – The distance between the centers of mass between two PDB</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.atomset.atomset.computeCOMSquaredDifference">
+<code class="descclassname">AdaptivePELE.atomset.atomset.</code><code class="descname">computeCOMSquaredDifference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.computeCOMSquaredDifference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the squared difference between the center of mass of two PDB</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>PDB1</strong> (<a class="reference internal" href="#AdaptivePELE.atomset.atomset.PDB" title="AdaptivePELE.atomset.atomset.PDB"><em>PDB</em></a>) – First PDB with which the RMSD will be calculated</li>
+<li><strong>PDB2</strong> (<a class="reference internal" href="#AdaptivePELE.atomset.atomset.PDB" title="AdaptivePELE.atomset.atomset.PDB"><em>PDB</em></a>) – First PDB with which the RMSD will be calculated</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">float – The squared distance between the centers of mass between two PDB</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.atomset.atomset.computeSquaredCentroidDifference">
+<code class="descclassname">AdaptivePELE.atomset.atomset.</code><code class="descname">computeSquaredCentroidDifference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.computeSquaredCentroidDifference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the centroid squared difference between two PDBs</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>PDB1</strong> (<a class="reference internal" href="#AdaptivePELE.atomset.atomset.PDB" title="AdaptivePELE.atomset.atomset.PDB"><em>PDB</em></a>) – First PDB</li>
+<li><strong>PDB2</strong> (<a class="reference internal" href="#AdaptivePELE.atomset.atomset.PDB" title="AdaptivePELE.atomset.atomset.PDB"><em>PDB</em></a>) – Second PDB</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">float – The squared centroid distance between two PDB</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.atomset.atomset.readPDB">
+<code class="descclassname">AdaptivePELE.atomset.atomset.</code><code class="descname">readPDB</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.atomset.readPDB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function, parses a string with PDB content or the path of a pdb file into a string</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pdbfile</strong> (<em>basestring</em>) – A string with PDB content or the path of a pdb file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">basestring – A string with PDB content</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-AdaptivePELE.atomset.RMSDCalculator"></span><dl class="class">
+<dt id="AdaptivePELE.atomset.RMSDCalculator.RMSDCalculator">
+<em class="property">class </em><code class="descclassname">AdaptivePELE.atomset.RMSDCalculator.</code><code class="descname">RMSDCalculator</code><a class="headerlink" href="#AdaptivePELE.atomset.RMSDCalculator.RMSDCalculator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symmetries</strong> (<em>list</em>) – List of dictionaries with gropus of symmetric atoms atomId:symmetricalAtomId corresponding with the symmetrical atoms</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="AdaptivePELE.atomset.RMSDCalculator.RMSDCalculator.computeNonSymmAtoms">
+<code class="descname">computeNonSymmAtoms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.RMSDCalculator.RMSDCalculator.computeNonSymmAtoms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.RMSDCalculator.RMSDCalculator.computeRMSD">
+<code class="descname">computeRMSD</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.RMSDCalculator.RMSDCalculator.computeRMSD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the RMSD between two PDB</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>PDB1</strong> (<a class="reference internal" href="#AdaptivePELE.atomset.atomset.PDB" title="AdaptivePELE.atomset.atomset.PDB"><em>PDB</em></a>) – First PDB with which the RMSD will be calculated</li>
+<li><strong>PDB2</strong> (<a class="reference internal" href="#AdaptivePELE.atomset.atomset.PDB" title="AdaptivePELE.atomset.atomset.PDB"><em>PDB</em></a>) – First PDB with which the RMSD will be calculated</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">float – The squared RMSD between two PDB</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.RMSDCalculator.RMSDCalculator.computeRMSD2">
+<code class="descname">computeRMSD2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.RMSDCalculator.RMSDCalculator.computeRMSD2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the squared RMSD between two PDB</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>PDB1</strong> (<a class="reference internal" href="#AdaptivePELE.atomset.atomset.PDB" title="AdaptivePELE.atomset.atomset.PDB"><em>PDB</em></a>) – First PDB with which the RMSD will be calculated</li>
+<li><strong>PDB2</strong> (<a class="reference internal" href="#AdaptivePELE.atomset.atomset.PDB" title="AdaptivePELE.atomset.atomset.PDB"><em>PDB</em></a>) – First PDB with which the RMSD will be calculated</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">float – The squared RMSD between two PDB</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.RMSDCalculator.RMSDCalculator.nonSymmetricalAtomsSet">
+<code class="descname">nonSymmetricalAtomsSet</code><a class="headerlink" href="#AdaptivePELE.atomset.RMSDCalculator.RMSDCalculator.nonSymmetricalAtomsSet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.RMSDCalculator.RMSDCalculator.symmetries">
+<code class="descname">symmetries</code><a class="headerlink" href="#AdaptivePELE.atomset.RMSDCalculator.RMSDCalculator.symmetries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-AdaptivePELE.atomset.SymmetryContactMapEvaluator"></span><dl class="class">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator">
+<em class="property">class </em><code class="descclassname">AdaptivePELE.atomset.SymmetryContactMapEvaluator.</code><code class="descname">SymmetryContactMapEvaluator</code><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symmetries</strong> (<em>list</em>) – List of dictionaries with gropus of symmetric atoms atomId:symmetricalAtomId corresponding with the symmetrical atoms</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.buildContactMap">
+<code class="descname">buildContactMap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.buildContactMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the contact map of the protein and ligand. The contact map is
+a boolean matrix that has as many rows as the number of ligand heavy
+atoms and as many columns as the number of alpha carbons. The
+value is one if the ligand atom and the alpha carbons are less than
+contactThresholdDistance Amstrongs away</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>PDBobj</strong> (<a class="reference internal" href="#AdaptivePELE.atomset.atomset.PDB" title="AdaptivePELE.atomset.atomset.PDB"><em>PDB</em></a>) – PDB object that contains the conformation’s info</li>
+<li><strong>ligandResname</strong> (<em>basestring</em>) – Residue name of the ligand in the PDB</li>
+<li><strong>ligandResnum</strong> (<em>int</em>) – Integer containing the residue number of the ligand in the pdb</li>
+<li><strong>ligandResChain</strong> (<em>basestring</em>) – String containing the chain name of the ligand in the pdb</li>
+<li><strong>contactThresholdDistance</strong> (<em>int</em>) – Maximum distance at which two atoms are considered in contanct (in Angstroms)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">numpy.Array – The contact map of the ligand and the protein</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int – The number of alpha carbons in contact with the ligand</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.buildContactMapWithRowMap">
+<code class="descname">buildContactMapWithRowMap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.buildContactMapWithRowMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a map that relates symmetric atoms in the ligand to row
+indices in the contactMap matrix and the contact map of the protein
+and ligand. The contact map is a boolean matrix that has as many
+rows as the number of ligand heavy atoms and as many columns as the
+number of alpha carbons. The value is one if the ligand atom and
+the alpha carbons are less than contactThresholdDistance Amstrongs
+away</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>PDBobj</strong> (<a class="reference internal" href="#AdaptivePELE.atomset.atomset.PDB" title="AdaptivePELE.atomset.atomset.PDB"><em>PDB</em></a>) – PDB object that contains the conformation’s info</li>
+<li><strong>ligandResname</strong> (<em>basestring</em>) – Residue name of the ligand in the PDB</li>
+<li><strong>ligandResnum</strong> (<em>int</em>) – Integer containing the residue number of the ligand in the pdb</li>
+<li><strong>ligandResChain</strong> (<em>basestring</em>) – String containing the chain name of the ligand in the pdb</li>
+<li><strong>contactThresholdDistance</strong> (<em>int</em>) – Maximum distance at which two atoms are considered in contanct (in Angstroms)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">numpy.Array – The contact map of the ligand and the protein</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int – The number of alpha carbons in contact with the ligand</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.buildOptimalPermutationContactMap">
+<code class="descname">buildOptimalPermutationContactMap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.buildOptimalPermutationContactMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a permutated version of the contactMap which maximizes the
+similarity between the two contactMaps
+:param contactMap: contactMap of the conformation to compare
+:type contactMap: numpy.Array
+:param clusterContactMap: cluster contactMap to which we are comparing
+:type cluster: numpy.Array
+:returns: numpy.Array – The permutated contact map</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.createContactMap">
+<code class="descname">createContactMap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.createContactMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the contact map of the protein and ligand. The contact map is
+a boolean matrix that has as many rows as the number of ligand heavy
+atoms and as many columns as the number of alpha carbons. The
+value is one if the ligand atom and the alpha carbons are less than
+contactThresholdDistance Amstrongs away</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ligandResname</strong> (<em>basestring</em>) – Residue name of the ligand in the PDB</li>
+<li><strong>ligandResnum</strong> (<em>int</em>) – Integer containing the residue number of the ligand in the pdb</li>
+<li><strong>ligandResChain</strong> (<em>basestring</em>) – String containing the chain name of the ligand in the pdb</li>
+<li><strong>contactThresholdDistance</strong> (<em>int</em>) – Maximum distance at which two atoms are considered in contanct (in Angstroms)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">numpy.Array – The contact map of the ligand and the protein</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">int – The number of alpha carbons in contact with the ligand</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.evaluateCorrelation">
+<code class="descname">evaluateCorrelation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.evaluateCorrelation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.evaluateDifferenceDistance">
+<code class="descname">evaluateDifferenceDistance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.evaluateDifferenceDistance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.evaluateJaccard">
+<code class="descname">evaluateJaccard</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.evaluateJaccard" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.ligandList">
+<code class="descname">ligandList</code><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.ligandList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.proteinList">
+<code class="descname">proteinList</code><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.proteinList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.symToRowMap">
+<code class="descname">symToRowMap</code><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.symToRowMap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.symmetricAtoms">
+<code class="descname">symmetricAtoms</code><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.symmetricAtoms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.symmetries">
+<code class="descname">symmetries</code><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.SymmetryContactMapEvaluator.symmetries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.atomset.SymmetryContactMapEvaluator.calculateCorrelationContactMaps">
+<code class="descclassname">AdaptivePELE.atomset.SymmetryContactMapEvaluator.</code><code class="descname">calculateCorrelationContactMaps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.atomset.SymmetryContactMapEvaluator.calculateCorrelationContactMaps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the correlation of two contactMaps</p>
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="AdaptivePELE.clustering.html" class="btn btn-neutral float-right" title="clustering Package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="AdaptivePELE.analysis.html" class="btn btn-neutral" title="analysis Package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Daniel Lecina, Joan Francesc Gilabert.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

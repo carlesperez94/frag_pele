@@ -1,6 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=p38
+#SBATCH --qos=debug
+
+#SBATCH --job-name=test
 
 #SBATCH --output=mpi_%j.out
 
@@ -8,6 +10,8 @@
 
 #SBATCH --ntasks=48
 
-#SBATCH --time=00-5:00:00
+#SBATCH --time=00-2:00:00
 
-python3 ~/projects/FrAG/Ligand_growing_MN/grow_for_pele.py -cp selection_aminoC1N1.pdb -fp phenyl.pdb -ca C6 -fa C1 -x 10 -dose -sef serie_file.conf
+#module load python/3.6.1
+#export PYTHONPATH=/gpfs/projects/bsc72/lib/python3/:/gpfs/projects/bsc72/Ligand_growing_MN/AdaptivePELE_repo:$PYTHONPATH
+python /gpfs/projects/bsc72/Ligand_growing_MN/grow_for_pele.py -cp 1w7h_preparation_structure_2w.pdb -x 2 -sef serie_file.conf

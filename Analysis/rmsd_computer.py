@@ -7,7 +7,6 @@ import glob
 import argparse
 import pandas as pn
 import matplotlib.pyplot as plt
-from analyser import get_min_value
 
 
 def parse_arguments():
@@ -53,12 +52,35 @@ def superimpose_backbones(pdb_target, pdb_reference):
     target = prody.parsePDB(pdb_target)
     reference = prody.parsePDB(pdb_reference)
     # Selection of the backbone
-    target_backbone = target.select("backbone")
-    reference_backbone = reference.select("backbone")
+    target_backbone = target.select("backbone and not water")
+    reference_backbone = reference.select("backbone and not water")
+    # Obtain common residues
+    common_residues = check_common_residues(target_backbone, reference_backbone)
+    common_residues = [str(residue) for residue in common_residues]
+    # Select only common residues
+    target_common = target_backbone.select("resnum {}".format(' '.join(common_residues)))
+    reference_common = reference_backbone.select("resnum {}".format(' '.join(common_residues)))
     # Superimpose the target to the reference backbone
-    transformation = prody.calcTransformation(target_backbone, reference_backbone)
+    transformation = prody.calcTransformation(target_common, reference_common)
     prody.applyTransformation(transformation, target)
+    prody.writePDB("/home/carlespl/project/growing/Ligand_growing/Analysis/check_target.pdb", target)
+    prody.writePDB("/home/carlespl/project/growing/Ligand_growing/Analysis/check_ref.pdb", reference)
     return target, reference
+
+
+def check_common_residues(pdb_target_prody, pdb_reference_prody):
+    list_of_types_and_resnums_target= []
+    list_of_types_and_resnums_reference = []
+    for resnum, resname in zip(pdb_target_prody.getResnums(), pdb_target_prody.getResnames()):
+        list_of_types_and_resnums_target.append((resnum, resname))
+    for resnum, resname in zip(pdb_reference_prody.getResnums(), pdb_reference_prody.getResnames()):
+        list_of_types_and_resnums_reference.append((resnum, resname))
+    common_residues = sorted(list(set(list_of_types_and_resnums_target).intersection(list_of_types_and_resnums_reference)))
+    only_resnums = []
+    for residue in common_residues:
+        resnum = residue[0]
+        only_resnums.append(resnum)
+    return only_resnums
 
 
 def ligands_rmsd_calculator(pdb_target, pdb_reference, column_to_add=None, write2pdb=False, ligand_chain="L", ):
@@ -102,42 +124,6 @@ def ligands_rmsd_calculator(pdb_target, pdb_reference, column_to_add=None, write
     os.remove("structure_superposed_target_tmp.pdb")
     os.remove("structure_superposed_reference_tmp.pdb")
     return results
-
-
-def sidechains_rmsd_calculator(pdb_target, pdb_reference, radii, path, write2report=True, ligand_chain="L"):
-    """
-    :param pdb_target: problem pdb file
-    :param pdb_reference: reference pdb file
-    :param radii: area that we want to select around the ligand
-    :param path: output path
-    :param write2report: if true extract a report file
-    :param ligand_chain: name of the chain of the ligand
-    :return: superpose the backbone of the pdb_target to the pdb_reference and computes the RMSD for each side
-    chain in the selection area
-    """
-    target, reference = superimpose_backbones(pdb_target, pdb_reference)
-    selected_area_target = reference.select("protein and (within {} of chain {})".format(radii, ligand_chain))
-    unique_residues_target = set(selected_area_target.getResnums())
-    list_of_results = []
-    for residue_target in unique_residues_target:
-        res_selected_target = target.select("protein and resnum {}".format(residue_target))
-        res_selected_reference = reference.select("protein and resnum {}".format(residue_target))
-        target_CA = target.select("protein and resnum {} and name CA".format(residue_target))
-        reference_CA = reference.select("protein and resnum {} and name CA".format(residue_target))
-        RMSD = prody.calcRMSD(res_selected_reference, res_selected_target)
-        distance_bet_CA = prody.calcRMSD(reference_CA, target_CA)
-        residue_information = (residue_target, res_selected_target.getResnames()[0], RMSD, distance_bet_CA)
-        list_of_results.append(residue_information)
-    list_of_results = sorted(list_of_results)
-    pdb_reference_name = os.path.splitext(ntpath.basename(pdb_reference))[0]
-    pdb_target_name = os.path.splitext(ntpath.basename(pdb_target))[0]
-    if write2report:
-        filename = "{}_to_{}_sidech.csv".format(pdb_target_name, pdb_reference_name)
-        filename = os.path.join(path, filename)
-        with open(filename, "w") as report:
-            for result in list_of_results:
-                report.write("{:4d}\t{}\t{:5.3f}\t{:5.3f}\t{:5.3f}\n".format(result[0], result[1], float(result[2]),
-                             float(result[3]), (float(result[2]) - float(result[3]))))
 
 
 def repair_pdbs(pdb_file):

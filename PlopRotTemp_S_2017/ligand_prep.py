@@ -30,7 +30,7 @@ def convert_mae(ligands):
 
 def create_template(pdb):
    mae_file = convert_mae(pdb)
-   plop.main(mae_file)
+   plop.main(mae_file, out_temp= "DataLocal/Templates/OPLS2005/HeteroAtoms/", out_rot="DataLocal/LigandRotamerLibs/")
    os.remove(mae_file)
 
 def arg_parse():

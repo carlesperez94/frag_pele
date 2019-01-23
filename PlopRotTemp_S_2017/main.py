@@ -64,7 +64,7 @@ from template.templateBuilder import TemplateBuilder
 
 
 
-def main(mae_file, max_tors=4, nrot=1000, user_core_atom=-1, mae_charges = False, clean = False):
+def main(mae_file, max_tors=4, nrot=1000, user_core_atom=-1, mae_charges = False, clean = False, out_temp=".", out_rot="."):
 
     #Defaults
     nrot = nrot
@@ -132,7 +132,7 @@ def main(mae_file, max_tors=4, nrot=1000, user_core_atom=-1, mae_charges = False
     print("TEMPLATE GENERATION")
 
     resname=pl.find_resnames_in_mae(mae_file)
-    template_output = "{}z".format(resname[0].lower())
+    template_output = os.path.join(out_temp, "{}z".format(resname[0].lower()))
 
     template_builder = TemplateBuilder(mae_file, template_output)
 
@@ -267,7 +267,7 @@ def main(mae_file, max_tors=4, nrot=1000, user_core_atom=-1, mae_charges = False
     if (unnat_res != 1):  
         if (conf_file != 'none'):
             rotamers_file = pl.make_libraries(resname, conf_file, root, names, zmat_atoms, group, use_rings, use_mult_lib,
-                           output_template_file, gridres, debug)
+                           output_template_file, gridres, debug, out_rot)
             print("\n")
             print("CREATE ROTAMER LIBRARY")
             print(rotamers_file)
@@ -286,7 +286,7 @@ def main(mae_file, max_tors=4, nrot=1000, user_core_atom=-1, mae_charges = False
                 print("No rotatable sidechains found")
             
             rotamers_file = pl.find_build_lib(resname, mae_min_file, root, tors, names, group, gridres, gridres_oh, use_rings, back_lib,
-                                  tors_ring_num, ring_libs, debug)
+                                  tors_ring_num, ring_libs, debug, out_rot)
             print("\n")
             print("CREATE ROTAMER LIBRARY")
             print(rotamers_file)
@@ -313,14 +313,16 @@ def parse_args():
     parser.add_argument("--n", type=int, help="Maximum Number of Entries in Rotamer File", default=1000)
     parser.add_argument("--mae_charges", help="Use charges in mae", action='store_true')
     parser.add_argument("--clean", help="Whether to clean up all the intermediate files", action='store_true')
+    parser.add_argument("--out_temp", type=str, help="Template output path")
+    parser.add_argument("--out_rot", type=str, help="Rotamer ouput path")
     args = parser.parse_args()
 
     
-    return args.mae_file, args.mtor, args.n, args.core, args.mae_charges, args.clean
+    return args.mae_file, args.mtor, args.n, args.core, args.mae_charges, args.clean, args.out_temp, args.out_rot
 
 if __name__ == "__main__":
-    mae_file, mtor, n, core, mae_charge, clean = parse_args() 
-    template, rotamers_file = main(mae_file, mtor, n, core, mae_charge, clean)
+    mae_file, mtor, n, core, mae_charge, clean, out_temp, out_rot = parse_args() 
+    template, rotamers_file = main(mae_file, mtor, n, core, mae_charge, clean, out_temp, out_rot)
     
 
     print("########################################################################")

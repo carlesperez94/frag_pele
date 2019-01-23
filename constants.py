@@ -3,33 +3,32 @@ import sys
 ##############################################
 
 # PUBLIC CONSTANTS (to change by the user)
-# GROWINGS parameters
+# Preparation inputs to grow
 ITERATIONS = 10
 SELECTION_CRITERIA = "Binding Energy"
 SERIE_FILE = False
 # PELE parameters
 CONTROL_TEMPLATE = "control_template.conf"
 RESULTS_FOLDER = "growing_output"
-PATH_TO_PELE = "/opt/PELErev12492/bin/Pele_mpi"
-PATH_TO_LICENSE = "/opt/PELErev12492/licenses/"
+PATH_TO_PELE = "/gpfs/projects/bsc72/PELE++/mniv/rev12536/bin/Pele_mpi"
+PATH_TO_LICENSE = "/gpfs/projects/bsc72/PELE++/license"
 REPORT_NAME = "report"
 TRAJECTORY_NAME = "trajectory"
-CPUS = 4
+CPUS = 48
 PELE_EQ_STEPS = 20
 RESTART = False
-MAX_OVERLAP = 0.7
-MIN_OVERLAP = 0.5
+MAX_OVERLAP = 0.70
+MIN_OVERLAP = 0.50
 # Clustering parameters
 DISTANCE_COUNTER = 4
 CONTACT_THRESHOLD = 0.3
 EPSILON = 0.5
 # PlopRotTemp parameters
-SCHRODINGER_PY_PATH = "/opt/schrodinger2016-4/utilities/python"
+SCHRODINGER_PY_PATH = "/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC/utilities/python"
 
 ##############################################
 
 # PRIVATE CONSTANTS (not to change)
-PRE_WORKING_DIR = "pregrow"
 TEMPLATES_PATH = "DataLocal/Templates/OPLS2005/HeteroAtoms/"
 ROTAMERS_PATH = "DataLocal/LigandRotamerLibs/"
 PDBS_OUTPUT_FOLDER = "PDBs_growing"
@@ -37,7 +36,8 @@ OUTPUT_FOLDER = "growing_results/"
 TEMPLATES_FOLDER = "growing_templates"
 CONFIG_PATH = "log_configure.ini"
 PLOP_PATH = "PlopRotTemp_S_2017/ligand_prep.py"
-ROTRES = 10
+PRE_WORKING_DIR = "pregrow"
+ROTRES = 30
 # Clustering constants
 CONDITION = "min"   #   min or max
 METRICS_WEIGHTS = "linear"

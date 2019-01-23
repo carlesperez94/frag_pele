@@ -1,0 +1,707 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>analysis Package &mdash; AdaptivePELE  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="AdaptivePELE  documentation" href="index.html"/>
+        <link rel="up" title="AdaptivePELE – Package Description" href="AdaptivePELE.html"/>
+        <link rel="next" title="atomset Package" href="AdaptivePELE.atomset.html"/>
+        <link rel="prev" title="AdaptivePELE – Package Description" href="AdaptivePELE.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> AdaptivePELE
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v1.4.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Examples.html">User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Changelog.html">Changelog</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="AdaptivePELE.html">AdaptivePELE – Package Description</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.html#module-AdaptivePELE.adaptiveSampling"><code class="docutils literal"><span class="pre">adaptiveSampling</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.html#module-AdaptivePELE.automateRoundsAdaptive"><code class="docutils literal"><span class="pre">automateRoundsAdaptive</span></code> Module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="AdaptivePELE.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">analysis Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-AdaptivePELE.analysis.correctRMSD"><code class="docutils literal"><span class="pre">correctRMSD</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-AdaptivePELE.analysis.foldersFirstBindingEvent"><code class="docutils literal"><span class="pre">foldersFirstBindingEvent</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-AdaptivePELE.analysis.makePNGs"><code class="docutils literal"><span class="pre">makePNGs</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-AdaptivePELE.analysis.numberOfClusters"><code class="docutils literal"><span class="pre">numberOfClusters</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-AdaptivePELE.analysis.plotAdaptive"><code class="docutils literal"><span class="pre">plotAdaptive</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-AdaptivePELE.analysis.writeClusteringStructures"><code class="docutils literal"><span class="pre">writeClusteringStructures</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-AdaptivePELE.analysis.writePrecisePathToSnapshot"><code class="docutils literal"><span class="pre">writePrecisePathToSnapshot</span></code> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.atomset.html">atomset Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.clustering.html">clustering Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.simulation.html">simulation Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.spawning.html">spawning Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.utilities.html">utilities Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.validator.html">validator Package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">AdaptivePELE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+        <li><a href="AdaptivePELE.html">AdaptivePELE – Package Description</a> &raquo;</li>
+      
+    <li>analysis Package</li>
+    <li class="wy-breadcrumbs-aside">
+      
+          
+          <a href="_sources/AdaptivePELE.analysis.rst.txt" rel="nofollow"> View page source</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="analysis-package">
+<h1>analysis Package<a class="headerlink" href="#analysis-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-AdaptivePELE.analysis.correctRMSD">
+<span id="correctrmsd-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">correctRMSD</span></code> Module<a class="headerlink" href="#module-AdaptivePELE.analysis.correctRMSD" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="AdaptivePELE.analysis.correctRMSD.extendReportWithRmsd">
+<code class="descclassname">AdaptivePELE.analysis.correctRMSD.</code><code class="descname">extendReportWithRmsd</code><span class="sig-paren">(</span><em>reportFile</em>, <em>rmsds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/correctRMSD.html#extendReportWithRmsd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.correctRMSD.extendReportWithRmsd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend a previous report file with corrected rmsd values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reportFile</strong> (<em>np.ndarray</em>) – Report file to be corrected</li>
+<li><strong>rmsds</strong> (<em>np.ndarray</em>) – Rmsd corrected values</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">np.ndarray – Extended report file with corrected rmsd values</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.correctRMSD.main">
+<code class="descclassname">AdaptivePELE.analysis.correctRMSD.</code><code class="descname">main</code><span class="sig-paren">(</span><em>controlFile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/correctRMSD.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.correctRMSD.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the corrected rmsd values of conformation taking into account
+molecule symmetries</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>controlFile</strong> (<em>str</em>) – Control file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.correctRMSD.parseArguments">
+<code class="descclassname">AdaptivePELE.analysis.correctRMSD.</code><code class="descname">parseArguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/correctRMSD.html#parseArguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.correctRMSD.parseArguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the command-line options</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">object – Object containing the options passed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.correctRMSD.readControlFile">
+<code class="descclassname">AdaptivePELE.analysis.correctRMSD.</code><code class="descname">readControlFile</code><span class="sig-paren">(</span><em>controlFile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/correctRMSD.html#readControlFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.correctRMSD.readControlFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract parameters from controlFile</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>controlFile</strong> (<em>str</em>) – Control file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str, str, list, int – Name of the ligand in the pdb, filename
+containing the native structure, list of the symmetry groups, column
+corresponding to the rmsd in the report file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-AdaptivePELE.analysis.foldersFirstBindingEvent">
+<span id="foldersfirstbindingevent-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">foldersFirstBindingEvent</span></code> Module<a class="headerlink" href="#module-AdaptivePELE.analysis.foldersFirstBindingEvent" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="AdaptivePELE.analysis.foldersFirstBindingEvent.main">
+<code class="descclassname">AdaptivePELE.analysis.foldersFirstBindingEvent.</code><code class="descname">main</code><span class="sig-paren">(</span><em>folders</em>, <em>column</em>, <em>threshold</em>, <em>stepsPerEpoch</em>, <em>sequential</em>, <em>unbinding</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/foldersFirstBindingEvent.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.foldersFirstBindingEvent.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate first binding event statistics (mean, median, std)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>folders</strong> (<em>list</em>) – List of folders</li>
+<li><strong>column</strong> (<em>int</em>) – Column with binding event related metric</li>
+<li><strong>threshold</strong> (<em>float</em>) – Threshold for a binding event to be considered</li>
+<li><strong>stepsPerEpoch</strong> (<em>int</em>) – Number of steps per epoch to be consdidered</li>
+<li><strong>sequential</strong> (<em>bool</em>) – Whether the simulation to analyse is and adaptive or
+sequential simulation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.foldersFirstBindingEvent.parseArguments">
+<code class="descclassname">AdaptivePELE.analysis.foldersFirstBindingEvent.</code><code class="descname">parseArguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/foldersFirstBindingEvent.html#parseArguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.foldersFirstBindingEvent.parseArguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the command-line options</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list, int, float, int, bool – List of folders, column with
+binding event related metric, threshold for a binding event to be
+considered, number of steps per epoch to be consdidered, wether the
+simulation to analyse is and adaptive or sequential simulation</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-AdaptivePELE.analysis.makePNGs">
+<span id="makepngs-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">makePNGs</span></code> Module<a class="headerlink" href="#module-AdaptivePELE.analysis.makePNGs" title="Permalink to this headline">¶</a></h2>
+<p>Create two PNG images with RMSD-MC steps and BE-RMSD for a set of different
+adaptive runs</p>
+<dl class="function">
+<dt id="AdaptivePELE.analysis.makePNGs.parseArguments">
+<code class="descclassname">AdaptivePELE.analysis.makePNGs.</code><code class="descname">parseArguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/makePNGs.html#parseArguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.makePNGs.parseArguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse command line arguments</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-AdaptivePELE.analysis.numberOfClusters">
+<span id="numberofclusters-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">numberOfClusters</span></code> Module<a class="headerlink" href="#module-AdaptivePELE.analysis.numberOfClusters" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="AdaptivePELE.analysis.numberOfClusters.buildClustersPerValue">
+<code class="descclassname">AdaptivePELE.analysis.numberOfClusters.</code><code class="descname">buildClustersPerValue</code><span class="sig-paren">(</span><em>clustersPerEpoch</em>, <em>numberOfEpochs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/numberOfClusters.html#buildClustersPerValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.numberOfClusters.buildClustersPerValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of clusters that have each value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>clustersPerEpoch</strong> (<em>list</em>) – List with dictionaries for all epochs. The dictionary
+has the set of different values (according to column) and their
+number</li>
+<li><strong>numberOfEpochs</strong> (<em>int</em>) – Total number of epochs in the simulation</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict – Dictionary with the number of clusters that have each
+value</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.numberOfClusters.findDifferentClustersForAllEpochs">
+<code class="descclassname">AdaptivePELE.analysis.numberOfClusters.</code><code class="descname">findDifferentClustersForAllEpochs</code><span class="sig-paren">(</span><em>column</em>, <em>templetizedClusteringSummaryFile</em>, <em>numberOfEpochs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/numberOfClusters.html#findDifferentClustersForAllEpochs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.numberOfClusters.findDifferentClustersForAllEpochs" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Get the distribution of values of a certain column in the clustering</dt>
+<dd>summary for each epoch</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>column</strong> (<em>int</em>) – Column of interest</li>
+<li><strong>templetizedClusteringSummaryFile</strong> (<em>str</em>) – Template name of the
+clustering summary file</li>
+<li><strong>numberOfEpochs</strong> (<em>int</em>) – Total number of epochs in the simulation</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list – List with dictionaries for all epochs. The dictionary
+has the set of different values (according to column) and their
+number</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.numberOfClusters.findDifferentClustersInEpoch">
+<code class="descclassname">AdaptivePELE.analysis.numberOfClusters.</code><code class="descname">findDifferentClustersInEpoch</code><span class="sig-paren">(</span><em>column</em>, <em>summaryFile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/numberOfClusters.html#findDifferentClustersInEpoch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.numberOfClusters.findDifferentClustersInEpoch" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Get the distribution of values of a certain column in the clustering</dt>
+<dd>summary</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>column</strong> (<em>int</em>) – Column of interest</li>
+<li><strong>summaryFile</strong> (<em>str</em>) – Clustering summary file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict – Dictionary with the set of different elements in
+column and the number of elements in this epoch</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.numberOfClusters.getAllDifferentValues">
+<code class="descclassname">AdaptivePELE.analysis.numberOfClusters.</code><code class="descname">getAllDifferentValues</code><span class="sig-paren">(</span><em>clustersPerEpoch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/numberOfClusters.html#getAllDifferentValues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.numberOfClusters.getAllDifferentValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the different values ocurring during a simulation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>clustersPerEpoch</strong> (<em>list</em>) – List with dictionaries for all epochs. The dictionary
+has the set of different values (according to column) and their
+number</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">set – Set containing all values ocurring during a simulation</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.numberOfClusters.getClusteringSummaryContent">
+<code class="descclassname">AdaptivePELE.analysis.numberOfClusters.</code><code class="descname">getClusteringSummaryContent</code><span class="sig-paren">(</span><em>summaryFile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/numberOfClusters.html#getClusteringSummaryContent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.numberOfClusters.getClusteringSummaryContent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the contents of clustering summary file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>summaryFile</strong> (<em>str</em>) – Clustering summary file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list – List with the contents of the clustering summary file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.numberOfClusters.getNumberOfClustersPerEpochForGivenColumn">
+<code class="descclassname">AdaptivePELE.analysis.numberOfClusters.</code><code class="descname">getNumberOfClustersPerEpochForGivenColumn</code><span class="sig-paren">(</span><em>column</em>, <em>templetizedClusteringSummaryFile</em>, <em>folder</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/numberOfClusters.html#getNumberOfClustersPerEpochForGivenColumn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.numberOfClusters.getNumberOfClustersPerEpochForGivenColumn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of clusters that have each value at each epoch</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>column</strong> (<em>int</em>) – Column of interest</li>
+<li><strong>templetizedClusteringSummaryFile</strong> (<em>str</em>) – Template name of the
+clustering summary file</li>
+<li><strong>folder</strong> (<em>str</em>) – Folder where the simulation data is stored</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict – Dictionary with the number of clusters that have each
+value</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.numberOfClusters.getTotalNumberOfClustersPerEpoch">
+<code class="descclassname">AdaptivePELE.analysis.numberOfClusters.</code><code class="descname">getTotalNumberOfClustersPerEpoch</code><span class="sig-paren">(</span><em>templetizedClusteringSummaryFile</em>, <em>folder</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/numberOfClusters.html#getTotalNumberOfClustersPerEpoch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.numberOfClusters.getTotalNumberOfClustersPerEpoch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of clusters in each epoch</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>templetizedClusteringSummaryFile</strong> (<em>str</em>) – Template name of the
+clustering summary file</li>
+<li><strong>folder</strong> (<em>str</em>) – Folder where the simulation data is stored</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list – List with the number of cluster in each simulation
+epoch</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.numberOfClusters.main">
+<code class="descclassname">AdaptivePELE.analysis.numberOfClusters.</code><code class="descname">main</code><span class="sig-paren">(</span><em>filename</em>, <em>outputPath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/numberOfClusters.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.numberOfClusters.main" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Plot a summary of the clustering for a simulation:</dt>
+<dd><ol class="first last arabic simple">
+<li>Number of clusters for each threshold value at each epoch</li>
+<li>Number of clusters for each density value at each epoch</li>
+<li>Histogram of the number of contacts</li>
+</ol>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.numberOfClusters.plotClustersPerValue">
+<code class="descclassname">AdaptivePELE.analysis.numberOfClusters.</code><code class="descname">plotClustersPerValue</code><span class="sig-paren">(</span><em>clustersPerValue</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/numberOfClusters.html#plotClustersPerValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.numberOfClusters.plotClustersPerValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the number of clusters that have a certain value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>clustersPerValue</strong> (<em>dict</em>) – Dictionary with the number of clusters that have each
+value</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.numberOfClusters.plotContactsHistogram">
+<code class="descclassname">AdaptivePELE.analysis.numberOfClusters.</code><code class="descname">plotContactsHistogram</code><span class="sig-paren">(</span><em>folder</em>, <em>templetizedClusteringSummaryFile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/numberOfClusters.html#plotContactsHistogram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.numberOfClusters.plotContactsHistogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the histogram of the number of contacts</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>folder</strong> (<em>str</em>) – Folder where the simulation data is stored</li>
+<li><strong>templetizedClusteringSummaryFile</strong> (<em>str</em>) – Template name of the
+clustering summary file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.numberOfClusters.printHelp">
+<code class="descclassname">AdaptivePELE.analysis.numberOfClusters.</code><code class="descname">printHelp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/numberOfClusters.html#printHelp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.numberOfClusters.printHelp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create command line interface</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">str – Output filename ( if specified )</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-AdaptivePELE.analysis.plotAdaptive">
+<span id="plotadaptive-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">plotAdaptive</span></code> Module<a class="headerlink" href="#module-AdaptivePELE.analysis.plotAdaptive" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="AdaptivePELE.analysis.plotAdaptive.generateNestedString">
+<code class="descclassname">AdaptivePELE.analysis.plotAdaptive.</code><code class="descname">generateNestedString</code><span class="sig-paren">(</span><em>gnuplotString</em>, <em>reportName</em>, <em>column1</em>, <em>column2</em>, <em>stepsPerRun</em>, <em>printWithLines</em>, <em>totalNumberOfSteps=False</em>, <em>replotFirst=False</em>, <em>paletteModifier=None</em>, <em>trajs_range=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/plotAdaptive.html#generateNestedString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.plotAdaptive.generateNestedString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a string to be passed to gnuplot</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gnuplotString</strong> (<em>str</em>) – Template string for gnuplot</li>
+<li><strong>reportName</strong> (<em>str</em>) – Name of the files containing the simulation data</li>
+<li><strong>column1</strong> (<em>int</em>) – Column to plot in the X axis</li>
+<li><strong>column2</strong> (<em>int</em>) – Column to plot in the Y axis</li>
+<li><strong>stepsPerRun</strong> (<em>int</em>) – Number of steps per epoch,</li>
+<li><strong>TotalNumberOfSteps</strong> (<em>bool</em>) – Not only considering steps in current epoch,
+but steps with all previous epochs</li>
+<li><strong>replotFirst</strong> (<em>bool</em>) – Deprecated parameter</li>
+<li><strong>paletteModifier</strong> (<em>int</em>) – Wheter to use the epoch as color or a column</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">str – String to plot using gnuplot</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.plotAdaptive.generatePrintString">
+<code class="descclassname">AdaptivePELE.analysis.plotAdaptive.</code><code class="descname">generatePrintString</code><span class="sig-paren">(</span><em>stepsPerRun</em>, <em>xcol</em>, <em>ycol</em>, <em>reportName</em>, <em>kindOfPrint</em>, <em>paletteModifier</em>, <em>trajs_range</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/plotAdaptive.html#generatePrintString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.plotAdaptive.generatePrintString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a template string to use with gnuplot</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>stepsPerRun</strong> (<em>int</em>) – Number of steps per epoch,</li>
+<li><strong>xcol</strong> (<em>int</em>) – Column to plot in the X axis</li>
+<li><strong>ycol</strong> (<em>int</em>) – Column to plot in the Y axis</li>
+<li><strong>reportName</strong> (<em>str</em>) – Name of the files containing the simulation data</li>
+<li><strong>kindOfPrint</strong> (<em>bool</em>) – Kind of lines to plot (solid or points)</li>
+<li><strong>paletteModifier</strong> (<em>int</em>) – Third column to specify color</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Trajs_range:</th><td class="field-body"><p class="first">Range of trajectories to plot</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">str – String to plot using gnuplot</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.plotAdaptive.parseArguments">
+<code class="descclassname">AdaptivePELE.analysis.plotAdaptive.</code><code class="descname">parseArguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/plotAdaptive.html#parseArguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.plotAdaptive.parseArguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse command line arguments</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">int, int, int, str, bool, bool – Number of steps per epoch,
+column to plot in the X axis, column to plot in the Y axis, name of
+the files containing the simulation data, whether to plot the data
+as points, wether to plot the data as lines</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-AdaptivePELE.analysis.writeClusteringStructures">
+<span id="writeclusteringstructures-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">writeClusteringStructures</span></code> Module<a class="headerlink" href="#module-AdaptivePELE.analysis.writeClusteringStructures" title="Permalink to this headline">¶</a></h2>
+<p>Write specified cluster representative structures to pdb</p>
+<dl class="function">
+<dt id="AdaptivePELE.analysis.writeClusteringStructures.main">
+<code class="descclassname">AdaptivePELE.analysis.writeClusteringStructures.</code><code class="descname">main</code><span class="sig-paren">(</span><em>clObject</em>, <em>structures</em>, <em>condition</em>, <em>outputPath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/writeClusteringStructures.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.writeClusteringStructures.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.analysis.writeClusteringStructures.parseArgs">
+<code class="descclassname">AdaptivePELE.analysis.writeClusteringStructures.</code><code class="descname">parseArgs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/analysis/writeClusteringStructures.html#parseArgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.analysis.writeClusteringStructures.parseArgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse command line arguments</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">object – Object containing command line options</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-AdaptivePELE.analysis.writePrecisePathToSnapshot">
+<span id="writeprecisepathtosnapshot-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">writePrecisePathToSnapshot</span></code> Module<a class="headerlink" href="#module-AdaptivePELE.analysis.writePrecisePathToSnapshot" title="Permalink to this headline">¶</a></h2>
+<p>Recreate the trajectory fragments to the led to the discovery of a snapshot,
+specified by the tuple (epoch, trajectory, snapshot) and write as a pdb file</p>
+<dl class="function">
+<dt id="AdaptivePELE.analysis.writePrecisePathToSnapshot.parseArguments">
+<code class="descclassname">AdaptivePELE.analysis.writePrecisePathToSnapshot.</code><code class="descname">parseArguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#AdaptivePELE.analysis.writePrecisePathToSnapshot.parseArguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the command-line options</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering" title="AdaptivePELE.clustering.clustering.Clustering"><code class="xref py py-class docutils literal"><span class="pre">Clustering</span></code></a>, int, int, int, str – Clustering
+object, number of trajectory, number of snapshot, number of epoch,
+output path where to write the files</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="AdaptivePELE.atomset.html" class="btn btn-neutral float-right" title="atomset Package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="AdaptivePELE.html" class="btn btn-neutral" title="AdaptivePELE – Package Description" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Daniel Lecina, Joan Francesc Gilabert.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
