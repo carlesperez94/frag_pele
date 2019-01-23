@@ -247,19 +247,6 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
         logger.critical("The resname of the core and the fragment is the same. Please, change one of both")
     check_possible_collision = merged_structure.select("resname {} and within 1.7 of resname {}".format(core_resname,
                                                                                                         frag_resname))
-    ### TESTING AREA
-#    bond_prev = get_previous_bond(merged_structure, core_pdb_name, core_resname)
-#    fixed_atom_group = merged_structure.select("resname {} and not name {}".format(core_resname, core_pdb_name))
-#    moved_atom_group = merged_structure.select("resname {} or (resname {} and name {})".format(frag_resname, core_resname,
-#                                                                                                core_pdb_name))
-#    print(moved_atom_group)
-#    rotate_throught_bond(bond_prev, 0.5, moved_atom_group, fixed_atom_group)
-#    prody.writePDB("/home/carlespl/project/growing/grow/pepito_hyal/move.pdb", moved_atom_group)
-#    prody.writePDB("/home/carlespl/project/growing/grow/pepito_hyal/fixed.pdb", fixed_atom_group)
-#    rotation_result = moved_atom_group + fixed_atom_group
-#    prody.writePDB("/home/carlespl/project/growing/grow/pepito_hyal/rotation.pdb", rotation_result)
-#    print("CHECK THE ROTATION BOYYYY!!")
-    ###
 
     # This list only should have the atom of the fragment that will be bonded to the core, so if not we will have to
     # solve it

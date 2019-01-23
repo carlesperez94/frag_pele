@@ -36,6 +36,38 @@ def parse_arguments():
 
 
 def plot_aminoacid_single(report_file1):
+
+    parser.add_argument("-t", "--title", default="",
+                        help=""""Title of the graph.""")
+    parser.add_argument("-ts", "--title_size", default=14,
+                        help=""""Fontsize of the title.""")
+    parser.add_argument("-x", "--x_label", default="",
+                        help=""""Label to name the X-axis.""")
+    parser.add_argument("-y", "--y_label", default="",
+                        help=""""Label to name the Y-axis.""")
+    parser.add_argument("-xs", "--x_size", default="",
+                        help=""""Fontsize of the label to name the X-axis.""")
+    parser.add_argument("-ys", "--y_size", default="",
+                        help=""""Fontsize of the label to name the Y-axis.""")
+    parser.add_argument("-l1", "--legend1", default="",
+                        help=""""Name to put in the legend for the group 1.""")
+    parser.add_argument("-l2", "--legend2", default="",
+                        help=""""Name to put in the legend for the group 2.""")
+    parser.add_argument("-l3", "--legend3", default="",
+                        help=""""Name to put in the legend for the group 3.""")
+    parser.add_argument("-l4", "--legend4", default="",
+                        help=""""Name to put in the legend for the group 4.""")
+    parser.add_argument("-xts", "--xtick_size", default="",
+                        help=""""Fontsize of the label to name the grups of the X-axis.""")
+
+    args = parser.parse_args()
+
+    return args.type, args.input, args.input_2, args.input_3, args.title, args.title_size, args.x_label, args.y_label, \
+           args.x_size, args.y_size, args.legend1, args.legend2, args.legend3, args.legend4, args.xtick_size
+
+
+def plot_aminoacid_single(report_file1, x_label, y_label, label_legend_1, label_legend_2, title, x_label_fontsize = 12,
+                          y_label_fontsize = 12, title_fontsize = 14, xticklabels_fontsize = 10):
     """
     Given a single report file the function create a boxplot with two bars for n groups.
     :param report_file1: report file path
@@ -74,13 +106,26 @@ def plot_aminoacid_single(report_file1):
     ax.set_title('Comparison of sidechains between Initial and Final structures', fontsize=14)
     ax.set_xticks(index + bar_width / 2)
     ax.set_xticklabels(residue_and_type_1, fontsize=10)
+                    label='{}'.format(label_legend_1))
+
+    rects2 = ax.bar(index + bar_width, distances_cas_1, bar_width,
+                    alpha=opacity, color='b',
+                    label='{}'.format(label_legend_2))
+
+    ax.set_xlabel('{}'.format(x_label), fontsize=x_label_fontsize)
+    ax.set_ylabel('{}'.format(y_label), fontsize=y_label_fontsize)
+    ax.set_title('{}'.format(title), fontsize=title_fontsize)
+    ax.set_xticks(index + bar_width / 2)
+    ax.set_xticklabels(residue_and_type_1, fontsize=xticklabels_fontsize)
     ax.legend()
 
     fig.tight_layout()
     plt.show()
 
 
-def plot_aminoacid_differences(report_file1, report_file2):
+def plot_aminoacid_differences(report_file1, report_file2, x_label, y_label, label_legend_1, label_legend_2,
+                               label_legend_3, label_legend_4, title, x_label_fontsize = 12, y_label_fontsize = 12,
+                               title_fontsize = 14, xticklabels_fontsize = 10):
     """
     Given two report files the function create a boxplot with four bars for n groups (two bars for each file in order
     to compare them.).
@@ -149,13 +194,32 @@ def plot_aminoacid_differences(report_file1, report_file2):
     ax.set_title(r'RMSDs and C$\alpha$ distances for amino acid', fontsize=14)
     ax.set_xticks(index + bar_width / 4)
     ax.set_xticklabels(residue_and_type_1, fontsize=10)
+                    label='{}'.format(label_legend_1))
+
+    rects2 = ax.bar(index + bar_width, distances_cas_1, bar_width,
+                    alpha=opacity, color='g',
+                    label='{}'.format(label_legend_2))
+    rects3 = ax.bar(index + bar_width*2, total_rmsd_2, bar_width,
+                    alpha=opacity, color='r',
+                    label='{}'.format(label_legend_3))
+
+    rects4 = ax.bar(index + bar_width*3, distances_cas_2, bar_width,
+                    alpha=opacity, color='y',
+                    label='{}'.format(label_legend_4))
+
+    ax.set_xlabel('{}'.format(x_label), fontsize=x_label_fontsize)
+    ax.set_ylabel('{}'.format(y_label),fontsize=y_label_fontsize)
+    ax.set_title('{}'.format(title), fontsize=title_fontsize)
+    ax.set_xticks(index + bar_width / 4)
+    ax.set_xticklabels(residue_and_type_1, fontsize=xticklabels_fontsize)
     ax.legend()
 
     fig.tight_layout()
     plt.show()
 
-
-def plot_atom_distances(input_initial, input_final, input_cristal):
+def plot_atom_distances(input_initial, input_final, input_cristal, x_label, y_label, label_legend_1, label_legend_2,
+                               label_legend_3, title, x_label_fontsize = 12, y_label_fontsize = 12,
+                               title_fontsize = 14, xticklabels_fontsize = 10):
     """
     Given three report files, the function create a boxplot with three bars for n groups (one bar for each file in order
     to compare them.).
@@ -209,8 +273,7 @@ def plot_atom_distances(input_initial, input_final, input_cristal):
     fig, ax = plt.subplots()
 
     index = np.arange(n_groups_initial)
-    bar_width = 0.20
-
+    bar_width = 0.05
     opacity = 0.5
 
     rects1 = ax.bar(index, distances_initial, bar_width,
@@ -229,6 +292,53 @@ def plot_atom_distances(input_initial, input_final, input_cristal):
     ax.set_title('Comparison of distances in EGFR', fontsize=14)
     ax.set_xticks(index + bar_width)
     ax.set_xticklabels(atoms_initial, fontsize=10)
+                    label='{}'.format(label_legend_1))
+
+    rects2 = ax.bar(index + bar_width + 0.02, distances_final, bar_width,
+                    alpha=opacity, color='b',
+                    label='{}'.format(label_legend_2))
+    rects3 = ax.bar(index + bar_width*2 + 0.04, distances_cristal, bar_width,
+                    alpha=opacity, color='g',
+                    label='{}'.format(label_legend_3))
+
+    ax.set_xlabel('{}'.format(x_label), fontsize=x_label_fontsize)
+    ax.set_ylabel('{}'.format(y_label), fontsize=y_label_fontsize)
+    ax.set_title('{}'.format(title), fontsize=title_fontsize)
+    ax.set_xticks(index + bar_width + 0.02)
+    ax.set_xticklabels(atoms_initial, fontsize=xticklabels_fontsize)
+    ax.legend()
+
+    fig.tight_layout()
+    plt.show()
+
+
+def plot_comparison_between_r(input, x_label, y_label, label_legend_1, label_legend_2,
+                               label_legend_3, title, x_label_fontsize = 12, y_label_fontsize = 12,
+                               title_fontsize = 14, xticklabels_fontsize = 10):
+
+    fig, ax = plt.subplots()
+
+    index = np.arange(n_groups_initial)
+    bar_width = 0.05
+
+    opacity = 0.5
+
+    rects1 = ax.bar(index, distances_initial, bar_width,
+                    alpha=opacity, color='r',
+                    label='{}'.format(label_legend_1))
+
+    rects2 = ax.bar(index + bar_width + 0.02, distances_final, bar_width,
+                    alpha=opacity, color='b',
+                    label='{}'.format(label_legend_2))
+    rects3 = ax.bar(index + bar_width * 2 + 0.04, distances_cristal, bar_width,
+                    alpha=opacity, color='g',
+                    label='{}'.format(label_legend_3))
+
+    ax.set_xlabel('{}'.format(x_label), fontsize=x_label_fontsize)
+    ax.set_ylabel('{}'.format(y_label), fontsize=y_label_fontsize)
+    ax.set_title('{}'.format(title), fontsize=title_fontsize)
+    ax.set_xticks(index + bar_width + 0.02)
+    ax.set_xticklabels(atoms_initial, fontsize=xticklabels_fontsize)
     ax.legend()
 
     fig.tight_layout()
@@ -236,12 +346,13 @@ def plot_atom_distances(input_initial, input_final, input_cristal):
 
 
 if __name__ == '__main__':
-    type, input, input_file2, input_file3= parse_arguments()
+    type, input, input_2, input_3, title, title_size, x_label, y_label, x_size, y_size, legend1, legend2, legend3, \
+    legend4, xtick_size = parse_arguments()
     if type == "boxplot_single":
-        plot_aminoacid_single(input)
+        plot_aminoacid_single(input, x_label, y_label, legend1, legend2, title,  x_size, y_size, title_size, xtick_size)
     if type == "boxplot_differences":
-        plot_aminoacid_differences(input, input_file2)
+        plot_aminoacid_differences(input, input_2,  x_label, y_label, legend1, legend2, legend3, legend4, title,
+                                   x_size, y_size, title_size, xtick_size)
     if type == "boxplot_atom_distances":
-        plot_atom_distances(input, input_file2, input_file3)
-
-
+        plot_atom_distances(input, input_2, input_3, x_label, y_label, legend1, legend2, legend3,
+                            title, x_size, y_size, title_size, xtick_size)

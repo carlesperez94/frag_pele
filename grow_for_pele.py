@@ -426,4 +426,3 @@ if __name__ == '__main__':
                                    pdbout, restart, min_overlap, max_overlap, contrl, criteria, report,
                                    epsilon, threshold, distcont, condition, traject,
                                    metricweights, nclusters, pele_eq_steps, license)
-
