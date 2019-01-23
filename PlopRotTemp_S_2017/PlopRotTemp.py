@@ -2810,6 +2810,8 @@ def find_build_lib(resname, mae_file, root, tors, names, group, gridres, gridres
     if (back_lib != ""):
         f.write(" backlib " + back_lib + " &\n");
 
+    max_rotatable_bonds = check_max_rotatable_bonds(group, tors, tors_ring_num)
+
     for grp, max_rotatable in zip(range(max(group) + 1), max_rotatable_bonds):
         rotatable_bonds = 0
         for i in range(len(tors)):
@@ -2862,7 +2864,7 @@ def check_max_rotatable_bonds(group, tors, tors_ring_num):
             max_rotatable_bonds.append(True)
         else:
             max_rotatable_bonds.append(False)
-return max_rotatable_bonds
+    return max_rotatable_bonds
 
 
 #################################################

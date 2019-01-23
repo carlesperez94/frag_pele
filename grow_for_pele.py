@@ -190,20 +190,18 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     start_time = time.time()
     # Path definition
     plop_relative_path = os.path.join(PackagePath, plop_path)
-    templates_folder = "{}_{}".format(c.TEMPLATES_FOLDER, ID)
     pdbout_folder = "{}_{}".format(pdbout, ID)
+    path_to_templates_generated = "DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated"
+    path_to_templates = "DataLocal/Templates/OPLS2005/HeteroAtoms"
     # Creation of output folder
     Helpers.folder_handler.check_and_create_DataLocal()
     # Creating constraints
-    const = "\n".join(cs.retrieve_constraints(os.path.join("pregrow", complex_pdb), {}, {}, 5, 5, 10))
+    const = "\n".join(cs.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10))
 
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
-
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = Growing.\
         add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, h_core=h_core,
                                     h_frag=h_frag, core_chain=c_chain, fragment_chain=f_chain)
-    # Set box center from ligand COM
-    center=cm.center_of_mass(os.path.join("pregrow", "LIG.pdb"))
 
     # Create the templates for the initial and final structures
     template_resnames = []
@@ -218,19 +216,23 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                                    c.PRE_WORKING_DIR, pdb_to_template),
                                                                                    False)
         template_resnames.append(template_resname)
+
+    # Set box center from ligand COM
+    resname_core = template_resnames[0]
+    center = cm.center_of_mass(os.path.join("pregrow", "{}.pdb".format(resname_core)))
+
     # Now, move the templates to their respective folders
     template_names = []
     for resname in template_resnames:
         template_name = "{}z".format(resname.lower())
         template_names.append(template_name)
-    #    shutil.copy(template_name, os.path.join(curr_dir, c.TEMPLATES_PATH))
-    #    shutil.copy("{}.rot.assign".format(resname), os.path.join(curr_dir, c.ROTAMERS_PATH))
         Helpers.modify_rotamers.change_angle(os.path.join(curr_dir, c.ROTAMERS_PATH, "{}.rot.assign".format(resname)), c.ROTRES)
     template_initial, template_final = template_names
 
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
     # Lists definitions
-    templates = ["{}_{}".format(template_final, n) for n in range(0, iterations+1)]
+
+    templates = ["{}_{}".format(os.path.join(path_to_templates_generated, template_final), n) for n in range(0, iterations+1)]
 
     results = ["{}{}_{}{}".format(c.OUTPUT_FOLDER, ID, resfold, n) for n in range(0, iterations+1)]
 
@@ -238,32 +240,21 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, int(cpus)-1)]
 
-
-    # Create a copy of the original templates in growing_templates folder
-    if not os.path.exists(os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder))):  # Create the folder if it does not exist
-        os.mkdir(os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder)))
-
-    shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, template_initial),
-                os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder), template_initial))
-
-    shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, template_final),
-                os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder), template_final))
-
     original_atom = hydrogen_atoms[0].get_name()  # Hydrogen of the core that we will use as growing point
     # Generate starting templates
     replacement_atom = fragment_names_dict[fragment_atom]
     Growing.template_fragmenter.create_initial_template(template_initial, template_final, [original_atom], core_atom,
                                                         replacement_atom, "{}_0".format(template_final),
-                                                        os.path.join(curr_dir, c.TEMPLATES_PATH),
+                                                        path_to_templates_generated,
                                                         iterations)
     Growing.template_fragmenter.generate_starting_template(template_initial, template_final, [original_atom],core_atom,
                                                            replacement_atom, "{}_ref".format(template_final),
-                                                           os.path.join(curr_dir, c.TEMPLATES_PATH),
+                                                           path_to_templates_generated,
                                                            iterations)
 
     # Make a copy in the main folder of Templates in order to use it as template for the simulation
-    shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, "{}_0".format(template_final)),
-                os.path.join(curr_dir, c.TEMPLATES_PATH, template_final))  # Replace the original template in the folder
+    shutil.copy(os.path.join(path_to_templates_generated, "{}_0".format(template_final)),
+                os.path.join(path_to_templates, template_final))  # Replace the original template in the folder
 
     # Clear PDBs folder
     if not restart:
@@ -302,21 +293,15 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         logger.info(c.LINES_MESSAGE)
         if i != 0 and i != iterations:
             Growing.template_fragmenter.grow_parameters_in_template("{}_ref".format(template_final),
-                                                                    os.path.join(curr_dir, c.TEMPLATES_PATH
-                                                                    , templates_folder, template_initial),
-                                                                    os.path.join(curr_dir, c.TEMPLATES_PATH
-                                                                    , templates_folder, template_final),
-                                                                    [original_atom], core_atom, replacement_atom,
-                                                                    template_final,
-                                                                    os.path.join(curr_dir, c.TEMPLATES_PATH),
-                                                                    i, iterations)
+                                                                    os.path.join(path_to_templates_generated, template_initial),
+                                                                    os.path.join(path_to_templates_generated, template_final),
+                                                                    [original_atom], core_atom, replacement_atom, template_final,
+                                                                    os.path.join(path_to_templates, i, iterations))
         elif i == iterations:
-            shutil.copy(os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder), template_final),
-                        os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, template_final)))
+            shutil.copy(os.path.join(path_to_templates, template_final),path_to_templates_generated, template_final)
 
         # Make a copy of the template file in growing_templates folder
-        shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, template_final),
-                    os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder), template))
+        shutil.copy(os.path.join(path_to_templates, template_final), template)
 
         # Running PELE simulation
         Helpers.folder_handler.check_and_create_results_folder(result)
