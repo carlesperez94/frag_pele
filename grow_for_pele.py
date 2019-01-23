@@ -379,6 +379,8 @@ if __name__ == '__main__':
                     ID = "".join(ID_completed)
 
                 try:
+                    if "/" in ID:
+                        ID = ID.split("/")[-1]
                     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                      sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                      threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
@@ -390,6 +392,8 @@ if __name__ == '__main__':
         else:
             # Initialize the growing for each line in the file
             fragment_pdb, core_atom, fragment_atom, ID = instruction[0], instruction[1], instruction[2], instruction[3]
+            if "/" in ID:
+                ID = ID.split("/")[-1]
             atoms_if_bond = sh.extract_hydrogens_from_instructions([fragment_pdb, core_atom, fragment_atom])
             if atoms_if_bond:
                 core_atom = atoms_if_bond[0]
