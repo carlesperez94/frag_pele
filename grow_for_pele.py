@@ -309,7 +309,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         if not os.path.exists("Data"):
             os.symlink(c.PATH_TO_DATA, "Data")
         if not os.path.exists("Documents"):
-            os.symlink(c.PATH_TO_DATA, "Documents")
+            os.symlink(c.PATH_TO_DOCUMENTS, "Documents")
         # Start simulation
         Growing.simulations_linker.simulation_runner(pele_dir, contrl, int(cpus))
         logger.info(c.LINES_MESSAGE)
