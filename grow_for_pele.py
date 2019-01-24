@@ -243,11 +243,15 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     original_atom = hydrogen_atoms[0].get_name()  # Hydrogen of the core that we will use as growing point
     # Generate starting templates
     replacement_atom = fragment_names_dict[fragment_atom]
-    Growing.template_fragmenter.create_initial_template(template_initial, template_final, [original_atom], core_atom,
+    Growing.template_fragmenter.create_initial_template(os.path.join(path_to_templates_generated, template_initial),
+                                                        os.path.join(path_to_templates_generated, template_final),
+                                                        [original_atom], core_atom,
                                                         replacement_atom, "{}_0".format(template_final),
                                                         path_to_templates_generated,
                                                         iterations)
-    Growing.template_fragmenter.generate_starting_template(template_initial, template_final, [original_atom],core_atom,
+    Growing.template_fragmenter.generate_starting_template(os.path.join(path_to_templates_generated, template_initial),
+                                                           os.path.join(path_to_templates_generated, template_final),
+                                                           [original_atom], core_atom,
                                                            replacement_atom, "{}_ref".format(template_final),
                                                            path_to_templates_generated,
                                                            iterations)
@@ -299,7 +303,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                                  template_final),
                                                                     [original_atom], core_atom, replacement_atom,
                                                                     template_final,
-                                                                    path_to_templates, i, iterations)
+                                                                    path_to_templates_generated, i, iterations)
         elif i == iterations:
             shutil.copy(os.path.join(path_to_templates, template_final), os.path.join(path_to_templates_generated,
                                                                                       template_final))
