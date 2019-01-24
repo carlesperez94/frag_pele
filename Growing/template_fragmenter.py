@@ -540,7 +540,7 @@ def create_initial_template(initial_template, final_template, original_atom_to_m
     atoms_in_templates = []
     templates = []
     for template in [initial_template, final_template]:
-        template_content = template_reader(template, path)
+        template_content = template_reader(template)
         templates.append(template_content)
         selected_atoms = atoms_selector(template_content)
         atoms_in_templates.append(selected_atoms)
@@ -585,8 +585,8 @@ def generate_starting_template(initial_template_file, final_template_file, origi
     :return: template modified that will be used as starting point to do the growing process.
     """
     # Reading initial and final templates and convert them in strings
-    initial_template = template_reader(initial_template_file, path)
-    final_template = template_reader(final_template_file, path)
+    initial_template = template_reader(initial_template_file)
+    final_template = template_reader(final_template_file)
     # Select the atoms for this templates and convert them into dictionaries objects
     atoms_selected_initial = atoms_selector(initial_template)
     atoms_selected_final = atoms_selector(final_template)
@@ -629,9 +629,9 @@ def grow_parameters_in_template(starting_template_file, initial_template_file, f
     :return: template with the parameters increased linearly.
     """
     # Reading initial and final templates and convert them in strings
-    starting_template = template_reader(starting_template_file, path)
-    initial_template = template_reader(initial_template_file, path)
-    final_template = template_reader(final_template_file, path)
+    starting_template = template_reader(starting_template_file)
+    initial_template = template_reader(initial_template_file)
+    final_template = template_reader(final_template_file)
     # Select the atoms for this templates and convert them into dictionaries objects
     atoms_selected_initial = atoms_selector(initial_template)
     atoms_selected_starting = atoms_selector(final_template)
