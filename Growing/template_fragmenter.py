@@ -14,12 +14,13 @@ BOND_PATTERN = "\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
 WRITE_NBON_PATTERN = " {:5d}   {:3.4f}   {:3.4f}  {: 3.6f}   {:3.4f}   {:3.4f}   {:3.9f}  {: 3.9f}\n"
 WRITE_BOND_PATTERN = " {:5d} {:5d}   {:5.3f} {: 2.3f}\n"
 
-def template_reader(template_name, path_to_template="DataLocal/Templates/OPLS2005/HeteroAtoms/"):
+
+def template_reader(template_name):
     """
     This function reads the content of a PELE's template and return it
     """
 
-    with open(os.path.join(path_to_template, template_name), "r") as template_file:
+    with open(template_name, "r") as template_file:
         template_content = template_file.read()
         if not template_content:
             logger.critical("Template file {} is empty!".format(template_name))
