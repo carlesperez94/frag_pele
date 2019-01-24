@@ -293,12 +293,16 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         logger.info(c.LINES_MESSAGE)
         if i != 0 and i != iterations:
             Growing.template_fragmenter.grow_parameters_in_template("{}_ref".format(template_final),
-                                                                    os.path.join(path_to_templates_generated, template_initial),
-                                                                    os.path.join(path_to_templates_generated, template_final),
-                                                                    [original_atom], core_atom, replacement_atom, template_final,
-                                                                    os.path.join(path_to_templates, i, iterations))
+                                                                    os.path.join(path_to_templates_generated,
+                                                                                 template_initial),
+                                                                    os.path.join(path_to_templates_generated,
+                                                                                 template_final),
+                                                                    [original_atom], core_atom, replacement_atom,
+                                                                    template_final,
+                                                                    path_to_templates, i, iterations)
         elif i == iterations:
-            shutil.copy(os.path.join(path_to_templates, template_final), path_to_templates_generated, template_final)
+            shutil.copy(os.path.join(path_to_templates, template_final), os.path.join(path_to_templates_generated,
+                                                                                      template_final))
 
         # Make a copy of the template file in growing_templates folder
         shutil.copy(os.path.join(path_to_templates, template_final), template)
