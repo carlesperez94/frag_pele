@@ -298,13 +298,16 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                     [original_atom], core_atom, replacement_atom, template_final,
                                                                     os.path.join(path_to_templates, i, iterations))
         elif i == iterations:
-            shutil.copy(os.path.join(path_to_templates, template_final),path_to_templates_generated, template_final)
+            shutil.copy(os.path.join(path_to_templates, template_final), path_to_templates_generated, template_final)
 
         # Make a copy of the template file in growing_templates folder
         shutil.copy(os.path.join(path_to_templates, template_final), template)
 
         # Running PELE simulation
         Helpers.folder_handler.check_and_create_results_folder(result)
+        # Create symbolic links
+        os.symlink(c.PATH_TO_DATA, "Data")
+        os.symlink(c.PATH_TO_DATA, "Documents")
         Growing.simulations_linker.simulation_runner(pele_dir, contrl, int(cpus))
         logger.info(c.LINES_MESSAGE)
         logger.info(c.FINISH_SIM_MESSAGE.format(result))
