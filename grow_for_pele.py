@@ -296,7 +296,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                      #  a list as input
         logger.info(c.LINES_MESSAGE)
         if i != 0 and i != iterations:
-            Growing.template_fragmenter.grow_parameters_in_template("{}_ref".format(template_final),
+            Growing.template_fragmenter.grow_parameters_in_template("{}_ref".format(os.path.join(path_to_templates_generated,
+                                                                                                 template_final)),
                                                                     os.path.join(path_to_templates_generated,
                                                                                  template_initial),
                                                                     os.path.join(path_to_templates_generated,
