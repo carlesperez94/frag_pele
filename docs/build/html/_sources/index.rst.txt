@@ -24,8 +24,9 @@ Requirements:
 
 - Pandas
 
-
-
+.. image:: img/growing.gif
+   :scale: 80 %
+   :align: center
 
 .. toctree::
    :maxdepth: 2

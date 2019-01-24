@@ -286,11 +286,11 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         if i != 0:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_selected_names, result, i))
             Growing.simulations_linker.control_file_modifier(contrl, pdb_input_paths, i, license, overlapping_factor,
-                                                             result, chain=c_chain, constraints=const, center=center)
+                                                             result, steps=6, chain=c_chain, constraints=const, center=center)
         else:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
             Growing.simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license, overlapping_factor,
-                                                             result, chain=c_chain, constraints=const, center=center) 
+                                                             result, steps=6, chain=c_chain, constraints=const, center=center)
                                                                      #  We have put [] in pdb_initialize
                                                                      #  because by default we have to use
                                                                      #  a list as input
@@ -345,7 +345,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         os.mkdir("equilibration_result_{}".format(ID))
     # Modify the control file to increase the steps to 20 and change the output path
     Growing.simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
-                                                     "equilibration_result_{}".format(ID), pele_eq_steps)
+                                                     "equilibration_result_{}".format(ID), steps=6, chain=c_chain,
+                                                     constraints=const, center=center)
     # Call PELE to run the simulation
     Growing.simulations_linker.simulation_runner(pele_dir, contrl, int(cpus))
     equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "equilibration_result_{}".format(ID))
