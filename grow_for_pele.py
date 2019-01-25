@@ -361,7 +361,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         os.mkdir("equilibration_result_{}".format(ID))
     # Modify the control file to increase the steps to 20 and change the output path
     Growing.simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
-                                                     "equilibration_result_{}".format(ID), steps=6, chain=c_chain,
+                                                     "equilibration_result_{}".format(ID), steps=20, chain=c_chain,
                                                      constraints=const, center=center)
     # Call PELE to run the simulation
     Growing.simulations_linker.simulation_runner(pele_dir, contrl, int(cpus))
