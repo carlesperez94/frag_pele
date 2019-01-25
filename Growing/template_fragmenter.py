@@ -478,8 +478,7 @@ def set_bonds(bonds_dictionary, new_atoms_properties_dict, steps):
     return bonds_dictionary
 
 
-def write_template(reference_template, output_filename, nbon_content, bond_content,
-                   output_path="DataLocal/Templates/OPLS2005/HeteroAtoms/"):
+def write_template(reference_template, output_filename, nbon_content, bond_content):
     """
     :param reference_template: string containing the whole template that we want to replace.
     :param output_filename: name of the file of the output template.
@@ -496,7 +495,7 @@ def write_template(reference_template, output_filename, nbon_content, bond_conte
     content_list.append("BOND\n")
     content_list.append(bond_content)
     content_list.append(angles_section)
-    with open(os.path.join(output_path, output_filename), "w") as template_to_write:
+    with open(output_filename, "w") as template_to_write:
         template_to_write.write("".join(content_list))
 
 
@@ -568,7 +567,7 @@ def create_initial_template(initial_template, final_template, original_atom_to_m
 
     bond_section = write_bond_section(final_template_content, bonds)
 
-    write_template(final_template_content, output_template_filename, nbon_section, bond_section, path)
+    write_template(final_template_content, output_template_filename, nbon_section, bond_section)
 
 
 def generate_starting_template(initial_template_file, final_template_file, original_atom_to_mod, heavy_atom, atom_to_transform,
@@ -610,7 +609,7 @@ def generate_starting_template(initial_template_file, final_template_file, origi
     nbon_section = write_nbon_section(final_template, properties_final)
     bond_section = write_bond_section(final_template, bonds_final)
     # Finally, join everything and write a file with the output template:q!
-    write_template(final_template, output_template_filename, nbon_section, bond_section, path)
+    write_template(final_template, output_template_filename, nbon_section, bond_section)
 
 
 def grow_parameters_in_template(starting_template_file, initial_template_file, final_template_file,

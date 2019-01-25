@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 FrAG-PELE. Fragment-based Automatic Growing.
-=====================================
+============================================
 
 FrAG a new tool for in silico hit-to-lead drug design, capable of growing a fragment into a core while exploring the protein-ligand conformational space.
 
@@ -12,27 +12,34 @@ The general workflow starts with the system preparation, where core and fragment
 
 FrAG is build on top of Protein Energy Landscape Exploration (PELE) Software.
 
-Requirements:
-
-- AdaptivePELE
-
-- Schrödinger's Python
-
-- Biopython
-
-- Prody
-
-- Pandas
-
 .. image:: img/growing.gif
    :scale: 80 %
    :align: center
 
+Requirements:
+
+- Python (3.6.1)
+
+- AdaptivePELE (1.4.2)
+
+- Schrödinger's Python (2.7.13)
+
+- Biopython (1.70)
+
+- Prody (1.9.4)
+
+- Pandas (0.18.0)
+
+Installation
+============
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   installation
+   first_steps
 
-
+Documentation
+=============
+.. toctree::
+   documentation
 
 Indices and tables
 ==================

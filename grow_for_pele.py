@@ -296,17 +296,23 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                      #  a list as input
         logger.info(c.LINES_MESSAGE)
         if i != 0 and i != iterations:
-            Growing.template_fragmenter.grow_parameters_in_template("{}_ref".format(os.path.join(path_to_templates_generated,
-                                                                                                 template_final)),
+            Growing.template_fragmenter.grow_parameters_in_template(starting_template_file="{}_ref".format(
                                                                     os.path.join(path_to_templates_generated,
-                                                                                 template_initial),
-                                                                    os.path.join(path_to_templates_generated,
-                                                                                 template_final),
-                                                                    [original_atom], core_atom, replacement_atom,
-                                                                    template_final,
-                                                                    path_to_templates_generated, i, iterations)
+                                                                                 template_final)),
+                                                                    initial_template_file=os.path.join(
+                                                                                           path_to_templates_generated,
+                                                                                           template_initial),
+                                                                    final_template_file=os.path.join(
+                                                                                           path_to_templates_generated,
+                                                                                           template_final),
+                                                                    original_atom_to_mod=[original_atom],
+                                                                    heavy_atom=core_atom,
+                                                                    atom_to_transform=replacement_atom,
+                                                                    output_template_filename=os.path.join(
+                                                                        path_to_templates, template_final),
+                                                                    path="", step=i, total_steps=iterations)
         elif i == iterations:
-            shutil.copy(os.path.join(path_to_templates, template_final), os.path.join(path_to_templates_generated,
+            shutil.copy(os.path.join(path_to_templates_generated, template_final), os.path.join(path_to_templates,
                                                                                       template_final))
 
         # Make a copy of the template file in growing_templates folder
