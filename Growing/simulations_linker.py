@@ -18,6 +18,8 @@ def control_file_modifier(control_template, pdb, step, license, overlap, results
     """
 
     ctrl_fold_name = "control_folder"
+    controlfile_path = control_template
+    control_template = os.path.basename(control_template)
 
     # Then, in the main loop we will do a copy of control files, so we will print this in the logger
     logger.info("Intermediate control files created will be stored in '{}'".format(ctrl_fold_name))
@@ -45,19 +47,21 @@ def control_file_modifier(control_template, pdb, step, license, overlap, results
 
     # Create a copy of the control template in the control folder, because templatize.py replace the original template
     if not os.path.exists(os.path.join(ctrl_fold_name, control_template)):
-        shutil.copyfile(control_template, os.path.join(ctrl_fold_name, control_template))
+        shutil.copyfile(controlfile_path, control_template)
 
     # Else, if has been created this means that we already have a template in this folder, so we will need a copy of the
     # file in the main folder to then replace the template for a real control file
     else:
-        shutil.copyfile(os.path.join(ctrl_fold_name, control_template), control_template)
+        shutil.copyfile(controlfile_path, control_template)
 
     # Modifying the control file template
     tp.TemplateBuilder(control_template, keywords)
     # Make a copy in the control files folder
-    shutil.copyfile(control_template, os.path.join(ctrl_fold_name, "{}_{}".format(step, control_template)))
+    simulation_file = os.path.join(ctrl_fold_name, "{}_{}".format(step, control_template))
+    shutil.copyfile(control_template, simulation_file)
     logger.info("{}_{} has been created successfully!".format(step, control_template))
 
+    return simulation_file
 
 def simulation_runner(path_to_pele, control_in, cpus=4):
     """
