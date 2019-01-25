@@ -93,6 +93,11 @@ def main(criteria, file_name, path=DIR, n_structs=10, sort_order="min", out_freq
     step_indexes = min_values[steps].tolist()
     files_out = ["epoch{}_trajectory_{}.{}_{}{}.pdb".format(epoch, report, int(step), criteria.replace(" ",""), value) \
        for epoch, step, report, value in zip(epochs, step_indexes, file_ids, values)]
+    files_out_tmp_tuple = [("epoch{}_trajectory_{}.{}_{}{}.pdb".format(epoch, report, int(step),
+                                                                                criteria.replace(" ",""),
+                                                                                value), value) \
+       for epoch, step, report, value in zip(epochs, step_indexes, file_ids, values)]
+    files_out_best = sorted(files_out_tmp_tuple, key=lambda x: x[1])[0][0]
     for f_id, f_out, step, path, n in zip(file_ids, files_out, step_indexes, paths, range(0, n_structs)):
 
         # Read Trajetory from PELE's output
@@ -120,6 +125,7 @@ def main(criteria, file_name, path=DIR, n_structs=10, sort_order="min", out_freq
             traj.append("ENDMDL\n")
             f.write("\n".join(traj))
         print("MODEL {} has been selected".format(f_out))
+    return files_out_best
 
 
 def parse_values(reports, n_structs, criteria, sort_order, steps):
