@@ -109,12 +109,6 @@ def main(criteria, file_name, path=DIR, n_structs=10, sort_order="min", out_freq
             file_content = input_file.read()
         trajectory_selected = re.search('MODEL\s+%d(.*?)ENDMDL' %int((step)/out_freq+1), file_content,re.DOTALL)
 
-        # Output Trajectory
-        try:
-            mkdir_p(output)
-        except OSError:
-            pass
-
         traj = []
         with open(os.path.join("{}{}".format(file_name, f_out)), 'w') as f:
             traj.append("MODEL     %d" %int((step)/out_freq+1))

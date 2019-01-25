@@ -369,9 +369,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     if not os.path.exists("selected_result_{}".format(ID)):  # Create the folder if it does not exist
         os.mkdir("selected_result_{}".format(ID))
     os.chdir("selected_result_{}".format(ID))
-    Growing.bestStructs.main(criteria, "", path=equilibration_path,
+    best_structure_file = Growing.bestStructs.main(criteria, "", path=equilibration_path,
                              n_structs=10)
-    shutil.copy("sel_0_best_structure.pdb", "../pregrow/selection_{}.pdb".format(ID))
+    shutil.copy(os.path.join("selected_results_{}".format(ID), best_structure_file),
+                "../pregrow/selection_{}.pdb".format(ID))
     os.chdir("../")
     end_time = time.time()
     total_time = (end_time - start_time) / 60
