@@ -57,9 +57,11 @@ def control_file_modifier(control_template, pdb, step, license, overlap, results
     # Modifying the control file template
     tp.TemplateBuilder(control_template, keywords)
     # Make a copy in the control files folder
-    shutil.copyfile(control_template, os.path.join(ctrl_fold_name, "{}_{}".format(step, control_template)))
+    simulation_file = os.path.join(ctrl_fold_name, "{}_{}".format(step, control_template))
+    shutil.copyfile(control_template, simulation_file)
     logger.info("{}_{} has been created successfully!".format(step, control_template))
 
+    return simulation_file
 
 def simulation_runner(path_to_pele, control_in, cpus=4):
     """
