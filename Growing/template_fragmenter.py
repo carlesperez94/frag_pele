@@ -658,7 +658,7 @@ def grow_parameters_in_template(starting_template_file, initial_template_file, f
     bond_section = write_bond_section(final_template, bonds_starting)
 
     # Finally, join everything and write a file with the output template
-    write_template(final_template, output_template_filename, nbon_section, bond_section, path)
+    write_template(final_template, output_template_filename, nbon_section, bond_section)
 
 
 #grow_parameters_in_template("grwz_ref","0kkz","grwz", ['H15'] ,"C15" ,"G4","grwz_2", "/home/carlespl/project/growing/grow/4DJU_4DJV/DataLocal/Templates/OPLS2005/HeteroAtoms/growing_templates",9,10)
