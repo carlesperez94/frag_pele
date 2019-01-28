@@ -365,14 +365,12 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         logger.info(".....STARTING EQUILIBRATION.....")
         Growing.simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
     equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "equilibration_result_{}".format(ID))
-    if not os.path.exists("selected_result_{}".format(ID)):  # Create the folder if it does not exist
-        os.mkdir("selected_result_{}".format(ID))
-    os.chdir("selected_result_{}".format(ID))
-    best_structure_file = Growing.bestStructs.main(criteria, "", path=equilibration_path,
+    selected_results_path = "selected_result_{}".format(ID)
+    if not os.path.exists(selected_results_path):  # Create the folder if it does not exist
+        os.mkdir(selected_results_path)
+    best_structure_file = Growing.bestStructs.main(criteria, selected_results_path, path=equilibration_path,
                              n_structs=10)
-    os.chdir("../")
-    shutil.copy(os.path.join("selected_result_{}".format(ID), best_structure_file),
-                "pregrow/selection_{}.pdb".format(ID))
+    shutil.copy(selected_results_path, best_structure_file), os.path.join(c.PRE_WORKING_DIR, selected_results_path)
     end_time = time.time()
     total_time = (end_time - start_time) / 60
     logging.info("Growing of {} in {} min".format(fragment_pdb, total_time))
