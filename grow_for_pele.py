@@ -139,6 +139,8 @@ def parse_arguments():
                         help="")
     parser.add_argument("-ncl", "--nclusters", default=c.NUM_CLUSTERS,
                         help="Number of initial structures that we want to use in each simulation.")
+    parser.add_argument("-ncl", "--temperature", default=c.TEMPERATURE,
+                        help="Number of initial structures that we want to use in each simulation.")
 
     args = parser.parse_args()
 
@@ -147,13 +149,13 @@ def parse_arguments():
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.serie_file, \
-           args.h_core, args.h_frag, args.c_chain, args.f_chain, args.docontrolsim, args.steps
+           args.h_core, args.h_frag, args.c_chain, args.f_chain, args.docontrolsim, args.steps, args.temperature
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
          epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
-         h_frag, c_chain, f_chain, steps=6):
+         h_frag, c_chain, f_chain, steps=6, temperature=1000):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -301,11 +303,13 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
         if i != 0:
             simulation_file = Growing.simulations_linker.control_file_modifier(contrl, pdb_input_paths, i, license, overlapping_factor,
-                                                             result, steps=steps, chain=c_chain, constraints=const, center=center)
+                                                             result, steps=steps, chain=c_chain, constraints=const, center=center,
+                                                                               temperature=temperature)
         else:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
             simulation_file = Growing.simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license, overlapping_factor,
-                                                             result, steps=steps, chain=c_chain, constraints=const, center=center)
+                                                             result, steps=steps, chain=c_chain, constraints=const, center=center,
+                                                                               temperature=temperature)
                                                                      #  We have put [] in pdb_initialize
                                                                      #  because by default we have to use
                                                                      #  a list as input
@@ -359,7 +363,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     # Modify the control file to increase the steps to 20 and change the output path
     simulation_file = Growing.simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
                                                      "equilibration_result_{}".format(ID), steps=pele_eq_steps, chain=c_chain,
-                                                     constraints=const, center=center)
+                                                     constraints=const, center=center, temperature=temperature)
     # Call PELE to run the simulation
     if not (restart and os.path.exists("selected_result_{}".format(ID))):
         logger.info(".....STARTING EQUILIBRATION.....")
@@ -380,7 +384,7 @@ if __name__ == '__main__':
     complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, h_core, h_frag, \
-    c_chain, f_chain, docontrolsim, steps = parse_arguments()
+    c_chain, f_chain, docontrolsim, steps, temperature = parse_arguments()
 
     list_of_instructions = sh.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
@@ -414,7 +418,7 @@ if __name__ == '__main__':
                     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                      sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                      threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
-                     max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps)
+                     max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature)
 
                 except Exception:
                     traceback.print_exc()
@@ -435,7 +439,7 @@ if __name__ == '__main__':
                 main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                  pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                  condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
-                 h_frag, c_chain, f_chain, steps)
+                 h_frag, c_chain, f_chain, steps, temperature)
             except Exception:
                 traceback.print_exc()
     if docontrolsim:

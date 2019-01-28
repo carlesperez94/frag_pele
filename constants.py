@@ -36,7 +36,8 @@ TRAJECTORY_NAME = "trajectory"
 CPUS = 48
 PELE_EQ_STEPS = 20
 RESTART = False
-STEPS=6
+STEPS = 6
+TEMPERATURE = 1000
 MAX_OVERLAP = 0.70
 MIN_OVERLAP = 0.50
 # Clustering parameters
