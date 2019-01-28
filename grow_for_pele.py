@@ -228,12 +228,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     center = cm.center_of_mass(os.path.join("pregrow", "{}.pdb".format(resname_core)))
 
     # Now, move the templates to their respective folders
-    template_names = []
-    for resname in template_resnames:
-        template_name = "{}z".format(resname.lower())
-        template_names.append(template_name)
-        Helpers.modify_rotamers.change_angle(os.path.join(curr_dir, c.ROTAMERS_PATH, "{}.rot.assign".format(resname)), c.ROTRES)
-    template_initial, template_final = template_names
+    template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
 
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
     # Lists definitions
