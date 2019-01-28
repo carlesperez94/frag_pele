@@ -13,8 +13,8 @@ machine = socket.getfqdn()
 if "bsc.mn" in machine:
     # PELE parameters
     PATH_TO_PELE = "/gpfs/projects/bsc72/PELE++/mniv/rev12536/bin/Pele_mpi"
-    PATH_TO_PELE_DATA = "/home/dsoler/cleanPELE_rev/Data"
-    PATH_TO_PELE_DOCUMENTS = "/home/dsoler/cleanPELE_rev/Documents"
+    PATH_TO_PELE_DATA = "/gpfs/projects/bsc72/PELE++/data/rev12360/Data"
+    PATH_TO_PELE_DOCUMENTS = "/gpfs/projects/bsc72/PELE++/Documents/rev12360"
     PATH_TO_LICENSE = "/gpfs/projects/bsc72/PELE++/license"
     # PlopRotTemp parameters
     SCHRODINGER_PY_PATH = "/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC/utilities/python"
@@ -36,7 +36,8 @@ TRAJECTORY_NAME = "trajectory"
 CPUS = 48
 PELE_EQ_STEPS = 20
 RESTART = False
-STEPS=6
+STEPS = 6
+TEMPERATURE = 1000
 MAX_OVERLAP = 0.70
 MIN_OVERLAP = 0.50
 # Clustering parameters
@@ -56,7 +57,7 @@ OUTPUT_FOLDER = "growing_results/"
 TEMPLATES_FOLDER = "growing_templates"
 CONFIG_PATH = "log_configure.ini"
 PLOP_PATH = "PlopRotTemp_S_2017/ligand_prep.py"
-ROTRES = 10
+ROTRES = 30
 # Clustering constants
 CONDITION = "min"   #   min or max
 METRICS_WEIGHTS = "linear"
