@@ -369,7 +369,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         os.mkdir(selected_results_path)
     best_structure_file = Growing.bestStructs.main(criteria, selected_results_path, path=equilibration_path,
                              n_structs=10)
-    shutil.copy(selected_results_path, best_structure_file), os.path.join(c.PRE_WORKING_DIR, selected_results_path)
+    shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(c.PRE_WORKING_DIR, selected_results_path + ".pdb"))
     end_time = time.time()
     total_time = (end_time - start_time) / 60
     logging.info("Growing of {} in {} min".format(fragment_pdb, total_time))
@@ -401,7 +401,7 @@ if __name__ == '__main__':
                 if i == 0:  # In the first iteration we will use the complex_pdb as input.
                     ID = instruction[i][3]
                 else:  # If is not the first we will use as input the output of the previous iteration
-                    complex_pdb = "selection_{}.pdb".format(ID)
+                    complex_pdb = "pregrow/selected_result_{}.pdb".format(ID)
                     ID_completed = []
                     for id in instruction:
                         ID_completed.append(id[3])
