@@ -139,7 +139,7 @@ def parse_arguments():
                         help="")
     parser.add_argument("-ncl", "--nclusters", default=c.NUM_CLUSTERS,
                         help="Number of initial structures that we want to use in each simulation.")
-    parser.add_argument("-ncl", "--temperature", default=c.TEMPERATURE,
+    parser.add_argument("-tmp", "--temperature", default=c.TEMPERATURE,
                         help="Number of initial structures that we want to use in each simulation.")
 
     args = parser.parse_args()
