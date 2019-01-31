@@ -57,12 +57,12 @@ def parse_arguments():
                         order to detect it.""")
     required_named.add_argument("-sef", "--serie_file", required=True,
                         help=""" Name of the tabular file which must contain the instructions required to perform several
-                        successive growings, using different fragments or different growing positions.
+                        successive growings, using different fragments or different growing positions.\n
 
-                        To do simple growings:
-                        col1   col2    col3
-                        To do successive growings:
-                        (col1   col2    col3) x n_growings
+                        To do simple growings:\n
+                        col1   col2    col3\n
+                        To do successive growings:\n
+                        (col1   col2    col3) x n_growings\n
 
                         Where col1 is the path to the PDB file of the fragment that will be added to the core structure
                         (name the chain of the fragment "L" by default).
@@ -90,7 +90,7 @@ def parse_arguments():
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
                         help="Absolute path to PlopRotTemp.py. By default = {}".format(c.PLOP_PATH))
     parser.add_argument("-sp", "--sch_python", default=c.SCHRODINGER_PY_PATH,
-                        help=""""Absolute path to Schrödinger's python. 
+                        help="""Absolute path to Schrödinger's python. 
                         By default = {}""".format(c.SCHRODINGER_PY_PATH))
 
     # PELE configuration arguments
@@ -101,7 +101,7 @@ def parse_arguments():
                         help="Path to PELE's control file templatized. By default = {}".format(c.CONTROL_TEMPLATE))
     parser.add_argument("-l", "--license", default=c.PATH_TO_LICENSE,
                         help="Absolute path to PELE's licenses folder. "
-                             "By default = {}".format(c.PATH_TO_LICENSE))
+                             " By default = {}".format(c.PATH_TO_LICENSE))
     parser.add_argument("-r", "--resfold", default=c.RESULTS_FOLDER,
                         help="Name for PELE's results folder. By default = {}".format(c.RESULTS_FOLDER))
     parser.add_argument("-rp", "--report", default=c.REPORT_NAME,
@@ -120,7 +120,7 @@ def parse_arguments():
                              "By default = {}".format(c.MIN_OVERLAP))
     parser.add_argument("-maov", "--max_overlap", default=c.MAX_OVERLAP,
                         help="Maximum value of overlapping factor used in the control_file of PELE."
-                             "By default = {}".format(c.MAX_OVERLAP))
+                             " By default = {}".format(c.MAX_OVERLAP))
     parser.add_argument("-tmp", "--temperature", default=c.TEMPERATURE,
                         help="Temperature value to add in the control file. If the temperature is high more steps of "
                              "PELE will be accepted when applying the Metropolis Criteria. "
@@ -143,10 +143,10 @@ def parse_arguments():
     parser.add_argument("-mw", "--metricweights", default=c.METRICS_WEIGHTS,
                         help="Selects how to distribute the weights of the cluster according to its metric, "
                              "two options: linear (proportional to metric) or Boltzmann weigths (proportional "
-                             "to exp(-metric/T). Needs to define the temperature T."
+                             "to exp(-metric/T). Needs to define the temperature T. "
                              "By default = {}".format(c.METRICS_WEIGHTS))
     parser.add_argument("-ncl", "--nclusters", default=c.NUM_CLUSTERS,
-                        help="Number of initial structures that we want to use in each new GS."
+                        help="Number of initial structures that we want to use in each new GS. "
                              "By default = {}".format(c.NUM_CLUSTERS))
 
     parser.add_argument("-pdbf", "--pdbout", default=c.PDBS_OUTPUT_FOLDER,
