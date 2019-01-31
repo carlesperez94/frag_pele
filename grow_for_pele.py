@@ -124,7 +124,7 @@ def parse_arguments():
     parser.add_argument("-tmp", "--temperature", default=c.TEMPERATURE,
                         help="Temperature value to add in the control file. If the temperature is high more steps of "
                              "PELE will be accepted when applying the Metropolis Criteria. "
-                             "By default = {}".format(temperature))
+                             "By default = {}".format(c.TEMPERATURE))
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
