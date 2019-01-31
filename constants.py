@@ -28,7 +28,7 @@ else:
 
 CONTROL_TEMPLATE = os.path.join(DIR, "Templates/control_template.conf")
 RESULTS_FOLDER = "growing_output"
-ITERATIONS = 10
+GROWING_STEPS = 10
 SELECTION_CRITERIA = "Binding Energy"
 SERIE_FILE = False
 REPORT_NAME = "report"
