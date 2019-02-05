@@ -100,6 +100,8 @@ def parse_arguments():
                         help="Absolute path to PlopRotTemp.py.")
     parser.add_argument("-sp", "--sch_python", default=c.SCHRODINGER_PY_PATH,
                         help="Absolute path to Schrödinger's python.")
+    parser.add_argument("-rot", "--rotamer", default="10.0",
+                        help="Rotamer resolution degrees on simulation")
     # PELE configuration arguments
     parser.add_argument("-d", "--pele_dir", default=c.PATH_TO_PELE,
                         help="Complete path to Pele_serial")
@@ -123,6 +125,10 @@ def parse_arguments():
                         help="Minimum value of overlapping factor used in the control_file of PELE.")
     parser.add_argument("-maov", "--max_overlap", default=c.MAX_OVERLAP,
                         help="Maximum value of overlapping factor used in the control_file of PELE.")
+    parser.add_argument("-tmp", "--temperature", default=c.TEMPERATURE,
+                        help="Temperature value to add in the control file. If the temperature is high more steps of \
+                        PELE will be accepted when applying the Metropolis Criteria.  \
+                        By default = {}".format(c.TEMPERATURE))
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
@@ -147,13 +153,14 @@ def parse_arguments():
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.serie_file, \
-           args.h_core, args.h_frag, args.c_chain, args.f_chain, args.docontrolsim, args.steps
+           args.h_core, args.h_frag, args.c_chain, args.f_chain, args.docontrolsim, args.steps, args.temperature, \
+           args.rotamer
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
          epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
-         h_frag, c_chain, f_chain, steps=6):
+         h_frag, c_chain, f_chain, steps=6, temperature=1000, rotamer="10.0"):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -212,8 +219,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     # Create the templates for the initial and final structures
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
-        cmd = "{} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
-                                  Growing.add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template))
+        cmd = "{} {} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
+                                  Growing.add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamer)
         new_env = os.environ.copy()
         new_env["PYTHONPATH"] = "/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC/internal/lib/python2.7/site-packages/"
         subprocess.call(cmd.split(), env=new_env)
@@ -232,7 +239,6 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     for resname in template_resnames:
         template_name = "{}z".format(resname.lower())
         template_names.append(template_name)
-        Helpers.modify_rotamers.change_angle(os.path.join(curr_dir, c.ROTAMERS_PATH, "{}.rot.assign".format(resname)), c.ROTRES)
     template_initial, template_final = template_names
 
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
@@ -365,14 +371,12 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         logger.info(".....STARTING EQUILIBRATION.....")
         Growing.simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
     equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "equilibration_result_{}".format(ID))
-    if not os.path.exists("selected_result_{}".format(ID)):  # Create the folder if it does not exist
-        os.mkdir("selected_result_{}".format(ID))
-    os.chdir("selected_result_{}".format(ID))
-    best_structure_file = Growing.bestStructs.main(criteria, "", path=equilibration_path,
+    selected_results_path = "selected_result_{}".format(ID)
+    if not os.path.exists(selected_results_path):  # Create the folder if it does not exist
+        os.mkdir(selected_results_path)
+    best_structure_file = Growing.bestStructs.main(criteria, selected_results_path, path=equilibration_path,
                              n_structs=10)
-    os.chdir("../")
-    shutil.copy(os.path.join("selected_result_{}".format(ID), best_structure_file),
-                "pregrow/selection_{}.pdb".format(ID))
+    shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(c.PRE_WORKING_DIR, selected_results_path + ".pdb"))
     end_time = time.time()
     total_time = (end_time - start_time) / 60
     logging.info("Growing of {} in {} min".format(fragment_pdb, total_time))
@@ -382,7 +386,7 @@ if __name__ == '__main__':
     complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, h_core, h_frag, \
-    c_chain, f_chain, docontrolsim, steps = parse_arguments()
+    c_chain, f_chain, docontrolsim, steps, temperature, rotamer = parse_arguments()
 
     list_of_instructions = sh.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
@@ -404,19 +408,17 @@ if __name__ == '__main__':
                 if i == 0:  # In the first iteration we will use the complex_pdb as input.
                     ID = instruction[i][3]
                 else:  # If is not the first we will use as input the output of the previous iteration
-                    complex_pdb = "selection_{}.pdb".format(ID)
+                    complex_pdb = "pregrow/selected_result_{}.pdb".format(ID)
                     ID_completed = []
                     for id in instruction:
                         ID_completed.append(id[3])
                     ID = "".join(ID_completed)
 
                 try:
-                    if "/" in ID:
-                        ID = ID.split("/")[-1]
                     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                      sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                      threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
-                     max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps)
+                     max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, rotamer)
 
                 except Exception:
                     traceback.print_exc()
@@ -424,8 +426,6 @@ if __name__ == '__main__':
         else:
             # Initialize the growing for each line in the file
             fragment_pdb, core_atom, fragment_atom, ID = instruction[0], instruction[1], instruction[2], instruction[3]
-            if "/" in ID:
-                ID = ID.split("/")[-1]
             atoms_if_bond = sh.extract_hydrogens_from_instructions([fragment_pdb, core_atom, fragment_atom])
             if atoms_if_bond:
                 core_atom = atoms_if_bond[0]
@@ -437,7 +437,7 @@ if __name__ == '__main__':
                 main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                  pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                  condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
-                 h_frag, c_chain, f_chain, steps)
+                 h_frag, c_chain, f_chain, steps, temperature, rotamer)
             except Exception:
                 traceback.print_exc()
     if docontrolsim:
