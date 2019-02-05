@@ -15,6 +15,9 @@ import Helpers.checker
 import Helpers.modify_rotamers
 import Helpers.folder_handler
 import Helpers.runner
+import Helpers.constraints as cs
+import Helpers.helpers as hp
+import Helpers.center_of_mass as cm
 import Growing.template_fragmenter
 import Growing.simulations_linker
 import Growing.add_fragment_from_pdbs
@@ -39,46 +42,47 @@ curr_dir = os.path.abspath(os.path.curdir)
 def parse_arguments():
     """
         Parse user arguments
-
         Output: list with all the user arguments
     """
     # All the docstrings are very provisional and some of them are old, they would be changed in further steps!!
     parser = argparse.ArgumentParser(description="""Description: FrAG is a Fragment-based ligand growing software which
-    performs automatically the addition of several fragments to a core structure of the ligand in a protein-ligand 
+    performs automatically the addition of several fragments to a core structure of the ligand in a protein-ligand
     complex.""")
     required_named = parser.add_argument_group('required named arguments')
     # Growing related arguments
     required_named.add_argument("-cp", "--complex_pdb", required=True,
-                        help="""PDB file which contains a protein-ligand complex that we will use as 
+                        help="""PDB file which contains a protein-ligand complex that we will use as
                         core for growing (name the chain of the ligand "L")""")
     required_named.add_argument("-sef", "--serie_file", required=True,
                         help="""
-                        Name of the tabular file which contains the information required to perform several 
+                        Name of the tabular file which contains the information required to perform several
                         successive growings using different fragments or different growing positions.
-                        
+
                         To do simple growings:
                         col1   col2    col3
                         To do successive growings:
-                        (col1   col2    col3) x n_growings 
-                        
-                        Where col1 is PDB file which contains the fragment that will be added to the core structure 
+                        (col1   col2    col3) x n_growings
+
+                        Where col1 is PDB file which contains the fragment that will be added to the core structure
                         (name the chain of the fragment "L" by default).
-                        Col2 is a string with the PDB atom name of the heavy atom of the core (the ligand contained in 
+                        Col2 is a string with the PDB atom name of the heavy atom of the core (the ligand contained in
                         the complex) where you would like to start the growing and create a new bond with the fragment.
-                        And col3 is a string with the PDB atom name of the heavy atom of the fragment that will be used 
+                        And col3 is a string with the PDB atom name of the heavy atom of the fragment that will be used
                         to perform the bonding with the core.
-                        
+
                         """)
     parser.add_argument("-x", "--iterations", type=int, default=c.ITERATIONS,
                         help="""Number of intermediate templates that you want to generate""")
+    parser.add_argument("-stp", "--steps", type=int, default=c.STEPS,
+                        help="""Number of simulation steps inside each growing""")
     parser.add_argument("-cr", "--criteria", default=c.SELECTION_CRITERIA,
-                        help="""Name of the column used as criteria in order to select the template used as input for 
+                        help="""Name of the column used as criteria in order to select the template used as input for
                                  successive simulations.""")
     parser.add_argument("-rst", "--restart", action="store_true",
                         help="If restart is true FrAG will continue from the last epoch detected.")
 
     parser.add_argument("-hc", "--h_core", default=None,
-                        help="""String with the PDB atom name of the hydrogen atom of the core (the ligand contained in 
+                        help="""String with the PDB atom name of the hydrogen atom of the core (the ligand contained in
                         the complex) where you would like to start the growing and create a new bond with the fragment.""")
     parser.add_argument("-hf", "--h_frag", default=None,
                         help="""String with the PDB atom name of the hydrogen atom of the fragment
@@ -96,6 +100,8 @@ def parse_arguments():
                         help="Absolute path to PlopRotTemp.py.")
     parser.add_argument("-sp", "--sch_python", default=c.SCHRODINGER_PY_PATH,
                         help="Absolute path to Schrödinger's python.")
+    parser.add_argument("-rot", "--rotamer", default="10.0",
+                        help="Rotamer resolution degrees on simulation")
     # PELE configuration arguments
     parser.add_argument("-d", "--pele_dir", default=c.PATH_TO_PELE,
                         help="Complete path to Pele_serial")
@@ -111,7 +117,7 @@ def parse_arguments():
                         help="Suffix name of the trajectory file from PELE.")
     parser.add_argument("-pdbf", "--pdbout", default=c.PDBS_OUTPUT_FOLDER,
                         help="PDBs output folder")
-    parser.add_argument("-cs", "--cpus", default=c.CPUS,
+    parser.add_argument("-cs", "--cpus", type=int, default=c.CPUS,
                         help="Amount of CPU's that you want to use in mpirun of PELE")
     parser.add_argument("-es", "--pele_eq_steps", default=c.PELE_EQ_STEPS,
                         help="Number of PELE steps in equilibration")
@@ -119,6 +125,10 @@ def parse_arguments():
                         help="Minimum value of overlapping factor used in the control_file of PELE.")
     parser.add_argument("-maov", "--max_overlap", default=c.MAX_OVERLAP,
                         help="Maximum value of overlapping factor used in the control_file of PELE.")
+    parser.add_argument("-tmp", "--temperature", default=c.TEMPERATURE,
+                        help="Temperature value to add in the control file. If the temperature is high more steps of \
+                        PELE will be accepted when applying the Metropolis Criteria.  \
+                        By default = {}".format(c.TEMPERATURE))
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
@@ -143,13 +153,14 @@ def parse_arguments():
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.serie_file, \
-           args.h_core, args.h_frag, args.c_chain, args.f_chain, args.docontrolsim
+           args.h_core, args.h_frag, args.c_chain, args.f_chain, args.docontrolsim, args.steps, args.temperature, \
+           args.rotamer
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
          epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
-         h_frag):
+         h_frag, c_chain, f_chain, steps=6, temperature=1000, rotamer="10.0"):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -189,13 +200,18 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     start_time = time.time()
     # Path definition
     plop_relative_path = os.path.join(PackagePath, plop_path)
-    templates_folder = "{}_{}".format(c.TEMPLATES_FOLDER, ID)
     pdbout_folder = "{}_{}".format(pdbout, ID)
+    path_to_templates_generated = "DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated"
+    path_to_templates = "DataLocal/Templates/OPLS2005/HeteroAtoms"
     # Creation of output folder
     Helpers.folder_handler.check_and_create_DataLocal()
+    # Creating constraints
+    const = "\n".join(cs.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10))
+    # Creating symbolic links
+    hp.create_symlinks(c.PATH_TO_PELE_DATA, 'Data')
+    hp.create_symlinks(c.PATH_TO_PELE_DOCUMENTS, 'Documents')
 
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
-
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = Growing.\
         add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, h_core=h_core,
                                     h_frag=h_frag, core_chain=c_chain, fragment_chain=f_chain)
@@ -203,61 +219,68 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     # Create the templates for the initial and final structures
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
-        cmd = "{} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
-                                  Growing.add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template))
-
-        subprocess.call(cmd.split())
+        cmd = "{} {} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
+                                  Growing.add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamer)
+        new_env = os.environ.copy()
+        new_env["PYTHONPATH"] = "/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC/internal/lib/python2.7/site-packages/"
+        subprocess.call(cmd.split(), env=new_env)
         template_resname = Growing.add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(
                                                                                    Growing.add_fragment_from_pdbs.
                                                                                    c.PRE_WORKING_DIR, pdb_to_template),
                                                                                    False)
         template_resnames.append(template_resname)
+
+    # Set box center from ligand COM
+    resname_core = template_resnames[0]
+    center = cm.center_of_mass(os.path.join("pregrow", "{}.pdb".format(resname_core)))
+
     # Now, move the templates to their respective folders
     template_names = []
     for resname in template_resnames:
         template_name = "{}z".format(resname.lower())
         template_names.append(template_name)
-        shutil.copy(template_name, os.path.join(curr_dir, c.TEMPLATES_PATH))
-        shutil.copy("{}.rot.assign".format(resname), os.path.join(curr_dir, c.ROTAMERS_PATH))
-        Helpers.modify_rotamers.change_angle(os.path.join(curr_dir, c.ROTAMERS_PATH, "{}.rot.assign".format(resname)), c.ROTRES)
     template_initial, template_final = template_names
 
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
     # Lists definitions
-    templates = ["{}_{}".format(template_final, n) for n in range(0, iterations+1)]
+
+    templates = ["{}_{}".format(os.path.join(path_to_templates_generated, template_final), n) for n in range(0, iterations+1)]
 
     results = ["{}{}_{}{}".format(c.OUTPUT_FOLDER, ID, resfold, n) for n in range(0, iterations+1)]
 
     pdbs = [pdb_initialize if n == 0 else "{}_{}".format(n, pdb_initialize) for n in range(0, iterations+1)]
 
-    pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, int(cpus)-1)]
-
-
-    # Create a copy of the original templates in growing_templates folder
-    if not os.path.exists(os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder))):  # Create the folder if it does not exist
-        os.mkdir(os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder)))
-
-    shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, template_initial),
-                os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder), template_initial))
-
-    shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, template_final),
-                os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder), template_final))
+    pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, cpus-1)]
 
     original_atom = hydrogen_atoms[0].get_name()  # Hydrogen of the core that we will use as growing point
     # Generate starting templates
     replacement_atom = fragment_names_dict[fragment_atom]
-    Growing.template_fragmenter.create_initial_template(template_initial, template_final, [original_atom], core_atom,
-                                                        replacement_atom, "{}_0".format(template_final),
-                                                        os.path.join(curr_dir, c.TEMPLATES_PATH),
-                                                        iterations)
-    Growing.template_fragmenter.generate_starting_template(template_initial, template_final, [original_atom],core_atom,
-                                                           replacement_atom, "{}_ref".format(template_final),
-                                                           os.path.join(curr_dir, c.TEMPLATES_PATH),
-                                                           iterations)
+    Growing.template_fragmenter.create_initial_template(initial_template=os.path.join(path_to_templates_generated,
+                                                                                      template_initial),
+                                                        final_template=os.path.join(path_to_templates_generated,
+                                                                                    template_final),
+                                                        original_atom_to_mod=[original_atom],
+                                                        heavy_atom=core_atom,
+                                                        atom_to_transform=replacement_atom,
+                                                        output_template_filename="{}_0".format(os.path.join(
+                                                                                        path_to_templates_generated,
+                                                                                        template_final)),
+                                                        path="", steps=iterations)
+    Growing.template_fragmenter.generate_starting_template(initial_template_file=os.path.join(path_to_templates_generated,
+                                                                                          template_initial),
+                                                           final_template_file=os.path.join(path_to_templates_generated,
+                                                                                          template_final),
+                                                           original_atom_to_mod=[original_atom],
+                                                           heavy_atom=core_atom,
+                                                           atom_to_transform=replacement_atom,
+                                                           output_template_filename="{}_ref".format(os.path.join(
+                                                                                        path_to_templates_generated,
+                                                                                        template_final)),
+                                                           path="", steps=iterations)
 
     # Make a copy in the main folder of Templates in order to use it as template for the simulation
-    shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, "{}_0".format(template_final)),
-                os.path.join(curr_dir, c.TEMPLATES_PATH, template_final))  # Replace the original template in the folder
+    shutil.copy(os.path.join(path_to_templates_generated, "{}_0".format(template_final)),
+                os.path.join(path_to_templates, template_final))  # Replace the original template in the folder
 
     # Clear PDBs folder
     if not restart:
@@ -283,37 +306,42 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         overlapping_factor = "{0:.2f}".format(overlapping_factor)
 
         if i != 0:
-            logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_selected_names, result, i))
-            Growing.simulations_linker.control_file_modifier(contrl, pdb_input_paths, i, license, overlapping_factor,
-                                                             result)
+            simulation_file = Growing.simulations_linker.control_file_modifier(contrl, pdb_input_paths, i, license, overlapping_factor,
+                                                             result, steps=steps, chain=c_chain, constraints=const, center=center)
         else:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
-            Growing.simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license, overlapping_factor,
-                                                             result) #  We have put [] in pdb_initialize
+            simulation_file = Growing.simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license, overlapping_factor,
+                                                             result, steps=steps, chain=c_chain, constraints=const, center=center)
+                                                                     #  We have put [] in pdb_initialize
                                                                      #  because by default we have to use
                                                                      #  a list as input
         logger.info(c.LINES_MESSAGE)
         if i != 0 and i != iterations:
-            Growing.template_fragmenter.grow_parameters_in_template("{}_ref".format(template_final),
-                                                                    os.path.join(curr_dir, c.TEMPLATES_PATH
-                                                                    , templates_folder, template_initial),
-                                                                    os.path.join(curr_dir, c.TEMPLATES_PATH
-                                                                    , templates_folder, template_final),
-                                                                    [original_atom], core_atom, replacement_atom,
-                                                                    template_final,
-                                                                    os.path.join(curr_dir, c.TEMPLATES_PATH),
-                                                                    i, iterations)
+            Growing.template_fragmenter.grow_parameters_in_template(starting_template_file="{}_ref".format(
+                                                                    os.path.join(path_to_templates_generated,
+                                                                                 template_final)),
+                                                                    initial_template_file=os.path.join(
+                                                                                           path_to_templates_generated,
+                                                                                           template_initial),
+                                                                    final_template_file=os.path.join(
+                                                                                           path_to_templates_generated,
+                                                                                           template_final),
+                                                                    original_atom_to_mod=[original_atom],
+                                                                    heavy_atom=core_atom,
+                                                                    atom_to_transform=replacement_atom,
+                                                                    output_template_filename=os.path.join(
+                                                                        path_to_templates, template_final),
+                                                                    path="", step=i, total_steps=iterations)
         elif i == iterations:
-            shutil.copy(os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder), template_final),
-                        os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, template_final)))
+            shutil.copy(os.path.join(path_to_templates_generated, template_final), os.path.join(path_to_templates,
+            template_final))
 
         # Make a copy of the template file in growing_templates folder
-        shutil.copy(os.path.join(curr_dir, c.TEMPLATES_PATH, template_final),
-                    os.path.join(os.path.join(curr_dir, c.TEMPLATES_PATH, templates_folder), template))
+        shutil.copy(os.path.join(path_to_templates, template_final), template)
 
-        # Running PELE simulation
+        # Creating results folder
         Helpers.folder_handler.check_and_create_results_folder(result)
-        Growing.simulations_linker.simulation_runner(pele_dir, contrl, int(cpus))
+        Growing.simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
         logger.info(c.LINES_MESSAGE)
         logger.info(c.FINISH_SIM_MESSAGE.format(result))
         # Before selecting a step from a trajectory we will save the input PDB file in a folder
@@ -325,30 +353,30 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         logger.info("Looking structures to cluster in '{}'".format(result_abs))
         column_number = Helpers.clusterizer.get_column_num(result_abs, criteria, report)
         # Selection of the trajectory used as new input
-
-        Helpers.clusterizer.cluster_traject(str(template_resnames[1]), int(cpus-1), column_number, distance_contact,
+        Helpers.clusterizer.cluster_traject(str(template_resnames[1]), cpus-1, column_number, distance_contact,
                                             clusterThreshold, "{}*".format(os.path.join(result_abs, traject)),
                                             os.path.join(pdbout_folder, str(i)), epsilon, report, condition, metricweights,
                                             nclusters)
     # ----------------------------------------------------EQUILIBRATION-------------------------------------------------
     # Set input PDBs
     pdb_inputs = ["{}".format(os.path.join(pdbout_folder, str(iterations), pdb_file)) for pdb_file in pdb_selected_names]
-    logger.info(".....STARTING EQUILIBRATION.....")
     if not os.path.exists("equilibration_result_{}".format(ID)):  # Create the folder if it does not exist
         os.mkdir("equilibration_result_{}".format(ID))
     # Modify the control file to increase the steps to 20 and change the output path
-    Growing.simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
-                                                     "equilibration_result_{}".format(ID), pele_eq_steps)
+    simulation_file = Growing.simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
+                                                     "equilibration_result_{}".format(ID), steps=pele_eq_steps, chain=c_chain,
+                                                     constraints=const, center=center)
     # Call PELE to run the simulation
-    Growing.simulations_linker.simulation_runner(pele_dir, contrl, int(cpus))
+    if not (restart and os.path.exists("selected_result_{}".format(ID))):
+        logger.info(".....STARTING EQUILIBRATION.....")
+        Growing.simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
     equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "equilibration_result_{}".format(ID))
-    if not os.path.exists("selected_result_{}".format(ID)):  # Create the folder if it does not exist
-        os.mkdir("selected_result_{}".format(ID))
-    os.chdir("selected_result_{}".format(ID))
-    Growing.bestStructs.main(criteria, "best_structure.pdb", path=equilibration_path,
+    selected_results_path = "selected_result_{}".format(ID)
+    if not os.path.exists(selected_results_path):  # Create the folder if it does not exist
+        os.mkdir(selected_results_path)
+    best_structure_file = Growing.bestStructs.main(criteria, selected_results_path, path=equilibration_path,
                              n_structs=10)
-    shutil.copy("sel_0_best_structure.pdb", "../pregrow/selection_{}.pdb".format(ID))
-    os.chdir("../")
+    shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(c.PRE_WORKING_DIR, selected_results_path + ".pdb"))
     end_time = time.time()
     total_time = (end_time - start_time) / 60
     logging.info("Growing of {} in {} min".format(fragment_pdb, total_time))
@@ -358,7 +386,7 @@ if __name__ == '__main__':
     complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, h_core, h_frag, \
-    c_chain, f_chain, docontrolsim = parse_arguments()
+    c_chain, f_chain, docontrolsim, steps, temperature, rotamer = parse_arguments()
 
     list_of_instructions = sh.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
@@ -380,7 +408,7 @@ if __name__ == '__main__':
                 if i == 0:  # In the first iteration we will use the complex_pdb as input.
                     ID = instruction[i][3]
                 else:  # If is not the first we will use as input the output of the previous iteration
-                    complex_pdb = "selection_{}.pdb".format(ID)
+                    complex_pdb = "pregrow/selected_result_{}.pdb".format(ID)
                     ID_completed = []
                     for id in instruction:
                         ID_completed.append(id[3])
@@ -390,7 +418,7 @@ if __name__ == '__main__':
                     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                      sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                      threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
-                     max_overlap, ID, h_core, h_frag)
+                     max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, rotamer)
 
                 except Exception:
                     traceback.print_exc()
@@ -409,7 +437,7 @@ if __name__ == '__main__':
                 main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                  pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                  condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
-                 h_frag)
+                 h_frag, c_chain, f_chain, steps, temperature, rotamer)
             except Exception:
                 traceback.print_exc()
     if docontrolsim:

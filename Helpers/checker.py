@@ -61,6 +61,7 @@ def check_if_atom_exists_in_ligand(pdb_file, atom_name, ligand_chain="L"):
     :param atom_name: PDB atom name. str(len <= 4)
     :return: if the atom is found it prints a text and if not raise an exception.
     """
+    print(pdb_file)
     ligand = addfr.extract_heteroatoms_pdbs(pdb_file, create_file=False, ligand_chain=ligand_chain, get_ligand=True)
     atom = ligand.select("name {}".format(atom_name))
     try:

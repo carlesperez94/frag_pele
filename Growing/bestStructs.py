@@ -79,7 +79,6 @@ def main(criteria, file_name, path=DIR, n_structs=10, sort_order="min", out_freq
     """
 
     reports = glob.glob(os.path.join(path, "*report_*"))
-    #reports = filter_non_numerical_folders(reports, numfolders)
     try:
         reports[0]
     except IndexError:
@@ -94,6 +93,11 @@ def main(criteria, file_name, path=DIR, n_structs=10, sort_order="min", out_freq
     step_indexes = min_values[steps].tolist()
     files_out = ["epoch{}_trajectory_{}.{}_{}{}.pdb".format(epoch, report, int(step), criteria.replace(" ",""), value) \
        for epoch, step, report, value in zip(epochs, step_indexes, file_ids, values)]
+    files_out_tmp_tuple = [("epoch{}_trajectory_{}.{}_{}{}.pdb".format(epoch, report, int(step),
+                                                                                criteria.replace(" ",""),
+                                                                                value), value) \
+       for epoch, step, report, value in zip(epochs, step_indexes, file_ids, values)]
+    files_out_best = sorted(files_out_tmp_tuple, key=lambda x: x[1])[0][0]
     for f_id, f_out, step, path, n in zip(file_ids, files_out, step_indexes, paths, range(0, n_structs)):
 
         # Read Trajetory from PELE's output
@@ -105,14 +109,8 @@ def main(criteria, file_name, path=DIR, n_structs=10, sort_order="min", out_freq
             file_content = input_file.read()
         trajectory_selected = re.search('MODEL\s+%d(.*?)ENDMDL' %int((step)/out_freq+1), file_content,re.DOTALL)
 
-        # Output Trajectory
-        try:
-            mkdir_p(output)
-        except OSError:
-            pass
-
         traj = []
-        with open(os.path.join("sel_{}_{}".format(n, file_name)),'w') as f:
+        with open(os.path.join(file_name, f_out), 'w') as f:
             traj.append("MODEL     %d" %int((step)/out_freq+1))
             try:
                 traj.append(trajectory_selected.group(1))
@@ -121,6 +119,7 @@ def main(criteria, file_name, path=DIR, n_structs=10, sort_order="min", out_freq
             traj.append("ENDMDL\n")
             f.write("\n".join(traj))
         print("MODEL {} has been selected".format(f_out))
+    return files_out_best
 
 
 def parse_values(reports, n_structs, criteria, sort_order, steps):
@@ -137,21 +136,22 @@ def parse_values(reports, n_structs, criteria, sort_order, steps):
                     (criteria, [])
                     ]
     min_values = pd.DataFrame.from_items(INITIAL_DATA)
-    for file in reports:
-        report_number = os.path.basename(file).split("_")[-1]
-        data = pd.read_csv(file, sep='    ', engine='python')
+    for f in reports:
+        report_number = os.path.basename(f).split("_")[-1]
+        data = pd.read_csv(f, sep='    ', engine='python')
         # Skip first line not to get initial structure
-        selected_data = data.loc[1:, [steps ,criteria]]
+        selected_data = data.loc[1:, [steps, criteria]]
         if sort_order == "min":
                 report_values =  selected_data.nsmallest(n_structs, criteria)
-                report_values.insert(0, DIR, [file]*report_values[criteria].size)
+                report_values.insert(0, DIR, [f]*report_values[criteria].size)
                 report_values.insert(1, REPORT, [report_number]*report_values[criteria].size)
                 mixed_values = pd.concat([min_values, report_values])
+                mixed_values.index = pd.RangeIndex(len(mixed_values.index))
                 min_values = mixed_values.nsmallest(n_structs, criteria)
 
         else:
                 report_values =  selected_data.nlargest(n_structs, criteria)
-                report_values.insert(0, DIR, [file]*report_values[criteria].size)
+                report_values.insert(0, DIR, [f]*report_values[criteria].size)
                 report_values.insert(1, REPORT, [report_number]*report_values[criteria].size)
                 mixed_values = pd.concat([min_values, report_values])
                 min_values = mixed_values.nlargest(n_structs, criteria)
@@ -179,6 +179,7 @@ def mkdir_p(path):
         else:
             raise
 
+
 if __name__ == "__main__":
-	filename, path, crit, nst, sort, ofreq, out, steps, numfolders = parse_args()
-	main(crit, "trial.pdb")
+    filename, path, crit, nst, sort, ofreq, out, steps, numfolders = parse_args()
+    main(crit, filename, path,  nst, sort, ofreq, out, steps, numfolders)

@@ -20,6 +20,7 @@ def check_and_create_DataLocal():
     check_and_create_folder((os.path.join(curr_dir, "DataLocal/Templates")))
     check_and_create_folder((os.path.join(curr_dir, "DataLocal/Templates/OPLS2005")))
     check_and_create_folder((os.path.join(curr_dir, "DataLocal/Templates/OPLS2005/HeteroAtoms")))
+    check_and_create_folder((os.path.join(curr_dir, "DataLocal/Templates/OPLS2005/HeteroAtoms", "templates_generated")))
 
 
 def check_and_create_results_folder(results_folder):

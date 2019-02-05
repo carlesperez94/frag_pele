@@ -80,7 +80,6 @@ def check_instructions(list_of_instructions, complex_pdb, c_chain = "L", f_chain
     :return: if something is wrong it raises an exception.
     """
     fragments_and_atoms = get_pdb_fragments_and_atoms_from_instructions(list_of_instructions)
-    print(complex_pdb)
     for fragment, atom_core, atom_fr in fragments_and_atoms:
         atoms_if_bond = extract_hydrogens_from_instructions([fragment, atom_core, atom_fr])
         if atoms_if_bond:

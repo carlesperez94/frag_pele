@@ -30,6 +30,13 @@ def parse_arguments():
     parser.add_argument("-i3", "--input_3", default=False,
                         help=""""Path of the input file 2, only set if you want to do comparisons.""")
 
+    args = parser.parse_args()
+
+    return args.type, args.input, args.input_2, args.input_3
+
+
+def plot_aminoacid_single(report_file1):
+
     parser.add_argument("-t", "--title", default="",
                         help=""""Title of the graph.""")
     parser.add_argument("-ts", "--title_size", default=14,
@@ -88,6 +95,17 @@ def plot_aminoacid_single(report_file1, x_label, y_label, label_legend_1, label_
 
     rects1 = ax.bar(index, total_rmsd_1, bar_width,
                     alpha=opacity, color='r',
+                    label='RMSD')
+
+    rects2 = ax.bar(index + bar_width, distances_cas_1, bar_width,
+                    alpha=opacity, color='b',
+                    label=r'C$\alpha$ distance')
+
+    ax.set_xlabel('Residues', fontsize=12)
+    ax.set_ylabel(r'$\AA$',fontsize=12)
+    ax.set_title('Comparison of sidechains between Initial and Final structures', fontsize=14)
+    ax.set_xticks(index + bar_width / 2)
+    ax.set_xticklabels(residue_and_type_1, fontsize=10)
                     label='{}'.format(label_legend_1))
 
     rects2 = ax.bar(index + bar_width, distances_cas_1, bar_width,
@@ -158,6 +176,24 @@ def plot_aminoacid_differences(report_file1, report_file2, x_label, y_label, lab
 
     rects1 = ax.bar(index, total_rmsd_1, bar_width,
                     alpha=opacity, color='b',
+                    label='total RMSD initial')
+
+    rects2 = ax.bar(index + bar_width, distances_cas_1, bar_width,
+                    alpha=opacity, color='g',
+                    label=r'C$\alpha$ distance initial')
+    rects3 = ax.bar(index + bar_width*2, total_rmsd_2, bar_width,
+                    alpha=opacity, color='r',
+                    label='total RMSD final')
+
+    rects4 = ax.bar(index + bar_width*3, distances_cas_2, bar_width,
+                    alpha=opacity, color='y',
+                    label=r'C$\alpha$ distance final')
+
+    ax.set_xlabel('Residues', fontsize=12)
+    ax.set_ylabel(r'$\AA$',fontsize=12)
+    ax.set_title(r'RMSDs and C$\alpha$ distances for amino acid', fontsize=14)
+    ax.set_xticks(index + bar_width / 4)
+    ax.set_xticklabels(residue_and_type_1, fontsize=10)
                     label='{}'.format(label_legend_1))
 
     rects2 = ax.bar(index + bar_width, distances_cas_1, bar_width,
@@ -180,7 +216,6 @@ def plot_aminoacid_differences(report_file1, report_file2, x_label, y_label, lab
 
     fig.tight_layout()
     plt.show()
-
 
 def plot_atom_distances(input_initial, input_final, input_cristal, x_label, y_label, label_legend_1, label_legend_2,
                                label_legend_3, title, x_label_fontsize = 12, y_label_fontsize = 12,
@@ -239,11 +274,24 @@ def plot_atom_distances(input_initial, input_final, input_cristal, x_label, y_la
 
     index = np.arange(n_groups_initial)
     bar_width = 0.05
-
     opacity = 0.5
 
     rects1 = ax.bar(index, distances_initial, bar_width,
                     alpha=opacity, color='r',
+                    label='Initial')
+
+    rects2 = ax.bar(index + bar_width, distances_final, bar_width,
+                    alpha=opacity, color='b',
+                    label='Model')
+    rects3 = ax.bar(index + bar_width*2, distances_cristal, bar_width,
+                    alpha=opacity, color='g',
+                    label='Crystal')
+
+    ax.set_xlabel('Interaction', fontsize=12)
+    ax.set_ylabel(r'Distance ($\AA$)', fontsize=12)
+    ax.set_title('Comparison of distances in EGFR', fontsize=14)
+    ax.set_xticks(index + bar_width)
+    ax.set_xticklabels(atoms_initial, fontsize=10)
                     label='{}'.format(label_legend_1))
 
     rects2 = ax.bar(index + bar_width + 0.02, distances_final, bar_width,

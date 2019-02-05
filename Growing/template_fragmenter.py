@@ -15,12 +15,12 @@ WRITE_NBON_PATTERN = " {:5d}   {:3.4f}   {:3.4f}  {: 3.6f}   {:3.4f}   {:3.4f}  
 WRITE_BOND_PATTERN = " {:5d} {:5d}   {:5.3f} {: 2.3f}\n"
 
 
-def template_reader(template_name, path_to_template="DataLocal/Templates/OPLS2005/HeteroAtoms/"):
+def template_reader(template_name):
     """
     This function reads the content of a PELE's template and return it
     """
 
-    with open(os.path.join(path_to_template, template_name), "r") as template_file:
+    with open(template_name, "r") as template_file:
         template_content = template_file.read()
         if not template_content:
             logger.critical("Template file {} is empty!".format(template_name))
@@ -478,8 +478,7 @@ def set_bonds(bonds_dictionary, new_atoms_properties_dict, steps):
     return bonds_dictionary
 
 
-def write_template(reference_template, output_filename, nbon_content, bond_content,
-                   output_path="DataLocal/Templates/OPLS2005/HeteroAtoms/"):
+def write_template(reference_template, output_filename, nbon_content, bond_content):
     """
     :param reference_template: string containing the whole template that we want to replace.
     :param output_filename: name of the file of the output template.
@@ -496,7 +495,7 @@ def write_template(reference_template, output_filename, nbon_content, bond_conte
     content_list.append("BOND\n")
     content_list.append(bond_content)
     content_list.append(angles_section)
-    with open(os.path.join(output_path, output_filename), "w") as template_to_write:
+    with open(output_filename, "w") as template_to_write:
         template_to_write.write("".join(content_list))
 
 
@@ -540,7 +539,7 @@ def create_initial_template(initial_template, final_template, original_atom_to_m
     atoms_in_templates = []
     templates = []
     for template in [initial_template, final_template]:
-        template_content = template_reader(template, path)
+        template_content = template_reader(template)
         templates.append(template_content)
         selected_atoms = atoms_selector(template_content)
         atoms_in_templates.append(selected_atoms)
@@ -568,7 +567,7 @@ def create_initial_template(initial_template, final_template, original_atom_to_m
 
     bond_section = write_bond_section(final_template_content, bonds)
 
-    write_template(final_template_content, output_template_filename, nbon_section, bond_section, path)
+    write_template(final_template_content, output_template_filename, nbon_section, bond_section)
 
 
 def generate_starting_template(initial_template_file, final_template_file, original_atom_to_mod, heavy_atom, atom_to_transform,
@@ -585,8 +584,8 @@ def generate_starting_template(initial_template_file, final_template_file, origi
     :return: template modified that will be used as starting point to do the growing process.
     """
     # Reading initial and final templates and convert them in strings
-    initial_template = template_reader(initial_template_file, path)
-    final_template = template_reader(final_template_file, path)
+    initial_template = template_reader(initial_template_file)
+    final_template = template_reader(final_template_file)
     # Select the atoms for this templates and convert them into dictionaries objects
     atoms_selected_initial = atoms_selector(initial_template)
     atoms_selected_final = atoms_selector(final_template)
@@ -610,7 +609,7 @@ def generate_starting_template(initial_template_file, final_template_file, origi
     nbon_section = write_nbon_section(final_template, properties_final)
     bond_section = write_bond_section(final_template, bonds_final)
     # Finally, join everything and write a file with the output template:q!
-    write_template(final_template, output_template_filename, nbon_section, bond_section, path)
+    write_template(final_template, output_template_filename, nbon_section, bond_section)
 
 
 def grow_parameters_in_template(starting_template_file, initial_template_file, final_template_file,
@@ -629,9 +628,9 @@ def grow_parameters_in_template(starting_template_file, initial_template_file, f
     :return: template with the parameters increased linearly.
     """
     # Reading initial and final templates and convert them in strings
-    starting_template = template_reader(starting_template_file, path)
-    initial_template = template_reader(initial_template_file, path)
-    final_template = template_reader(final_template_file, path)
+    starting_template = template_reader(starting_template_file)
+    initial_template = template_reader(initial_template_file)
+    final_template = template_reader(final_template_file)
     # Select the atoms for this templates and convert them into dictionaries objects
     atoms_selected_initial = atoms_selector(initial_template)
     atoms_selected_starting = atoms_selector(final_template)
@@ -659,4 +658,7 @@ def grow_parameters_in_template(starting_template_file, initial_template_file, f
     bond_section = write_bond_section(final_template, bonds_starting)
 
     # Finally, join everything and write a file with the output template
-    write_template(final_template, output_template_filename, nbon_section, bond_section, path)
+    write_template(final_template, output_template_filename, nbon_section, bond_section)
+
+
+#grow_parameters_in_template("grwz_ref","0kkz","grwz", ['H15'] ,"C15" ,"G4","grwz_2", "/home/carlespl/project/growing/grow/4DJU_4DJV/DataLocal/Templates/OPLS2005/HeteroAtoms/growing_templates",9,10)

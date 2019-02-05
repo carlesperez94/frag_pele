@@ -2648,7 +2648,7 @@ def find_yesno(input):
 
 ##################################################
 def make_libraries(resname, conf_file, root, names, zmat_atoms, group, use_rings, use_mult_lib, output_template_file,
-                   gridres, debug, R_group_root_atom_name='None'):
+                   gridres, debug, R_group_root_atom_name='None', out_rot="."):
     #Convert conf file to pdbs if necessary
     is_pdb = re.search(r'^(.*)\.[PpEe][DdNn][BbTt]', conf_file)
     is_mae = re.search(r'^(.*)\.[Mm][Aa][Ee]', conf_file)
@@ -2711,10 +2711,10 @@ def make_libraries(resname, conf_file, root, names, zmat_atoms, group, use_rings
         line += "  sidelib " + libname + " default &\n"
         make_lib_from_mae(libname, "side", conf_file, grp_tors, names, parent, old_atom_num, mae2temp, temp2mae,
                           gridres, lib_gridres)
-    fp = open(assign_filename, "w")
+    fp = open(os.path.join(out_rot, assign_filename), "w")
     fp.write(line);
     fp.close();
-    return assign_filename
+    return os.path.join(out_rot, assign_filename)
 
 
 ################################################################################
@@ -2792,10 +2792,10 @@ def check_oh_tors(mae_file, tors, names):
 ################################################################################
 
 def find_build_lib(resname, mae_file, root, tors, names, group, gridres, gridres_oh, use_rings, back_lib, tors_ring_num,
-                   ring_libs, debug):
+                   ring_libs, debug, out_rot):
     #Make a filename with this data
     assign_filename = resname.upper() + ".rot.assign";
-    f = open(assign_filename, "w")
+    f = open(os.path.join(out_rot, assign_filename), "w")
     lib_name_nom = convert_gridres(gridres)
     lib_name_oh = convert_gridres(gridres_oh)
     is_oh = check_oh_tors(mae_file, tors, names)
@@ -2809,22 +2809,29 @@ def find_build_lib(resname, mae_file, root, tors, names, group, gridres, gridres
     f.write("rot assign res " + resname.upper() + ' &\n')
     if (back_lib != ""):
         f.write(" backlib " + back_lib + " &\n");
-    for grp in range(max(group) + 1):
+
+    max_rotatable_bonds = check_max_rotatable_bonds(group, tors, tors_ring_num)
+
+    for grp, max_rotatable in zip(range(max(group) + 1), max_rotatable_bonds):
+        rotatable_bonds = 0
         for i in range(len(tors)):
             if ( group[tors[i][0]] == grp or group[tors[i][1]] == grp):
                 if (tors_ring_num[i] == 0):
+                    rotatable_bonds
                     if (is_oh[i] == 1):
                         lib_name = lib_name_oh
                     else:
                         lib_name = lib_name_nom
+                    if max_rotatable and 30.0 > float(gridres):
+                        lib_name = convert_gridres("30.0")
                     if(len(names[tors[i][0]]) < 4 and len(names[tors[i][1]])<4):
-                      f.write("   sidelib {0} _{1:_^3} _{2:_^3} &\n".format(lib_name, names[tors[i][0]], names[tors[i][1]]))
+                        f.write("   sidelib {0} _{1:_^3} _{2:_^3} &\n".format(lib_name, names[tors[i][0]], names[tors[i][1]]))
                     elif(len(names[tors[i][0]] < 4) and len(names[tors[i][1]]>4)):
-                      f.write("   sidelib {0} _{1:_^3} {2:_^4} &\n".format(lib_name, names[tors[i][0]], names[tors[i][1]]))
+                        f.write("   sidelib {0} _{1:_^3} {2:_^4} &\n".format(lib_name, names[tors[i][0]], names[tors[i][1]]))
                     elif(len(names[tors[i][0]] < 4) and len(names[tors[i][1]]>4)):
-                      f.write("   sidelib {0} {1:_^4} _{2:_^3} &\n".format(lib_name, names[tors[i][0]], names[tors[i][1]]))
+                        f.write("   sidelib {0} {1:_^4} _{2:_^3} &\n".format(lib_name, names[tors[i][0]], names[tors[i][1]]))
                     else:
-                      f.write("   sidelib {0} {1:_^4} {2:_^4} &\n".format(lib_name, names[tors[i][0]], names[tors[i][1]]))
+                        f.write("   sidelib {0} {1:_^4} {2:_^4} &\n".format(lib_name, names[tors[i][0]], names[tors[i][1]]))
 
                 else:
                     ring_num = tors_ring_num[i]
@@ -2834,8 +2841,30 @@ def find_build_lib(resname, mae_file, root, tors, names, group, gridres, gridres
         if (grp != max(group)):
             f.write("     newgrp &\n")
     f.close();
-    return assign_filename
+    return os.path.join(out_rot, assign_filename)
     
+
+def check_max_rotatable_bonds(group, tors, tors_ring_num):
+    """
+        Check if some sidechain has more
+        than 2 rotatable bonds to lower
+        its resolution
+    """
+
+    LIMIT_ROTATABLE_BONDS = 3
+
+    max_rotatable_bonds = []
+    for grp in range(max(group) + 1):
+        count = 0
+        for i in range(len(tors)):
+            if ( group[tors[i][0]] == grp or group[tors[i][1]] == grp):
+                if (tors_ring_num[i] == 0):
+                    count += 1
+        if count > LIMIT_ROTATABLE_BONDS:
+            max_rotatable_bonds.append(True)
+        else:
+            max_rotatable_bonds.append(False)
+    return max_rotatable_bonds
 
 
 #################################################
