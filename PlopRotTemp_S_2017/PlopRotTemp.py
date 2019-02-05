@@ -2822,7 +2822,7 @@ def find_build_lib(resname, mae_file, root, tors, names, group, gridres, gridres
                         lib_name = lib_name_oh
                     else:
                         lib_name = lib_name_nom
-                    if max_rotatable:
+                    if max_rotatable and 30.0 > float(gridres):
                         lib_name = convert_gridres("30.0")
                     if(len(names[tors[i][0]]) < 4 and len(names[tors[i][1]])<4):
                         f.write("   sidelib {0} _{1:_^3} _{2:_^3} &\n".format(lib_name, names[tors[i][0]], names[tors[i][1]]))

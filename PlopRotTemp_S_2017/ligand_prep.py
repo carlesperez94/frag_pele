@@ -28,17 +28,18 @@ def convert_mae(ligands):
             structure.write(structure_mae)
     return structure_mae
 
-def create_template(pdb):
+def create_template(pdb, rotamer="10.0"):
    mae_file = convert_mae(pdb)
-   plop.main(mae_file, out_temp="DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated", out_rot="DataLocal/LigandRotamerLibs/")
+   plop.main(mae_file, gridres=rotamer, out_temp="DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated", out_rot="DataLocal/LigandRotamerLibs/")
    os.remove(mae_file)
 
 def arg_parse():
   parser = argparse.ArgumentParser()
   parser.add_argument("pdb", type=str, help="ligand file to templatize")
+  parser.add_argument("rotamer", type=str, help="Rotamer resolution")
   args = parser.parse_args()
-  return args.pdb
+  return args.pdb, args.rotamer
 
 if __name__ == '__main__':
-	pdb = arg_parse()
-	create_template(pdb)
+	pdb, rotamer = arg_parse()
+	create_template(pdb, rotamer=rotamer)
