@@ -110,7 +110,7 @@ def main(criteria, file_name, path=DIR, n_structs=10, sort_order="min", out_freq
         trajectory_selected = re.search('MODEL\s+%d(.*?)ENDMDL' %int((step)/out_freq+1), file_content,re.DOTALL)
 
         traj = []
-        with open(os.path.join("{}{}".format(file_name, f_out)), 'w') as f:
+        with open(os.path.join(file_name, f_out), 'w') as f:
             traj.append("MODEL     %d" %int((step)/out_freq+1))
             try:
                 traj.append(trajectory_selected.group(1))
