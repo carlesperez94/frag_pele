@@ -57,12 +57,12 @@ def parse_arguments():
                         order to detect it.""")
     required_named.add_argument("-sef", "--serie_file", required=True,
                         help=""" Name of the tabular file which must contain the instructions required to perform several
-                        successive growings, using different fragments or different growing positions.\n
-
-                        To do simple growings:\n
-                        col1   col2    col3\n
-                        To do successive growings:\n
-                        (col1   col2    col3) x n_growings\n
+                        successive growings, using different fragments or different growing positions.
+                        
+                        To do simple growings:
+                        col1   col2    col3
+                        To do successive growings:
+                        (col1   col2    col3) x n_growings
 
                         Where col1 is the path to the PDB file of the fragment that will be added to the core structure
                         (name the chain of the fragment "L" by default).
@@ -453,7 +453,8 @@ if __name__ == '__main__':
                     fragment_atom = atoms_if_bond[2]
                     h_frag = atoms_if_bond[3]
                 else:
-                    pass
+                    h_core = None
+                    h_frag = None
                 if i == 0:  # In the first iteration we will use the complex_pdb as input.
                     ID = instruction[i][3]
                 else:  # If is not the first we will use as input the output of the previous iteration
@@ -485,7 +486,9 @@ if __name__ == '__main__':
                 h_core = atoms_if_bond[1]
                 fragment_atom = atoms_if_bond[2]
                 h_frag = atoms_if_bond[3]
-
+            else:
+                h_core = None
+                h_frag = None
             try:
                 main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                  pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
