@@ -23,6 +23,7 @@ import Growing.simulations_linker
 import Growing.add_fragment_from_pdbs
 import Growing.AddingFragHelpers
 import Growing.bestStructs
+import Analysis.analyser as ans
 import constants as c
 import serie_handler as sh
 
@@ -426,6 +427,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     best_structure_file = Growing.bestStructs.main(criteria, selected_results_path, path=equilibration_path,
                              n_structs=10)
     shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(c.PRE_WORKING_DIR, selected_results_path + ".pdb"))
+    ans.main(report_prefix=report, path_to_equilibration=equilibration_path, out_report="frag_report.txt",
+             column=criteria, quantile_value=0.25)  # Write line in report (or create)
     end_time = time.time()
     total_time = (end_time - start_time) / 60
     logging.info("Growing of {} in {} min".format(fragment_pdb, total_time))

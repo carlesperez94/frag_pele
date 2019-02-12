@@ -87,26 +87,29 @@ def get_csv(dataframe, output_path):
     dataframe.to_csv(path_or_buf=output_path, sep='\t', header=True, index=False)
 
 
-def main(report_prefix, path, steps=False, csv=False, output_path="", prefix_folder='*', column="Binding Energy", quantile_value=0.25):
-    os.chdir(path)
-    list_of_results = []
-    list_of_folders = glob.glob("{}/equilibration*".format(path))
-    for folder in list_of_folders:
-        print(folder)
-        df = pele_report2pandas(report_prefix, folder)
-        if steps:
-            df = select_subset_by_steps(df, steps)
-        min_value = get_min_value(df, column)
-        mean_quartile = compute_mean_quantile(df, column, quantile_value)
-        results = (folder, min_value, mean_quartile)
-        list_of_results.append(results)
-    for result in list_of_results:
-        print("{}\t{:.2f}\t{:.2f}".format(result[0], float(result[1]), float(result[2])))
-    if csv:
-        out_data = pd.DataFrame(columns=[column, '{} mean Q1'.format(column)])
-        for result in list_of_results:
-            out_data.loc[result[0]] = [result[1], result[2]]
-        out_data.to_csv(path_or_buf=output_path, sep="\t", header=True, index=True)
+def compute_sterr(dataframe, column, quantile_value):
+    dataframe = dataframe[dataframe[column] < dataframe[column].quantile(quantile_value)]
+    dataframe = dataframe[column]
+    err_subset = dataframe.sem()
+    return err_subset
+
+
+def main(report_prefix, path_to_equilibration, steps=False, out_report=False, column="Binding Energy", quantile_value=0.25):
+    folder = glob.glob("{}".format(path_to_equilibration))
+    df = pele_report2pandas(report_prefix, folder)
+    if steps:
+        df = select_subset_by_steps(df, steps)
+    mean_quartile = compute_mean_quantile(df, column, quantile_value)
+    results = (folder, mean_quartile)
+    line_of_report = "{}\t{:.2f}\t{:.3f}\n".format(results[0], float(results[1]))
+    print(line_of_report)
+    if out_report:
+        if os.path.exists(out_report):
+            with open(out_report, "a") as report:
+                report.write(line_of_report)
+        else:
+            with open(out_report, "w") as report:
+                report.write("# FragmentResultsFolder\tFrAG-score\n")
 
 
 if __name__ == '__main__':

@@ -47,7 +47,6 @@ def plot_charge_function(charge1, charge2):
     for radii in t1:
         energy = charge_function(charge1=charge1, charge2=charge2, radius=radii)
         energies.append(energy)
-    print(energies)
     return plt.plot(t1, energies, lw=2)
 
 
@@ -61,9 +60,9 @@ def main(epsilon1, epsilon2, sigma1, sigma2, charge1, charge2):
     plot_charge_function(charge1, charge2)
     plt.subplot(223)
     plot_nbon_function(epsilon1, epsilon2, sigma1, sigma2, charge1, charge2)
-    plt.ylim(-0.1, 0.001)
+    plt.ylim(-0.1, 0.000)
     plt.xlim(0.0, 5.0)
     plt.show()
 
 
-main(epsilon1=0.066, epsilon2=0.066, sigma1=3.5, sigma2=3.5, charge1=-0.50, charge2=-0.50)
+main(epsilon1=0.066, epsilon2=0.066, sigma1=0.35, sigma2=0.35, charge1=-0.50, charge2=0.50)
