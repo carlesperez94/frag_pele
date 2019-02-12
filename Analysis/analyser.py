@@ -46,14 +46,12 @@ def pele_report2pandas(prefix, folder):
         This function merge the content of different report for PELE simulations in a single file pandas Data Frame.
     """
     data = []
-    os.chdir(folder)
-    report_list = glob.glob('{}[0-9]*'.format(prefix))
+    report_list = glob.glob('{}/{}*[0-9]*'.format(folder, prefix))
     for report in report_list:
         tmp_data = pd.read_csv(report, sep='    ', engine='python')
         processor = re.findall('\d+$'.format(prefix), report)
         tmp_data['Processor'] = processor[0]
         data.append(tmp_data)
-    os.chdir("../")
     return pd.concat(data)
 
 
