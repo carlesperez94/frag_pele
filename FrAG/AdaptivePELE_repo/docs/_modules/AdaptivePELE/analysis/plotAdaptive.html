@@ -1,0 +1,332 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>AdaptivePELE.analysis.plotAdaptive &mdash; AdaptivePELE  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="AdaptivePELE  documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> AdaptivePELE
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v1.4.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Examples.html">User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../AdaptivePELE.html">AdaptivePELE – Package Description</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">AdaptivePELE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+        <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>AdaptivePELE.analysis.plotAdaptive</li>
+    <li class="wy-breadcrumbs-aside">
+      
+          
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for AdaptivePELE.analysis.plotAdaptive</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+
+<div class="viewcode-block" id="parseArguments"><a class="viewcode-back" href="../../../AdaptivePELE.analysis.html#AdaptivePELE.analysis.plotAdaptive.parseArguments">[docs]</a><span class="k">def</span> <span class="nf">parseArguments</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse command line arguments</span>
+
+<span class="sd">        :returns: int, int, int, str, bool, bool -- Number of steps per epoch,</span>
+<span class="sd">            column to plot in the X axis, column to plot in the Y axis, name of</span>
+<span class="sd">            the files containing the simulation data, whether to plot the data</span>
+<span class="sd">            as points, wether to plot the data as lines</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;Generates output for gnuplot</span><span class="se">\n</span><span class="s2">&quot;</span>\
+           <span class="s2">&quot;It MUST be run from the root epoch folder (i.e., where it can find the folders 0/, 1/, 2/, ... lastEpoch/&quot;</span>\
+           <span class="s2">&quot;To be run for example like: </span><span class="se">\&quot;</span><span class="s2">&gt;python generateGnuplotFile.py | gnuplot -persist</span><span class="se">\&quot;</span><span class="s2">&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="n">desc</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Pele steps per run&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;xcol&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;xcol&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;ycol&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;ycol&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;report_&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Report filename&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-points&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Plot using points&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-lines&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Plot using lines&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-zcol&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Column to define color according to metric&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--traj_range&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Range of trajs to select, e.g to select trajs from 1 to 10, 1:10&quot;</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">xcol</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ycol</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">be</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">rmsd</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">zcol</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">traj_range</span></div>
+
+
+<div class="viewcode-block" id="generateNestedString"><a class="viewcode-back" href="../../../AdaptivePELE.analysis.html#AdaptivePELE.analysis.plotAdaptive.generateNestedString">[docs]</a><span class="k">def</span> <span class="nf">generateNestedString</span><span class="p">(</span><span class="n">gnuplotString</span><span class="p">,</span> <span class="n">reportName</span><span class="p">,</span> <span class="n">column1</span><span class="p">,</span> <span class="n">column2</span><span class="p">,</span> <span class="n">stepsPerRun</span><span class="p">,</span> <span class="n">printWithLines</span><span class="p">,</span> <span class="n">totalNumberOfSteps</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">replotFirst</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">paletteModifier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trajs_range</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a string to be passed to gnuplot</span>
+
+<span class="sd">        :param gnuplotString: Template string for gnuplot</span>
+<span class="sd">        :type gnuplotString: str</span>
+<span class="sd">        :param reportName: Name of the files containing the simulation data</span>
+<span class="sd">        :type reportName: str</span>
+<span class="sd">        :param column1: Column to plot in the X axis</span>
+<span class="sd">        :type column1: int</span>
+<span class="sd">        :param column2: Column to plot in the Y axis</span>
+<span class="sd">        :type column2: int</span>
+<span class="sd">        :param stepsPerRun: Number of steps per epoch,</span>
+<span class="sd">        :type stepsPerRun: int</span>
+<span class="sd">        :param TotalNumberOfSteps: Not only considering steps in current epoch,</span>
+<span class="sd">            but steps with all previous epochs</span>
+<span class="sd">        :type TotalNumberOfSteps: bool</span>
+<span class="sd">        :param replotFirst: Deprecated parameter</span>
+<span class="sd">        :type replotFirst: bool</span>
+<span class="sd">        :param paletteModifier: Wheter to use the epoch as color or a column</span>
+<span class="sd">        :type paletteModifier: int</span>
+
+<span class="sd">        :returns: str -- String to plot using gnuplot</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">allFolders</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    <span class="n">epochFolders</span> <span class="o">=</span> <span class="p">[</span><span class="n">epoch</span> <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">allFolders</span> <span class="k">if</span> <span class="n">epoch</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()]</span>
+    <span class="n">numberOfEpochs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">epochFolders</span><span class="p">))</span>
+
+    <span class="n">dictionary</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;reportName&#39;</span><span class="p">:</span> <span class="n">reportName</span><span class="p">,</span> <span class="s1">&#39;col2&#39;</span><span class="p">:</span> <span class="n">column2</span><span class="p">,</span> <span class="s1">&#39;numberOfEpochs&#39;</span><span class="p">:</span> <span class="n">numberOfEpochs</span><span class="p">,</span> <span class="s1">&#39;withLines&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">trajs_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">traj_range</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">))</span>
+        <span class="n">dictionary</span><span class="p">[</span><span class="s1">&#39;startTraj&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start</span>
+        <span class="n">dictionary</span><span class="p">[</span><span class="s1">&#39;runsPerEpoch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dictionary</span><span class="p">[</span><span class="s1">&#39;startTraj&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># runs of epoch 0, assumed constant</span>
+        <span class="n">numberOfRunsPerEpoch</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">reportName</span><span class="o">+</span><span class="s2">&quot;*&quot;</span><span class="p">)))</span>
+        <span class="n">dictionary</span><span class="p">[</span><span class="s1">&#39;runsPerEpoch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numberOfRunsPerEpoch</span>
+
+    <span class="k">if</span> <span class="n">printWithLines</span><span class="p">:</span>
+        <span class="n">dictionary</span><span class="p">[</span><span class="s1">&#39;withLines&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;w l&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column1</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">totalNumberOfSteps</span><span class="p">:</span>
+            <span class="n">dictionary</span><span class="p">[</span><span class="s1">&#39;col1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;($&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">column1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;+ (</span><span class="si">%d</span><span class="s2">*j))&quot;</span> <span class="o">%</span> <span class="n">stepsPerRun</span>  <span class="c1"># adds steps per runs, so that it mathes the total number of steps</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dictionary</span><span class="p">[</span><span class="s1">&#39;col1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">column1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gnuplotString</span> <span class="o">%</span> <span class="n">dictionary</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="generatePrintString"><a class="viewcode-back" href="../../../AdaptivePELE.analysis.html#AdaptivePELE.analysis.plotAdaptive.generatePrintString">[docs]</a><span class="k">def</span> <span class="nf">generatePrintString</span><span class="p">(</span><span class="n">stepsPerRun</span><span class="p">,</span> <span class="n">xcol</span><span class="p">,</span> <span class="n">ycol</span><span class="p">,</span> <span class="n">reportName</span><span class="p">,</span> <span class="n">kindOfPrint</span><span class="p">,</span> <span class="n">paletteModifier</span><span class="p">,</span> <span class="n">trajs_range</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a template string to use with gnuplot</span>
+
+<span class="sd">        :param stepsPerRun: Number of steps per epoch,</span>
+<span class="sd">        :type stepsPerRun: int</span>
+<span class="sd">        :param xcol: Column to plot in the X axis</span>
+<span class="sd">        :type xcol: int</span>
+<span class="sd">        :param ycol: Column to plot in the Y axis</span>
+<span class="sd">        :type ycol: int</span>
+<span class="sd">        :param reportName: Name of the files containing the simulation data</span>
+<span class="sd">        :type reportName: str</span>
+<span class="sd">        :param kindOfPrint:  Kind of lines to plot (solid or points)</span>
+<span class="sd">        :type kindOfPrint: bool</span>
+<span class="sd">        :param paletteModifier: Third column to specify color</span>
+<span class="sd">        :type paletteModifier: int</span>
+<span class="sd">        :trajs_range: Range of trajectories to plot</span>
+<span class="sd">        :type trajs_range: str</span>
+
+<span class="sd">        :returns: str -- String to plot using gnuplot</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">kindOfPrint</span> <span class="o">==</span> <span class="s2">&quot;PRINT_RMSD_STEPS&quot;</span><span class="p">:</span>
+        <span class="n">printWithLines</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">totalNumberOfSteps</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">kindOfPrint</span> <span class="o">==</span> <span class="s2">&quot;PRINT_BE_RMSD&quot;</span><span class="p">:</span>
+        <span class="n">printWithLines</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">totalNumberOfSteps</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">paletteModifier</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stringPalette</span> <span class="o">=</span> <span class="s2">&quot;frac j/</span><span class="si">%(numberOfEpochs)d</span><span class="s2">. &quot;</span>
+        <span class="n">colorMetric</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">stringPalette</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">colorMetric</span> <span class="o">=</span> <span class="s2">&quot;:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">paletteModifier</span>
+
+    <span class="n">gnuplotString</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;plot for [i=</span><span class="si">%(startTraj)d</span><span class="s2">:</span><span class="si">%(runsPerEpoch)d</span><span class="s2">] for [j=0:</span><span class="si">%(numberOfEpochs)d</span><span class="s2">-1] </span><span class="se">\&#39;\&#39;</span><span class="s2">.j.</span><span class="se">\&#39;</span><span class="s2">/</span><span class="si">%(reportName)s</span><span class="se">\&#39;</span><span class="s2">.i u </span><span class="si">%(col1)s</span><span class="s2">:</span><span class="si">%(col2)d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">colorMetric</span><span class="p">,</span> <span class="s2">&quot; lt 6 lc palette &quot;</span><span class="p">,</span> <span class="n">stringPalette</span><span class="p">,</span> <span class="s2">&quot;notitle </span><span class="si">%(withLines)s</span><span class="s2">&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">generateNestedString</span><span class="p">(</span><span class="n">gnuplotString</span><span class="p">,</span> <span class="n">reportName</span><span class="p">,</span> <span class="n">xcol</span><span class="p">,</span> <span class="n">ycol</span><span class="p">,</span> <span class="n">stepsPerRun</span><span class="p">,</span> <span class="n">printWithLines</span><span class="p">,</span> <span class="n">totalNumberOfSteps</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">paletteModifier</span><span class="p">,</span> <span class="n">trajs_range</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">steps_Run</span><span class="p">,</span> <span class="n">Xcol</span><span class="p">,</span> <span class="n">Ycol</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">be</span><span class="p">,</span> <span class="n">rmsd</span><span class="p">,</span> <span class="n">colModifier</span><span class="p">,</span> <span class="n">traj_range</span> <span class="o">=</span> <span class="n">parseArguments</span><span class="p">()</span>
+    <span class="c1"># VARIABLES TO SET WHEN PRINTING</span>
+    <span class="k">if</span> <span class="n">be</span><span class="p">:</span>
+        <span class="n">kind_Print</span> <span class="o">=</span> <span class="s2">&quot;PRINT_BE_RMSD&quot;</span>
+    <span class="k">elif</span> <span class="n">rmsd</span><span class="p">:</span>
+        <span class="n">kind_Print</span> <span class="o">=</span> <span class="s2">&quot;PRINT_RMSD_STEPS&quot;</span>
+
+    <span class="n">printLine</span> <span class="o">=</span> <span class="n">generatePrintString</span><span class="p">(</span><span class="n">steps_Run</span><span class="p">,</span> <span class="n">Xcol</span><span class="p">,</span> <span class="n">Ycol</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">kind_Print</span><span class="p">,</span> <span class="n">colModifier</span><span class="p">,</span> <span class="n">traj_range</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">printLine</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Daniel Lecina, Joan Francesc Gilabert.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

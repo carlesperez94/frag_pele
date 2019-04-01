@@ -21,8 +21,7 @@ from distutils.command.sdist import sdist as _sdist
 
 # Run the following line to compile atomset package
 # python setup.py build_ext --inplace
-import constants
-
+import FrAG.constants as constants
 
 
 class PreInstallCommand(install):
@@ -55,9 +54,9 @@ class PreInstallCommand(install):
         #    raise ValueError("Define --mpirun path. Check --help-commands for more help")
 
     def run(self):
-        print("Cythonazing")
-        #subprocess.call("python setup.py build_ext --inplace".split())
-        print("Installing packages")
+        #print("Cythonazing")
+        #subprocess.call("python FrAG/setup.py build_ext --inplace".split())
+        #print("Installing packages")
         #subprocess.call("pip install {}".format(" ".join(packages)).split())
         print("Setting environmental variables")
         installer(self.schr, self.pele, self.pele_exec, self.pele_license)
@@ -71,9 +70,9 @@ class PostInstallCommand(install):
 
 
 def installer(schr, pele, pele_exec, pele_license):
-    shutil.copy('FrAG/Templates/constants.py', 'FrAG/constants.py')
-    d = {"SCHRODINGER":schr, "PELE":pele, "PELE_BIN":pele_exec, "LICENSE":pele_license }
     file_input = 'FrAG/constants.py'
+    shutil.copy('FrAG/Templates/constants.py', file_input)
+    d = {"SCHRODINGER":schr, "PELE":pele, "PELE_BIN":pele_exec, "LICENSE":pele_license }
     filein = open(file_input)
     src = Template( filein.read() )
     installation_content = src.safe_substitute(d)
@@ -130,9 +129,9 @@ setup(
     author_email='daniel.soler@nostrumbiodiscovery.com, carlesperez@gmail.com',
     license='',
     packages=find_packages(exclude=['docs', 'tests']),
-    package_data={"FrAG/AdaptivePELE/atomset": ['*.pxd'], "FrAG/Templates": ["*.pdb", "*.conf"] },
+    package_data={"AdaptivePELE_repo/AdaptivePELE/atomset": ['*.pxd'], "Templates": ["*.pdb", "*.conf"] },
     include_package_data=True,
-    install_requires=['numpy', 'matplotlib', 'pandas', 'cython', 'mdtraj', 'scipy', 'pyemma==2.4', 'prody==1.8.2', 'fpdf'],
+    install_requires=['numpy', 'matplotlib', 'biopython ', 'pandas', 'cython', 'mdtraj', 'scipy', 'prody' ],
     cmdclass=cmdclass,
     ext_modules=ext_modules,  # accepts a glob pattern
     include_dirs=[numpy.get_include()],

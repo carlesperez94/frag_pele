@@ -1,0 +1,305 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Documentation &mdash; FrAG-PELE 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Getting Started" href="first_steps.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> FrAG-PELE
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="first_steps.html">Getting Started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-parameters">Basic parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-parameters">Optional parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#frag-configuration">FrAG configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pele-configuration">PELE configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clustering-and-spawning-configuration">Clustering and spawning configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#others">Others</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">FrAG-PELE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/documentation.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="documentation">
+<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<p>Before starting, take into account that only the Basic parameters are mandatory. Otherwise, Optional parameters have
+predefined default values. You can find and modify them in <code class="docutils literal notranslate"><span class="pre">constants.py</span></code>.</p>
+<div class="section" id="basic-parameters">
+<h2>Basic parameters<a class="headerlink" href="#basic-parameters" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><strong>-cp</strong>, <strong>—complex_pdb</strong>: Path to the PDB file which must contain a protein-ligand complex. Its ligand will be used
+as the core structure. Remember to rename the ligand chain with a different character in order to detect it.</li>
+<li><strong>-sef</strong>, <strong>—serie_file</strong>:  Name of the tabular file which must contain the instructions required to perform several
+successive growings, using different fragments or different growing positions.</li>
+</ul>
+<p>For further information, see <a class="reference internal" href="first_steps.html#first-steps"><span class="std std-ref">Getting Started</span></a>.</p>
+</div>
+<div class="section" id="optional-parameters">
+<h2>Optional parameters<a class="headerlink" href="#optional-parameters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="frag-configuration">
+<h3>FrAG configuration<a class="headerlink" href="#frag-configuration" title="Permalink to this headline">¶</a></h3>
+<p>This are the options directly related to FrAG itself.</p>
+<ul class="simple">
+<li><strong>-x</strong>, <strong>—growing_steps</strong>: Number of Growing Steps (GS). By default: 10.</li>
+<li><strong>-cr</strong>, <strong>—criteria</strong>: Name of the column of the report file to select the structures that will spawn in the
+next GS. Additionally, this parameter will be the selection criteria to extract the best structure after completing
+the growing. By default: ‘Binding Energy’.</li>
+<li><strong>-rst</strong>, <strong>—restart</strong>: If set FrAG will continue from the last GS detected. If all GS are finished it will restart
+in the equilibration phase.</li>
+<li><strong>-cc</strong>, <strong>—c_chain</strong>: Chain name of the core. By default: ‘L’.</li>
+<li><strong>-fc</strong>, <strong>—f_chain</strong>: Chain name of the fragment. By default: ‘L’.</li>
+<li><strong>-docon</strong>, <strong>—docontrolsim</strong>: When it is set, FrAG runs a negative-control simulation (without growing). By default: None.</li>
+</ul>
+</div>
+<div class="section" id="pele-configuration">
+<h3>PELE configuration<a class="headerlink" href="#pele-configuration" title="Permalink to this headline">¶</a></h3>
+<p>Most of the following arguments are only focused in localize PELE’s directories in the user machine. If you want to
+modify parameters directly related to PELE configuration (control_file) it is highly recommendable to read PELE’s
+documentation.</p>
+<ul class="simple">
+<li><strong>-d</strong>, <strong>—pele_dir</strong>: Complete path to Pele_serial.</li>
+<li><strong>-c</strong>, <strong>—contrl</strong>: Path to PELE’s control file templatized.</li>
+<li><strong>-l</strong>, <strong>—license</strong>: Absolute path to PELE’s licenses folder.</li>
+<li><strong>-r</strong>, <strong>—resfold</strong>: Name for PELE’s results folder. By default: ‘growing_output’.</li>
+<li><strong>-rp</strong>, <strong>—report</strong>: Suffix name of the report file from PELE.  By default: ‘report’</li>
+<li><strong>-tj</strong>, <strong>—traject</strong>: Suffix name of the trajectory file from PELE. By default: ‘trajectory’</li>
+<li><strong>-cs</strong>, <strong>—cpus</strong>: Number of cores (computational power) to paralellize PELE’s simulations. By default: 48.</li>
+<li><strong>-stp</strong>, <strong>—steps</strong>: Number of simulation steps inside each GS. By default: 6.</li>
+<li><strong>-es</strong>, <strong>—pele_eq_steps</strong>: Number of PELE steps in equilibration. By default: 20.</li>
+<li><strong>-miov</strong>, <strong>—min_overlap</strong>: Minimum value of overlapping factor used in the control_file of PELE. By default: 0‘5.</li>
+<li><strong>-maov</strong>, <strong>—max_overlap</strong>: Maximum value of overlapping factor used in the control_file of PELE. By default: 0‘7.</li>
+<li><strong>-tmp</strong>, <strong>—temperature</strong>: Temperature value to add in the control file. If the temperature is high more steps of
+PELE will be accepted when applying the Metropolis Criteria. By default: 1000.</li>
+</ul>
+</div>
+<div class="section" id="clustering-and-spawning-configuration">
+<h3>Clustering and spawning configuration<a class="headerlink" href="#clustering-and-spawning-configuration" title="Permalink to this headline">¶</a></h3>
+<p>The following parameters are extracted from <a class="reference external" href="https://github.com/AdaptivePELE/AdaptivePELE/">AdaptivePELE</a>. It is not
+recommendable to modify default parameters.</p>
+<ul class="simple">
+<li><strong>-dis</strong>, <strong>—distcont</strong>: Distance used to determine which amino acids are in contact with the ligand to generate
+different clusters of structures to initialize the next GS. By default: 4.</li>
+<li><strong>-ct</strong>, <strong>—threshold*</strong>: Threshold distance used in the clustering. By default: 0‘3.</li>
+<li><strong>-e</strong>, <strong>—epsilon</strong>: An epsilon fraction of processors are distributed proportionally to the value of a metric,
+and the rest are inverselyProportional distributed. A param n can be specified to only consider the n clusters with
+best metric. By default: 0‘5.</li>
+<li><strong>-cn</strong>, <strong>–condition</strong>: Selects whether to take into account maximum or minimum values in epsilon related spawning,
+values are min or max. By default: min.</li>
+<li><strong>-mw</strong>, <strong>—metricweights</strong>: Selects how to distribute the weights of the cluster according to its metric, two
+options: linear (proportional to metric) or Boltzmann weigths (proportional to exp(-metric/T). Needs to define the
+temperature T. By default: ‘linear’.</li>
+<li><strong>-ncl</strong>, <strong>–nclusters</strong>: Number of initial structures that we want to use in each new GS. By default: 5.</li>
+<li><strong>-pdbf</strong>, <strong>–pdbout</strong>: Folder where PDBs selected to spawn in the next GS will be stored. By default: ‘PDBs_growing’.</li>
+</ul>
+</div>
+<div class="section" id="others">
+<h3>Others<a class="headerlink" href="#others" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>-pl</strong>, <strong>–plop_path</strong>: Absolute path to PlopRotTemp.py.</li>
+<li><strong>-sp</strong>, <strong>–sch_python</strong>: Absolute path to Schrödinger’s python.</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="first_steps.html" class="btn btn-neutral" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Carles Perez Lopez, with colaboration of Dani Soler.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

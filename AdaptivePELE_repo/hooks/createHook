@@ -1,6 +1,0 @@
-#!/bin/bash
-
-cd `dirname "$0"`
-chmod +x post-merge
-cd ../.git/hooks
-ln -s ../../hooks/post-merge
