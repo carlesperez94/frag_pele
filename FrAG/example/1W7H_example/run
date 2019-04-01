@@ -1,0 +1,16 @@
+#!/bin/bash
+
+
+#SBATCH --job-name=test
+
+#SBATCH --output=mpi_%j.out
+
+#SBATCH --error=mpi_%j.err
+
+#SBATCH --ntasks=3
+
+FRAG_FOLDER=/home/dsoler/installation/new//lib/python3.6/site-packages/
+module load impi/2018.1.163-iccifort-2018.1.163-GCC-6.4.0-2.28 Boost/1.66.0-intel-2018a wjelement/1.3-intel-2018a JsonCpp/1.8.4-intel-2018a Crypto++/6.1.0-intel-2018a PELE
+module load Python/3.6.4-foss-2018a 
+export PYTHONPATH=${FRAG_FOLDER}:${FRAG_FOLDER}/FrAG/AdaptivePELE_repo/:$PYTHONPATH
+python ${FRAG_FOLDER}/FrAG/grow_for_pele.py -cp 1w7h_preparation_structure_2w.pdb -x 1 -sef serie_file.conf --pele_eq_steps 1 --cpus 3 --step 1

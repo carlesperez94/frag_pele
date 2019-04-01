@@ -20,11 +20,11 @@ if "bsc.mn" in machine:
     SCHRODINGER_PY_PATH = "/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC/utilities/python"
 else:
     # PELE parameters
-    PATH_TO_PELE = "/home/ywest/repos/PELE-repo/Data/"
-    PATH_TO_PELE_DATA = os.path.join("/home/ywest/repos/PELE-repo/", "Data")
-    PATH_TO_PELE_DOCUMENTS = os.path.join("/home/ywest/repos/PELE-repo/", "Data")
-    PATH_TO_LICENSE = "/home/ywest/Downloads/isberg2015.pdf"
-    SCHRODINGER_PY_PATH = os.path.join("/opt/schrodinger2017-4/", "utilities/python")
+    PATH_TO_PELE = "/home/dsoler/cleanPELE_rev/build_gnu/Pele_mpi"
+    PATH_TO_PELE_DATA = os.path.join("/sNow/easybuild/centos/7.4.1708/Skylake/software/PELE/1.5.0.2524/", "Data")
+    PATH_TO_PELE_DOCUMENTS = os.path.join("/sNow/easybuild/centos/7.4.1708/Skylake/software/PELE/1.5.0.2524/", "Documents")
+    PATH_TO_LICENSE = "/sNow/easybuild/centos/7.4.1708/Skylake/software/PELE/licenses/"
+    SCHRODINGER_PY_PATH = os.path.join("/sNow/easybuild/centos/7.4.1708/Skylake/software/schrodinger2017-4/", "utilities/python")
 
 CONTROL_TEMPLATE = os.path.join(DIR, "Templates/control_template.conf")
 RESULTS_FOLDER = "growing_output"
