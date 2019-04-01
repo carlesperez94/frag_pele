@@ -21,7 +21,7 @@ from distutils.command.sdist import sdist as _sdist
 
 # Run the following line to compile atomset package
 # python setup.py build_ext --inplace
-from FrAG import constants
+import constants
 
 
 
@@ -31,8 +31,7 @@ class PreInstallCommand(install):
         ('schr=', None, 'SCRHODINGER main path. i.e /opt/apps/schrodinger-2017/'),
         ('pele=', None, 'PELE main path. i.e /opt/apps/PELErev1234/'),
         ('pele-exec=', None, 'PELE bin path. i.e /opt/apps/PELErev1234/bin/Pele_mpi'),
-        ('pele-license=', None, 'PELE licenses PATH. i.e /opt/apps/PELErev12345/licenses/'),
-        ('mpirun=', None, 'mpirun PATH. i.e /usr/bin/mpirun')
+        ('pele-license=', None, 'PELE licenses PATH. i.e /opt/apps/PELErev12345/licenses/')
     ]
 
     def initialize_options(self):
@@ -41,7 +40,6 @@ class PreInstallCommand(install):
         self.pele = None
         self.pele_exec = None
         self.pele_license = None
-        self.mpirun = None
 
     def finalize_options(self):
         install.finalize_options(self)
@@ -62,7 +60,7 @@ class PreInstallCommand(install):
         print("Installing packages")
         #subprocess.call("pip install {}".format(" ".join(packages)).split())
         print("Setting environmental variables")
-        installer(self.schr, self.pele, self.pele_exec, self.pele_license, self.mpirun)
+        installer(self.schr, self.pele, self.pele_exec, self.pele_license)
         print("Install")
         install.run(self)
 
@@ -72,9 +70,9 @@ class PostInstallCommand(install):
         install.run(self)
 
 
-def installer(schr, pele, pele_exec, pele_license, mpirun):
+def installer(schr, pele, pele_exec, pele_license):
     shutil.copy('FrAG/Templates/constants.py', 'FrAG/constants.py')
-    d = {"SCHRODINGER":schr, "PELE":pele, "PELE_BIN":pele_exec, "LICENSE":pele_license, "MPIRUN":mpirun }
+    d = {"SCHRODINGER":schr, "PELE":pele, "PELE_BIN":pele_exec, "LICENSE":pele_license }
     file_input = 'FrAG/constants.py'
     filein = open(file_input)
     src = Template( filein.read() )
@@ -105,18 +103,18 @@ class sdist(_sdist):
 
 if use_cython:
     ext_modules += [
-        Extension("FrAG.AdaptivePELE.atomset.atomset", ["FrAG/AdaptivePELE/atomset/atomset.pyx"], include_dirs=["FrAG/AdaptivePELE", "FrAG/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE.atomset.SymmetryContactMapEvaluator", ["FrAG/AdaptivePELE/atomset/SymmetryContactMapEvaluator.pyx"], include_dirs=["FrAG/AdaptivePELE", "FrAG/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE.atomset.RMSDCalculator", ["FrAG/AdaptivePELE/atomset/RMSDCalculator.pyx"], include_dirs=["FrAG/AdaptivePELE", "FrAG/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE.freeEnergies.utils", ["FrAG/AdaptivePELE/freeEnergies/utils.pyx"], include_dirs=["FrAG/AdaptivePELE", "FrAG/AdaptivePELE/freeEnergies"])
+        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.atomset", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/atomset.pyx"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
+        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.SymmetryContactMapEvaluator", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/SymmetryContactMapEvaluator.pyx"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
+        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.RMSDCalculator", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/RMSDCalculator.pyx"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
+        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.freeEnergies.utils", ["FrAG/AdaptivePELE_repo/AdaptivePELE/freeEnergies/utils.pyx"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/freeEnergies"])
     ]
     cmdclass.update({'build_ext': build_ext})
 else:
     ext_modules += [
-        Extension("FrAG.AdaptivePELE.atomset.atomset", ["FrAG/AdaptivePELE/atomset/atomset.c"], include_dirs=["FrAG/AdaptivePELE", "FrAG/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE.atomset.SymmetryContactMapEvaluator", ["FrAG/AdaptivePELE/atomset/SymmetryContactMapEvaluator.c"], include_dirs=["FrAG/AdaptivePELE", "FrAG/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE.atomset.RMSDCalculator", ["FrAG/AdaptivePELE/atomset/RMSDCalculator.c"], include_dirs=["FrAG/AdaptivePELE", "FrAG/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE.freeEnergies.utils", ["FrAG/AdaptivePELE/freeEnergies/utils.c"], include_dirs=["FrAG/AdaptivePELE", "FrAG/AdaptivePELE/freeEnergies"])
+        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.atomset", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/atomset.c"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
+        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.SymmetryContactMapEvaluator", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/SymmetryContactMapEvaluator.c"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
+        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.RMSDCalculator", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/RMSDCalculator.c"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
+        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.freeEnergies.utils", ["FrAG/AdaptivePELE_repo/AdaptivePELE/freeEnergies/utils.c"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/freeEnergies"])
     ]
 
 # Get the long description from the README file

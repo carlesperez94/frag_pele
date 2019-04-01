@@ -24,7 +24,7 @@ else:
     PATH_TO_PELE_DATA = os.path.join("$PELE", "Data")
     PATH_TO_PELE_DOCUMENTS = os.path.join("$PELE", "Data")
     PATH_TO_LICENSE = "$LICENSE"
-    SCHRODINGER_PY_PATH = os.path.join("$SCHRODINGER", utilities/python)
+    SCHRODINGER_PY_PATH = os.path.join("$SCHRODINGER", "utilities/python")
 
 CONTROL_TEMPLATE = os.path.join(DIR, "Templates/control_template.conf")
 RESULTS_FOLDER = "growing_output"
