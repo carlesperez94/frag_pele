@@ -1,11 +1,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-import AdaptivePELE.atomset.atomset as atomset
 import os
+import json
 import glob
+import argparse
 import numpy as np
 from AdaptivePELE.utilities import utilities
-import argparse
-import json
+import AdaptivePELE.atomset.atomset as atomset
 
 
 def extendReportWithRmsd(reportFile, rmsds):
@@ -83,7 +83,7 @@ def main(controlFile):
     # Constants
     folder = "."
     outputFilename = "fixedReport_%d"
-    trajName = "*traj*.pdb"
+    trajName = "*traj*"
     reportName = "*report_%d"
     # end constants
 

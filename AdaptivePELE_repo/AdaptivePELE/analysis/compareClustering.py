@@ -332,7 +332,7 @@ for i in range(nEpochs):
     # fNet = open("networkEpochs/network3d_%d.pdb" % nModel, "w")
     # metrics = [cl.getMetricFromColumn(4) for cl in ClCont.clusterIterator()]
     # Xn, Yn, Zn = net3D.getCoords(ClCont)
-    # fNet.write("MODEL %d\n" % nModel)
+    # fNet.write("MODEL     %4d\n" % nModel)
     # fNet = net3D.writePDB(Xn, Yn, Zn, metrics, fNet)
     # fNet = net3D.writeConnectionsPDB(ClCont.conformationNetwork.network, fNet)
     # fNet.write("ENDMDL\n")

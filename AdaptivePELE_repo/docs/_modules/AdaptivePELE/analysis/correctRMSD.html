@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                v1.4.2
+                v1.6
               </div>
             
           
@@ -86,8 +86,9 @@
             
                 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../Examples.html">User Manual</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../Changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Problems.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../AdaptivePELE.html">AdaptivePELE – Package Description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Changelog.html">Changelog</a></li>
 </ul>
 
             
@@ -138,13 +139,13 @@
             
   <h1>Source code for AdaptivePELE.analysis.correctRMSD</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
-<span class="kn">import</span> <span class="nn">AdaptivePELE.atomset.atomset</span> <span class="k">as</span> <span class="nn">atomset</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">AdaptivePELE.utilities</span> <span class="k">import</span> <span class="n">utilities</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">AdaptivePELE.atomset.atomset</span> <span class="k">as</span> <span class="nn">atomset</span>
 
 
 <div class="viewcode-block" id="extendReportWithRmsd"><a class="viewcode-back" href="../../../AdaptivePELE.analysis.html#AdaptivePELE.analysis.correctRMSD.extendReportWithRmsd">[docs]</a><span class="k">def</span> <span class="nf">extendReportWithRmsd</span><span class="p">(</span><span class="n">reportFile</span><span class="p">,</span> <span class="n">rmsds</span><span class="p">):</span>
@@ -222,7 +223,7 @@
     <span class="c1"># Constants</span>
     <span class="n">folder</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
     <span class="n">outputFilename</span> <span class="o">=</span> <span class="s2">&quot;fixedReport_</span><span class="si">%d</span><span class="s2">&quot;</span>
-    <span class="n">trajName</span> <span class="o">=</span> <span class="s2">&quot;*traj*.pdb&quot;</span>
+    <span class="n">trajName</span> <span class="o">=</span> <span class="s2">&quot;*traj*&quot;</span>
     <span class="n">reportName</span> <span class="o">=</span> <span class="s2">&quot;*report_</span><span class="si">%d</span><span class="s2">&quot;</span>
     <span class="c1"># end constants</span>
 
@@ -256,11 +257,11 @@
                 <span class="n">fixedReport</span> <span class="o">=</span> <span class="n">extendReportWithRmsd</span><span class="p">(</span><span class="n">reportFile</span><span class="p">,</span> <span class="n">rmsds</span><span class="p">)</span>
 
             <span class="c1"># print(fixedReport)</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">outputFilename</span> <span class="o">%</span> <span class="n">trajNum</span><span class="p">,</span> <span class="n">fixedReport</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">b</span><span class="s1">&#39;</span><span class="si">%.4f</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">outputFilename</span> <span class="o">%</span> <span class="n">trajNum</span><span class="p">,</span> <span class="n">fixedReport</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;</span><span class="si">%.4f</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">)</span></div>
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">control_file</span> <span class="o">=</span> <span class="n">parseArguments</span><span class="p">()</span>
     <span class="n">main</span><span class="p">(</span><span class="n">control_file</span><span class="p">)</span>
 </pre></div>

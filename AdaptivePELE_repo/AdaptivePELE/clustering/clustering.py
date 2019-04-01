@@ -1,28 +1,44 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-from builtins import range
-import sys
-import glob
-import numpy as np
 import os
-import pickle
+import sys
+import ast
+import glob
+import heapq
+import numpy as np
+from scipy import stats
+from builtins import range
 from six import reraise as raise_
 from AdaptivePELE.constants import blockNames
-import AdaptivePELE.atomset.atomset as atomset
 from AdaptivePELE.utilities import utilities
 from AdaptivePELE.atomset import SymmetryContactMapEvaluator as sym
 from AdaptivePELE.atomset import RMSDCalculator
+from AdaptivePELE.atomset import atomset
 from AdaptivePELE.clustering import clusteringTypes
 from AdaptivePELE.clustering import thresholdcalculator
-from scipy import stats
-import heapq
+from AdaptivePELE.freeEnergies import extractCoords as coord
+from AdaptivePELE.freeEnergies import getRepresentativeStructures as getRepr
 try:
     import networkx as nx
     NETWORK = True
 except ImportError:
     NETWORK = False
 
+try:
+    import multiprocessing as mp
+    PARALELLIZATION = True
+except ImportError:
+    PARALELLIZATION = False
 
-class Clusters:
+try:
+    from AdaptivePELE.freeEnergies import cluster as pyemma_cluster
+    from AdaptivePELE.freeEnergies.estimateDG import getCentersInfo
+    import pyemma.coordinates as coor
+    PYEMMA = True
+except ImportError:
+    PYEMMA = False
+
+
+class Clusters(object):
     def __init__(self):
         self.clusters = []
 
@@ -109,7 +125,7 @@ class Clusters:
             yield cluster
 
 
-class ConformationNetwork:
+class ConformationNetwork(object):
     """
         Object that contains the conformation network, a network with clusters as
         nodes and edges representing trantions between clusters. The network is
@@ -213,7 +229,7 @@ class ConformationNetwork:
         return pathway[::-1]
 
 
-class AltStructures:
+class AltStructures(object):
     """
         Helper class, each cluster will have an instance of AltStructures that
         will maintain a priority queue (pq) of alternative structures to spawn
@@ -338,7 +354,7 @@ class AltStructures:
         return len(self.altStructPQ)
 
 
-class Cluster:
+class Cluster(object):
     """
         A cluster contains a representative structure(pdb), the number of
         elements, its density, threshold, number of contacts,
@@ -495,7 +511,7 @@ class Cluster:
             :param path: Filename of the file to write
             :type path: str
         """
-        self.pdb.writePDB(str(path))
+        self.pdb.writePDB(path)
 
     def getContacts(self):
         """
@@ -511,16 +527,17 @@ class Cluster:
 
             :param path: Filename of the file to write
             :type path: str
+
             :returns int, int, int: Tuple of (epoch, trajectory, snapshot) that permit
                 identifying the structure added
         """
         if not self.altSelection or self.altStructure.sizePQ() == 0:
             print("cluster center")
-            self.pdb.writePDB(str(path))
+            self.pdb.writePDB(path)
             return self.trajPosition
         else:
             spawnStruct, trajPosition = self.altStructure.altSpawnSelection((self.elements, self.pdb))
-            spawnStruct.writePDB(str(path))
+            spawnStruct.writePDB(path)
             if trajPosition is None:
                 trajPosition = self.trajPosition
             return trajPosition
@@ -533,7 +550,7 @@ class Cluster:
              and np.allclose(self.metrics, other.metrics)
 
 
-class ClusteringEvaluator:
+class ClusteringEvaluator(object):
     def __init__(self):
         self.contactMap = None
         self.contacts = None
@@ -744,7 +761,7 @@ class CMClusteringEvaluator(ClusteringEvaluator):
         #      return 25
 
 
-class Clustering:
+class Clustering(object):
     def __init__(self, resname="", resnum=0, resChain="", reportBaseFilename=None,
                  columnOfReportFile=None, contactThresholdDistance=8,
                  altSelection=False):
@@ -843,6 +860,14 @@ class Clustering:
         for cluster in self.clusters.clusters:
             cluster.metricCol = col
 
+    def getClusterListForSpawning(self):
+        """
+            Return the clusters object to be used in the spawning
+
+            :returns: :py:class:`.Clusters` -- Container object for the clusters
+        """
+        return self.clusters
+
     def getCluster(self, clusterNum):
         """
             Get the cluster at index clusterNum
@@ -850,6 +875,9 @@ class Clustering:
             :returns: :py:class:`.Cluster` -- Cluster at clusterNum
         """
         return self.clusters.getCluster(clusterNum)
+
+    def setProcessors(self, processors):
+        pass
 
     def emptyClustering(self):
         """
@@ -884,31 +912,110 @@ class Clustering:
             and self.resChain == other.resChain\
             and self.col == other.col
 
-    def cluster(self, paths, ignoreFirstRow=False):
+    def filterClustersAccordingToBox(self, simulationRunnerParams):
+        """
+            Filter the clusters to select only the ones whose representative
+            structures will fit into the selected box
+
+            :param simulationRunnerParams: :py:class:`.SimulationParameters` Simulation parameters object
+            :type simulationRunnerParams: :py:class:`.SimulationParameters`
+
+            :returns list, list: -- list of the filtered clusters, list of bools flagging wether the cluster is selected or not
+
+        """
+        box_center = ast.literal_eval(simulationRunnerParams.boxCenter)
+        box_radius = simulationRunnerParams.boxRadius
+        clustersFiltered = []
+        clustersSelected = []
+        for cluster in self.clusters:
+            if utilities.distanceCOM(box_center, cluster.pdb.getCOM()) < (box_radius-1):
+                clustersFiltered.append(cluster)
+                clustersSelected.append(True)
+            else:
+                clustersSelected.append(False)
+        return clustersFiltered, clustersSelected
+
+    def filterClustersAccordingToMetric(self, clustersFiltered, filter_value, condition, col_filter):
+        """
+            Filter the clusters to select only the ones whose metric fits an
+            specific criterion
+
+            :param clustersFiltered: List of clusters to be processed
+            :type clustersFiltered: list
+            :param filter_value: Value to use in the filtering
+            :type filter_value: float
+            :param condition: Whether to use > or < condition in the filtering
+            :type condition: str
+            :param col_filter: Column of the report to use
+            :type col_filter: int
+
+            :returns list, list: -- list of the filtered clusters, list of bools flagging whether the cluster is selected or not
+
+        """
+        metrics = self.getMetricsFromColumn(col_filter)
+        if None in metrics:
+            raise utilities.RequiredParameterMissingException("Metrics not found in clusters and required for filtering!!")
+        if condition == blockNames.SpawningParams.minValue:
+            tmp_selection = metrics < filter_value
+        elif condition == blockNames.SpawningParams.maxValue:
+            tmp_selection = metrics > filter_value
+        selection = np.array(clustersFiltered) & tmp_selection
+        if not selection.any():
+            # if no clusters match the given filtering criteria, bussiness as
+            # usual
+            selection = clustersFiltered
+        return [cl for i, cl in enumerate(self.clusters) if selection[i]], selection
+
+    def getMetricsFromColumn(self, col):
+        """
+            Get the metric of the clusters
+
+            :param col: Column to select the metric
+            :type col: int
+
+            :returns: np.array -- Array containing the metric of the clusters
+        """
+        return np.array([cl.getMetricFromColumn(col) for cl in self.clusters])
+
+    def cluster(self, paths, ignoreFirstRow=False, topology=None, epoch=None, outputPathConstants=None):
         """
             Cluster the snaptshots contained in the paths folder
 
             :param paths: List of folders with the snapshots
             :type paths: list
+            :param ignoreFirstRow: Flag wether to ignore the first snapshot of a trajectory
+            :type ignoreFirstRow: bool
+            :param topology: Topology object containing the set of topologies needed for the simulation
+            :type topology: :py:class:`.Topology`
+            :param epoch: Epoch number
+            :type epoch: int
+            :param outputPathConstants: Contains outputPath-related constants
+            :type outputPathConstants: :py:class:`.OutputPathConstants`
         """
-        self.epoch += 1
+        if epoch is None:
+            self.epoch += 1
+        else:
+            self.epoch = epoch
         trajectories = getAllTrajectories(paths)
         for trajectory in trajectories:
             trajNum = utilities.getTrajNum(trajectory)
             # origCluster = processorsToClusterMapping[trajNum-1]
             origCluster = None
             snapshots = utilities.getSnapshots(trajectory, True)
-
+            if topology is not None:
+                top = topology.getTopology(epoch, trajNum)
+            else:
+                top = None
             if self.reportBaseFilename:
                 reportFilename = os.path.join(os.path.split(trajectory)[0],
                                               self.reportBaseFilename % trajNum)
-                metrics = np.loadtxt(reportFilename, ndmin=2)
+                metrics = loadReportFile(reportFilename)
 
                 for num, snapshot in enumerate(snapshots):
                     if ignoreFirstRow and num == 0:
                         continue
                     try:
-                        origCluster = self.addSnapshotToCluster(trajNum, snapshot, origCluster, num, metrics[num], self.col)
+                        origCluster = self.addSnapshotToCluster(trajNum, snapshot, origCluster, num, metrics[num], self.col, topology=top)
                     except IndexError as e:
                         message = (" in trajectory %d. This is usually caused by a mismatch between report files and trajectory files"
                                    " which in turn is usually caused by some problem in writing the files, e.g. quota")
@@ -920,7 +1027,7 @@ class Clustering:
                 for num, snapshot in enumerate(snapshots):
                     if ignoreFirstRow and num == 0:
                         continue
-                    origCluster = self.addSnapshotToCluster(trajNum, snapshot, origCluster, num)
+                    origCluster = self.addSnapshotToCluster(trajNum, snapshot, origCluster, num, topology=top)
         for cluster in self.clusters.clusters:
             cluster.altStructure.cleanPQ()
 
@@ -970,10 +1077,9 @@ class Clustering:
                                                                 metric)
                 summaryFile.write(writeString)
 
-        with open(outputObject, 'wb') as f:
-            pickle.dump(self, f, 2)
+        utilities.writeObject(outputObject, self, protocol=2)
 
-    def addSnapshotToCluster(self, trajNum, snapshot, origCluster, snapshotNum, metrics=None, col=None):
+    def addSnapshotToCluster(self, trajNum, snapshot, origCluster, snapshotNum, metrics=None, col=None, topology=None):
         """
             Cluster a snapshot using the leader algorithm
 
@@ -990,11 +1096,13 @@ class Clustering:
             :param col: Column of the desired metrics
             :type col: int
             :returns: int -- Cluster to which the snapshot belongs
+            :param topology: Topology for non-pdb trajectories
+            :type topology: list
         """
         if metrics is None:
             metrics = []
         pdb = atomset.PDB()
-        pdb.initialise(snapshot, resname=self.resname, resnum=self.resnum, chain=self.resChain)
+        pdb.initialise(snapshot, resname=self.resname, resnum=self.resnum, chain=self.resChain, topology=topology)
         self.clusteringEvaluator.cleanContactMap()
         for clusterNum, cluster in enumerate(self.clusters.clusters):
             scd = atomset.computeSquaredCentroidDifference(cluster.pdb, pdb)
@@ -1120,8 +1228,8 @@ class Clustering:
             pathwayFile.write("REMARK 000 List of cluster belonging to the pathway %s\n" % ' '.join(map(str, pathway)))
             for i, step_cluster in enumerate(pathway):
                 cluster = self.clusters.clusters[step_cluster]
-                pathwayFile.write("MODEL %d\n" % (i+1))
-                pdbStr = cluster.pdb.pdb
+                pathwayFile.write("MODEL    %4d\n" % (i+1))
+                pdbStr = cluster.pdb.get_pdb_string()
                 pdbList = pdbStr.split("\n")
                 for line in pdbList:
                     line = line.strip()
@@ -1316,12 +1424,28 @@ class SequentialLastSnapshotClustering(Clustering):
         Assigned  the last snapshot of the trajectory to a cluster.
         Only useful for PELE sequential runs
     """
-    def cluster(self, paths):
+    def __init__(self, resname="", resnum=0, resChain="", reportBaseFilename=None,
+                 columnOfReportFile=None, contactThresholdDistance=8,
+                 altSelection=False):
+        Clustering.__init__(self, resname=resname, resnum=resnum, resChain=resChain,
+                            reportBaseFilename=reportBaseFilename,
+                            columnOfReportFile=columnOfReportFile,
+                            contactThresholdDistance=contactThresholdDistance,
+                            altSelection=altSelection)
+        self.type = clusteringTypes.CLUSTERING_TYPES.lastSnapshot
+
+    def cluster(self, paths, topology=None, epoch=None, outputPathConstants=None):
         """
             Cluster the snaptshots contained in the paths folder
 
             :param paths: List of folders with the snapshots
             :type paths: list
+            :param topology: Topology object containing the set of topologies needed for the simulation
+            :type topology: :py:class:`.Topology`
+            :param epoch: Epoch number
+            :type epoch: int
+            :param outputPathConstants: Contains outputPath-related constants
+            :type outputPathConstants: :py:class:`.OutputPathConstants`
         """
         # Clean clusters at every step, so we only have the last snapshot of
         # each trajectory as clusters
@@ -1329,22 +1453,25 @@ class SequentialLastSnapshotClustering(Clustering):
         trajectories = getAllTrajectories(paths)
         for trajectory in trajectories:
             trajNum = utilities.getTrajNum(trajectory)
-
             snapshots = utilities.getSnapshots(trajectory, True)
+            if topology is not None:
+                top = topology.getTopology(epoch, trajNum)
+            else:
+                top = None
             if self.reportBaseFilename:
                 reportFilename = os.path.join(os.path.split(trajectory)[0],
                                               self.reportBaseFilename % trajNum)
-                metrics = np.loadtxt(reportFilename, ndmin=2)
+                metrics = loadReportFile(reportFilename)
                 # Pass as cluster metrics the minimum value for each metric,
                 # thus the metrics are not valid to do any spawning, only to
                 # check the exit condition
                 metrics = metrics.min(axis=0)
 
-                self.addSnapshotToCluster(snapshots[-1], metrics, self.col)
+                self.addSnapshotToCluster(snapshots[-1], metrics, self.col, topology=top)
             else:
-                self.addSnapshotToCluster(snapshots[-1])
+                self.addSnapshotToCluster(snapshots[-1], topology=top)
 
-    def addSnapshotToCluster(self, snapshot, metrics=None, col=None):
+    def addSnapshotToCluster(self, snapshot, metrics=None, col=None, topology=None):
         """
             Cluster a snapshot using the leader algorithm
 
@@ -1357,12 +1484,14 @@ class SequentialLastSnapshotClustering(Clustering):
             :param col: Column of the desired metrics
             :type col: int
             :returns: int -- Cluster to which the snapshot belongs
+            :param topology: Topology for non-pdb trajectories
+            :type topology: list
         """
         if metrics is None:
             metrics = []
         pdb = atomset.PDB()
         pdb.initialise(snapshot, resname=self.resname, resnum=self.resnum,
-                       chain=self.resChain)
+                       chain=self.resChain, topology=topology)
         contacts = pdb.countContacts(self.resname, self.contactThresholdDistance, self.resnum, self.resChain)
         numberOfLigandAtoms = pdb.getNumberOfAtoms()
         contactsPerAtom = contacts/numberOfLigandAtoms
@@ -1373,7 +1502,337 @@ class SequentialLastSnapshotClustering(Clustering):
         self.clusters.addCluster(cluster)
 
 
-class ClusteringBuilder:
+class NullClustering(Clustering):
+    """
+        Don't generate any clustering, works essentially as a placeholder
+        for simulation when no clustering is desired
+    """
+    def __init__(self):
+        Clustering.__init__(self)
+        self.type = clusteringTypes.CLUSTERING_TYPES.null
+
+    def cluster(self, paths, topology=None, epoch=None, outputPathConstants=None):
+        """
+            Cluster the snaptshots contained in the paths folder
+
+            :param paths: List of folders with the snapshots
+            :type paths: list
+            :param topology: Topology object containing the set of topologies needed for the simulation
+            :type topology: :py:class:`.Topology`
+            :param epoch: Epoch number
+            :type epoch: int
+            :param outputPathConstants: Contains outputPath-related constants
+            :type outputPathConstants: :py:class:`.OutputPathConstants`
+        """
+        pass
+
+    def writeOutput(self, outputPath, degeneracy, outputObject, writeAll):
+        """
+            Writes all the clustering information in outputPath
+
+            :param outputPath: Folder that will contain all the clustering information
+            :type outputPath: str
+            :param degeneracy: Degeneracy of each cluster. It must be in the same order
+                as in the self.clusters list
+            :type degeneracy: list
+            :param outputObject: Output name for the pickle object
+            :type outputObject: str
+            :param writeAll: Wether to write pdb files for all cluster in addition
+                of the summary
+            :type writeAll: bool
+        """
+        utilities.cleanup(outputPath)
+        utilities.makeFolder(outputPath)
+
+        summaryFilename = os.path.join(outputPath, "summary.txt")
+        with open(summaryFilename, 'w') as summaryFile:
+            summaryFile.write("#cluster size degeneracy contacts threshold density metric\n")
+            summaryFile.write("Using null clustering, no clusters available\n")
+
+        utilities.writeObject(outputObject, self, protocol=2)
+
+
+class MSMClustering(Clustering):
+    """
+        Cluster the trajectories to estimate a Markov State Model (MSM)
+    """
+    def __init__(self, n_clusters, tica=False, resname="", resnum=0, resChain="", symmetries=None, atom_Ids="", writeCA=False, sidechains=False, tica_lagtime=10, tica_nICs=3, tica_kinetic_map=True, tica_commute_map=False):
+        if not PYEMMA:
+            raise utilities.UnsatisfiedDependencyException("No installation of PyEMMA found. Please, install PyEMMA to use MSMClustering option.")
+        Clustering.__init__(self, resname=resname, resnum=resnum, resChain=resChain)
+        self.type = clusteringTypes.CLUSTERING_TYPES.MSMClustering
+        self.nprocessors = None
+        self.n_clusters = n_clusters
+        self.tica = tica
+        self.constantsExtract = coord.Constants()
+        self.indexes = None
+        self.atom_Ids = atom_Ids
+        self.writeCA = writeCA
+        self.sidechains = sidechains
+        self.tica_lagtime = tica_lagtime
+        self.tica_nICs = tica_nICs
+        self.tica_kinetic_map = tica_kinetic_map
+        self.tica_commute_map = tica_commute_map
+        self.pyemma_clustering = None
+        self.extract_params = coord.ParamsHandler("", self.atom_Ids, self.resname, 0, False, False, 0, self.writeCA, True, self.nprocessors, False, "", self.sidechains, "", False, False, "", False, False)
+
+    def __getstate__(self):
+        # Defining pickling interface to avoid problems when working with old
+        # simulations if the properties of the clustering-related classes have
+        # changed
+        state = {"type": self.type, "clusters": self.clusters,
+                 "reportBaseFilename": self.reportBaseFilename,
+                 "resname": self.resname, "resnum": self.resnum,
+                 "resChain": self.resChain, "col": self.col,
+                 "epoch": self.epoch, "symmetries": self.symmetries,
+                 "nprocessors": self.nprocessors, "n_clusters": self.n_clusters,
+                 "tica": self.tica, "constantsExtract": self.constantsExtract,
+                 "indexes": self.indexes, "atom_Ids": self.atom_Ids,
+                 "writeCA": self.writeCA, "sidechains": self.sidechains,
+                 "tica_lagtime": self.tica_lagtime, "tica_nICs": self.tica_nICs,
+                 "tica_kinetic_map": self.tica_kinetic_map,
+                 "tica_commute_map": self.tica_commute_map,
+                 "pyemma_clustering": self.pyemma_clustering}
+        return state
+
+    def __setstate__(self, state):
+        # Restore instance attributes
+        self.type = state['type']
+        self.clusters = state['clusters']
+        self.reportBaseFilename = state.get('reportBaseFilename')
+        self.resname = state.get('resname', "")
+        self.resnum = state.get('resnum', 0)
+        self.resChain = state.get('resChain', "")
+        self.col = state.get('col')
+        self.epoch = state.get('epoch', -1)
+        self.symmetries = state.get('symmetries', [])
+        if isinstance(self.symmetries, dict):
+            self.symmetries = [self.symmetries]
+        self.nprocessors = state.get('nprocessors')
+        self.n_clusters = state['n_clusters']
+        self.tica = state.get('tica', False)
+        self.constantsExtract = state.get('constantsExtract', coord.Constants())
+        self.indexes = state.get('indexes')
+        self.atom_Ids = state.get('atom_Ids', "")
+        self.writeCA = state.get('writeCA', False)
+        self.sidechains = state.get('sidechains', False)
+        self.tica_lagtime = state.get('tica_lagtime', 10)
+        self.tica_nICs = state.get('tica_nICs', 3)
+        self.tica_kinetic_map = state.get('tica_kinetic_map', True)
+        self.tica_commute_map = state.get('tica_commute_map', False)
+        self.pyemma_clustering = state.get('pyemma_clustering')
+
+    def getClusterListForSpawning(self):
+        """
+            Return the clusters object to be used in the spawning
+
+            :returns: :py:class:`.Clusters` -- Container object for the clusters
+        """
+        return self.pyemma_clustering
+
+    def setProcessors(self, processors):
+        self.nprocessors = processors
+
+    def cluster(self, paths, topology=None, epoch=None, outputPathConstants=None):
+        """
+            Cluster the snaptshots contained in the paths folder
+
+            :param paths: List of folders with the snapshots
+            :type paths: list
+            :param topology: Topology object containing the set of topologies needed for the simulation
+            :type topology: :py:class:`.Topology`
+            :param epoch: Epoch number
+            :type epoch: int
+            :param outputPathConstants: Contains outputPath-related constants
+            :type outputPathConstants: :py:class:`.OutputPathConstants`
+        """
+        if epoch is None:
+            epoch = self.epoch + 1
+        # clean clusters from previous iteration
+        self.emptyClustering()
+        # when cleaning the clusters, the epoch attribute is reset
+        self.epoch = epoch
+
+        utilities.makeFolder(outputPathConstants.allTrajsPath)
+        utilities.makeFolder(os.path.join(outputPathConstants.allTrajsPath, "extractedCoordinates"))
+        extractedFolder = self.constantsExtract.extractedTrajectoryFolder % outputPathConstants.epochOutputPathTempletized % self.epoch
+        self.constantsExtract.gatherTrajsFilename = os.path.join(outputPathConstants.allTrajsPath, "traj_%s_%s.dat")
+        self.constantsExtract.gatherNonRepeatedTrajsFilename = os.path.join(outputPathConstants.allTrajsPath, "extractedCoordinates", "traj_%s_%s.dat")
+        utilities.makeFolder(extractedFolder)
+        trajectories = getAllTrajectories(paths)
+        self.extract_params.sidechain_folder = paths[0]
+        self.extract_params.topology = topology
+        # extract coordinates
+        if PARALELLIZATION and self.nprocessors is not None:
+            pool = mp.Pool(self.nprocessors)
+            self.extract_params.parallelize = True
+        else:
+            self.extract_params.parallelize = False
+            pool = None
+        if self.sidechains:
+            new_sidechains = coord.extractSidechainIndexes(self.extract_params, pool=pool)
+            self.sidechains = list(set(self.sidechains).intersection(set(new_sidechains)))
+        else:
+            self.sidechains = []
+        if self.indexes is None:
+            if utilities.getFileExtension(trajectories[0]) in coord.MDTRAJ_FORMATS:
+                self.indexes = []
+                # select indexes for all topologies
+                for top in topology.topologyFilesIterator():
+                    self.indexes.append(coord.extractIndexesTopology(top, self.resname, self.atom_Ids, self.writeCA, self.sidechains))
+            else:
+                self.indexes = []
+
+        workers = []
+        for filename in trajectories:
+            trajNum = utilities.getTrajNum(filename)
+            if self.indexes:
+                indexes_traj = self.indexes[topology.getTopologyIndex(self.epoch, trajNum)]
+            else:
+                indexes_traj = self.indexes
+            if topology is not None:
+                topology_traj = topology.getTopologyFile(self.epoch, trajNum)
+            else:
+                topology_traj = None
+            if pool is None:
+                # serial version
+                coord.writeFilenameExtractedCoordinates(filename, self.extract_params, outputPathConstants.epochOutputPathTempletized % self.epoch, self.constantsExtract, topology=topology_traj, indexes=indexes_traj)
+            else:
+                # multiprocessor version
+                workers.append(pool.apply_async(coord.writeFilenameExtractedCoordinates, args=(filename, self.extract_params, outputPathConstants.epochOutputPathTempletized % self.epoch, self.constantsExtract, topology_traj, indexes_traj)))
+        for w in workers:
+            w.get()
+        coord.gatherTrajs(self.constantsExtract, outputPathConstants.epochOutputPathTempletized % self.epoch, self.epoch, self.extract_params.non_Repeat, self.epoch)
+        # apply tica
+        if self.tica:
+            trajectories = []
+            trajs = glob.glob(os.path.join(outputPathConstants.allTrajsPath, self.constantsExtract.baseExtractedTrajectoryName+"*"))
+            for trajectory in trajs:
+                if "tica" in trajectory:
+                    continue
+                trajectories.append(utilities.loadtxtfile(trajectory))
+            tica = coor.tica(data=trajectories, lag=self.tica_lagtime, kinetic_map=self.tica_kinetic_map, commute_map=self.tica_commute_map)
+            projected = tica.get_output(dimensions=range(self.tica_nICs))
+            for traj_name, projected_traj in zip(trajs, projected):
+                auxArr = np.array(range(len(projected_traj)))
+                np.savetxt("tica_%s" % traj_name, np.hstack(auxArr.reshape(-1, 1), projected_traj))
+            base_traj_names = "tica_%s" % self.constantsExtract.baseGatheredFilename
+        else:
+            base_traj_names = self.constantsExtract.baseGatheredFilename
+
+        # cluster the coordinates
+        self.pyemma_clustering = pyemma_cluster.Cluster(self.n_clusters, outputPathConstants.allTrajsPath, base_traj_names, discretizedPath=os.path.join(outputPathConstants.allTrajsPath, "discretized"))
+        self.pyemma_clustering.cleanDiscretizedFolder()
+        self.pyemma_clustering.clusterTrajectories()
+
+        # create Adaptive clusters from the kmeans result
+        trajectory_files = glob.glob(os.path.join(outputPathConstants.allTrajsPath, base_traj_names))
+        trajectories = [utilities.loadtxtfile(f)[:, 1:] for f in trajectory_files]
+
+        centersInfo = getCentersInfo(self.pyemma_clustering.clusterCenters, trajectories, trajectory_files, self.pyemma_clustering.dtrajs)
+        centersInfo_processed = []
+        for cluster in centersInfo:
+            epoch_num, traj_num, snapshot_num = centersInfo[cluster]["structure"]
+            centersInfo_processed.append([cluster, int(epoch_num), int(traj_num), int(snapshot_num)])
+        extractInfo = getRepr.getExtractInfo(centersInfo_processed)
+        # extractInfo is a dictionary organized as {[epoch, traj]: [cluster, snapshot]}
+
+        # assign cluster dummies so that then clusters can be assigned in proper
+        # order
+        for _ in range(self.n_clusters):
+            self.clusters.addCluster(Cluster(""))
+        structureFolder = os.path.join(outputPathConstants.epochOutputPathTempletized, "*traj*_%d.*")
+        for trajFile, extraInfo in extractInfo.items():
+            try:
+                pdbFile = glob.glob(structureFolder % trajFile)[0]
+            except IndexError:
+                raise ValueError("Structure %s not found" % (structureFolder % trajFile))
+            try:
+                snapshots = utilities.getSnapshots(pdbFile)
+            except IOError:
+                raise IOError("Unable to open %s, please check that the path to structures provided is correct" % pdbFile)
+            for pair in extraInfo:
+                pdb = atomset.PDB()
+                if topology is not None:
+                    top_traj = topology.getTopology(*trajFile)
+                else:
+                    top_traj = None
+                pdb.initialise(snapshots[pair[1]], resname=self.resname, topology=top_traj)
+                cluster = Cluster(pdb, trajPosition=(trajFile[0], trajFile[1], pair[1]))
+                self.clusters[pair[0]] = cluster
+
+    def writeOutput(self, outputPath, degeneracy, outputObject, writeAll):
+        """
+            Writes all the clustering information in outputPath
+
+            :param outputPath: Folder that will contain all the clustering information
+            :type outputPath: str
+            :param degeneracy: Degeneracy of each cluster. It must be in the same order
+                as in the self.clusters list
+            :type degeneracy: list
+            :param outputObject: Output name for the pickle object
+            :type outputObject: str
+            :param writeAll: Wether to write pdb files for all cluster in addition
+                of the summary
+            :type writeAll: bool
+        """
+        utilities.cleanup(outputPath)
+        utilities.makeFolder(outputPath)
+
+        summaryFilename = os.path.join(outputPath, "summary.txt")
+        with open(summaryFilename, 'w') as summaryFile:
+            summaryFile.write("#cluster degeneracy epoch trajectory snapshot cluster center\n")
+
+            for i, cluster in enumerate(self.clusters.clusters):
+                if writeAll:
+                    outputFilename = "cluster_%d.pdb" % i
+                    outputFilename = os.path.join(outputPath, outputFilename)
+                    cluster.writePDB(outputFilename)
+
+                degeneracy_cluster = 0
+                if degeneracy is not None:
+                    # degeneracy will be None if null spawning is used
+                    degeneracy_cluster = degeneracy[i]
+                center_str = " ".join(["%.3f" for _ in self.pyemma_clustering.clusterCenters[i]])
+                writeString = "%d %d %d %d %d %s\n" % ((i, degeneracy_cluster) + cluster.trajPosition + (center_str % tuple(self.pyemma_clustering.clusterCenters[i]),))
+                summaryFile.write(writeString)
+
+        utilities.writeObject(outputObject, self, protocol=2)
+
+    def filterClustersAccordingToBox(self, simulationRunnerParams):
+        """
+            Filter the clusters to select only the ones whose representative
+            structures will fit into the selected box
+
+            :param simulationRunnerParams: :py:class:`.SimulationParameters` Simulation parameters object
+            :type simulationRunnerParams: :py:class:`.SimulationParameters`
+
+            :returns list, list: -- list of the filtered clusters, list of bools flagging wether the cluster is selected or not
+
+        """
+        pass
+
+    def filterClustersAccordingToMetric(self, clustersFiltered, filter_value, condition, col_filter):
+        """
+            Filter the clusters to select only the ones whose metric fits an
+            specific criterion
+
+            :param clustersFiltered: List of clusters to be processed
+            :type clustersFiltered: list
+            :param filter_value: Value to use in the filtering
+            :type filter_value: float
+            :param condition: Whether to use > or < condition in the filtering
+            :type condition: str
+            :param col_filter: Column of the report to use
+            :type col_filter: int
+
+            :returns list, list: -- list of the filtered clusters, list of bools flagging whether the cluster is selected or not
+
+        """
+        pass
+
+
+class ClusteringBuilder(object):
     def buildClustering(self, clusteringBlock, reportBaseFilename=None, columnOfReportFile=None):
         """
             Builder to create the appropiate clustering object
@@ -1391,11 +1850,11 @@ class ClusteringBuilder:
         paramsBlock = clusteringBlock[blockNames.ClusteringTypes.params]
         try:
             clusteringType = clusteringBlock[blockNames.ClusteringTypes.type]
-            contactThresholdDistance = paramsBlock.get(blockNames.ClusteringTypes.contactThresholdDistance, 8)
-            altSelection = paramsBlock.get(blockNames.ClusteringTypes.alternativeStructure, False)
         except KeyError as err:
             err.message += ": Need to provide mandatory parameter in clustering block"
             raise KeyError(err.message)
+        contactThresholdDistance = paramsBlock.get(blockNames.ClusteringTypes.contactThresholdDistance, 8)
+        altSelection = paramsBlock.get(blockNames.ClusteringTypes.alternativeStructure, False)
         resname = str(paramsBlock.get(blockNames.ClusteringTypes.ligandResname, "")).upper()
         resnum = int(paramsBlock.get(blockNames.ClusteringTypes.ligandResnum, 0))
         resChain = str(paramsBlock.get(blockNames.ClusteringTypes.ligandChain, "")).upper()
@@ -1428,12 +1887,26 @@ class ClusteringBuilder:
                                                     resnum=resnum, resChain=resChain,
                                                     reportBaseFilename=reportBaseFilename, columnOfReportFile=columnOfReportFile,
                                                     contactThresholdDistance=contactThresholdDistance, symmetries=symmetries, altSelection=altSelection)
+        elif clusteringType == blockNames.ClusteringTypes.null:
+            return NullClustering()
+        elif clusteringType == blockNames.ClusteringTypes.MSMClustering:
+            n_clusters = paramsBlock[blockNames.ClusteringTypes.nclusters]
+            symmetries = paramsBlock.get(blockNames.ClusteringTypes.symmetries, [])
+            tica = paramsBlock.get(blockNames.ClusteringTypes.tica, False)
+            atom_Ids = paramsBlock.get(blockNames.ClusteringTypes.atom_Ids, "")
+            writeCA = paramsBlock.get(blockNames.ClusteringTypes.writeCA, False)
+            sidechains = paramsBlock.get(blockNames.ClusteringTypes.sidechains, False)
+            tica_lagtime = paramsBlock.get(blockNames.ClusteringTypes.tica_lagtime, 10)
+            tica_nICs = paramsBlock.get(blockNames.ClusteringTypes.tica_nICs, 3)
+            tica_kinetic_map = paramsBlock.get(blockNames.ClusteringTypes.tica_kinetic_map, True)
+            tica_commute_map = paramsBlock.get(blockNames.ClusteringTypes.tica_commute_map, False)
+            return MSMClustering(n_clusters, tica, resname, resnum, resChain, symmetries, atom_Ids, writeCA, sidechains, tica_lagtime, tica_nICs, tica_kinetic_map, tica_commute_map)
         else:
             sys.exit("Unknown clustering method! Choices are: " +
                      str(clusteringTypes.CLUSTERING_TYPE_TO_STRING_DICTIONARY.values()))
 
 
-class similarityEvaluatorBuilder:
+class similarityEvaluatorBuilder(object):
     def build(self, similarityEvaluatorType):
         """
             Builder to create the appropiate similarityEvaluator
@@ -1448,7 +1921,7 @@ class similarityEvaluatorBuilder:
             sys.exit("Unknown threshold calculator type! Choices are: " + str(clusteringTypes.SIMILARITY_TYPES_TO_STRING_DICTIONARY.values()))
 
 
-class CMSimilarityEvaluator:
+class CMSimilarityEvaluator(object):
     """
         Evaluate the similarity of two contactMaps by calculating the ratio of
         the number of differences over the average of elements in the contacts
@@ -1495,3 +1968,39 @@ def getAllTrajectories(paths):
     # sort the files obtained by glob by name, so that the results will be the
     # same on all computers
     return sorted(files)
+
+
+def filterRepeatedReports(metrics, column=2):
+    """
+        Filter the matrix containing the report information to avoid rejected
+        steps
+
+        :param metrics: Contents of the report file
+        :type metrics: np.ndarray
+        :param column: Column to check for repeats
+        :type column: int
+        :returns: np.ndarray -- Contents of the report file filtered
+    """
+    new_metrics = []
+    accepted_steps = set()
+    for row in metrics:
+        if row[2] in accepted_steps:
+            continue
+        else:
+            accepted_steps.add(row[2])
+            new_metrics.append(row.tolist())
+    return np.array(new_metrics)
+
+
+def loadReportFile(reportFile):
+    """
+        Load a report file and filter it
+
+        :param reportFile: Name of the report file
+        :type reportFile: str
+        :returns: np.ndarray -- Contents of the report file
+    """
+    metrics = np.genfromtxt(reportFile, missing_values="--", filling_values=0)
+    if len(metrics.shape) < 2:
+        metrics = metrics[np.newaxis, :]
+    return filterRepeatedReports(metrics)

@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                v1.4.2
+                v1.6
               </div>
             
           
@@ -86,8 +86,9 @@
             
                 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../Examples.html">User Manual</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../Changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Problems.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../AdaptivePELE.html">AdaptivePELE – Package Description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Changelog.html">Changelog</a></li>
 </ul>
 
             
@@ -206,7 +207,7 @@
 <div class="viewcode-block" id="DensityCalculatorHeaviside"><a class="viewcode-back" href="../../../AdaptivePELE.spawning.html#AdaptivePELE.spawning.densitycalculator.DensityCalculatorHeaviside">[docs]</a><span class="k">class</span> <span class="nc">DensityCalculatorHeaviside</span><span class="p">(</span><span class="n">DensityCalculator</span><span class="p">):</span>
     <span class="c1"># Mostly duplicated code with threshold calculator</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conditions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">DensityCalculator</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">DensityCalculator</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">densitycalculatortypes</span><span class="o">.</span><span class="n">DENSITY_CALCULATOR_TYPES</span><span class="o">.</span><span class="n">heaviside</span>
         <span class="k">if</span> <span class="n">conditions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">conditions</span> <span class="o">=</span> <span class="p">[]</span>
@@ -243,7 +244,7 @@
 
 <div class="viewcode-block" id="NullDensityCalculator"><a class="viewcode-back" href="../../../AdaptivePELE.spawning.html#AdaptivePELE.spawning.densitycalculator.NullDensityCalculator">[docs]</a><span class="k">class</span> <span class="nc">NullDensityCalculator</span><span class="p">(</span><span class="n">DensityCalculator</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">DensityCalculator</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">DensityCalculator</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">densitycalculatortypes</span><span class="o">.</span><span class="n">DENSITY_CALCULATOR_TYPES</span><span class="o">.</span><span class="n">null</span>
 
 <div class="viewcode-block" id="NullDensityCalculator.calculate"><a class="viewcode-back" href="../../../AdaptivePELE.spawning.html#AdaptivePELE.spawning.densitycalculator.NullDensityCalculator.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contacts</span><span class="p">,</span> <span class="n">contactThreshold</span><span class="p">):</span>
@@ -263,7 +264,7 @@
 
 <div class="viewcode-block" id="ContinuousDensityCalculator"><a class="viewcode-back" href="../../../AdaptivePELE.spawning.html#AdaptivePELE.spawning.densitycalculator.ContinuousDensityCalculator">[docs]</a><span class="k">class</span> <span class="nc">ContinuousDensityCalculator</span><span class="p">(</span><span class="n">DensityCalculator</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">DensityCalculator</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">DensityCalculator</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">densitycalculatortypes</span><span class="o">.</span><span class="n">DENSITY_CALCULATOR_TYPES</span><span class="o">.</span><span class="n">continuous</span>
 
 <div class="viewcode-block" id="ContinuousDensityCalculator.calculate"><a class="viewcode-back" href="../../../AdaptivePELE.spawning.html#AdaptivePELE.spawning.densitycalculator.ContinuousDensityCalculator.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contacts</span><span class="p">,</span> <span class="n">contactThreshold</span><span class="p">):</span>
@@ -282,7 +283,7 @@
 
 <div class="viewcode-block" id="ExitContinousDensityCalculator"><a class="viewcode-back" href="../../../AdaptivePELE.spawning.html#AdaptivePELE.spawning.densitycalculator.ExitContinousDensityCalculator">[docs]</a><span class="k">class</span> <span class="nc">ExitContinousDensityCalculator</span><span class="p">(</span><span class="n">DensityCalculator</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">DensityCalculator</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">DensityCalculator</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">densitycalculatortypes</span><span class="o">.</span><span class="n">DENSITY_CALCULATOR_TYPES</span><span class="o">.</span><span class="n">exitContinous</span>
 
 <div class="viewcode-block" id="ExitContinousDensityCalculator.calculate"><a class="viewcode-back" href="../../../AdaptivePELE.spawning.html#AdaptivePELE.spawning.densitycalculator.ExitContinousDensityCalculator.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contacts</span><span class="p">,</span> <span class="n">contactThreshold</span><span class="p">):</span>

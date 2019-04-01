@@ -6,10 +6,11 @@ import shutil
 import glob
 import sys
 import matplotlib.pyplot as plt
-from AdaptivePELE.freeEnergies import checkDetailedBalance
+from AdaptivePELE.utilities import utilities
+from AdaptivePELE.freeEnergies import cluster
 from AdaptivePELE.freeEnergies import ownBuildMSM
 from AdaptivePELE.freeEnergies import computeDeltaG
-from AdaptivePELE.freeEnergies import cluster
+from AdaptivePELE.freeEnergies import checkDetailedBalance
 
 
 class Parameters:
@@ -118,11 +119,13 @@ def copyWorkingTrajectories(fileWildcard, length=None, ntrajs=None, bootstrap=Tr
     for i, trajFile in enumerate(trajFiles):
         dst = __getDstName(bootstrap, i, trajFile)
         writenFiles.append(dst)
-        traj = np.loadtxt(trajFile)
+        traj = utilities.loadtxtfile(trajFile)
         if length is None:
-            length = -2  # so that later eveything is copied
+            traj_len = len(traj)  # so that later eveything is copied
+        else:
+            traj_len = length
         try:
-            trimmedTraj = traj[skipFirstSteps:length+1, :]
+            trimmedTraj = traj[skipFirstSteps:traj_len+1, :]
             if len(trimmedTraj) > 0:
                 np.savetxt(dst, trimmedTraj, fmt=b"%.4f", delimiter="\t")
         except:
@@ -186,23 +189,29 @@ def __getMeanAndStdFromList(l, accessFunction=lambda x: x):
     return np.mean(values), np.std(values)
 
 
-def getRepresentativePDBs(filesWildcard, run):
-    files = glob.glob(filesWildcard)
-    trajs = [np.loadtxt(f)[:, 1:] for f in files]
-    cl = cluster.Cluster(0, "", "")
-    cl.clusterCenters = np.loadtxt(cl.clusterCentersFile)
-    dtrajs = cl.assignNewTrajectories(trajs)
-    numClusters = cl.clusterCenters.shape[0]
+def getCentersInfo(clusterCenters, trajs, files, dtrajs):
+    numClusters = clusterCenters.shape[0]
     centersInfo = {x: {"structure": None, "minDist": 1e6} for x in range(numClusters)}
     for i, traj in enumerate(trajs):
         traj_name = files[i]
-        _, epochNum, trajNum = os.path.splitext(traj_name)[0].split("_", 2)
+        _, epochNum, trajNum = os.path.splitext(traj_name)[0].rsplit("_", 2)
         for nSnap, snapshot in enumerate(traj):
             clusterInd = dtrajs[i][nSnap]
-            dist = np.linalg.norm(cl.clusterCenters[clusterInd]-snapshot)
+            dist = np.linalg.norm(clusterCenters[clusterInd]-snapshot)
             if dist < centersInfo[clusterInd]['minDist']:
                 centersInfo[clusterInd]["minDist"] = dist
                 centersInfo[clusterInd]["structure"] = (epochNum, trajNum, str(nSnap))
+    return centersInfo
+
+
+def getRepresentativePDBs(filesWildcard, run):
+    files = glob.glob(filesWildcard)
+    trajs = [utilities.loadtxtfile(f)[:, 1:] for f in files]
+    cl = cluster.Cluster(0, "", "")
+    cl.clusterCenters = utilities.loadtxtfile(cl.clusterCentersFile)
+    dtrajs = cl.assignNewTrajectories(trajs)
+    numClusters = cl.clusterCenters.shape[0]
+    centersInfo = getCentersInfo(cl.clusterCenters, trajs, files, dtrajs)
 
     if not os.path.exists("representative_structures"):
         os.makedirs("representative_structures")

@@ -6,7 +6,7 @@ from AdaptivePELE.clustering import thresholdcalculatortypes
 from abc import abstractmethod
 
 
-class ThresholdCalculatorBuilder():
+class ThresholdCalculatorBuilder(object):
     def build(self, clusteringBlock):
         """
             Bulid the selecte thresholdCaulcualtor object
@@ -47,7 +47,7 @@ class ThresholdCalculatorBuilder():
             sys.exit("Unknown threshold calculator type! Choices are: " + str(thresholdcalculatortypes.THRESHOLD_CALCULATOR_TYPE_TO_STRING_DICTIONARY.values()))
 
 
-class ThresholdCalculator():
+class ThresholdCalculator(object):
     def __init__(self):
         self.type = "BaseClass"  # change for abstract attribute
 

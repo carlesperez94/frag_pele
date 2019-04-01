@@ -1,8 +1,9 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import argparse
 import sys
-from AdaptivePELE.atomset import atomset, SymmetryContactMapEvaluator
+from AdaptivePELE.atomset import SymmetryContactMapEvaluator
 from AdaptivePELE.utilities import utilities
+from AdaptivePELE.analysis import histCM
 import numpy as np
 import itertools
 try:
@@ -19,25 +20,13 @@ def parseArguments():
     parser.add_argument("-trajectory", type=str, nargs='+', help="Path to the trajectory or pdbs to analyse")
     parser.add_argument("-clustering", help="Path to the clustering object to analyse")
     parser.add_argument("-nRes", type=int, default=10, help="Number of top residues to display")
+    parser.add_argument("--top", type=str, default=None, help="Topology file needed for non-pdb trajectories")
     args = parser.parse_args()
-    return args.trajectory, args.clustering, args.nRes, args.resname, args.contactThreshold
-
-
-def generateConformations(resname, clAcc, trajectory):
-    if clAcc is None:
-        for traj in trajectory:
-            snapshots = utilities.getSnapshots(traj)
-            for snapshot in snapshots:
-                PDBobj = atomset.PDB()
-                PDBobj.initialise(snapshot, resname)
-                yield PDBobj
-    else:
-        for cluster in clAcc.clusters.clusters:
-            yield cluster.pdb
+    return args.trajectory, args.clustering, args.nRes, args.resname, args.contactThreshold, args.top
 
 
 if __name__ == "__main__":
-    trajectory, clustering, nRes, resname, contactThreshold = parseArguments()
+    trajectory, clustering, nRes, resname, contactThreshold, top = parseArguments()
 
     if clustering is None:
         clAcc = None
@@ -49,7 +38,7 @@ if __name__ == "__main__":
     network = nx.Graph()
     sys.stderr.write("Creating network...\n")
 
-    for pdb in generateConformations(resname, clAcc, trajectory):
+    for pdb in histCM.generateConformations(resname, clAcc, trajectory, top):
         contactMap, foo = symEval.createContactMap(pdb, resname, contactThreshold)
         if refPDB is None:
             refPDB = pdb

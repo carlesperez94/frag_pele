@@ -2,23 +2,184 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from builtins import range
 from six import reraise as raise_
 import os
+import ast
 import sys
+import socket
 import shutil
-import numpy as np
+import glob
 import string
 import json
+import errno
 from scipy import linalg
+import numpy as np
+import mdtraj as md
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
-from AdaptivePELE.atomset import RMSDCalculator
+from AdaptivePELE.atomset import RMSDCalculator, atomset
 from AdaptivePELE.freeEnergies import utils
-import AdaptivePELE.atomset.atomset as atomset
+try:
+    import multiprocessing as mp
+    PARALELLIZATION = True
+except ImportError:
+    PARALELLIZATION = False
 
 
 class UnsatisfiedDependencyException(Exception):
     __module__ = Exception.__module__
+
+
+class RequiredParameterMissingException(Exception):
+    __module__ = Exception.__module__
+
+
+class ImproperParameterValueException(Exception):
+    __module__ = Exception.__module__
+
+
+class Topology:
+    """
+        Container object that points to the topology used in each trajectory
+    """
+    def __init__(self, path):
+        self.path = path
+        self.topologies = []
+        # the topologyMap maps each trajectory to its corresponding topology
+        # {0: [t1, t2.. tM], 1: [t2, t3, t4, t4...]}
+        self.topologyMap = {}
+        self.topologyFiles = []
+
+    def __getitem__(self, key):
+        return self.topologies[key]
+
+    def __iter__(self):
+        for top in self.topologies:
+            yield top
+
+    def cleanTopologies(self):
+        """
+            Remove the written topology files
+        """
+        files = glob.glob(os.path.join(self.path, "topology*.pdb"))
+        for f in files:
+            os.remove(f)
+
+    def writeTopologyObject(self):
+        """
+            Dump the contents of the topology object using pickle
+        """
+        writeObject(os.path.join(self.path, "topologies.pkl"), self)
+
+    def setTopologies(self, topologyFiles, cleanFiles=True):
+        """
+            Set the topologies for the simulation. If topologies were set
+            before they are deleted and set again
+
+            :param topologyFiles: List of topology files
+            :type topologyFiles: list
+            :param cleanFiles: Flag wether to remove previous files
+            :type cleanFiles: bool
+        """
+        if self.topologies:
+            self.topologies = []
+            self.topologyFiles = []
+            if cleanFiles:
+                self.cleanTopologies()
+        for top in topologyFiles:
+            self.topologies.append(getTopologyFile(top))
+            self.topologyFiles.append(top)
+
+    def topologyFilesIterator(self):
+        for top_file in self.topologyFiles:
+            yield top_file
+
+    def mapEpochTopologies(self, epoch, trajectoryMapping):
+        """
+            Map the trajectories for the next epoch and the used topologies
+
+            :param epoch: Epoch of the trajectory selected
+            :type epoch: int
+            :param trajectoryMapping: Mapping of the trajectories and the corresponding topologies
+            :type trajectoryMapping: list
+        """
+        mapping = trajectoryMapping[1:]+[trajectoryMapping[0]]
+        self.topologyMap[epoch] = [self.topologyMap[i_epoch][i_traj-1] for i_epoch, i_traj, _ in mapping]
+
+    def getTopology(self, epoch, trajectory_number):
+        """
+            Get the topology for a particular epoch and trajectory number
+
+            :param epoch: Epoch of the trajectory of interest
+            :type epoch: int
+            :param trajectory_number: Number of the trajectory to select
+            :type trajectory_number: int
+
+            :returns: list -- List with topology information
+        """
+        return self.topologies[self.topologyMap[epoch][trajectory_number-1]]
+
+    def getTopologyFile(self, epoch, trajectory_number):
+        """
+            Get the topology file for a particular epoch and trajectory number
+
+            :param epoch: Epoch of the trajectory of interest
+            :type epoch: int
+            :param trajectory_number: Number of the trajectory to select
+            :type trajectory_number: int
+
+            :returns: str -- Path to the topology file
+        """
+        return self.topologyFiles[self.topologyMap[epoch][trajectory_number-1]]
+
+    def getTopologyFromIndex(self, index):
+        """
+            Get the topology for a particular index
+
+            :param index: Index of the trajectory of interest
+            :type index: int
+
+            :returns: list -- List with topology information
+        """
+        return self.topologies[index]
+
+    def getTopologyIndex(self, epoch, trajectory_number):
+        """
+            Get the topology index for a particular epoch and trajectory number
+
+            :param epoch: Epoch of the trajectory of interest
+            :type epoch: int
+            :param trajectory_number: Number of the trajectory to select
+            :type trajectory_number: int
+
+            :returns: int -- Index of the corresponding topology
+        """
+        return self.topologyMap[epoch][trajectory_number-1]
+
+    def writeMappingToDisk(self, epochDir, epoch):
+        """
+            Write the topology mapping to disk
+
+            :param epochDir: Name of the folder where to write the
+                mapping
+            :type epochDir: str
+        """
+        with open(epochDir+"/topologyMapping.txt", "w") as f:
+            f.write("%s\n" % ':'.join(map(str, self.topologyMap[epoch])))
+
+    def readMappingFromDisk(self, epochDir, epoch):
+        """
+            Read the processorsToClusterMapping from disk
+
+            :param epochDir: Name of the folder where to write the
+                processorsToClusterMapping
+            :type epochDir: str
+        """
+        try:
+            with open(epochDir+"/topologyMapping.txt") as f:
+                self.topologyMap[epoch] = list(map(int, f.read().rstrip().split(':')))
+        except IOError:
+            sys.stderr.write("WARNING: topologyMapping.txt not found, you might not be able to recronstruct fine-grained pathways\n")
 
 
 def cleanup(tmpFolder):
@@ -28,8 +189,13 @@ def cleanup(tmpFolder):
         :param tmpFolder: Folder to remove
         :type tmpFolder: str
     """
-    if os.path.exists(tmpFolder):
+    try:
         shutil.rmtree(tmpFolder)
+    except OSError as exc:
+        # If another process deleted the folder between the glob and the
+        # actual removing an OSError is raised
+        if exc.errno != errno.ENOENT:
+            raise
 
 
 def makeFolder(outputDir):
@@ -39,11 +205,14 @@ def makeFolder(outputDir):
         :param outputDir: Folder filename
         :type outputDir: str
     """
-    if not os.path.exists(outputDir):
+    try:
         os.makedirs(outputDir)
+    except OSError as exc:
+        if exc.errno != errno.EEXIST:
+            raise
 
 
-def getSnapshots(trajectoryFile, verbose=False):
+def getSnapshots(trajectoryFile, verbose=False, topology=None, use_pdb=False):
     """
         Gets the snapshots
 
@@ -52,19 +221,45 @@ def getSnapshots(trajectoryFile, verbose=False):
         :param verbose: Add verbose to snapshots
         :type verbose: bool
 
-        :returns: str -- Snapshots with information
+        :returns: iterable -- Snapshots with information
     """
-    with open(trajectoryFile, "r") as inputFile:
-        inputFileContent = inputFile.read()
+    # topology parameter is ignored, just here for compatibility purposes
+    ext = getFileExtension(trajectoryFile)
+    if ext == ".pdb" or use_pdb:
+        with open(trajectoryFile, "r") as inputFile:
+            inputFileContent = inputFile.read()
 
-    snapshots = inputFileContent.split("ENDMDL")
-    if len(snapshots) > 1:
-        snapshots = snapshots[:-1]
-    if not verbose:
-        return snapshots
+        snapshots = inputFileContent.split("ENDMDL")
+        if len(snapshots) > 1:
+            snapshots = snapshots[:-1]
+        if not verbose:
+            return snapshots
 
-    remarkInfo = "REMARK 000 File created using PELE++\nREMARK source            : %s\nREMARK original model nr : %d\nREMARK First snapshot is 1, not 0 (as opposed to report)\n"
-    snapshotsWithInfo = [remarkInfo % (trajectoryFile, i+1)+snapshot for i, snapshot in enumerate(snapshots)]
+        remarkInfo = "REMARK 000 File created using PELE++\nREMARK source            : %s\nREMARK original model nr : %d\nREMARK First snapshot is 1, not 0 (as opposed to report)\n%s"
+        snapshotsWithInfo = [remarkInfo % (trajectoryFile, i+1, snapshot) for i, snapshot in enumerate(snapshots)]
+    elif ext == ".xtc":
+        with md.formats.XTCTrajectoryFile(trajectoryFile) as f:
+            snapshotsWithInfo, _, _, _ = f.read()
+        # formats xtc and trr are by default in nm, so we convert them to A
+        snapshotsWithInfo *= 10
+    elif ext == ".trr":
+        with md.formats.TRRTrajectoryFile(trajectoryFile) as f:
+            snapshotsWithInfo, _, _, _, _ = f.read()
+        snapshotsWithInfo *= 10
+    elif ext == ".dcd":
+        with md.formats.DCDTrajectoryFile(trajectoryFile) as f:
+            snapshotsWithInfo, _, _ = f.read()
+    elif ext == ".dtr":
+        with md.formats.DTRTrajectoryFile(trajectoryFile) as f:
+            snapshotsWithInfo, _, _ = f.read()
+    elif ext == ".mdcrd":
+        with md.formats.MDCRDTrajectoryFile(trajectoryFile) as f:
+            snapshotsWithInfo, _ = f.read()
+    elif ext == ".nc":
+        with md.formats.NetCDFTrajectoryFile(trajectoryFile) as f:
+            snapshotsWithInfo, _, _, _ = f.read()
+    else:
+        raise ValueError("Unrecongnized file extension for %s" % trajectoryFile)
     return snapshotsWithInfo
 
 
@@ -78,6 +273,18 @@ def getTrajNum(trajFilename):
         :returns: int -- Trajectory number
     """
     return int(trajFilename.split("_")[-1][:-4])
+
+
+def getPrmtopNum(prmtopFilename):
+    """
+        Gets the prmtop number
+
+        :param trajFilename: prmtop filename
+        :type trajFilename: str
+
+        :returns: int -- prmtop number
+    """
+    return int(prmtopFilename.split("_")[-1][:-7])
 
 
 def calculateContactMapEigen(contactMap):
@@ -116,7 +323,7 @@ def assertSymmetriesDict(symmetries, PDB):
         print("Symmetry dictionary correctly defined!")
 
 
-def getRMSD(traj, nativePDB, resname, symmetries):
+def getRMSD(traj, nativePDB, resname, symmetries, topology=None):
     """
         Computes the RMSD of a trajectory, given a native and symmetries
 
@@ -128,6 +335,8 @@ def getRMSD(traj, nativePDB, resname, symmetries):
         :type resname: str
         :param symmetries: Symmetries dictionary list with independent symmetry groups
         :type symmetries: list of dict
+        :param topology: Topology for non-pdb trajectories
+        :type topology: list
 
         :return: np.array -- Array with the rmsd values of the trajectory
     """
@@ -137,7 +346,7 @@ def getRMSD(traj, nativePDB, resname, symmetries):
     RMSDCalc = RMSDCalculator.RMSDCalculator(symmetries)
     for i, snapshot in enumerate(snapshots):
         snapshotPDB = atomset.PDB()
-        snapshotPDB.initialise(snapshot, resname=resname)
+        snapshotPDB.initialise(snapshot, resname=resname, topology=topology)
 
         rmsds[i] = RMSDCalc.computeRMSD(nativePDB, snapshotPDB)
 
@@ -189,6 +398,16 @@ def getSortedEigen(T):
 
 
 def get_epoch_folders(path):
+    """
+        List the folders belonging to an adaptive simulation and containing
+        trajectories and reports
+
+        :param path: Path where to check for the folders
+        :type path: str
+
+        :returns: list -- List of folders belonging to the simulation, sorted
+
+    """
     allFolders = os.listdir(path)
     folders = [epoch for epoch in allFolders if epoch.isdigit()]
     folders.sort(key=int)
@@ -295,6 +514,8 @@ def getPELEControlFileDict(templetizedControlFile):
 
     templateNames = {ele[1]: '"$%s"' % ele[1] for ele in string.Template.pattern.findall(peleControlFile)}
     templateNames.pop("OUTPUT_PATH", None)
+    templateNames.pop("REPORT_NAME", None)
+    templateNames.pop("TRAJECTORY_NAME", None)
     return json.loads(string.Template(peleControlFile).safe_substitute(templateNames)), templateNames
 
 
@@ -321,3 +542,243 @@ def getSASAcolumnFromControlFile(JSONdict):
             # and energy
             return i+4
     raise ValueError("No SASA metric found in control file!!! Please add it in order to use the moving box feature")
+
+
+def getTopologyFile(structure):
+    """
+        Extract the topology information to write structures from xtc format
+
+        :param structure: Pdb file with the topology information
+        :type structure: str
+
+        :return: list of str -- The lines of the topology file
+    """
+    top = []
+    with open(structure) as f:
+        for line in f:
+            if not (line.startswith("ATOM") or line.startswith("HETATM")):
+                continue
+            else:
+                top.append("".join([line[:30], "%s%s%s", line[54:]]))
+    return top
+
+
+def write_mdtraj_object_PDB(conformation, output, topology):
+    """
+        Write a snapshot from a xtc trajectory to pdb
+
+        :param conformation: Mdtraj trajectory object to write
+        :type structure: str or Trajectory
+        :param output: Output where to write the object
+        :type output: str
+        :param topology: Topoloy-like object
+        :type topology: list
+    """
+    PDB = atomset.PDB()
+    PDB.initialise(conformation, topology=topology)
+    PDB.writePDB(output)
+
+
+def get_mdtraj_object_PDBstring(conformation, topology):
+    """
+        Get the pdb string of a snapshot from a xtc trajectory to pdb
+
+        :param conformation: Mdtraj trajectory object to write
+        :type structure: str or Trajectory
+        :param topology: Topoloy-like object
+        :type topology: list
+
+        :returns: str -- The pdb representation of a snapshot from a xtc
+    """
+    PDB = atomset.PDB()
+    PDB.initialise(conformation, topology=topology)
+    return PDB.get_pdb_string()
+
+
+def write_xtc_to_pdb(filename, output_file, topology):
+    """
+        Get the pdb string of a snapshot from a xtc trajectory to pdb
+
+        :param filename: Path to the xtc trajectory
+        :type filename: str
+        :param output_file: Output where to write the object
+        :type output_file: str
+        :param topology: Topology file object
+        :type topology: str
+
+        :returns: str -- The pdb representation of a snapshot from a xtc
+    """
+    topology_contents = getTopologyFile(topology)
+    xtc_object = md.load(filename, top=topology)
+    pdb = atomset.PDB()
+    pdb.initialise(xtc_object, topology=topology_contents)
+    pdb.writePDB(output_file)
+
+
+def convert_trajectory_to_pdb(trajectory, topology, output, output_folder):
+    """
+        Write a trajectory from a non-pdb trajectory to pdb format
+
+        :param trajectory: Trajectory to convert
+        :type trajectory: str
+        :param topology: Topology file
+        :type topology: str
+        :param output: Filename of the ouput file
+        :type output: str
+        :param output_folder: Folder where to store the output trajectory
+        :type output_folder: str
+    """
+    output = os.path.join(output_folder, output)
+    topology_contents = getTopologyFile(topology)
+    snapshots = getSnapshots(trajectory)
+    with open(output, "w") as fw:
+        for i, conf in enumerate(snapshots):
+            PDB = atomset.PDB()
+            PDB.initialise(conf, topology=topology_contents)
+            fw.write("MODEL     %4d\n" % (i+1))
+            fw.write(PDB.pdb)
+            fw.write("ENDMDL\n")
+        fw.write("END\n")
+
+
+def writeObject(filename, object_to_write, protocol=2):
+    with open(filename, "wb") as f:
+        pickle.dump(object_to_write, f, protocol)
+
+
+def getCpuCount():
+    if not PARALELLIZATION:
+        raise UnsatisfiedDependencyException("Multiprocessing module not found, will not be able to parallelize")
+    machine = socket.getfqdn()
+    cores = None
+    if "bsccv" in machine:
+        # life cluster
+        cores = os.getenv("SLURM_NTASKS", None)
+    elif "mn.bsc" in machine:
+        # nord3
+        cores = os.getenv("LSB_DJOB_NUMPROC", None)
+    elif "bsc.mn" in machine:
+        # MNIV
+        cores = os.getenv("SLURM_NPROCS", None)
+    try:
+        cores = int(cores)
+    except TypeError:
+        cores = None
+    # Take 1 less than the count of processors, to not clog the machine
+    return cores or max(1, mp.cpu_count()-1)
+
+
+def writeProcessorMappingToDisk(folder, filename, processorMapping):
+    """
+        Write the processorsToClusterMapping to disk
+
+        :param folder: Name of the folder where to write the
+            processorsToClusterMapping
+        :type folder: str
+        :param filename: Name of the file where to write the processorMapping
+        :type filename: str
+        :param processorMapping: Mapping of the trajectories to processors
+        :type processorMapping: list
+    """
+    with open(os.path.join(folder, filename), "w") as f:
+        f.write("%s\n" % ':'.join(map(str, processorMapping)))
+
+
+def readProcessorMappingFromDisk(folder, filename):
+    """
+        Read the processorsToClusterMapping from disk
+
+        :param folder: Name of the folder where to write the
+            processorsToClusterMapping
+        :type folder: str
+        :param filename: Name of the file where to write the processorMapping
+        :type filename: str
+        :returns: list -- List with the mapping of the trajectories to processors
+    """
+    try:
+        with open(os.path.join(folder, filename)) as f:
+            return list(map(ast.literal_eval, f.read().rstrip().split(':')))
+    except IOError:
+        sys.stderr.write("WARNING: processorMapping.txt not found, you might not be able to recronstruct fine-grained pathways\n")
+
+
+def print_unbuffered(*args):
+    """
+        Call print and immediately after flush the buffer
+    """
+    print(*args)
+    sys.stdout.flush()
+
+
+def getFileExtension(trajectoryFile):
+    """
+        Extract the extension of a trajectory
+
+        :param trajectoryFile: Name of the trajectory file
+        :type trajectoryFile: str
+
+        :returns: str -- Extension of the trajectory
+    """
+    return os.path.splitext(trajectoryFile)[1]
+
+
+def loadtxtfile(filename):
+    """
+        Load a table file from a text file
+
+        :param filename: Name of the file to load
+        :type filename: str
+
+        :returns: np.ndarray -- Contents of the text file
+    """
+    data = np.loadtxt(filename)
+    if len(data.shape) < 2:
+        data = data[np.newaxis, :]
+    return data
+
+
+def writeNewConstraints(folder, filename, constraints):
+    """
+        Write the constraints to disk
+
+        :param folder: Name of the folder where to write the
+            constraints
+        :type folder: str
+        :param filename: Name of the file where to write the constraints
+        :type filename: str
+        :param constraints: List of the constraints
+        :type constraints: list
+    """
+    with open(os.path.join(folder, filename), "w") as f:
+        for constraint in constraints:
+            f.write("{x[0]} {x[1]} {x[2]}\n".format(x=constraint))
+
+
+def readConstraints(folder, filename):
+    """
+        Read the new constraints from disk
+
+        :param folder: Name of the folder where to write the
+            processorsToClusterMapping
+        :type folder: str
+        :param filename: Name of the file where to write the constraints
+        :type filename: str
+        :returns: list -- List with the new constraints
+    """
+    new_constraints = []
+    with open(os.path.join(folder, filename)) as f:
+        for line in f:
+            line_split = line.rstrip().split()
+            line_split[2] = float(line_split[2])
+            new_constraints.append(line_split)
+    return new_constraints
+
+
+def generateRotationMatrixAroundAxis(axis, angle):
+    # extracted from https://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_and_angle
+    c = np.cos(angle)
+    s = np.sin(angle)
+    x, y, z = axis
+    return np.array([[c+(1-c)*x**2, x*y*(1-c)-z*s, x*z*(1-c)+y*s],
+                     [x*y*(1-c)+z*s, c+(1-c)*y**2, y*z*(1-c)-x*s],
+                     [x*z*(1-c)-y*s, y*z*(1-c)+x*s, c+(1-c)*z**2]])

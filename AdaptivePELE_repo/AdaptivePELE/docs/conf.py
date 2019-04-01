@@ -17,6 +17,7 @@ import sys, os
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
+import AdaptivePELE as a
 
 # -- General configuration -----------------------------------------------------
 
@@ -48,7 +49,8 @@ copyright = u'2017, Daniel Lecina, Joan Francesc Gilabert'
 # built documents.
 #
 # The short X.Y version.
-version = 'v1.4.2'
+
+version = 'v%s' % a.__version__
 # The full version, including alpha/beta/rc tags.
 release = ''
 

@@ -3,7 +3,7 @@ import atomset
 import numpy as np
 cimport cython
 cimport numpy as np
-cimport AdaptivePELE.atomset.atomset as atomset
+cimport FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.atomset as atomset
 
 
 cdef class SymmetryContactMapEvaluator:
@@ -89,11 +89,12 @@ cdef class SymmetryContactMapEvaluator:
         cdef atomset.Atom proteinAtom, ligandAtom
         cdef set contacts
         cdef double dist2
+
         ligandPDB = atomset.PDB()
         ligandPDB.initialise(PDBobj.pdb, resname=ligandResname, resnum=ligandResnum,
                              chain=ligandResChain, heavyAtoms=True)
         alphaCarbonsPDB = atomset.PDB()
-        alphaCarbonsPDB.initialise(PDBobj.pdb, type="CM")
+        alphaCarbonsPDB.initialise(PDBobj.pdb, type=u"CM")
         if not self.ligandList:
             self.ligandList = ligandPDB.atomList
         if not self.proteinList:
@@ -112,16 +113,16 @@ cdef class SymmetryContactMapEvaluator:
                 proteinAtomID = alphaCarbonsPDB.atomList[colind]
                 proteinAtom = alphaCarbonsPDB.atoms[proteinAtomID]
                 dist2 = ligandAtom.squaredDistance(proteinAtom)
-                if dist2 < contactThresholdDistance2:
+                if (dist2 - contactThresholdDistance2) < 0.1:
                     contactMap[rowind, colind] = True
-                if proteinAtom.name == "CA" and dist2 < 64.0:
+                if proteinAtom.name == u"CA" and (dist2 - 64.0) < 0.1:
                     # Contact ratio will be always calculated using a contact
                     # threshold of 8, so that tresholds and densities are
                     # independent of the contact threshold of the contactMap
                     contacts.update([proteinAtomID])
         return contactMap.view(np.bool), len(contacts)
 
-    def buildContactMap(self, atomset.PDB PDBobj, basestring ligandResname, int contactThresholdDistance, int ligandResnum=0, basestring ligandResChain=""):
+    def buildContactMap(self, atomset.PDB PDBobj, basestring ligandResname, int contactThresholdDistance, int ligandResnum=0, basestring ligandResChain=u""):
         """
             Create the contact map of the protein and ligand. The contact map is
             a boolean matrix that has as many rows as the number of ligand heavy
@@ -154,7 +155,7 @@ cdef class SymmetryContactMapEvaluator:
         ligandPDB.initialise(PDBobj.pdb, resname=ligandResname, resnum=ligandResnum,
                              chain=ligandResChain, heavyAtoms=True)
         alphaCarbonsPDB = atomset.PDB()
-        alphaCarbonsPDB.initialise(PDBobj.pdb, type="CM")
+        alphaCarbonsPDB.initialise(PDBobj.pdb, type=u"CM")
         if not self.ligandList:
             self.ligandList = ligandPDB.atomList
         if not self.proteinList:
@@ -173,9 +174,9 @@ cdef class SymmetryContactMapEvaluator:
                 proteinAtomID = alphaCarbonsPDB.atomList[colind]
                 proteinAtom = alphaCarbonsPDB.atoms[proteinAtomID]
                 dist2 = ligandAtom.squaredDistance(proteinAtom)
-                if dist2 < contactThresholdDistance2:
+                if (dist2 - contactThresholdDistance2) < 0.1:
                     contactMap[rowind, colind] = True
-                if proteinAtom.name == "CA" and dist2 < 64.0:
+                if proteinAtom.name == u"CA" and (dist2 - 64.0) < 0.1:
                     # Contact ratio will be always calculated using a contact
                     # threshold of 8, so that tresholds and denisities are
                     # independent of the contact threshold of the contactMap
@@ -239,7 +240,7 @@ cdef class SymmetryContactMapEvaluator:
                     line21 = contactMap[atom1Row]
                     line22 = contactMap[atom2Row]
                 except KeyError as err:
-                    raise KeyError("Atom %s not found in symmetries" % err.message)
+                    raise KeyError(u"Atom %s not found in symmetries" % err.message)
                 d2 = (line11 == line21).sum() + (line12 == line22).sum()
                 d2sm = (line12 == line21).sum() + (line11 == line22).sum()
                 if d2sm > d2:

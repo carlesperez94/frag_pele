@@ -1,9 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import os
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
 from AdaptivePELE.utilities import utilities
 
 
@@ -35,5 +31,4 @@ def writeStructures(clusteringObject, listStructures, checker=lambda x: True, ou
         cluster = clObject.clusters.clusters[element]
         if checker is None or checker(cluster):
             print("Writing", pathToWrite % element)
-            cluster.pdb.pdb += "\nENDMDL\n"
             cluster.writePDB(pathToWrite % element)

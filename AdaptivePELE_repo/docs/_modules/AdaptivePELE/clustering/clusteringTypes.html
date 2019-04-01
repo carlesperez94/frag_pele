@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                v1.4.2
+                v1.6
               </div>
             
           
@@ -86,8 +86,9 @@
             
                 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../Examples.html">User Manual</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../Changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Problems.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../AdaptivePELE.html">AdaptivePELE – Package Description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Changelog.html">Changelog</a></li>
 </ul>
 
             
@@ -141,12 +142,14 @@
 
 
 <div class="viewcode-block" id="CLUSTERING_TYPES"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clusteringTypes.CLUSTERING_TYPES">[docs]</a><span class="k">class</span> <span class="nc">CLUSTERING_TYPES</span><span class="p">:</span>
-    <span class="n">rmsd</span><span class="p">,</span> <span class="n">contactMap</span><span class="p">,</span> <span class="n">lastSnapshot</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span></div>
+    <span class="n">rmsd</span><span class="p">,</span> <span class="n">contactMap</span><span class="p">,</span> <span class="n">lastSnapshot</span><span class="p">,</span> <span class="n">null</span><span class="p">,</span> <span class="n">MSMClustering</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span></div>
 
 <span class="n">CLUSTERING_TYPE_TO_STRING_DICTIONARY</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">CLUSTERING_TYPES</span><span class="o">.</span><span class="n">rmsd</span><span class="p">:</span> <span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">rmsd</span><span class="p">,</span>
     <span class="n">CLUSTERING_TYPES</span><span class="o">.</span><span class="n">contactMap</span><span class="p">:</span> <span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">contactMap</span><span class="p">,</span>
-    <span class="n">CLUSTERING_TYPES</span><span class="o">.</span><span class="n">lastSnapshot</span><span class="p">:</span> <span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">lastSnapshot</span>
+    <span class="n">CLUSTERING_TYPES</span><span class="o">.</span><span class="n">lastSnapshot</span><span class="p">:</span> <span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">lastSnapshot</span><span class="p">,</span>
+    <span class="n">CLUSTERING_TYPES</span><span class="o">.</span><span class="n">null</span><span class="p">:</span> <span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">null</span><span class="p">,</span>
+    <span class="n">CLUSTERING_TYPES</span><span class="o">.</span><span class="n">MSMClustering</span><span class="p">:</span> <span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">MSMClustering</span>
 <span class="p">}</span>
 
 
@@ -160,8 +163,8 @@
 <span class="p">}</span>
 
 <span class="n">SIMILARITY_TYPES_NAMES</span> <span class="o">=</span> <span class="p">{</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">differenceDistance</span><span class="p">,</span>
-                              <span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">Jaccard</span><span class="p">,</span>
-                              <span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">correlation</span><span class="p">}</span>
+                          <span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">Jaccard</span><span class="p">,</span>
+                          <span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">correlation</span><span class="p">}</span>
 </pre></div>
 
            </div>

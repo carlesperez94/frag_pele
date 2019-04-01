@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                v1.4.2
+                v1.6
               </div>
             
           
@@ -86,8 +86,9 @@
             
                 <ul>
 <li class="toctree-l1"><a class="reference internal" href="Examples.html">User Manual</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Problems.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="AdaptivePELE.html">AdaptivePELE – Package Description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Changelog.html">Changelog</a></li>
 </ul>
 
             
@@ -138,152 +139,71 @@
             
   <div class="section" id="welcome-to-adaptivepele-s-documentation">
 <h1>Welcome to AdaptivePELE’s documentation!<a class="headerlink" href="#welcome-to-adaptivepele-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>Contents:</p>
+<p>AdaptivePELE is a Python module to perform enhancing sampling of molecular
+simulation built around the Protein Energy Landscape Exploration method (<a class="reference external" href="https://pele.bsc.es/pele.wt">PELE</a>) developed in the Electronic and Atomic Protein Modelling grop (<a class="reference external" href="https://www.bsc.es/discover-bsc/organisation/scientific-structure/electronic-and-atomic-protein-modeling-eapm">EAPM</a>) at the Barcelona Supercomputing Center (<a class="reference external" href="https://www.bsc.es">BSC</a>). AdaptivePELE’s
+code is publicly available in <a class="reference external" href="https://github.com/AdaptivePELE/AdaptivePELE">GitHub</a> under the MIT license.</p>
+<img alt="image trouble" class="align-center" src="_images/adaptiveDiagram.png" />
+<div class="section" id="contributors">
+<h2>Contributors<a class="headerlink" href="#contributors" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://github.com/lecina">Daniel Lecina</a>, <a class="reference external" href="https://github.com/cescgina">Joan Francesc Gilabert</a>, <a class="reference external" href="https://github.com/OriolGraCar">Oriol Gracia</a>, <a class="reference external" href="https://github.com/danielSoler93">Daniel Soler</a></p>
+<div class="section" id="mantainer">
+<h3>Mantainer<a class="headerlink" href="#mantainer" title="Permalink to this headline">¶</a></h3>
+<p>Joan Francesc Gilabert (<a class="reference external" href="mailto:cescgina&#37;&#52;&#48;gmail&#46;com">cescgina<span>&#64;</span>gmail<span>&#46;</span>com</a>)</p>
+</div>
+</div>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="Examples.html">User Manual</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="Examples.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Examples.html#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Examples.html#control-file-outline">Control file outline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Examples.html#generalparams-block">generalParams block</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#parameters">Parameters</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Examples.html#simulation-block">simulation block</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#templetized-pele-control-file">Templetized PELE control file</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#id2">parameters</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Examples.html#clustering-block">clustering block</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#thresholdcalculator">thresholdCalculator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#rmsd-clustering">rmsd clustering</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#contactmap-clustering">contactMap clustering</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#id3">parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#example">Example</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Examples.html#spawning-block">spawning block</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#density-calculator">density calculator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#id4">parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Examples.html#control-file-examples">Control File Examples</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#example-1">Example 1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#example-2">Example 2</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Examples.html#output">Output</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Examples.html#analysis">Analysis</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#generalparams-block">GeneralParams block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#simulation-block">Simulation block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#clustering-block">Clustering block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#spawning-block">Spawning block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#control-file-examples">Control File Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#output">Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#analysis">Analysis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Examples.html#dynamical-hooks">Dynamical hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#non-pdb-trajectories">Non-PDB trajectories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#input-preparation-for-md">Input preparation for MD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#equilibration-procedure-in-md">Equilibration procedure in MD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#running-adaptivepele-with-gpus">Running AdaptivePELE with GPUs</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="Changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Changelog.html#mm-dd-unreleased">1.5 - 2018-MM-DD (Unreleased)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#new-features">New features:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#behaviour-changes-from-previous-version">Behaviour changes from previous version:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#bug-fixes">Bug fixes:</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id1">1.4.2 - 2018-03-02</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id2">New features:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id3">Behaviour changes from previous version:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id4">Bug fixes:</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id5">1.4 - 2018-01-30</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id6">New features:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id7">Behaviour changes from previous version:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id8">Bug fixes:</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id9">1.3 - 2017-06-01</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id10">New features:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id11">Behaviour changes from previous version:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id12">Bug fixes:</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id13">1.2 - 2017-05-09</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id14">New features:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id15">Behaviour changes from previous version:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id16">Bug fixes:</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id17">1.1 - 2017-02-17</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id18">New features:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id19">Behaviour changes from previous version:</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id20">1.0 - 2017-01-19</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id21">New features:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id22">Behaviour changes from previous version:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Changelog.html#id23">Bug fixes:</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="Problems.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="AdaptivePELE.html">AdaptivePELE – Package Description</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.html#module-AdaptivePELE.adaptiveSampling"><code class="docutils literal"><span class="pre">adaptiveSampling</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.html#module-AdaptivePELE.automateRoundsAdaptive"><code class="docutils literal"><span class="pre">automateRoundsAdaptive</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.analysis.html">analysis Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.analysis.html#module-AdaptivePELE.analysis.correctRMSD"><code class="docutils literal"><span class="pre">correctRMSD</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.analysis.html#module-AdaptivePELE.analysis.foldersFirstBindingEvent"><code class="docutils literal"><span class="pre">foldersFirstBindingEvent</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.analysis.html#module-AdaptivePELE.analysis.makePNGs"><code class="docutils literal"><span class="pre">makePNGs</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.analysis.html#module-AdaptivePELE.analysis.numberOfClusters"><code class="docutils literal"><span class="pre">numberOfClusters</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.analysis.html#module-AdaptivePELE.analysis.plotAdaptive"><code class="docutils literal"><span class="pre">plotAdaptive</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.analysis.html#module-AdaptivePELE.analysis.writeClusteringStructures"><code class="docutils literal"><span class="pre">writeClusteringStructures</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.analysis.html#module-AdaptivePELE.analysis.writePrecisePathToSnapshot"><code class="docutils literal"><span class="pre">writePrecisePathToSnapshot</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.html#subpackages">Subpackages</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.atomset.html">atomset Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.atomset.html#module-AdaptivePELE.atomset.atomset"><code class="docutils literal"><span class="pre">atomset</span></code> Module</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.clustering.html">clustering Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.clustering.html#module-AdaptivePELE.clustering.clustering"><code class="docutils literal"><span class="pre">clustering</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.clustering.html#module-AdaptivePELE.clustering.clusteringTypes"><code class="docutils literal"><span class="pre">clusteringTypes</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.clustering.html#module-AdaptivePELE.clustering.thresholdcalculator"><code class="docutils literal"><span class="pre">thresholdcalculator</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.clustering.html#module-AdaptivePELE.clustering.thresholdcalculatortypes"><code class="docutils literal"><span class="pre">thresholdcalculatortypes</span></code> Module</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.simulation.html">simulation Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.simulation.html#module-AdaptivePELE.simulation.simulationTypes"><code class="docutils literal"><span class="pre">simulationTypes</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.simulation.html#module-AdaptivePELE.simulation.simulationrunner"><code class="docutils literal"><span class="pre">simulationrunner</span></code> Module</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.spawning.html">spawning Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.spawning.html#module-AdaptivePELE.spawning.densitycalculator"><code class="docutils literal"><span class="pre">densitycalculator</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.spawning.html#module-AdaptivePELE.spawning.densitycalculatortypes"><code class="docutils literal"><span class="pre">densitycalculatortypes</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.spawning.html#module-AdaptivePELE.spawning.spawning"><code class="docutils literal"><span class="pre">spawning</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.spawning.html#module-AdaptivePELE.spawning.spawningTypes"><code class="docutils literal"><span class="pre">spawningTypes</span></code> Module</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.utilities.html">utilities Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.utilities.html#module-AdaptivePELE.utilities.clusteringUtilities"><code class="docutils literal"><span class="pre">clusteringUtilities</span></code> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.utilities.html#module-AdaptivePELE.utilities.utilities"><code class="docutils literal"><span class="pre">utilities</span></code> Module</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="AdaptivePELE.validator.html">validator Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="AdaptivePELE.validator.html#module-AdaptivePELE.validator.controlFileValidator"><code class="docutils literal"><span class="pre">controlFileValidator</span></code> Module</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="Changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id1">1.6 - 2019-02-19</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id2">1.5.2 - 2018-08-13</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id5">1.5.1 - 2018-06-07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id9">1.5 - 2018-05-11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id13">1.4.2 - 2018-03-02</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id17">1.4 - 2018-01-30</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id21">1.3 - 2017-06-01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id25">1.2 - 2017-05-09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id29">1.1 - 2017-02-17</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changelog.html#id32">1.0 - 2017-01-19</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
 <li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
 <li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
 </ul>
+</div>
 </div>
 
 

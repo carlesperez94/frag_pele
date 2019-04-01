@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                v1.4.2
+                v1.6
               </div>
             
           
@@ -86,8 +86,9 @@
             
                 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../Examples.html">User Manual</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../Changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Problems.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../AdaptivePELE.html">AdaptivePELE – Package Description</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Changelog.html">Changelog</a></li>
 </ul>
 
             
@@ -138,30 +139,46 @@
             
   <h1>Source code for AdaptivePELE.clustering.clustering</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
-<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="nb">range</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">heapq</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="nb">range</span>
 <span class="kn">from</span> <span class="nn">six</span> <span class="k">import</span> <span class="n">reraise</span> <span class="k">as</span> <span class="n">raise_</span>
 <span class="kn">from</span> <span class="nn">AdaptivePELE.constants</span> <span class="k">import</span> <span class="n">blockNames</span>
-<span class="kn">import</span> <span class="nn">AdaptivePELE.atomset.atomset</span> <span class="k">as</span> <span class="nn">atomset</span>
 <span class="kn">from</span> <span class="nn">AdaptivePELE.utilities</span> <span class="k">import</span> <span class="n">utilities</span>
 <span class="kn">from</span> <span class="nn">AdaptivePELE.atomset</span> <span class="k">import</span> <span class="n">SymmetryContactMapEvaluator</span> <span class="k">as</span> <span class="n">sym</span>
 <span class="kn">from</span> <span class="nn">AdaptivePELE.atomset</span> <span class="k">import</span> <span class="n">RMSDCalculator</span>
+<span class="kn">from</span> <span class="nn">AdaptivePELE.atomset</span> <span class="k">import</span> <span class="n">atomset</span>
 <span class="kn">from</span> <span class="nn">AdaptivePELE.clustering</span> <span class="k">import</span> <span class="n">clusteringTypes</span>
 <span class="kn">from</span> <span class="nn">AdaptivePELE.clustering</span> <span class="k">import</span> <span class="n">thresholdcalculator</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
-<span class="kn">import</span> <span class="nn">heapq</span>
+<span class="kn">from</span> <span class="nn">AdaptivePELE.freeEnergies</span> <span class="k">import</span> <span class="n">extractCoords</span> <span class="k">as</span> <span class="n">coord</span>
+<span class="kn">from</span> <span class="nn">AdaptivePELE.freeEnergies</span> <span class="k">import</span> <span class="n">getRepresentativeStructures</span> <span class="k">as</span> <span class="n">getRepr</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
     <span class="n">NETWORK</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">NETWORK</span> <span class="o">=</span> <span class="kc">False</span>
 
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+    <span class="n">PARALELLIZATION</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">PARALELLIZATION</span> <span class="o">=</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="Clusters"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clusters">[docs]</a><span class="k">class</span> <span class="nc">Clusters</span><span class="p">:</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">AdaptivePELE.freeEnergies</span> <span class="k">import</span> <span class="n">cluster</span> <span class="k">as</span> <span class="n">pyemma_cluster</span>
+    <span class="kn">from</span> <span class="nn">AdaptivePELE.freeEnergies.estimateDG</span> <span class="k">import</span> <span class="n">getCentersInfo</span>
+    <span class="kn">import</span> <span class="nn">pyemma.coordinates</span> <span class="k">as</span> <span class="nn">coor</span>
+    <span class="n">PYEMMA</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">PYEMMA</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="Clusters"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clusters">[docs]</a><span class="k">class</span> <span class="nc">Clusters</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -248,7 +265,7 @@
             <span class="k">yield</span> <span class="n">cluster</span></div>
 
 
-<div class="viewcode-block" id="ConformationNetwork"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.ConformationNetwork">[docs]</a><span class="k">class</span> <span class="nc">ConformationNetwork</span><span class="p">:</span>
+<div class="viewcode-block" id="ConformationNetwork"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.ConformationNetwork">[docs]</a><span class="k">class</span> <span class="nc">ConformationNetwork</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Object that contains the conformation network, a network with clusters as</span>
 <span class="sd">        nodes and edges representing trantions between clusters. The network is</span>
@@ -274,9 +291,9 @@
     <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="c1"># Restore instance attributes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;network&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">NETWORK</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">__version__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="s1">&#39;adj&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">NETWORK</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">__version__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="s1">&#39;adj&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">,</span> <span class="s1">&#39;adj&#39;</span><span class="p">,</span> <span class="s1">&#39;graph&#39;</span><span class="p">,</span> <span class="s1">&#39;pred&#39;</span><span class="p">,</span> <span class="s1">&#39;succ&#39;</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s2">&quot;_&quot;</span><span class="o">+</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;_&quot;</span><span class="o">+</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ConformationNetwork.add_node"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.ConformationNetwork.add_node">[docs]</a>    <span class="k">def</span> <span class="nf">add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -352,7 +369,7 @@
         <span class="k">return</span> <span class="n">pathway</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="AltStructures"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.AltStructures">[docs]</a><span class="k">class</span> <span class="nc">AltStructures</span><span class="p">:</span>
+<div class="viewcode-block" id="AltStructures"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.AltStructures">[docs]</a><span class="k">class</span> <span class="nc">AltStructures</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Helper class, each cluster will have an instance of AltStructures that</span>
 <span class="sd">        will maintain a priority queue (pq) of alternative structures to spawn</span>
@@ -477,7 +494,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">altStructPQ</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="Cluster"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Cluster">[docs]</a><span class="k">class</span> <span class="nc">Cluster</span><span class="p">:</span>
+<div class="viewcode-block" id="Cluster"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Cluster">[docs]</a><span class="k">class</span> <span class="nc">Cluster</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A cluster contains a representative structure(pdb), the number of</span>
 <span class="sd">        elements, its density, threshold, number of contacts,</span>
@@ -634,7 +651,7 @@
 <span class="sd">            :param path: Filename of the file to write</span>
 <span class="sd">            :type path: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pdb</span><span class="o">.</span><span class="n">writePDB</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdb</span><span class="o">.</span><span class="n">writePDB</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Cluster.getContacts"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Cluster.getContacts">[docs]</a>    <span class="k">def</span> <span class="nf">getContacts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -650,16 +667,17 @@
 
 <span class="sd">            :param path: Filename of the file to write</span>
 <span class="sd">            :type path: str</span>
+
 <span class="sd">            :returns int, int, int: Tuple of (epoch, trajectory, snapshot) that permit</span>
 <span class="sd">                identifying the structure added</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">altSelection</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">altStructure</span><span class="o">.</span><span class="n">sizePQ</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;cluster center&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pdb</span><span class="o">.</span><span class="n">writePDB</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pdb</span><span class="o">.</span><span class="n">writePDB</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">trajPosition</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">spawnStruct</span><span class="p">,</span> <span class="n">trajPosition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">altStructure</span><span class="o">.</span><span class="n">altSpawnSelection</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdb</span><span class="p">))</span>
-            <span class="n">spawnStruct</span><span class="o">.</span><span class="n">writePDB</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+            <span class="n">spawnStruct</span><span class="o">.</span><span class="n">writePDB</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">trajPosition</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">trajPosition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trajPosition</span>
             <span class="k">return</span> <span class="n">trajPosition</span></div>
@@ -672,7 +690,7 @@
              <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ClusteringEvaluator"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.ClusteringEvaluator">[docs]</a><span class="k">class</span> <span class="nc">ClusteringEvaluator</span><span class="p">:</span>
+<div class="viewcode-block" id="ClusteringEvaluator"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.ClusteringEvaluator">[docs]</a><span class="k">class</span> <span class="nc">ClusteringEvaluator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">contactMap</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">contacts</span> <span class="o">=</span> <span class="kc">None</span>
@@ -694,7 +712,7 @@
 <span class="sd">                conformations</span>
 <span class="sd">            :type RMSDCalculator: :py:class:`.RMSDCalculator`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ClusteringEvaluator</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">ClusteringEvaluator</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">RMSDCalculator</span> <span class="o">=</span> <span class="n">RMSDCalculator_object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">contacts</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># Only here for compatibility purpose</span>
@@ -779,7 +797,7 @@
 <span class="sd">                contacts maps</span>
 <span class="sd">            :type symmetryEvaluator: :py:class:`.SymmetryContactMapEvaluator`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ClusteringEvaluator</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">ClusteringEvaluator</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">similarityEvaluator</span> <span class="o">=</span> <span class="n">similarityEvaluator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symmetryEvaluator</span> <span class="o">=</span> <span class="n">symmetryEvaluator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">contacts</span> <span class="o">=</span> <span class="kc">None</span>
@@ -883,7 +901,7 @@
         <span class="c1">#      return 25</span>
 
 
-<div class="viewcode-block" id="Clustering"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering">[docs]</a><span class="k">class</span> <span class="nc">Clustering</span><span class="p">:</span>
+<div class="viewcode-block" id="Clustering"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering">[docs]</a><span class="k">class</span> <span class="nc">Clustering</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">resnum</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">resChain</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">reportBaseFilename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">columnOfReportFile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">contactThresholdDistance</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
                  <span class="n">altSelection</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -982,6 +1000,14 @@
         <span class="k">for</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="o">.</span><span class="n">clusters</span><span class="p">:</span>
             <span class="n">cluster</span><span class="o">.</span><span class="n">metricCol</span> <span class="o">=</span> <span class="n">col</span></div>
 
+<div class="viewcode-block" id="Clustering.getClusterListForSpawning"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering.getClusterListForSpawning">[docs]</a>    <span class="k">def</span> <span class="nf">getClusterListForSpawning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Return the clusters object to be used in the spawning</span>
+
+<span class="sd">            :returns: :py:class:`.Clusters` -- Container object for the clusters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span></div>
+
 <div class="viewcode-block" id="Clustering.getCluster"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering.getCluster">[docs]</a>    <span class="k">def</span> <span class="nf">getCluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clusterNum</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Get the cluster at index clusterNum</span>
@@ -989,6 +1015,9 @@
 <span class="sd">            :returns: :py:class:`.Cluster` -- Cluster at clusterNum</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="o">.</span><span class="n">getCluster</span><span class="p">(</span><span class="n">clusterNum</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Clustering.setProcessors"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering.setProcessors">[docs]</a>    <span class="k">def</span> <span class="nf">setProcessors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processors</span><span class="p">):</span>
+        <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Clustering.emptyClustering"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering.emptyClustering">[docs]</a>    <span class="k">def</span> <span class="nf">emptyClustering</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1023,28 +1052,110 @@
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">resChain</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">resChain</span>\
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">col</span>
 
-<div class="viewcode-block" id="Clustering.cluster"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering.cluster">[docs]</a>    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">):</span>
+<div class="viewcode-block" id="Clustering.filterClustersAccordingToBox"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering.filterClustersAccordingToBox">[docs]</a>    <span class="k">def</span> <span class="nf">filterClustersAccordingToBox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulationRunnerParams</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Filter the clusters to select only the ones whose representative</span>
+<span class="sd">            structures will fit into the selected box</span>
+
+<span class="sd">            :param simulationRunnerParams: :py:class:`.SimulationParameters` Simulation parameters object</span>
+<span class="sd">            :type simulationRunnerParams: :py:class:`.SimulationParameters`</span>
+
+<span class="sd">            :returns list, list: -- list of the filtered clusters, list of bools flagging wether the cluster is selected or not</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">box_center</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">simulationRunnerParams</span><span class="o">.</span><span class="n">boxCenter</span><span class="p">)</span>
+        <span class="n">box_radius</span> <span class="o">=</span> <span class="n">simulationRunnerParams</span><span class="o">.</span><span class="n">boxRadius</span>
+        <span class="n">clustersFiltered</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">clustersSelected</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">utilities</span><span class="o">.</span><span class="n">distanceCOM</span><span class="p">(</span><span class="n">box_center</span><span class="p">,</span> <span class="n">cluster</span><span class="o">.</span><span class="n">pdb</span><span class="o">.</span><span class="n">getCOM</span><span class="p">())</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">box_radius</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">clustersFiltered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span>
+                <span class="n">clustersSelected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">clustersSelected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">clustersFiltered</span><span class="p">,</span> <span class="n">clustersSelected</span></div>
+
+<div class="viewcode-block" id="Clustering.filterClustersAccordingToMetric"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering.filterClustersAccordingToMetric">[docs]</a>    <span class="k">def</span> <span class="nf">filterClustersAccordingToMetric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clustersFiltered</span><span class="p">,</span> <span class="n">filter_value</span><span class="p">,</span> <span class="n">condition</span><span class="p">,</span> <span class="n">col_filter</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Filter the clusters to select only the ones whose metric fits an</span>
+<span class="sd">            specific criterion</span>
+
+<span class="sd">            :param clustersFiltered: List of clusters to be processed</span>
+<span class="sd">            :type clustersFiltered: list</span>
+<span class="sd">            :param filter_value: Value to use in the filtering</span>
+<span class="sd">            :type filter_value: float</span>
+<span class="sd">            :param condition: Whether to use &gt; or &lt; condition in the filtering</span>
+<span class="sd">            :type condition: str</span>
+<span class="sd">            :param col_filter: Column of the report to use</span>
+<span class="sd">            :type col_filter: int</span>
+
+<span class="sd">            :returns list, list: -- list of the filtered clusters, list of bools flagging whether the cluster is selected or not</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getMetricsFromColumn</span><span class="p">(</span><span class="n">col_filter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">utilities</span><span class="o">.</span><span class="n">RequiredParameterMissingException</span><span class="p">(</span><span class="s2">&quot;Metrics not found in clusters and required for filtering!!&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">condition</span> <span class="o">==</span> <span class="n">blockNames</span><span class="o">.</span><span class="n">SpawningParams</span><span class="o">.</span><span class="n">minValue</span><span class="p">:</span>
+            <span class="n">tmp_selection</span> <span class="o">=</span> <span class="n">metrics</span> <span class="o">&lt;</span> <span class="n">filter_value</span>
+        <span class="k">elif</span> <span class="n">condition</span> <span class="o">==</span> <span class="n">blockNames</span><span class="o">.</span><span class="n">SpawningParams</span><span class="o">.</span><span class="n">maxValue</span><span class="p">:</span>
+            <span class="n">tmp_selection</span> <span class="o">=</span> <span class="n">metrics</span> <span class="o">&gt;</span> <span class="n">filter_value</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">clustersFiltered</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">tmp_selection</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">selection</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="c1"># if no clusters match the given filtering criteria, bussiness as</span>
+            <span class="c1"># usual</span>
+            <span class="n">selection</span> <span class="o">=</span> <span class="n">clustersFiltered</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">cl</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="p">)</span> <span class="k">if</span> <span class="n">selection</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">selection</span></div>
+
+<div class="viewcode-block" id="Clustering.getMetricsFromColumn"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering.getMetricsFromColumn">[docs]</a>    <span class="k">def</span> <span class="nf">getMetricsFromColumn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get the metric of the clusters</span>
+
+<span class="sd">            :param col: Column to select the metric</span>
+<span class="sd">            :type col: int</span>
+
+<span class="sd">            :returns: np.array -- Array containing the metric of the clusters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">cl</span><span class="o">.</span><span class="n">getMetricFromColumn</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">cl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Clustering.cluster"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering.cluster">[docs]</a>    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">ignoreFirstRow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outputPathConstants</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Cluster the snaptshots contained in the paths folder</span>
 
 <span class="sd">            :param paths: List of folders with the snapshots</span>
 <span class="sd">            :type paths: list</span>
+<span class="sd">            :param ignoreFirstRow: Flag wether to ignore the first snapshot of a trajectory</span>
+<span class="sd">            :type ignoreFirstRow: bool</span>
+<span class="sd">            :param topology: Topology object containing the set of topologies needed for the simulation</span>
+<span class="sd">            :type topology: :py:class:`.Topology`</span>
+<span class="sd">            :param epoch: Epoch number</span>
+<span class="sd">            :type epoch: int</span>
+<span class="sd">            :param outputPathConstants: Contains outputPath-related constants</span>
+<span class="sd">            :type outputPathConstants: :py:class:`.OutputPathConstants`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">epoch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span> <span class="o">=</span> <span class="n">epoch</span>
         <span class="n">trajectories</span> <span class="o">=</span> <span class="n">getAllTrajectories</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">trajectory</span> <span class="ow">in</span> <span class="n">trajectories</span><span class="p">:</span>
             <span class="n">trajNum</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">getTrajNum</span><span class="p">(</span><span class="n">trajectory</span><span class="p">)</span>
             <span class="c1"># origCluster = processorsToClusterMapping[trajNum-1]</span>
             <span class="n">origCluster</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">snapshots</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">getSnapshots</span><span class="p">(</span><span class="n">trajectory</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">topology</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">top</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">getTopology</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">trajNum</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">top</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reportBaseFilename</span><span class="p">:</span>
                 <span class="n">reportFilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">trajectory</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
                                               <span class="bp">self</span><span class="o">.</span><span class="n">reportBaseFilename</span> <span class="o">%</span> <span class="n">trajNum</span><span class="p">)</span>
-                <span class="n">metrics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">reportFilename</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">metrics</span> <span class="o">=</span> <span class="n">loadReportFile</span><span class="p">(</span><span class="n">reportFilename</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">snapshot</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">snapshots</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">ignoreFirstRow</span> <span class="ow">and</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">continue</span>
                     <span class="k">try</span><span class="p">:</span>
-                        <span class="n">origCluster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">addSnapshotToCluster</span><span class="p">(</span><span class="n">trajNum</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">origCluster</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">metrics</span><span class="p">[</span><span class="n">num</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">)</span>
+                        <span class="n">origCluster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">addSnapshotToCluster</span><span class="p">(</span><span class="n">trajNum</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">origCluster</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">metrics</span><span class="p">[</span><span class="n">num</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="n">top</span><span class="p">)</span>
                     <span class="k">except</span> <span class="ne">IndexError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                         <span class="n">message</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot; in trajectory </span><span class="si">%d</span><span class="s2">. This is usually caused by a mismatch between report files and trajectory files&quot;</span>
                                    <span class="s2">&quot; which in turn is usually caused by some problem in writing the files, e.g. quota&quot;</span><span class="p">)</span>
@@ -1054,7 +1165,9 @@
                         <span class="n">raise_</span><span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="n">message</span> <span class="o">%</span> <span class="n">trajNum</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">snapshot</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">snapshots</span><span class="p">):</span>
-                    <span class="n">origCluster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">addSnapshotToCluster</span><span class="p">(</span><span class="n">trajNum</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">origCluster</span><span class="p">,</span> <span class="n">num</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">ignoreFirstRow</span> <span class="ow">and</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">origCluster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">addSnapshotToCluster</span><span class="p">(</span><span class="n">trajNum</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">origCluster</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="n">top</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="o">.</span><span class="n">clusters</span><span class="p">:</span>
             <span class="n">cluster</span><span class="o">.</span><span class="n">altStructure</span><span class="o">.</span><span class="n">cleanPQ</span><span class="p">()</span></div>
 
@@ -1104,10 +1217,9 @@
                                                                 <span class="n">metric</span><span class="p">)</span>
                 <span class="n">summaryFile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">writeString</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outputObject</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+        <span class="n">utilities</span><span class="o">.</span><span class="n">writeObject</span><span class="p">(</span><span class="n">outputObject</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Clustering.addSnapshotToCluster"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering.addSnapshotToCluster">[docs]</a>    <span class="k">def</span> <span class="nf">addSnapshotToCluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trajNum</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">origCluster</span><span class="p">,</span> <span class="n">snapshotNum</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Clustering.addSnapshotToCluster"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering.addSnapshotToCluster">[docs]</a>    <span class="k">def</span> <span class="nf">addSnapshotToCluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trajNum</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">origCluster</span><span class="p">,</span> <span class="n">snapshotNum</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Cluster a snapshot using the leader algorithm</span>
 
@@ -1124,11 +1236,13 @@
 <span class="sd">            :param col: Column of the desired metrics</span>
 <span class="sd">            :type col: int</span>
 <span class="sd">            :returns: int -- Cluster to which the snapshot belongs</span>
+<span class="sd">            :param topology: Topology for non-pdb trajectories</span>
+<span class="sd">            :type topology: list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">metrics</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">metrics</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">pdb</span> <span class="o">=</span> <span class="n">atomset</span><span class="o">.</span><span class="n">PDB</span><span class="p">()</span>
-        <span class="n">pdb</span><span class="o">.</span><span class="n">initialise</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="n">resname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resname</span><span class="p">,</span> <span class="n">resnum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resnum</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resChain</span><span class="p">)</span>
+        <span class="n">pdb</span><span class="o">.</span><span class="n">initialise</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="n">resname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resname</span><span class="p">,</span> <span class="n">resnum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resnum</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resChain</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="n">topology</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clusteringEvaluator</span><span class="o">.</span><span class="n">cleanContactMap</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">clusterNum</span><span class="p">,</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="o">.</span><span class="n">clusters</span><span class="p">):</span>
             <span class="n">scd</span> <span class="o">=</span> <span class="n">atomset</span><span class="o">.</span><span class="n">computeSquaredCentroidDifference</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">pdb</span><span class="p">,</span> <span class="n">pdb</span><span class="p">)</span>
@@ -1254,8 +1368,8 @@
             <span class="n">pathwayFile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;REMARK 000 List of cluster belonging to the pathway </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathway</span><span class="p">)))</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">step_cluster</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pathway</span><span class="p">):</span>
                 <span class="n">cluster</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="o">.</span><span class="n">clusters</span><span class="p">[</span><span class="n">step_cluster</span><span class="p">]</span>
-                <span class="n">pathwayFile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;MODEL </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
-                <span class="n">pdbStr</span> <span class="o">=</span> <span class="n">cluster</span><span class="o">.</span><span class="n">pdb</span><span class="o">.</span><span class="n">pdb</span>
+                <span class="n">pathwayFile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;MODEL    </span><span class="si">%4d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">pdbStr</span> <span class="o">=</span> <span class="n">cluster</span><span class="o">.</span><span class="n">pdb</span><span class="o">.</span><span class="n">get_pdb_string</span><span class="p">()</span>
                 <span class="n">pdbList</span> <span class="o">=</span> <span class="n">pdbStr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">pdbList</span><span class="p">:</span>
                     <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -1311,7 +1425,7 @@
 <span class="sd">            :param altSelection: Flag that controls wether to use the alternative structures (default 8)</span>
 <span class="sd">            :type altSelection: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">Clustering</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resname</span><span class="o">=</span><span class="n">resname</span><span class="p">,</span> <span class="n">resnum</span><span class="o">=</span><span class="n">resnum</span><span class="p">,</span> <span class="n">resChain</span><span class="o">=</span><span class="n">resChain</span><span class="p">,</span>
+        <span class="n">Clustering</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resname</span><span class="o">=</span><span class="n">resname</span><span class="p">,</span> <span class="n">resnum</span><span class="o">=</span><span class="n">resnum</span><span class="p">,</span> <span class="n">resChain</span><span class="o">=</span><span class="n">resChain</span><span class="p">,</span>
                             <span class="n">reportBaseFilename</span><span class="o">=</span><span class="n">reportBaseFilename</span><span class="p">,</span>
                             <span class="n">columnOfReportFile</span><span class="o">=</span><span class="n">columnOfReportFile</span><span class="p">,</span>
                             <span class="n">contactThresholdDistance</span><span class="o">=</span><span class="n">contactThresholdDistance</span><span class="p">,</span>
@@ -1396,7 +1510,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">symmetries</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">symmetries</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">Clustering</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resname</span><span class="o">=</span><span class="n">resname</span><span class="p">,</span> <span class="n">resnum</span><span class="o">=</span><span class="n">resnum</span><span class="p">,</span> <span class="n">resChain</span><span class="o">=</span><span class="n">resChain</span><span class="p">,</span>
+        <span class="n">Clustering</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resname</span><span class="o">=</span><span class="n">resname</span><span class="p">,</span> <span class="n">resnum</span><span class="o">=</span><span class="n">resnum</span><span class="p">,</span> <span class="n">resChain</span><span class="o">=</span><span class="n">resChain</span><span class="p">,</span>
                             <span class="n">reportBaseFilename</span><span class="o">=</span><span class="n">reportBaseFilename</span><span class="p">,</span>
                             <span class="n">columnOfReportFile</span><span class="o">=</span><span class="n">columnOfReportFile</span><span class="p">,</span>
                             <span class="n">contactThresholdDistance</span><span class="o">=</span><span class="n">contactThresholdDistance</span><span class="p">,</span>
@@ -1450,12 +1564,28 @@
 <span class="sd">        Assigned  the last snapshot of the trajectory to a cluster.</span>
 <span class="sd">        Only useful for PELE sequential runs</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SequentialLastSnapshotClustering.cluster"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.SequentialLastSnapshotClustering.cluster">[docs]</a>    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">resnum</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">resChain</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">reportBaseFilename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">columnOfReportFile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">contactThresholdDistance</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                 <span class="n">altSelection</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">Clustering</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resname</span><span class="o">=</span><span class="n">resname</span><span class="p">,</span> <span class="n">resnum</span><span class="o">=</span><span class="n">resnum</span><span class="p">,</span> <span class="n">resChain</span><span class="o">=</span><span class="n">resChain</span><span class="p">,</span>
+                            <span class="n">reportBaseFilename</span><span class="o">=</span><span class="n">reportBaseFilename</span><span class="p">,</span>
+                            <span class="n">columnOfReportFile</span><span class="o">=</span><span class="n">columnOfReportFile</span><span class="p">,</span>
+                            <span class="n">contactThresholdDistance</span><span class="o">=</span><span class="n">contactThresholdDistance</span><span class="p">,</span>
+                            <span class="n">altSelection</span><span class="o">=</span><span class="n">altSelection</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">clusteringTypes</span><span class="o">.</span><span class="n">CLUSTERING_TYPES</span><span class="o">.</span><span class="n">lastSnapshot</span>
+
+<div class="viewcode-block" id="SequentialLastSnapshotClustering.cluster"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.SequentialLastSnapshotClustering.cluster">[docs]</a>    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outputPathConstants</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Cluster the snaptshots contained in the paths folder</span>
 
 <span class="sd">            :param paths: List of folders with the snapshots</span>
 <span class="sd">            :type paths: list</span>
+<span class="sd">            :param topology: Topology object containing the set of topologies needed for the simulation</span>
+<span class="sd">            :type topology: :py:class:`.Topology`</span>
+<span class="sd">            :param epoch: Epoch number</span>
+<span class="sd">            :type epoch: int</span>
+<span class="sd">            :param outputPathConstants: Contains outputPath-related constants</span>
+<span class="sd">            :type outputPathConstants: :py:class:`.OutputPathConstants`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Clean clusters at every step, so we only have the last snapshot of</span>
         <span class="c1"># each trajectory as clusters</span>
@@ -1463,22 +1593,25 @@
         <span class="n">trajectories</span> <span class="o">=</span> <span class="n">getAllTrajectories</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">trajectory</span> <span class="ow">in</span> <span class="n">trajectories</span><span class="p">:</span>
             <span class="n">trajNum</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">getTrajNum</span><span class="p">(</span><span class="n">trajectory</span><span class="p">)</span>
-
             <span class="n">snapshots</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">getSnapshots</span><span class="p">(</span><span class="n">trajectory</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">topology</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">top</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">getTopology</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">trajNum</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">top</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reportBaseFilename</span><span class="p">:</span>
                 <span class="n">reportFilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">trajectory</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
                                               <span class="bp">self</span><span class="o">.</span><span class="n">reportBaseFilename</span> <span class="o">%</span> <span class="n">trajNum</span><span class="p">)</span>
-                <span class="n">metrics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">reportFilename</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">metrics</span> <span class="o">=</span> <span class="n">loadReportFile</span><span class="p">(</span><span class="n">reportFilename</span><span class="p">)</span>
                 <span class="c1"># Pass as cluster metrics the minimum value for each metric,</span>
                 <span class="c1"># thus the metrics are not valid to do any spawning, only to</span>
                 <span class="c1"># check the exit condition</span>
                 <span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">addSnapshotToCluster</span><span class="p">(</span><span class="n">snapshots</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">metrics</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">addSnapshotToCluster</span><span class="p">(</span><span class="n">snapshots</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">metrics</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="n">top</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">addSnapshotToCluster</span><span class="p">(</span><span class="n">snapshots</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">addSnapshotToCluster</span><span class="p">(</span><span class="n">snapshots</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">topology</span><span class="o">=</span><span class="n">top</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SequentialLastSnapshotClustering.addSnapshotToCluster"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.SequentialLastSnapshotClustering.addSnapshotToCluster">[docs]</a>    <span class="k">def</span> <span class="nf">addSnapshotToCluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SequentialLastSnapshotClustering.addSnapshotToCluster"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.SequentialLastSnapshotClustering.addSnapshotToCluster">[docs]</a>    <span class="k">def</span> <span class="nf">addSnapshotToCluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Cluster a snapshot using the leader algorithm</span>
 
@@ -1491,12 +1624,14 @@
 <span class="sd">            :param col: Column of the desired metrics</span>
 <span class="sd">            :type col: int</span>
 <span class="sd">            :returns: int -- Cluster to which the snapshot belongs</span>
+<span class="sd">            :param topology: Topology for non-pdb trajectories</span>
+<span class="sd">            :type topology: list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">metrics</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">metrics</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">pdb</span> <span class="o">=</span> <span class="n">atomset</span><span class="o">.</span><span class="n">PDB</span><span class="p">()</span>
         <span class="n">pdb</span><span class="o">.</span><span class="n">initialise</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="n">resname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resname</span><span class="p">,</span> <span class="n">resnum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resnum</span><span class="p">,</span>
-                       <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resChain</span><span class="p">)</span>
+                       <span class="n">chain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resChain</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="n">topology</span><span class="p">)</span>
         <span class="n">contacts</span> <span class="o">=</span> <span class="n">pdb</span><span class="o">.</span><span class="n">countContacts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">contactThresholdDistance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resnum</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resChain</span><span class="p">)</span>
         <span class="n">numberOfLigandAtoms</span> <span class="o">=</span> <span class="n">pdb</span><span class="o">.</span><span class="n">getNumberOfAtoms</span><span class="p">()</span>
         <span class="n">contactsPerAtom</span> <span class="o">=</span> <span class="n">contacts</span><span class="o">/</span><span class="n">numberOfLigandAtoms</span>
@@ -1507,7 +1642,336 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="o">.</span><span class="n">addCluster</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="ClusteringBuilder"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.ClusteringBuilder">[docs]</a><span class="k">class</span> <span class="nc">ClusteringBuilder</span><span class="p">:</span>
+<div class="viewcode-block" id="NullClustering"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.NullClustering">[docs]</a><span class="k">class</span> <span class="nc">NullClustering</span><span class="p">(</span><span class="n">Clustering</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Don&#39;t generate any clustering, works essentially as a placeholder</span>
+<span class="sd">        for simulation when no clustering is desired</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">Clustering</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">clusteringTypes</span><span class="o">.</span><span class="n">CLUSTERING_TYPES</span><span class="o">.</span><span class="n">null</span>
+
+<div class="viewcode-block" id="NullClustering.cluster"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.NullClustering.cluster">[docs]</a>    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outputPathConstants</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Cluster the snaptshots contained in the paths folder</span>
+
+<span class="sd">            :param paths: List of folders with the snapshots</span>
+<span class="sd">            :type paths: list</span>
+<span class="sd">            :param topology: Topology object containing the set of topologies needed for the simulation</span>
+<span class="sd">            :type topology: :py:class:`.Topology`</span>
+<span class="sd">            :param epoch: Epoch number</span>
+<span class="sd">            :type epoch: int</span>
+<span class="sd">            :param outputPathConstants: Contains outputPath-related constants</span>
+<span class="sd">            :type outputPathConstants: :py:class:`.OutputPathConstants`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="NullClustering.writeOutput"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.NullClustering.writeOutput">[docs]</a>    <span class="k">def</span> <span class="nf">writeOutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputPath</span><span class="p">,</span> <span class="n">degeneracy</span><span class="p">,</span> <span class="n">outputObject</span><span class="p">,</span> <span class="n">writeAll</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Writes all the clustering information in outputPath</span>
+
+<span class="sd">            :param outputPath: Folder that will contain all the clustering information</span>
+<span class="sd">            :type outputPath: str</span>
+<span class="sd">            :param degeneracy: Degeneracy of each cluster. It must be in the same order</span>
+<span class="sd">                as in the self.clusters list</span>
+<span class="sd">            :type degeneracy: list</span>
+<span class="sd">            :param outputObject: Output name for the pickle object</span>
+<span class="sd">            :type outputObject: str</span>
+<span class="sd">            :param writeAll: Wether to write pdb files for all cluster in addition</span>
+<span class="sd">                of the summary</span>
+<span class="sd">            :type writeAll: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">utilities</span><span class="o">.</span><span class="n">cleanup</span><span class="p">(</span><span class="n">outputPath</span><span class="p">)</span>
+        <span class="n">utilities</span><span class="o">.</span><span class="n">makeFolder</span><span class="p">(</span><span class="n">outputPath</span><span class="p">)</span>
+
+        <span class="n">summaryFilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputPath</span><span class="p">,</span> <span class="s2">&quot;summary.txt&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">summaryFilename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">summaryFile</span><span class="p">:</span>
+            <span class="n">summaryFile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#cluster size degeneracy contacts threshold density metric</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">summaryFile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Using null clustering, no clusters available</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">utilities</span><span class="o">.</span><span class="n">writeObject</span><span class="p">(</span><span class="n">outputObject</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="MSMClustering"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.MSMClustering">[docs]</a><span class="k">class</span> <span class="nc">MSMClustering</span><span class="p">(</span><span class="n">Clustering</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cluster the trajectories to estimate a Markov State Model (MSM)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_clusters</span><span class="p">,</span> <span class="n">tica</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">resname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">resnum</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">resChain</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">symmetries</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">atom_Ids</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">writeCA</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sidechains</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tica_lagtime</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">tica_nICs</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">tica_kinetic_map</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tica_commute_map</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">PYEMMA</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">utilities</span><span class="o">.</span><span class="n">UnsatisfiedDependencyException</span><span class="p">(</span><span class="s2">&quot;No installation of PyEMMA found. Please, install PyEMMA to use MSMClustering option.&quot;</span><span class="p">)</span>
+        <span class="n">Clustering</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resname</span><span class="o">=</span><span class="n">resname</span><span class="p">,</span> <span class="n">resnum</span><span class="o">=</span><span class="n">resnum</span><span class="p">,</span> <span class="n">resChain</span><span class="o">=</span><span class="n">resChain</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">clusteringTypes</span><span class="o">.</span><span class="n">CLUSTERING_TYPES</span><span class="o">.</span><span class="n">MSMClustering</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nprocessors</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_clusters</span> <span class="o">=</span> <span class="n">n_clusters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tica</span> <span class="o">=</span> <span class="n">tica</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constantsExtract</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">Constants</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indexes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom_Ids</span> <span class="o">=</span> <span class="n">atom_Ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeCA</span> <span class="o">=</span> <span class="n">writeCA</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sidechains</span> <span class="o">=</span> <span class="n">sidechains</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tica_lagtime</span> <span class="o">=</span> <span class="n">tica_lagtime</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tica_nICs</span> <span class="o">=</span> <span class="n">tica_nICs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tica_kinetic_map</span> <span class="o">=</span> <span class="n">tica_kinetic_map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tica_commute_map</span> <span class="o">=</span> <span class="n">tica_commute_map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyemma_clustering</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extract_params</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">ParamsHandler</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_Ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resname</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">writeCA</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nprocessors</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sidechains</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Defining pickling interface to avoid problems when working with old</span>
+        <span class="c1"># simulations if the properties of the clustering-related classes have</span>
+        <span class="c1"># changed</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="s2">&quot;clusters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="p">,</span>
+                 <span class="s2">&quot;reportBaseFilename&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reportBaseFilename</span><span class="p">,</span>
+                 <span class="s2">&quot;resname&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">resname</span><span class="p">,</span> <span class="s2">&quot;resnum&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">resnum</span><span class="p">,</span>
+                 <span class="s2">&quot;resChain&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">resChain</span><span class="p">,</span> <span class="s2">&quot;col&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">,</span>
+                 <span class="s2">&quot;epoch&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span><span class="p">,</span> <span class="s2">&quot;symmetries&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmetries</span><span class="p">,</span>
+                 <span class="s2">&quot;nprocessors&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nprocessors</span><span class="p">,</span> <span class="s2">&quot;n_clusters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_clusters</span><span class="p">,</span>
+                 <span class="s2">&quot;tica&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tica</span><span class="p">,</span> <span class="s2">&quot;constantsExtract&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">constantsExtract</span><span class="p">,</span>
+                 <span class="s2">&quot;indexes&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexes</span><span class="p">,</span> <span class="s2">&quot;atom_Ids&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_Ids</span><span class="p">,</span>
+                 <span class="s2">&quot;writeCA&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">writeCA</span><span class="p">,</span> <span class="s2">&quot;sidechains&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sidechains</span><span class="p">,</span>
+                 <span class="s2">&quot;tica_lagtime&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tica_lagtime</span><span class="p">,</span> <span class="s2">&quot;tica_nICs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tica_nICs</span><span class="p">,</span>
+                 <span class="s2">&quot;tica_kinetic_map&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tica_kinetic_map</span><span class="p">,</span>
+                 <span class="s2">&quot;tica_commute_map&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tica_commute_map</span><span class="p">,</span>
+                 <span class="s2">&quot;pyemma_clustering&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pyemma_clustering</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="c1"># Restore instance attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;clusters&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reportBaseFilename</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reportBaseFilename&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resname</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;resname&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resnum</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;resnum&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resChain</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;resChain&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;col&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;epoch&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symmetries</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;symmetries&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symmetries</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">symmetries</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">symmetries</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nprocessors</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;nprocessors&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_clusters</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;n_clusters&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tica</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tica&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constantsExtract</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;constantsExtract&#39;</span><span class="p">,</span> <span class="n">coord</span><span class="o">.</span><span class="n">Constants</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indexes</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;indexes&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom_Ids</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;atom_Ids&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeCA</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;writeCA&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sidechains</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sidechains&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tica_lagtime</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tica_lagtime&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tica_nICs</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tica_nICs&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tica_kinetic_map</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tica_kinetic_map&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tica_commute_map</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tica_commute_map&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyemma_clustering</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pyemma_clustering&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MSMClustering.getClusterListForSpawning"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.MSMClustering.getClusterListForSpawning">[docs]</a>    <span class="k">def</span> <span class="nf">getClusterListForSpawning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Return the clusters object to be used in the spawning</span>
+
+<span class="sd">            :returns: :py:class:`.Clusters` -- Container object for the clusters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pyemma_clustering</span></div>
+
+<div class="viewcode-block" id="MSMClustering.setProcessors"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.MSMClustering.setProcessors">[docs]</a>    <span class="k">def</span> <span class="nf">setProcessors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processors</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nprocessors</span> <span class="o">=</span> <span class="n">processors</span></div>
+
+<div class="viewcode-block" id="MSMClustering.cluster"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.MSMClustering.cluster">[docs]</a>    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outputPathConstants</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Cluster the snaptshots contained in the paths folder</span>
+
+<span class="sd">            :param paths: List of folders with the snapshots</span>
+<span class="sd">            :type paths: list</span>
+<span class="sd">            :param topology: Topology object containing the set of topologies needed for the simulation</span>
+<span class="sd">            :type topology: :py:class:`.Topology`</span>
+<span class="sd">            :param epoch: Epoch number</span>
+<span class="sd">            :type epoch: int</span>
+<span class="sd">            :param outputPathConstants: Contains outputPath-related constants</span>
+<span class="sd">            :type outputPathConstants: :py:class:`.OutputPathConstants`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">epoch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">epoch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="c1"># clean clusters from previous iteration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emptyClustering</span><span class="p">()</span>
+        <span class="c1"># when cleaning the clusters, the epoch attribute is reset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span> <span class="o">=</span> <span class="n">epoch</span>
+
+        <span class="n">utilities</span><span class="o">.</span><span class="n">makeFolder</span><span class="p">(</span><span class="n">outputPathConstants</span><span class="o">.</span><span class="n">allTrajsPath</span><span class="p">)</span>
+        <span class="n">utilities</span><span class="o">.</span><span class="n">makeFolder</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputPathConstants</span><span class="o">.</span><span class="n">allTrajsPath</span><span class="p">,</span> <span class="s2">&quot;extractedCoordinates&quot;</span><span class="p">))</span>
+        <span class="n">extractedFolder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constantsExtract</span><span class="o">.</span><span class="n">extractedTrajectoryFolder</span> <span class="o">%</span> <span class="n">outputPathConstants</span><span class="o">.</span><span class="n">epochOutputPathTempletized</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constantsExtract</span><span class="o">.</span><span class="n">gatherTrajsFilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputPathConstants</span><span class="o">.</span><span class="n">allTrajsPath</span><span class="p">,</span> <span class="s2">&quot;traj_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">.dat&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constantsExtract</span><span class="o">.</span><span class="n">gatherNonRepeatedTrajsFilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputPathConstants</span><span class="o">.</span><span class="n">allTrajsPath</span><span class="p">,</span> <span class="s2">&quot;extractedCoordinates&quot;</span><span class="p">,</span> <span class="s2">&quot;traj_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">.dat&quot;</span><span class="p">)</span>
+        <span class="n">utilities</span><span class="o">.</span><span class="n">makeFolder</span><span class="p">(</span><span class="n">extractedFolder</span><span class="p">)</span>
+        <span class="n">trajectories</span> <span class="o">=</span> <span class="n">getAllTrajectories</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extract_params</span><span class="o">.</span><span class="n">sidechain_folder</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extract_params</span><span class="o">.</span><span class="n">topology</span> <span class="o">=</span> <span class="n">topology</span>
+        <span class="c1"># extract coordinates</span>
+        <span class="k">if</span> <span class="n">PARALELLIZATION</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">nprocessors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nprocessors</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extract_params</span><span class="o">.</span><span class="n">parallelize</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extract_params</span><span class="o">.</span><span class="n">parallelize</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">pool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sidechains</span><span class="p">:</span>
+            <span class="n">new_sidechains</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">extractSidechainIndexes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extract_params</span><span class="p">,</span> <span class="n">pool</span><span class="o">=</span><span class="n">pool</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sidechains</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sidechains</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">new_sidechains</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sidechains</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">utilities</span><span class="o">.</span><span class="n">getFileExtension</span><span class="p">(</span><span class="n">trajectories</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">in</span> <span class="n">coord</span><span class="o">.</span><span class="n">MDTRAJ_FORMATS</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">indexes</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># select indexes for all topologies</span>
+            <span class="k">for</span> <span class="n">top</span> <span class="ow">in</span> <span class="n">topology</span><span class="o">.</span><span class="n">topologyFilesIterator</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="o">.</span><span class="n">extractIndexesTopology</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_Ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">writeCA</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sidechains</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">indexes</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">workers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">trajectories</span><span class="p">:</span>
+            <span class="n">trajNum</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">getTrajNum</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexes</span><span class="p">:</span>
+                <span class="n">indexes_traj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexes</span><span class="p">[</span><span class="n">topology</span><span class="o">.</span><span class="n">getTopologyIndex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epoch</span><span class="p">,</span> <span class="n">trajNum</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indexes_traj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexes</span>
+            <span class="k">if</span> <span class="n">topology</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">topology_traj</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">getTopologyFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epoch</span><span class="p">,</span> <span class="n">trajNum</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">topology_traj</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">pool</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># serial version</span>
+                <span class="n">coord</span><span class="o">.</span><span class="n">writeFilenameExtractedCoordinates</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_params</span><span class="p">,</span> <span class="n">outputPathConstants</span><span class="o">.</span><span class="n">epochOutputPathTempletized</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">constantsExtract</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="n">topology_traj</span><span class="p">,</span> <span class="n">indexes</span><span class="o">=</span><span class="n">indexes_traj</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># multiprocessor version</span>
+                <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">coord</span><span class="o">.</span><span class="n">writeFilenameExtractedCoordinates</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_params</span><span class="p">,</span> <span class="n">outputPathConstants</span><span class="o">.</span><span class="n">epochOutputPathTempletized</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">constantsExtract</span><span class="p">,</span> <span class="n">topology_traj</span><span class="p">,</span> <span class="n">indexes_traj</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">workers</span><span class="p">:</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">coord</span><span class="o">.</span><span class="n">gatherTrajs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constantsExtract</span><span class="p">,</span> <span class="n">outputPathConstants</span><span class="o">.</span><span class="n">epochOutputPathTempletized</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_params</span><span class="o">.</span><span class="n">non_Repeat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span><span class="p">)</span>
+        <span class="c1"># apply tica</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tica</span><span class="p">:</span>
+            <span class="n">trajectories</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">trajs</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputPathConstants</span><span class="o">.</span><span class="n">allTrajsPath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">constantsExtract</span><span class="o">.</span><span class="n">baseExtractedTrajectoryName</span><span class="o">+</span><span class="s2">&quot;*&quot;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">trajectory</span> <span class="ow">in</span> <span class="n">trajs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;tica&quot;</span> <span class="ow">in</span> <span class="n">trajectory</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">trajectories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">utilities</span><span class="o">.</span><span class="n">loadtxtfile</span><span class="p">(</span><span class="n">trajectory</span><span class="p">))</span>
+            <span class="n">tica</span> <span class="o">=</span> <span class="n">coor</span><span class="o">.</span><span class="n">tica</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">trajectories</span><span class="p">,</span> <span class="n">lag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tica_lagtime</span><span class="p">,</span> <span class="n">kinetic_map</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tica_kinetic_map</span><span class="p">,</span> <span class="n">commute_map</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tica_commute_map</span><span class="p">)</span>
+            <span class="n">projected</span> <span class="o">=</span> <span class="n">tica</span><span class="o">.</span><span class="n">get_output</span><span class="p">(</span><span class="n">dimensions</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tica_nICs</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">traj_name</span><span class="p">,</span> <span class="n">projected_traj</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">trajs</span><span class="p">,</span> <span class="n">projected</span><span class="p">):</span>
+                <span class="n">auxArr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">projected_traj</span><span class="p">)))</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s2">&quot;tica_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">traj_name</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">auxArr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">projected_traj</span><span class="p">))</span>
+            <span class="n">base_traj_names</span> <span class="o">=</span> <span class="s2">&quot;tica_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">constantsExtract</span><span class="o">.</span><span class="n">baseGatheredFilename</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">base_traj_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constantsExtract</span><span class="o">.</span><span class="n">baseGatheredFilename</span>
+
+        <span class="c1"># cluster the coordinates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyemma_clustering</span> <span class="o">=</span> <span class="n">pyemma_cluster</span><span class="o">.</span><span class="n">Cluster</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_clusters</span><span class="p">,</span> <span class="n">outputPathConstants</span><span class="o">.</span><span class="n">allTrajsPath</span><span class="p">,</span> <span class="n">base_traj_names</span><span class="p">,</span> <span class="n">discretizedPath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputPathConstants</span><span class="o">.</span><span class="n">allTrajsPath</span><span class="p">,</span> <span class="s2">&quot;discretized&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyemma_clustering</span><span class="o">.</span><span class="n">cleanDiscretizedFolder</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyemma_clustering</span><span class="o">.</span><span class="n">clusterTrajectories</span><span class="p">()</span>
+
+        <span class="c1"># create Adaptive clusters from the kmeans result</span>
+        <span class="n">trajectory_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputPathConstants</span><span class="o">.</span><span class="n">allTrajsPath</span><span class="p">,</span> <span class="n">base_traj_names</span><span class="p">))</span>
+        <span class="n">trajectories</span> <span class="o">=</span> <span class="p">[</span><span class="n">utilities</span><span class="o">.</span><span class="n">loadtxtfile</span><span class="p">(</span><span class="n">f</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">trajectory_files</span><span class="p">]</span>
+
+        <span class="n">centersInfo</span> <span class="o">=</span> <span class="n">getCentersInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pyemma_clustering</span><span class="o">.</span><span class="n">clusterCenters</span><span class="p">,</span> <span class="n">trajectories</span><span class="p">,</span> <span class="n">trajectory_files</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pyemma_clustering</span><span class="o">.</span><span class="n">dtrajs</span><span class="p">)</span>
+        <span class="n">centersInfo_processed</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="n">centersInfo</span><span class="p">:</span>
+            <span class="n">epoch_num</span><span class="p">,</span> <span class="n">traj_num</span><span class="p">,</span> <span class="n">snapshot_num</span> <span class="o">=</span> <span class="n">centersInfo</span><span class="p">[</span><span class="n">cluster</span><span class="p">][</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span>
+            <span class="n">centersInfo_processed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">cluster</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">epoch_num</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">traj_num</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">snapshot_num</span><span class="p">)])</span>
+        <span class="n">extractInfo</span> <span class="o">=</span> <span class="n">getRepr</span><span class="o">.</span><span class="n">getExtractInfo</span><span class="p">(</span><span class="n">centersInfo_processed</span><span class="p">)</span>
+        <span class="c1"># extractInfo is a dictionary organized as {[epoch, traj]: [cluster, snapshot]}</span>
+
+        <span class="c1"># assign cluster dummies so that then clusters can be assigned in proper</span>
+        <span class="c1"># order</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_clusters</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="o">.</span><span class="n">addCluster</span><span class="p">(</span><span class="n">Cluster</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="n">structureFolder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputPathConstants</span><span class="o">.</span><span class="n">epochOutputPathTempletized</span><span class="p">,</span> <span class="s2">&quot;*traj*_</span><span class="si">%d</span><span class="s2">.*&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">trajFile</span><span class="p">,</span> <span class="n">extraInfo</span> <span class="ow">in</span> <span class="n">extractInfo</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pdbFile</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">structureFolder</span> <span class="o">%</span> <span class="n">trajFile</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Structure </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">structureFolder</span> <span class="o">%</span> <span class="n">trajFile</span><span class="p">))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">snapshots</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">getSnapshots</span><span class="p">(</span><span class="n">pdbFile</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Unable to open </span><span class="si">%s</span><span class="s2">, please check that the path to structures provided is correct&quot;</span> <span class="o">%</span> <span class="n">pdbFile</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">extraInfo</span><span class="p">:</span>
+                <span class="n">pdb</span> <span class="o">=</span> <span class="n">atomset</span><span class="o">.</span><span class="n">PDB</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">topology</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">top_traj</span> <span class="o">=</span> <span class="n">topology</span><span class="o">.</span><span class="n">getTopology</span><span class="p">(</span><span class="o">*</span><span class="n">trajFile</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">top_traj</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">pdb</span><span class="o">.</span><span class="n">initialise</span><span class="p">(</span><span class="n">snapshots</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">resname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resname</span><span class="p">,</span> <span class="n">topology</span><span class="o">=</span><span class="n">top_traj</span><span class="p">)</span>
+                <span class="n">cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span><span class="n">pdb</span><span class="p">,</span> <span class="n">trajPosition</span><span class="o">=</span><span class="p">(</span><span class="n">trajFile</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">trajFile</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">cluster</span></div>
+
+<div class="viewcode-block" id="MSMClustering.writeOutput"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.MSMClustering.writeOutput">[docs]</a>    <span class="k">def</span> <span class="nf">writeOutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputPath</span><span class="p">,</span> <span class="n">degeneracy</span><span class="p">,</span> <span class="n">outputObject</span><span class="p">,</span> <span class="n">writeAll</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Writes all the clustering information in outputPath</span>
+
+<span class="sd">            :param outputPath: Folder that will contain all the clustering information</span>
+<span class="sd">            :type outputPath: str</span>
+<span class="sd">            :param degeneracy: Degeneracy of each cluster. It must be in the same order</span>
+<span class="sd">                as in the self.clusters list</span>
+<span class="sd">            :type degeneracy: list</span>
+<span class="sd">            :param outputObject: Output name for the pickle object</span>
+<span class="sd">            :type outputObject: str</span>
+<span class="sd">            :param writeAll: Wether to write pdb files for all cluster in addition</span>
+<span class="sd">                of the summary</span>
+<span class="sd">            :type writeAll: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">utilities</span><span class="o">.</span><span class="n">cleanup</span><span class="p">(</span><span class="n">outputPath</span><span class="p">)</span>
+        <span class="n">utilities</span><span class="o">.</span><span class="n">makeFolder</span><span class="p">(</span><span class="n">outputPath</span><span class="p">)</span>
+
+        <span class="n">summaryFilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputPath</span><span class="p">,</span> <span class="s2">&quot;summary.txt&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">summaryFilename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">summaryFile</span><span class="p">:</span>
+            <span class="n">summaryFile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#cluster degeneracy epoch trajectory snapshot cluster center</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="o">.</span><span class="n">clusters</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">writeAll</span><span class="p">:</span>
+                    <span class="n">outputFilename</span> <span class="o">=</span> <span class="s2">&quot;cluster_</span><span class="si">%d</span><span class="s2">.pdb&quot;</span> <span class="o">%</span> <span class="n">i</span>
+                    <span class="n">outputFilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputPath</span><span class="p">,</span> <span class="n">outputFilename</span><span class="p">)</span>
+                    <span class="n">cluster</span><span class="o">.</span><span class="n">writePDB</span><span class="p">(</span><span class="n">outputFilename</span><span class="p">)</span>
+
+                <span class="n">degeneracy_cluster</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="n">degeneracy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># degeneracy will be None if null spawning is used</span>
+                    <span class="n">degeneracy_cluster</span> <span class="o">=</span> <span class="n">degeneracy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">center_str</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pyemma_clustering</span><span class="o">.</span><span class="n">clusterCenters</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+                <span class="n">writeString</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">degeneracy_cluster</span><span class="p">)</span> <span class="o">+</span> <span class="n">cluster</span><span class="o">.</span><span class="n">trajPosition</span> <span class="o">+</span> <span class="p">(</span><span class="n">center_str</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pyemma_clustering</span><span class="o">.</span><span class="n">clusterCenters</span><span class="p">[</span><span class="n">i</span><span class="p">]),))</span>
+                <span class="n">summaryFile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">writeString</span><span class="p">)</span>
+
+        <span class="n">utilities</span><span class="o">.</span><span class="n">writeObject</span><span class="p">(</span><span class="n">outputObject</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MSMClustering.filterClustersAccordingToBox"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.MSMClustering.filterClustersAccordingToBox">[docs]</a>    <span class="k">def</span> <span class="nf">filterClustersAccordingToBox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulationRunnerParams</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Filter the clusters to select only the ones whose representative</span>
+<span class="sd">            structures will fit into the selected box</span>
+
+<span class="sd">            :param simulationRunnerParams: :py:class:`.SimulationParameters` Simulation parameters object</span>
+<span class="sd">            :type simulationRunnerParams: :py:class:`.SimulationParameters`</span>
+
+<span class="sd">            :returns list, list: -- list of the filtered clusters, list of bools flagging wether the cluster is selected or not</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MSMClustering.filterClustersAccordingToMetric"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.MSMClustering.filterClustersAccordingToMetric">[docs]</a>    <span class="k">def</span> <span class="nf">filterClustersAccordingToMetric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clustersFiltered</span><span class="p">,</span> <span class="n">filter_value</span><span class="p">,</span> <span class="n">condition</span><span class="p">,</span> <span class="n">col_filter</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Filter the clusters to select only the ones whose metric fits an</span>
+<span class="sd">            specific criterion</span>
+
+<span class="sd">            :param clustersFiltered: List of clusters to be processed</span>
+<span class="sd">            :type clustersFiltered: list</span>
+<span class="sd">            :param filter_value: Value to use in the filtering</span>
+<span class="sd">            :type filter_value: float</span>
+<span class="sd">            :param condition: Whether to use &gt; or &lt; condition in the filtering</span>
+<span class="sd">            :type condition: str</span>
+<span class="sd">            :param col_filter: Column of the report to use</span>
+<span class="sd">            :type col_filter: int</span>
+
+<span class="sd">            :returns list, list: -- list of the filtered clusters, list of bools flagging whether the cluster is selected or not</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
+
+
+<div class="viewcode-block" id="ClusteringBuilder"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.ClusteringBuilder">[docs]</a><span class="k">class</span> <span class="nc">ClusteringBuilder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <div class="viewcode-block" id="ClusteringBuilder.buildClustering"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.ClusteringBuilder.buildClustering">[docs]</a>    <span class="k">def</span> <span class="nf">buildClustering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clusteringBlock</span><span class="p">,</span> <span class="n">reportBaseFilename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">columnOfReportFile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Builder to create the appropiate clustering object</span>
@@ -1525,11 +1989,11 @@
         <span class="n">paramsBlock</span> <span class="o">=</span> <span class="n">clusteringBlock</span><span class="p">[</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">params</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">clusteringType</span> <span class="o">=</span> <span class="n">clusteringBlock</span><span class="p">[</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
-            <span class="n">contactThresholdDistance</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">contactThresholdDistance</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-            <span class="n">altSelection</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">alternativeStructure</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="n">err</span><span class="o">.</span><span class="n">message</span> <span class="o">+=</span> <span class="s2">&quot;: Need to provide mandatory parameter in clustering block&quot;</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">contactThresholdDistance</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">contactThresholdDistance</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="n">altSelection</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">alternativeStructure</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="n">resname</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">ligandResname</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
         <span class="n">resnum</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">ligandResnum</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
         <span class="n">resChain</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">ligandChain</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
@@ -1562,12 +2026,26 @@
                                                     <span class="n">resnum</span><span class="o">=</span><span class="n">resnum</span><span class="p">,</span> <span class="n">resChain</span><span class="o">=</span><span class="n">resChain</span><span class="p">,</span>
                                                     <span class="n">reportBaseFilename</span><span class="o">=</span><span class="n">reportBaseFilename</span><span class="p">,</span> <span class="n">columnOfReportFile</span><span class="o">=</span><span class="n">columnOfReportFile</span><span class="p">,</span>
                                                     <span class="n">contactThresholdDistance</span><span class="o">=</span><span class="n">contactThresholdDistance</span><span class="p">,</span> <span class="n">symmetries</span><span class="o">=</span><span class="n">symmetries</span><span class="p">,</span> <span class="n">altSelection</span><span class="o">=</span><span class="n">altSelection</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">clusteringType</span> <span class="o">==</span> <span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">null</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">NullClustering</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">clusteringType</span> <span class="o">==</span> <span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">MSMClustering</span><span class="p">:</span>
+            <span class="n">n_clusters</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="p">[</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">nclusters</span><span class="p">]</span>
+            <span class="n">symmetries</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">symmetries</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">tica</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">tica</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">atom_Ids</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">atom_Ids</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">writeCA</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">writeCA</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">sidechains</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">sidechains</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">tica_lagtime</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">tica_lagtime</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">tica_nICs</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">tica_nICs</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">tica_kinetic_map</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">tica_kinetic_map</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">tica_commute_map</span> <span class="o">=</span> <span class="n">paramsBlock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">blockNames</span><span class="o">.</span><span class="n">ClusteringTypes</span><span class="o">.</span><span class="n">tica_commute_map</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">MSMClustering</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">,</span> <span class="n">tica</span><span class="p">,</span> <span class="n">resname</span><span class="p">,</span> <span class="n">resnum</span><span class="p">,</span> <span class="n">resChain</span><span class="p">,</span> <span class="n">symmetries</span><span class="p">,</span> <span class="n">atom_Ids</span><span class="p">,</span> <span class="n">writeCA</span><span class="p">,</span> <span class="n">sidechains</span><span class="p">,</span> <span class="n">tica_lagtime</span><span class="p">,</span> <span class="n">tica_nICs</span><span class="p">,</span> <span class="n">tica_kinetic_map</span><span class="p">,</span> <span class="n">tica_commute_map</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Unknown clustering method! Choices are: &quot;</span> <span class="o">+</span>
                      <span class="nb">str</span><span class="p">(</span><span class="n">clusteringTypes</span><span class="o">.</span><span class="n">CLUSTERING_TYPE_TO_STRING_DICTIONARY</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span></div></div>
 
 
-<div class="viewcode-block" id="similarityEvaluatorBuilder"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.similarityEvaluatorBuilder">[docs]</a><span class="k">class</span> <span class="nc">similarityEvaluatorBuilder</span><span class="p">:</span>
+<div class="viewcode-block" id="similarityEvaluatorBuilder"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.similarityEvaluatorBuilder">[docs]</a><span class="k">class</span> <span class="nc">similarityEvaluatorBuilder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <div class="viewcode-block" id="similarityEvaluatorBuilder.build"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.similarityEvaluatorBuilder.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">similarityEvaluatorType</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Builder to create the appropiate similarityEvaluator</span>
@@ -1582,7 +2060,7 @@
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Unknown threshold calculator type! Choices are: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">clusteringTypes</span><span class="o">.</span><span class="n">SIMILARITY_TYPES_TO_STRING_DICTIONARY</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span></div></div>
 
 
-<div class="viewcode-block" id="CMSimilarityEvaluator"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.CMSimilarityEvaluator">[docs]</a><span class="k">class</span> <span class="nc">CMSimilarityEvaluator</span><span class="p">:</span>
+<div class="viewcode-block" id="CMSimilarityEvaluator"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.CMSimilarityEvaluator">[docs]</a><span class="k">class</span> <span class="nc">CMSimilarityEvaluator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Evaluate the similarity of two contactMaps by calculating the ratio of</span>
 <span class="sd">        the number of differences over the average of elements in the contacts</span>
@@ -1629,6 +2107,42 @@
     <span class="c1"># sort the files obtained by glob by name, so that the results will be the</span>
     <span class="c1"># same on all computers</span>
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">files</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="filterRepeatedReports"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.filterRepeatedReports">[docs]</a><span class="k">def</span> <span class="nf">filterRepeatedReports</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filter the matrix containing the report information to avoid rejected</span>
+<span class="sd">        steps</span>
+
+<span class="sd">        :param metrics: Contents of the report file</span>
+<span class="sd">        :type metrics: np.ndarray</span>
+<span class="sd">        :param column: Column to check for repeats</span>
+<span class="sd">        :type column: int</span>
+<span class="sd">        :returns: np.ndarray -- Contents of the report file filtered</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_metrics</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">accepted_steps</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">in</span> <span class="n">accepted_steps</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">accepted_steps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">new_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_metrics</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="loadReportFile"><a class="viewcode-back" href="../../../AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.loadReportFile">[docs]</a><span class="k">def</span> <span class="nf">loadReportFile</span><span class="p">(</span><span class="n">reportFile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a report file and filter it</span>
+
+<span class="sd">        :param reportFile: Name of the report file</span>
+<span class="sd">        :type reportFile: str</span>
+<span class="sd">        :returns: np.ndarray -- Contents of the report file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">reportFile</span><span class="p">,</span> <span class="n">missing_values</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">filling_values</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">return</span> <span class="n">filterRepeatedReports</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

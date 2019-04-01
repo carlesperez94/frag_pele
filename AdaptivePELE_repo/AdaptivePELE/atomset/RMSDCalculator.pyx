@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 import numpy as np
 cimport cython
 cimport numpy as np
-cimport AdaptivePELE.atomset.atomset as atomset
+cimport FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.atomset as atomset
 
 
 cdef class RMSDCalculator:
@@ -15,13 +15,13 @@ cdef class RMSDCalculator:
         self.symmetries = symmetries
 
     def __getstate__(self):
-        state = {'nonSymmetricalAtomsSet': self.nonSymmetricalAtomsSet,
-                 'symmetries': self.symmetries}
+        state = {u'nonSymmetricalAtomsSet': self.nonSymmetricalAtomsSet,
+                 u'symmetries': self.symmetries}
         return state
 
     def __setstate__(self, state):
-        self.nonSymmetricalAtomsSet = state['nonSymmetricalAtomsSet']
-        self.symmetries = state['symmetries']
+        self.nonSymmetricalAtomsSet = state[u'nonSymmetricalAtomsSet']
+        self.symmetries = state[u'symmetries']
 
     def computeNonSymmAtoms(self, atomset.PDB PDB):
         cdef set allAtomsSet

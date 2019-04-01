@@ -10,6 +10,8 @@ if machine == "bsccv03":
     matplotlib.use('wxagg')
 elif 'login' in machine:
     matplotlib.use('TkAgg')
+else:
+    matplotlib.use("agg")
 import matplotlib.pyplot as plt
 try:
     # This might fail for older versions of matplotlib (e.g in life cluster)
@@ -292,7 +294,8 @@ def main(filename, outputPath):
     plt.xlabel("Contact ratio")
     if filename != "":
         plt.savefig("%s%s_hist.png" % (outputPath, filename))
-    plt.show()
+    else:
+    	plt.show()
 
 if __name__ == "__main__":
     file_name, outputFolder = printHelp()

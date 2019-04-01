@@ -7,7 +7,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import argparse
 
 
-def extractCOMMatrix(clusters, resname):
+def extractCOMMatrix(clusters, resname, topology=None):
     """ Extract a matrix contaning the coordinates of the center of mass of
     the ligand for each cluster structure
 
@@ -20,11 +20,13 @@ def extractCOMMatrix(clusters, resname):
     population = np.zeros(n)
     total_elements = 0
     contacts = np.zeros(n)
+    if clusters[0].pdb.isFromPDBFile() and topology is None:
+        raise ValueError("Need to pass a topology file to process non-pdb trajectories")
     for index, cluster in enumerate(clusters):
         metrics[index] = cluster.metrics[cluster.metricCol]
         contacts[index] = cluster.contacts
         ligandPDB = atomset.PDB()
-        ligandPDB.initialise(cluster.pdb.pdb, resname=resname)
+        ligandPDB.initialise(cluster.pdb.get_pdb_string(), resname=resname, topology=topology)
         cluster_matrix[index, :] = ligandPDB.extractCOM()
         population[index] = cluster.elements
         total_elements += cluster.elements
@@ -98,12 +100,12 @@ def plotClusteringData(pklObjectFilename, resname, titlemetric, titlepopulation,
                        titlecontacts, metricPlotFilename="",
                        populationPlotFilename="", contactsPlotFilename="",
                        metricFlag=False, populationFlag=False,
-                       contactsFlag=False, inputFile=None):
+                       contactsFlag=False, inputFile=None, topology=None):
 
     with open(pklObjectFilename, "r") as f:
         clObject = pickle.load(f)
 
-    comCoord, metrics, totalElements, population, contacts = extractCOMMatrix(clObject.clusters.clusters, resname)
+    comCoord, metrics, totalElements, population, contacts = extractCOMMatrix(clObject.clusters.clusters, resname, topology=topology)
 
     if inputFile is not None:
         clustersInfo = extractInfo(inputFile)
@@ -136,6 +138,7 @@ def parseArguments():
     parser.add_argument("-population", action="store_true", help="Wether to plot the population of the clusters as color")
     parser.add_argument("-contacts", action="store_true", help="Wether to plot the contacts of the clusters as color")
     parser.add_argument("-i", type=str, default=None, help="File with cluster-associated information")
+    parser.add_argument("-top", type=str, default=None, help="PDB file with topology information, necessary if working with xtc files")
     args = parser.parse_args()
 
     return args.clusteringObject, args.resname, args.metrics, args.population, args.contacts, args.i
@@ -149,9 +152,12 @@ if __name__ == "__main__":
     title_metric = "Metrics Contacts"
     title_population = "Population Contacts"
     title_contacts = "Number of contacts Contacts"
+    topology = None
+    if top is not None:
+        topology = utilities.getTopologyFile(top)
 
     plotClusteringData(pklObject_filename, lig_resname, title_metric, title_population,
                        title_contacts, metricPlot_filename,
                        populationPlot_filename, contactsPlot_filename, metricsFlag,
-                       population_flag, contacts_flag, input_file)
+                       population_flag, contacts_flag, input_file, topology=topology)
     plt.show()

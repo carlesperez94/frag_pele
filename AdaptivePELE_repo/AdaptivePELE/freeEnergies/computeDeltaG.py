@@ -8,10 +8,11 @@
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 from builtins import range
-import numpy as np
 import glob
 import sys
+import itertools
 import argparse
+import numpy as np
 try:
     import cPickle
 except ImportError:
@@ -19,7 +20,6 @@ except ImportError:
 from pyemma.coordinates.clustering import AssignCenters
 from AdaptivePELE.freeEnergies import runMarkovChainModel as run
 from AdaptivePELE.freeEnergies import utils
-import itertools
 
 
 def assignNewTrajectories(trajs, clusterCenters):
@@ -255,7 +255,7 @@ def calculate_microstate_volumes_new(clusters, originalCoordinates, bins, d):
     return microstateVolume
 
 
-def calculate_pmf(microstateVolume, pi):
+def calculate_pmf(microstateVolume, pi, divide_volume=False):
     """
         Compute a potential of mean force given a stationary distribution
         (probabilities) and cluster volumes
@@ -263,34 +263,48 @@ def calculate_pmf(microstateVolume, pi):
     kb = 0.0019872041
     T = 300
     beta = 1 / (kb * T)
-    newDist = pi/microstateVolume
-    newDist /= newDist[newDist != np.inf].sum()
+    if not divide_volume:
+        newDist = pi  # /microstateVolume
+    else:
+        print("Dividing probability distribution by the volume of each cluster")
+        newDist = pi/microstateVolume
+        newDist /= newDist[newDist != np.inf].sum()
     gpmf = -kb*T*np.log(newDist)
     print(gpmf[gpmf == -np.inf])
     print(gpmf[gpmf == np.inf])
     gpmf[gpmf == -np.inf] = np.inf  # to avoid contribution later
     gpmf -= gpmf.min()
 
-    deltaW = -gpmf[gpmf != np.inf].max()
+    # deltaW = gpmf[gpmf != np.inf].max()
+    n_states = int(gpmf.size*0.10)
+    # use the 10% clusters with highest pmf to establish the depth of the pmf
+    # this should give a more reliable estimate of the bulk pmf value than just
+    # the max
+    deltaW = np.mean(gpmf[np.argsort(gpmf[gpmf != np.inf])[-n_states:]])
     print("bound    Delta G     Delta W     Binding Volume:     Binding Volume contribution")
 
-    upperGpmfValues = np.arange(0, -deltaW, 0.5)
+    upperGpmfValues = np.arange(0, deltaW, 0.25)
 
     # Initialize string variable in case loop is not accessed
     string = ""
 
+    bound_vols = []
     for upperGpmfValue in upperGpmfValues:
         bindingVolume = 0
         for g, volume in zip(gpmf, microstateVolume):
             if g <= upperGpmfValue:
                 bindingVolume += np.exp(-beta * g) * volume
-        deltaG = deltaW - kb*T*np.log(bindingVolume/1661)
+        bound_vols.append(bindingVolume)
+        deltaG = -deltaW - kb*T*np.log(bindingVolume/1661)
         string = "%.1f\t%.3f\t%.3f\t%.3f\t%.3f" % (upperGpmfValue, deltaG, deltaW, bindingVolume, -kb*T*np.log(bindingVolume/1661))
         print(string)
+    differences = np.diff(bound_vols)
+    if np.mean(np.abs(differences[-3:])) > 1:
+        print("WARNING!: There are differences in the estimated binding volume for large values of the pmf")
     return gpmf, string
 
 
-def main(trajWildcard, reweightingT=1000):
+def main(trajWildcard, reweightingT=1000, volume_method="new"):
     allClusters = np.loadtxt("discretized/clusterCenters.dat")
     MSMObject = loadMSM('MSM_object.pkl')
 
@@ -303,8 +317,7 @@ def main(trajWildcard, reweightingT=1000):
     originalCoordinates = gather_coordinates(originalFilenames)
 
     bins = create_box(clusters, originalCoordinates, d)
-    method = "new"
-    if method == "new":
+    if volume_method == "new":
         print("Using new volume estimation with radius %.2f" % d)
         microstateVolume = calculate_microstate_volumes_new(clusters, originalCoordinates, bins, d)
     else:

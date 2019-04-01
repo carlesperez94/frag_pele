@@ -1,6 +1,7 @@
 """
     Write specified cluster representative structures to pdb
 """
+from __future__ import print_function, unicode_literals
 from AdaptivePELE.utilities import clusteringUtilities
 import argparse
 
@@ -25,8 +26,8 @@ def parseArgs():
     return args
 
 
-def main(clObject, structures, condition, outputPath):
-    clusteringUtilities.writeStructures(clObject, structures, condition, outputPath)
+def main(clObject, structures, cond, outputPath):
+    clusteringUtilities.writeStructures(clObject, structures, cond, outputPath)
 
 
 if __name__ == "__main__":

@@ -49,10 +49,10 @@ analysis Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`writePrecisePathToSnapshot` Module
-----------------------------------------
+:mod:`backtrackAdaptiveTrajectory` Module
+-----------------------------------------
 
-.. automodule:: AdaptivePELE.analysis.writePrecisePathToSnapshot
+.. automodule:: AdaptivePELE.analysis.backtrackAdaptiveTrajectory
     :members:
     :undoc-members:
     :show-inheritance:

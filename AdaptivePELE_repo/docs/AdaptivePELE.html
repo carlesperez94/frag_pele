@@ -35,7 +35,7 @@
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="AdaptivePELE  documentation" href="index.html"/>
         <link rel="next" title="analysis Package" href="AdaptivePELE.analysis.html"/>
-        <link rel="prev" title="Changelog" href="Changelog.html"/> 
+        <link rel="prev" title="Frequently Asked Questions" href="Problems.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                v1.4.2
+                v1.6
               </div>
             
           
@@ -87,7 +87,7 @@
             
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="Examples.html">User Manual</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Problems.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">AdaptivePELE – Package Description</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-AdaptivePELE.adaptiveSampling"><code class="docutils literal"><span class="pre">adaptiveSampling</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-AdaptivePELE.automateRoundsAdaptive"><code class="docutils literal"><span class="pre">automateRoundsAdaptive</span></code> Module</a></li>
@@ -103,6 +103,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="Changelog.html">Changelog</a></li>
 </ul>
 
             
@@ -157,7 +158,7 @@
 <span id="adaptivesampling-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">adaptiveSampling</span></code> Module<a class="headerlink" href="#module-AdaptivePELE.adaptiveSampling" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="AdaptivePELE.adaptiveSampling.buildNewClusteringAndWriteInitialStructuresInNewSimulation">
-<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">buildNewClusteringAndWriteInitialStructuresInNewSimulation</code><span class="sig-paren">(</span><em>debug</em>, <em>controlFile</em>, <em>outputPathConstants</em>, <em>clusteringBlock</em>, <em>spawningParams</em>, <em>initialStructures</em>, <em>simulationRunner</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#buildNewClusteringAndWriteInitialStructuresInNewSimulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.buildNewClusteringAndWriteInitialStructuresInNewSimulation" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">buildNewClusteringAndWriteInitialStructuresInNewSimulation</code><span class="sig-paren">(</span><em>debug</em>, <em>controlFile</em>, <em>outputPathConstants</em>, <em>clusteringBlock</em>, <em>spawningParams</em>, <em>initialStructures</em>, <em>simulationRunner</em>, <em>processManager</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#buildNewClusteringAndWriteInitialStructuresInNewSimulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.buildNewClusteringAndWriteInitialStructuresInNewSimulation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build the clustering object and copies initial structures from control file.
 Returns the clustering object to use and the initial structures filenames as string</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -172,6 +173,7 @@ Returns the clustering object to use and the initial structures filenames as str
 <li><strong>spawningParams</strong> (<a class="reference internal" href="AdaptivePELE.spawning.html#AdaptivePELE.spawning.spawning.SpawningParams" title="AdaptivePELE.spawning.spawning.SpawningParams"><code class="xref py py-class docutils literal"><span class="pre">SpawningParams</span></code></a>) – Spawning params</li>
 <li><strong>initialStructures</strong> (<em>list</em>) – Control file initial structures</li>
 <li><strong>simulationRunner</strong> (<a class="reference internal" href="AdaptivePELE.simulation.html#AdaptivePELE.simulation.simulationrunner.SimulationRunner" title="AdaptivePELE.simulation.simulationrunner.SimulationRunner"><code class="xref py py-class docutils literal"><span class="pre">SimulationRunner</span></code></a>) – <a class="reference internal" href="AdaptivePELE.simulation.html#AdaptivePELE.simulation.simulationrunner.SimulationRunner" title="AdaptivePELE.simulation.simulationrunner.SimulationRunner"><code class="xref py py-class docutils literal"><span class="pre">SimulationRunner</span></code></a> Simulation runner object</li>
+<li><strong>processManager</strong> (<code class="xref py py-class docutils literal"><span class="pre">ProcessesManager</span></code>) – Object to synchronize the possibly multiple processes</li>
 </ul>
 </td>
 </tr>
@@ -184,7 +186,7 @@ Returns the clustering object to use and the initial structures filenames as str
 
 <dl class="function">
 <dt id="AdaptivePELE.adaptiveSampling.buildNewClusteringAndWriteInitialStructuresInRestart">
-<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">buildNewClusteringAndWriteInitialStructuresInRestart</code><span class="sig-paren">(</span><em>firstRun</em>, <em>outputPathConstants</em>, <em>clusteringBlock</em>, <em>spawningParams</em>, <em>spawningCalculator</em>, <em>simulationRunner</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#buildNewClusteringAndWriteInitialStructuresInRestart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.buildNewClusteringAndWriteInitialStructuresInRestart" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">buildNewClusteringAndWriteInitialStructuresInRestart</code><span class="sig-paren">(</span><em>firstRun</em>, <em>outputPathConstants</em>, <em>clusteringBlock</em>, <em>spawningParams</em>, <em>spawningCalculator</em>, <em>simulationRunner</em>, <em>topologies</em>, <em>processManager</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#buildNewClusteringAndWriteInitialStructuresInRestart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.buildNewClusteringAndWriteInitialStructuresInRestart" title="Permalink to this definition">¶</a></dt>
 <dd><p>It reads the previous clustering method, and if there are changes (clustering method or related to thresholds),
 reclusters the previous trajectories. Returns the clustering object to use,
 and the initial structure filenames as strings</p>
@@ -199,6 +201,8 @@ and the initial structure filenames as strings</p>
 <li><strong>spawningParams</strong> (<a class="reference internal" href="AdaptivePELE.spawning.html#AdaptivePELE.spawning.spawning.SpawningParams" title="AdaptivePELE.spawning.spawning.SpawningParams"><code class="xref py py-class docutils literal"><span class="pre">SpawningParams</span></code></a>) – Spawning params</li>
 <li><strong>spawningCalculator</strong> (<a class="reference internal" href="AdaptivePELE.spawning.html#AdaptivePELE.spawning.spawning.SpawningCalculator" title="AdaptivePELE.spawning.spawning.SpawningCalculator"><code class="xref py py-class docutils literal"><span class="pre">SpawningCalculator</span></code></a>) – Spawning calculator object</li>
 <li><strong>simulationRunner</strong> (<a class="reference internal" href="AdaptivePELE.simulation.html#AdaptivePELE.simulation.simulationrunner.SimulationRunner" title="AdaptivePELE.simulation.simulationrunner.SimulationRunner"><code class="xref py py-class docutils literal"><span class="pre">SimulationRunner</span></code></a>) – <a class="reference internal" href="AdaptivePELE.simulation.html#AdaptivePELE.simulation.simulationrunner.SimulationRunner" title="AdaptivePELE.simulation.simulationrunner.SimulationRunner"><code class="xref py py-class docutils literal"><span class="pre">SimulationRunner</span></code></a> Simulation runner object</li>
+<li><strong>topologies</strong> (<a class="reference internal" href="AdaptivePELE.utilities.html#AdaptivePELE.utilities.utilities.Topology" title="AdaptivePELE.utilities.utilities.Topology"><code class="xref py py-class docutils literal"><span class="pre">Topology</span></code></a>) – Topology object containing the set of topologies needed for the simulation</li>
+<li><strong>processManager</strong> (<code class="xref py py-class docutils literal"><span class="pre">ProcessesManager</span></code>) – Object to synchronize the possibly multiple processes</li>
 </ul>
 </td>
 </tr>
@@ -268,8 +272,34 @@ multiple trajectory metric exit condition</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="AdaptivePELE.adaptiveSampling.cleanPreviousSimulation">
+<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">cleanPreviousSimulation</code><span class="sig-paren">(</span><em>output_path</em>, <em>allTrajs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#cleanPreviousSimulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.cleanPreviousSimulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean the uneeded data from a previous simulation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>output_path</strong> (<em>str</em>) – Path where the data is stored</li>
+<li><strong>allTrajs</strong> (<em>str</em>) – Path where the discretized trajectories for MSM are stored</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.adaptiveSampling.cleanProcessesFiles">
+<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">cleanProcessesFiles</code><span class="sig-paren">(</span><em>folder</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#cleanProcessesFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.cleanProcessesFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean the processes files from a previous simulation
+:param folder: Folder where the files are stored
+:type folder: str</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="AdaptivePELE.adaptiveSampling.clusterEpochTrajs">
-<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">clusterEpochTrajs</code><span class="sig-paren">(</span><em>clusteringMethod</em>, <em>epoch</em>, <em>epochOutputPathTempletized</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#clusterEpochTrajs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.clusterEpochTrajs" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">clusterEpochTrajs</code><span class="sig-paren">(</span><em>clusteringMethod</em>, <em>epoch</em>, <em>epochOutputPathTempletized</em>, <em>topologies</em>, <em>outputPathConstants=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#clusterEpochTrajs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.clusterEpochTrajs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cluster the trajecotories of a given epoch</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -279,6 +309,8 @@ multiple trajectory metric exit condition</p>
 <li><strong>clusteringMethod</strong> (<a class="reference internal" href="AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering" title="AdaptivePELE.clustering.clustering.Clustering"><code class="xref py py-class docutils literal"><span class="pre">Clustering</span></code></a>) – Clustering object</li>
 <li><strong>epoch</strong> (<em>int</em>) – Number of the epoch to cluster</li>
 <li><strong>epochOutputPathTempletized</strong> (<em>str</em>) – Path where to find the trajectories</li>
+<li><strong>topologies</strong> (<a class="reference internal" href="AdaptivePELE.utilities.html#AdaptivePELE.utilities.utilities.Topology" title="AdaptivePELE.utilities.utilities.Topology"><code class="xref py py-class docutils literal"><span class="pre">Topology</span></code></a>) – Topology object containing the set of topologies needed for the simulation</li>
+<li><strong>outputPathConstants</strong> (<code class="xref py py-class docutils literal"><span class="pre">OutputPathConstants</span></code>) – Contains outputPath-related constants</li>
 </ul>
 </td>
 </tr>
@@ -288,7 +320,7 @@ multiple trajectory metric exit condition</p>
 
 <dl class="function">
 <dt id="AdaptivePELE.adaptiveSampling.clusterPreviousEpochs">
-<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">clusterPreviousEpochs</code><span class="sig-paren">(</span><em>clusteringMethod</em>, <em>finalEpoch</em>, <em>epochOutputPathTempletized</em>, <em>simulationRunner</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#clusterPreviousEpochs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.clusterPreviousEpochs" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">clusterPreviousEpochs</code><span class="sig-paren">(</span><em>clusteringMethod</em>, <em>finalEpoch</em>, <em>epochOutputPathTempletized</em>, <em>simulationRunner</em>, <em>topologies</em>, <em>outputPathConstants=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#clusterPreviousEpochs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.clusterPreviousEpochs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cluster all previous epochs using the clusteringMethod object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -299,6 +331,8 @@ multiple trajectory metric exit condition</p>
 <li><strong>finalEpoch</strong> (<em>int</em>) – Last epoch to cluster (not included)</li>
 <li><strong>epochOutputPathTempletized</strong> (<em>str</em>) – Path where to find the trajectories</li>
 <li><strong>simulationRunner</strong> (<a class="reference internal" href="AdaptivePELE.simulation.html#AdaptivePELE.simulation.simulationrunner.SimulationRunner" title="AdaptivePELE.simulation.simulationrunner.SimulationRunner"><code class="xref py py-class docutils literal"><span class="pre">SimulationRunner</span></code></a>) – Simulation runner object</li>
+<li><strong>topologies</strong> (<a class="reference internal" href="AdaptivePELE.utilities.html#AdaptivePELE.utilities.utilities.Topology" title="AdaptivePELE.utilities.utilities.Topology"><code class="xref py py-class docutils literal"><span class="pre">Topology</span></code></a>) – Topology object containing the set of topologies needed for the simulatioies</li>
+<li><strong>outputPathConstants</strong> (<code class="xref py py-class docutils literal"><span class="pre">OutputPathConstants</span></code>) – Contains outputPath-related constants</li>
 </ul>
 </td>
 </tr>
@@ -326,6 +360,25 @@ multiple trajectory metric exit condition</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="AdaptivePELE.adaptiveSampling.createMappingForFirstEpoch">
+<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">createMappingForFirstEpoch</code><span class="sig-paren">(</span><em>initialStructures</em>, <em>topologies</em>, <em>processors</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#createMappingForFirstEpoch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.createMappingForFirstEpoch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the topology mapping for the first iteration</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>initialStructures</strong> (<em>list</em>) – List of the initial structures for the first iteration</li>
+<li><strong>topologies</strong> (<a class="reference internal" href="AdaptivePELE.utilities.html#AdaptivePELE.utilities.utilities.Topology" title="AdaptivePELE.utilities.utilities.Topology"><code class="xref py py-class docutils literal"><span class="pre">Topology</span></code></a>) – Topology object containing the set of topologies needed for the simulation</li>
+<li><strong>processors</strong> (<em>int</em>) – Number of trajectories</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="AdaptivePELE.adaptiveSampling.expandInitialStructuresWildcard">
 <code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">expandInitialStructuresWildcard</code><span class="sig-paren">(</span><em>initialStructuresWildcard</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#expandInitialStructuresWildcard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.expandInitialStructuresWildcard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the initial structures after expanding the initial structures wildcard</p>
@@ -342,31 +395,8 @@ multiple trajectory metric exit condition</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AdaptivePELE.adaptiveSampling.filterClustersAccordingToBox">
-<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">filterClustersAccordingToBox</code><span class="sig-paren">(</span><em>simulationRunnerParams</em>, <em>clusteringObject</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#filterClustersAccordingToBox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.filterClustersAccordingToBox" title="Permalink to this definition">¶</a></dt>
-<dd><p>Filter the clusters to select only the ones whose representative
-structures will fit into the selected box</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>simulationRunnerParams</strong> (<a class="reference internal" href="AdaptivePELE.simulation.html#AdaptivePELE.simulation.simulationrunner.SimulationParameters" title="AdaptivePELE.simulation.simulationrunner.SimulationParameters"><code class="xref py py-class docutils literal"><span class="pre">SimulationParameters</span></code></a>) – <a class="reference internal" href="AdaptivePELE.simulation.html#AdaptivePELE.simulation.simulationrunner.SimulationParameters" title="AdaptivePELE.simulation.simulationrunner.SimulationParameters"><code class="xref py py-class docutils literal"><span class="pre">SimulationParameters</span></code></a> Simulation parameters object</li>
-<li><strong>clusteringObject</strong> (<a class="reference internal" href="AdaptivePELE.clustering.html#AdaptivePELE.clustering.clustering.Clustering" title="AdaptivePELE.clustering.clustering.Clustering"><code class="xref py py-class docutils literal"><span class="pre">Clustering</span></code></a>) – Clustering object</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Returns list, list:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first last">– list of the filtered clusters, list of bools flagging wether the cluster is selected or not</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
 <dt id="AdaptivePELE.adaptiveSampling.findFirstRun">
-<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">findFirstRun</code><span class="sig-paren">(</span><em>outputPath</em>, <em>clusteringOutputObject</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#findFirstRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.findFirstRun" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">findFirstRun</code><span class="sig-paren">(</span><em>outputPath</em>, <em>clusteringOutputObject</em>, <em>simulationRunner</em>, <em>restart</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#findFirstRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.findFirstRun" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the last epoch that was properly simulated and clusterized and
 and return the first epoch to run in case of restart</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -376,6 +406,8 @@ and return the first epoch to run in case of restart</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>outputPath</strong> (<em>str</em>) – Simulation output path</li>
 <li><strong>clusteringOutputObject</strong> (<em>str</em>) – Templetized name of the clustering object</li>
+<li><strong>simulationRunner</strong> (<a class="reference internal" href="AdaptivePELE.simulation.html#AdaptivePELE.simulation.simulationrunner.SimulationRunner" title="AdaptivePELE.simulation.simulationrunner.SimulationRunner"><code class="xref py py-class docutils literal"><span class="pre">SimulationRunner</span></code></a>) – Simulation runner object</li>
+<li><strong>restart</strong> (<em>bool</em>) – Whether to restart a previous simulation</li>
 </ul>
 </td>
 </tr>
@@ -388,7 +420,7 @@ and return the first epoch to run in case of restart</p>
 
 <dl class="function">
 <dt id="AdaptivePELE.adaptiveSampling.fixReportsSymmetry">
-<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">fixReportsSymmetry</code><span class="sig-paren">(</span><em>outputPath</em>, <em>resname</em>, <em>nativeStructure</em>, <em>symmetries</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#fixReportsSymmetry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.fixReportsSymmetry" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">fixReportsSymmetry</code><span class="sig-paren">(</span><em>outputPath</em>, <em>resname</em>, <em>nativeStructure</em>, <em>symmetries</em>, <em>topologies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#fixReportsSymmetry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.fixReportsSymmetry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a new column in the report file with the RMSD that takes into account symmetries.
 New reports are stored in the fixedReport_i where i is the number of the report</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -400,6 +432,7 @@ New reports are stored in the fixedReport_i where i is the number of the report<
 <li><strong>resname</strong> (<em>str</em>) – Residue name of the ligand in the pdb</li>
 <li><strong>nativeStructure</strong> (<em>str</em>) – Path to the native structure pdb</li>
 <li><strong>symmetries</strong> (<em>dict</em>) – Dictionary containg the symmetries of the ligand</li>
+<li><strong>topologies</strong> (<a class="reference internal" href="AdaptivePELE.utilities.html#AdaptivePELE.utilities.utilities.Topology" title="AdaptivePELE.utilities.utilities.Topology"><code class="xref py py-class docutils literal"><span class="pre">Topology</span></code></a>) – Topology object containing the set of topologies needed for the simulation</li>
 </ul>
 </td>
 </tr>
@@ -419,7 +452,7 @@ New reports are stored in the fixedReport_i where i is the number of the report<
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>Poch</strong> – Epoch number</li>
+<li><strong>epoch</strong> (<em>int</em>) – Epoch number</li>
 <li><strong>epochOutputPathTempletized</strong> (<em>str</em>) – Templetized path where the trajectories of any epoch are stored</li>
 </ul>
 </td>
@@ -434,7 +467,7 @@ epoch</p>
 
 <dl class="function">
 <dt id="AdaptivePELE.adaptiveSampling.getWorkingClusteringObjectAndReclusterIfNecessary">
-<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">getWorkingClusteringObjectAndReclusterIfNecessary</code><span class="sig-paren">(</span><em>firstRun</em>, <em>outputPathConstants</em>, <em>clusteringBlock</em>, <em>spawningParams</em>, <em>simulationRunner</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#getWorkingClusteringObjectAndReclusterIfNecessary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.getWorkingClusteringObjectAndReclusterIfNecessary" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">getWorkingClusteringObjectAndReclusterIfNecessary</code><span class="sig-paren">(</span><em>firstRun</em>, <em>outputPathConstants</em>, <em>clusteringBlock</em>, <em>spawningParams</em>, <em>simulationRunner</em>, <em>topologies</em>, <em>processManager</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#getWorkingClusteringObjectAndReclusterIfNecessary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.getWorkingClusteringObjectAndReclusterIfNecessary" title="Permalink to this definition">¶</a></dt>
 <dd><p>It reads the previous clustering method, and, if there are changes,
 it reclusters the previous trajectories. Returns the clustering object to use</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -446,6 +479,8 @@ it reclusters the previous trajectories. Returns the clustering object to use</p
 <li><strong>outputPathConstants</strong> (<code class="xref py py-class docutils literal"><span class="pre">OutputPathConstants</span></code>) – Contains outputPath-related constants</li>
 <li><strong>clusteringBlock</strong> (<em>json</em>) – Contains the new clustering block</li>
 <li><strong>spawningParams</strong> (<a class="reference internal" href="AdaptivePELE.spawning.html#AdaptivePELE.spawning.spawning.SpawningParams" title="AdaptivePELE.spawning.spawning.SpawningParams"><code class="xref py py-class docutils literal"><span class="pre">SpawningParams</span></code></a>) – Spawning params, to know what reportFile and column to read</li>
+<li><strong>topologies</strong> (<a class="reference internal" href="AdaptivePELE.utilities.html#AdaptivePELE.utilities.utilities.Topology" title="AdaptivePELE.utilities.utilities.Topology"><code class="xref py py-class docutils literal"><span class="pre">Topology</span></code></a>) – Topology object containing the set of topologies needed for the simulation</li>
+<li><strong>processManager</strong> (<code class="xref py py-class docutils literal"><span class="pre">ProcessesManager</span></code>) – Object to synchronize the possibly multiple processes</li>
 </ul>
 </td>
 </tr>
@@ -534,19 +569,21 @@ or distance</p>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="AdaptivePELE.adaptiveSampling.preparePeleControlFile">
-<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">preparePeleControlFile</code><span class="sig-paren">(</span><em>epoch</em>, <em>outputPathConstants</em>, <em>simulationRunner</em>, <em>peleControlFileDictionary</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#preparePeleControlFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.preparePeleControlFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Substitute the parameters in the PELE control file specified with the
-provided in the control file</p>
+<dt id="AdaptivePELE.adaptiveSampling.printRunInfo">
+<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">printRunInfo</code><span class="sig-paren">(</span><em>restart</em>, <em>debug</em>, <em>simulationRunner</em>, <em>spawningCalculator</em>, <em>clusteringBlock</em>, <em>outputPath</em>, <em>initialStructuresWildcard</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#printRunInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.printRunInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a summary of the run paramaters</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>epoch</strong> (<em>int</em>) – Epoch number</li>
-<li><strong>outputPathConstants</strong> (<code class="xref py py-class docutils literal"><span class="pre">OutputPathConstants</span></code>) – Object that has as attributes constant related to the outputPath that will be used to create the working control file</li>
-<li><strong>simulationRunner</strong> (<cite>.SimulationRunner</cite>) – Simulation runner object</li>
-<li><strong>peleControlFileDictionary</strong> (<em>dict</em>) – Dictonary containing the values of the parameters to substitute in the control file</li>
+<li><strong>restart</strong> (<em>bool</em>) – Flag on whether to continue a previous simulation</li>
+<li><strong>debug</strong> (<em>bool</em>) – Flag to mark whether simulation is run in debug mode</li>
+<li><strong>simulationRunner</strong> (<a class="reference internal" href="AdaptivePELE.simulation.html#AdaptivePELE.simulation.simulationrunner.SimulationRunner" title="AdaptivePELE.simulation.simulationrunner.SimulationRunner"><code class="xref py py-class docutils literal"><span class="pre">SimulationRunner</span></code></a>) – Simulation runner object</li>
+<li><strong>spawningCalculator</strong> (<a class="reference internal" href="AdaptivePELE.spawning.html#AdaptivePELE.spawning.spawning.SpawningCalculator" title="AdaptivePELE.spawning.spawning.SpawningCalculator"><code class="xref py py-class docutils literal"><span class="pre">SpawningCalculator</span></code></a>) – Spawning calculator object</li>
+<li><strong>clusteringBlock</strong> (<em>dict</em>) – Block of the control file with clustering options</li>
+<li><strong>outputPath</strong> (<em>str</em>) – Path where to write the simulation output</li>
+<li><strong>initialStructuresWildcard</strong> (<em>str</em>) – Wildcard expression to find the initial structures</li>
 </ul>
 </td>
 </tr>
@@ -565,6 +602,24 @@ provided in the control file</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>jsonParams</strong> (<em>str</em>) – Input control file in JSON format</li>
 <li><strong>originalControlFile</strong> (<em>str</em>) – Path where to save the control file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="AdaptivePELE.adaptiveSampling.writeTopologyFiles">
+<code class="descclassname">AdaptivePELE.adaptiveSampling.</code><code class="descname">writeTopologyFiles</code><span class="sig-paren">(</span><em>topologies</em>, <em>destination</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AdaptivePELE/adaptiveSampling.html#writeTopologyFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AdaptivePELE.adaptiveSampling.writeTopologyFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the topology files to the desired destination</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>topologies</strong> (<em>list</em>) – List of topology files</li>
+<li><strong>destination</strong> (<em>str</em>) – Path where to copy the toplogy files</li>
 </ul>
 </td>
 </tr>
@@ -614,7 +669,7 @@ only the seed</p>
 <li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.analysis.html#module-AdaptivePELE.analysis.numberOfClusters"><code class="docutils literal"><span class="pre">numberOfClusters</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.analysis.html#module-AdaptivePELE.analysis.plotAdaptive"><code class="docutils literal"><span class="pre">plotAdaptive</span></code> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.analysis.html#module-AdaptivePELE.analysis.writeClusteringStructures"><code class="docutils literal"><span class="pre">writeClusteringStructures</span></code> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.analysis.html#module-AdaptivePELE.analysis.writePrecisePathToSnapshot"><code class="docutils literal"><span class="pre">writePrecisePathToSnapshot</span></code> Module</a><ul class="simple">
+<li class="toctree-l2"><a class="reference internal" href="AdaptivePELE.analysis.html#module-AdaptivePELE.analysis.backtrackAdaptiveTrajectory"><code class="docutils literal"><span class="pre">backtrackAdaptiveTrajectory</span></code> Module</a><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -678,7 +733,7 @@ only the seed</p>
         <a href="AdaptivePELE.analysis.html" class="btn btn-neutral float-right" title="analysis Package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="Changelog.html" class="btn btn-neutral" title="Changelog" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="Problems.html" class="btn btn-neutral" title="Frequently Asked Questions" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

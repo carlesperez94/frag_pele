@@ -49,7 +49,8 @@ class MSM:
             # This error should happen only when running in the MN computing queues
             # with the tkinter matplotlib backend, to avoid it set the default
             # backend to pdf
-            if "connect to display" in err.message:
+            message = str(err)
+            if "connect to display" in message:
                 print("ITS plots not saved because of MN error")
             else:
                 raise err

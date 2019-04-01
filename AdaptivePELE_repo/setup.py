@@ -12,6 +12,7 @@ except ImportError:
 else:
     use_cython = True
 from distutils.command.sdist import sdist as _sdist
+import AdaptivePELE as a
 
 # Run the following line to compile atomset package
 # python setup.py build_ext --inplace
@@ -51,17 +52,30 @@ else:
 
 setup(
     name="AdaptivePELE",
-    version="1.4.2",
+    version="%s" % a.__version__,
     description='Enhanced sampling of molecular simulations',
     long_description=long_description,
-    url="https://github.com/cescgina/AdaptivePELE",
+    url="https://github.com/AdaptivePELE/AdaptivePELE",
     author='Daniel Lecina, Joan Francesc Gilabert',
     author_email='danilecina@gmail.com, cescgina@gmail.com',
     license='',
     packages=find_packages(exclude=['docs', 'tests']),
     package_data={"AdaptivePELE/atomset": ['*.pxd']},
-    install_requires=['numpy'],
+    install_requires=['numpy', 'mdtraj', 'scipy'],
     cmdclass=cmdclass,
-    ext_modules=cythonize(ext_modules),  # accepts a glob pattern
-    include_dirs=[numpy.get_include()]
+    ext_modules=ext_modules,  # accepts a glob pattern
+    include_dirs=[numpy.get_include()],
+    classifiers=(
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 2.7",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: POSIX :: Linux",
+        "Intended Audience :: Science/Research"
+    ),
+    project_urls={
+    'Documentation': 'https://adaptivepele.github.io/AdaptivePELE//',
+    'Source': 'https://github.com/AdaptivePELE/AdaptivePELE',
+    'Tracker': 'https://github.com/AdaptivePELE/AdaptivePELE/issues',
+},
+
 )

@@ -24,10 +24,11 @@ def parseArguments():
     parser.add_argument("-points", action="store_true", help="Plot using points")
     parser.add_argument("-lines", action="store_true", help="Plot using lines")
     parser.add_argument("-zcol", type=int, default=None, help="Column to define color according to metric")
+    parser.add_argument("-traj_col", action="store_true", help="Color differently each trajectory")
     parser.add_argument("-t", "--traj_range", type=str, default=None, help="Range of trajs to select, e.g to select trajs from 1 to 10, 1:10")
 
     args = parser.parse_args()
-    return args.steps, args.xcol, args.ycol, args.filename, args.points, args.lines, args.zcol, args.traj_range
+    return args.steps, args.xcol, args.ycol, args.filename, args.points, args.lines, args.zcol, args.traj_range, args.traj_col
 
 
 def generateNestedString(gnuplotString, reportName, column1, column2, stepsPerRun, printWithLines, totalNumberOfSteps=False, replotFirst=False, paletteModifier=None, trajs_range=None):
@@ -110,23 +111,28 @@ def generatePrintString(stepsPerRun, xcol, ycol, reportName, kindOfPrint, palett
         printWithLines = False
         totalNumberOfSteps = False
     if paletteModifier is None:
-        stringPalette = "frac j/%(numberOfEpochs)d. "
+        stringPalette = "lt 6 lc palette frac j/%(numberOfEpochs)d. "
         colorMetric = ""
+    elif isinstance(paletteModifier, int):
+        stringPalette = "lt 6 lc palette "
+        colorMetric = ":%d" % paletteModifier
     else:
         stringPalette = ""
-        colorMetric = ":%d" % paletteModifier
+        colorMetric = ""
 
-    gnuplotString = "".join(["plot for [i=%(startTraj)d:%(runsPerEpoch)d] for [j=0:%(numberOfEpochs)d-1] \'\'.j.\'/%(reportName)s\'.i u %(col1)s:%(col2)d", colorMetric, " lt 6 lc palette ", stringPalette, "notitle %(withLines)s"])
+    gnuplotString = "".join(["set cbrange[0:%(numberOfEpochs)d]; plot for [i=%(startTraj)d:%(runsPerEpoch)d] for [j=0:%(numberOfEpochs)d-1] \'\'.j.\'/%(reportName)s\'.i u %(col1)s:%(col2)d", colorMetric, " ", stringPalette, "notitle %(withLines)s"])
     return generateNestedString(gnuplotString, reportName, xcol, ycol, stepsPerRun, printWithLines, totalNumberOfSteps, False, paletteModifier, trajs_range)
 
 
 if __name__ == "__main__":
-    steps_Run, Xcol, Ycol, filename, be, rmsd, colModifier, traj_range = parseArguments()
+    steps_Run, Xcol, Ycol, filename, be, rmsd, colModifier, traj_range, color_traj = parseArguments()
     # VARIABLES TO SET WHEN PRINTING
     if be:
         kind_Print = "PRINT_BE_RMSD"
     elif rmsd:
         kind_Print = "PRINT_RMSD_STEPS"
+    if color_traj:
+        colModifier = ""
 
     printLine = generatePrintString(steps_Run, Xcol, Ycol, filename, kind_Print, colModifier, traj_range)
     print(printLine)
