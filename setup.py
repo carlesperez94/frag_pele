@@ -2,7 +2,6 @@ import subprocess
 import sys
 import shutil
 # subprocess.call("pip install numpy cython".split())
-import numpy
 from setuptools import setup, find_packages, Command
 from string import Template
 # To use a consistent encoding
@@ -82,11 +81,10 @@ def installer(schr, pele, pele_exec, pele_license):
 
         
 
-packages = ['numpy', 'matplotlib', 'pandas', 'cython', 'mdtraj', 'scipy', 'pyemma==2.4', 'prody==1.8.2', 'fpdf']
 here = path.abspath(path.dirname(__file__))
 ext_modules = []
 cmdclass = {}
-cmdclass.update({'install': PreInstallCommand})
+#cmdclass.update({'install': PreInstallCommand})
 
 
 class sdist(_sdist):
@@ -131,10 +129,10 @@ setup(
     packages=find_packages(exclude=['docs', 'tests']),
     package_data={"AdaptivePELE_repo/AdaptivePELE/atomset": ['*.pxd'], "Templates": ["*.pdb", "*.conf"] },
     include_package_data=True,
-    install_requires=['numpy', 'matplotlib', 'biopython ', 'pandas', 'cython', 'mdtraj', 'scipy', 'prody' ],
+    install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody', 'six', 'mdtraj' ],
     cmdclass=cmdclass,
     ext_modules=ext_modules,  # accepts a glob pattern
-    include_dirs=[numpy.get_include()],
+    #include_dirs=[numpy.get_include()],
     classifiers=(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 2.7",
