@@ -56,10 +56,6 @@
           
             
             
-              <div class="version">
-                1.0
-              </div>
-            
           
 
           
@@ -138,7 +134,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/index.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -154,10 +150,9 @@
   <div class="section" id="frag-pele-fragment-based-automatic-growing">
 <h1>FrAG-PELE. Fragment-based Automatic Growing.<a class="headerlink" href="#frag-pele-fragment-based-automatic-growing" title="Permalink to this headline">¶</a></h1>
 <p>FrAG a new tool for in silico hit-to-lead drug design, capable of growing a fragment into a core while exploring the protein-ligand conformational space.</p>
-<a class="reference internal image-reference" href="_images/movie_growing_phenyl.gif"><img alt="_images/movie_growing_phenyl.gif" class="align-center" src="_images/movie_growing_phenyl.gif" /></a>
 <p>The general workflow starts with the system preparation, where core and fragment are put together, followed by several growing stages, where various parallel Monte Carlo simulations are performed while increasing linearly the fragment characteristics. In each stage a clustering and spawning is done to trigger the next growing stage. Finally, a simulation analysis package scores best poses and  retrieved its PDBs.</p>
 <p>FrAG is build on top of Protein Energy Landscape Exploration (PELE) Software.</p>
-<a class="reference internal image-reference" href="_images/schema.jpg"><img alt="_images/schema.jpg" class="align-center" src="_images/schema.jpg" /></a>
+<a class="reference internal image-reference" href="_images/growing.gif"><img alt="_images/growing.gif" class="align-center" src="_images/growing.gif" style="width: 576.0px; height: 384.0px;" /></a>
 <p>Requirements:</p>
 <ul class="simple">
 <li>Python (3.6.1)</li>
@@ -176,7 +171,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="first_steps.html">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="first_steps.html#how-to-do-it">How to do it?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="first_steps.html#how-to-do-it">How to do it?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="first_steps.html#previous-requisites"><strong>Previous Requisites</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="first_steps.html#simple-serie-file"><strong>Simple serie file</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="first_steps.html#serie-file-to-successive-growing-to-same-position"><strong>Serie file to successive growing to same position</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="first_steps.html#all-together"><strong>All together</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="first_steps.html#launch-simple-frag-pele-simulation"><strong>Launch simple FrAG-PELE simulation</strong></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -200,13 +202,13 @@
 </ul>
 </div>
 </div>
-<div class="section" id="contributors">
-<h1>Contributors<a class="headerlink" href="#contributors" title="Permalink to this headline">¶</a></h1>
-<p>Carles Perez Lopez and Dani Soler</p>
-</div>
-<div class="section" id="mantainers">
-<h1>Mantainers<a class="headerlink" href="#mantainers" title="Permalink to this headline">¶</a></h1>
-<p>Carles Perez Lopez</p>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
 </div>
 
 
@@ -227,7 +229,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Carles Perez Lopez, with colaboration of Dani Soler.
+        &copy; Copyright 2019, Carles Perez Lopez and Dani Soler
 
     </p>
   </div>

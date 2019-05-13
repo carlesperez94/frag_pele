@@ -56,10 +56,6 @@
           
             
             
-              <div class="version">
-                1.0
-              </div>
-            
           
 
           
@@ -148,7 +144,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/documentation.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/documentation.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -175,7 +171,6 @@ as the core structure. Remember to rename the ligand chain with a different char
 <li><strong>-sef</strong>, <strong>—serie_file</strong>:  Name of the tabular file which must contain the instructions required to perform several
 successive growings, using different fragments or different growing positions.</li>
 </ul>
-<p>For further information, see <a class="reference internal" href="first_steps.html#first-steps"><span class="std std-ref">Getting Started</span></a>.</p>
 </div>
 <div class="section" id="optional-parameters">
 <h2>Optional parameters<a class="headerlink" href="#optional-parameters" title="Permalink to this headline">¶</a></h2>
@@ -183,7 +178,7 @@ successive growings, using different fragments or different growing positions.</
 <h3>FrAG configuration<a class="headerlink" href="#frag-configuration" title="Permalink to this headline">¶</a></h3>
 <p>This are the options directly related to FrAG itself.</p>
 <ul class="simple">
-<li><strong>-x</strong>, <strong>—growing_steps</strong>: Number of Growing Steps (GS). By default: 10.</li>
+<li><strong>-x</strong>, <strong>—growing_steps</strong>: Number of Growing Steps (GS). By default: 10. Set 6 for small ligands and 2 to perform HT mode.</li>
 <li><strong>-cr</strong>, <strong>—criteria</strong>: Name of the column of the report file to select the structures that will spawn in the
 next GS. Additionally, this parameter will be the selection criteria to extract the best structure after completing
 the growing. By default: ‘Binding Energy’.</li>
@@ -263,7 +258,7 @@ temperature T. By default: ‘linear’.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Carles Perez Lopez, with colaboration of Dani Soler.
+        &copy; Copyright 2019, Carles Perez Lopez and Dani Soler
 
     </p>
   </div>

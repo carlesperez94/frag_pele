@@ -81,7 +81,14 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#how-to-do-it">How to do it?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-do-it">How to do it?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#previous-requisites"><strong>Previous Requisites</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simple-serie-file"><strong>Simple serie file</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#serie-file-to-successive-growing-to-same-position"><strong>Serie file to successive growing to same position</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#all-together"><strong>All together</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#launch-simple-frag-pele-simulation"><strong>Launch simple FrAG-PELE simulation</strong></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -158,18 +165,19 @@
 <p>Here you will learn how to run your first FrAG-PELE simulation.</p>
 <div class="section" id="how-to-do-it">
 <h2>How to do it?<a class="headerlink" href="#how-to-do-it" title="Permalink to this headline">¶</a></h2>
-<p><strong>Previous Requisites</strong></p>
-<ul>
-<li><p class="first"><strong>Complex PDB</strong>: PDB processed, with the protein and the ligand prepared to run with PELE.
-Remember to rename the ligand chain to “L”.</p>
-</li>
-<li><p class="first"><strong>Fragment PDB</strong>: PDB with the desired fragment. Remember to rename the chain to “L”.</p>
-</li>
-<li><p class="first"><strong>Serie file</strong>: The instructions that explain how the growing has to be done are stored in this file. It must have the
-format described bellow.</p>
-<p><strong>Simple serie file:</strong></p>
-</li>
+<div class="section" id="previous-requisites">
+<h3><strong>Previous Requisites</strong><a class="headerlink" href="#previous-requisites" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>Complex PDB</strong>: PDB processed, with the protein and the ligand prepared to run with PELE.
+Remember to rename the ligand chain to “L”.</li>
+<li><strong>Fragment PDB</strong>: PDB with the desired fragment. Remember to rename the chain to “L”.</li>
+<li><strong>Serie file</strong>: The instructions that explain how the growing has to be done are stored in this file. It must have the
+format described bellow.</li>
 </ul>
+</div>
+<div class="section" id="simple-serie-file">
+<h3><strong>Simple serie file</strong><a class="headerlink" href="#simple-serie-file" title="Permalink to this headline">¶</a></h3>
+<p>Grow n fragments to n cores (Perform n sequencial growings).</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="26%" />
@@ -195,51 +203,68 @@ format described bellow.</p>
 </tr>
 </tbody>
 </table>
-<blockquote>
-<div><strong>Serie file to successive growing:</strong></div></blockquote>
+</div>
+<div class="section" id="serie-file-to-successive-growing-to-same-position">
+<h3><strong>Serie file to successive growing to same position</strong><a class="headerlink" href="#serie-file-to-successive-growing-to-same-position" title="Permalink to this headline">¶</a></h3>
+<p>Add 1 fragment to an initial core. Then, add another fragment to the
+output of the first growin. Example: Grow two radicals onto a phenyl</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="13%" />
-<col width="17%" />
-<col width="20%" />
-<col width="13%" />
-<col width="17%" />
-<col width="20%" />
+<col width="12%" />
+<col width="19%" />
+<col width="19%" />
+<col width="12%" />
+<col width="19%" />
+<col width="19%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td>fragment PDB 1</td>
-<td>heavy atom core 1</td>
+<td>heavy atom core 1 (C1)</td>
 <td>heavy atom fragment 1</td>
 <td>fragment PDB 2</td>
-<td>heavy atom core 2</td>
+<td>heavy atom core 1 (C2)</td>
 <td>heavy atom fragment 2</td>
-</tr>
-<tr class="row-even"><td>fragment PDB 2</td>
-<td>heavy atom core 3</td>
-<td>heavy atom fragment 3</td>
-<td>fragment PDB 4</td>
-<td>heavy atom core 4</td>
-<td>heavy atom fragment 4</td>
-</tr>
-<tr class="row-odd"><td>fragment PDB..</td>
-<td>heavy atom core ..</td>
-<td>heavy atom fragment ..</td>
-<td>fragment PDB..</td>
-<td>heavy atom core ..</td>
-<td>heavy atom fragment ..</td>
-</tr>
-<tr class="row-even"><td>fragment PDB n</td>
-<td>heavy atom core n</td>
-<td>heavy atom fragment n</td>
-<td>fragment PDB n</td>
-<td>heavy atom core n</td>
-<td>heavy atom fragment n</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Launch simple FrAG-PELE simulation</strong>:</p>
+</div>
+<div class="section" id="all-together">
+<h3><strong>All together</strong><a class="headerlink" href="#all-together" title="Permalink to this headline">¶</a></h3>
+<p>Add 2 fragments onto different position of the same core. Then, perform another growing
+with a 3rd fragment onto a different core</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="19%" />
+<col width="19%" />
+<col width="12%" />
+<col width="19%" />
+<col width="19%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>fragment PDB 1</td>
+<td>heavy atom core 1 (C1)</td>
+<td>heavy atom fragment 1</td>
+<td>fragment PDB 2</td>
+<td>heavy atom core 1 (C2)</td>
+<td>heavy atom fragment 2</td>
+</tr>
+<tr class="row-even"><td>fragment PDB 3</td>
+<td>heavy atom core 2</td>
+<td>heavy atom fragment 3</td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="launch-simple-frag-pele-simulation">
+<h3><strong>Launch simple FrAG-PELE simulation</strong><a class="headerlink" href="#launch-simple-frag-pele-simulation" title="Permalink to this headline">¶</a></h3>
+<p>Default: 10 growing steps of 6 pele steps, and a final equilibration simulation of 20 pele steps</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span><span class="o">.</span><span class="n">X</span> <span class="n">grow_for_pele</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">cp</span> <span class="n">path_to_complex_pdb</span> <span class="o">-</span><span class="n">sef</span> <span class="n">serie_file</span>
 </pre></div>
+</div>
 </div>
 </div>
 </div>

@@ -1,5 +1,3 @@
-.. _first-steps:
-
 ===============
 Getting Started
 ===============
@@ -13,6 +11,7 @@ How to do it?
 -------------
 
 **Previous Requisites**
+++++++++++++++++++++++++
 
 - **Complex PDB**: PDB processed, with the protein and the ligand prepared to run with PELE.
   Remember to rename the ligand chain to "L".
@@ -20,7 +19,10 @@ How to do it?
 - **Serie file**: The instructions that explain how the growing has to be done are stored in this file. It must have the
   format described bellow.
 
-  **Simple serie file:**
+**Simple serie file** 
+++++++++++++++++++++++++
+
+Grow n fragments to n cores (Perform n sequencial growings).
 
 +---------------+-------------------+-----------------------+
 | fragment PDB 1| heavy atom core 1 | heavy atom fragment 1 |
@@ -32,20 +34,40 @@ How to do it?
 | fragment PDB n| heavy atom core n | heavy atom fragment n |
 +---------------+-------------------+-----------------------+
 
-   **Serie file to successive growing:**
+**Serie file to successive growing to same position**  
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-+---------------+-------------------+-----------------------+---------------+-------------------+-----------------------+
-| fragment PDB 1| heavy atom core 1 | heavy atom fragment 1 | fragment PDB 2| heavy atom core 2 | heavy atom fragment 2 |
-+---------------+-------------------+-----------------------+---------------+-------------------+-----------------------+
-| fragment PDB 2| heavy atom core 3 | heavy atom fragment 3 | fragment PDB 4| heavy atom core 4 | heavy atom fragment 4 |
-+---------------+-------------------+-----------------------+---------------+-------------------+-----------------------+
-| fragment PDB..| heavy atom core ..| heavy atom fragment ..| fragment PDB..| heavy atom core ..| heavy atom fragment ..|
-+---------------+-------------------+-----------------------+---------------+-------------------+-----------------------+
-| fragment PDB n| heavy atom core n | heavy atom fragment n | fragment PDB n| heavy atom core n | heavy atom fragment n |
-+---------------+-------------------+-----------------------+---------------+-------------------+-----------------------+
+Add 1 fragment to an initial core. Then, add another fragment to the
+output of the first growin. Example: Grow two radicals onto a phenyl
 
-**Launch simple FrAG-PELE simulation**::
++---------------+------------------------+-----------------------+---------------+------------------------+-----------------------+
+| fragment PDB 1| heavy atom core 1 (C1) | heavy atom fragment 1 | fragment PDB 2| heavy atom core 1 (C2) | heavy atom fragment 2 |
++---------------+------------------------+-----------------------+---------------+------------------------+-----------------------+
+
+
+**All together** 
+++++++++++++++++++
+
+Add 2 fragments onto different position of the same core. Then, perform another growing
+with a 3rd fragment onto a different core
+
+
++---------------+------------------------+-----------------------+---------------+------------------------+-----------------------+
+| fragment PDB 1| heavy atom core 1 (C1) | heavy atom fragment 1 | fragment PDB 2| heavy atom core 1 (C2) | heavy atom fragment 2 |
++---------------+------------------------+-----------------------+---------------+------------------------+-----------------------+
+| fragment PDB 3| heavy atom core 2      | heavy atom fragment 3 |               |                        |                       |
++---------------+------------------------+-----------------------+---------------+------------------------+-----------------------+
+
+
+
+**Launch simple FrAG-PELE simulation**
++++++++++++++++++++++++++++++++++++++++
+
+Default: 10 growing steps of 6 pele steps, and a final equilibration simulation of 20 pele steps
+
+::
 
     python3.X grow_for_pele.py -cp path_to_complex_pdb -sef serie_file
+
 
 

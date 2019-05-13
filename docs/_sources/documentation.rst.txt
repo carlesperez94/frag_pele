@@ -8,8 +8,6 @@ Documentation
 Before starting, take into account that only the Basic parameters are mandatory. Otherwise, Optional parameters have
 predefined default values. You can find and modify them in ``constants.py``.
 
-.. _Basic_parameters
-
 Basic parameters
 ----------------
 
@@ -18,17 +16,14 @@ Basic parameters
 - **-sef**, **---serie_file**:  Name of the tabular file which must contain the instructions required to perform several
   successive growings, using different fragments or different growing positions.
 
-For further information, see :ref:`first-steps`.
-
-.. _Optional_parameters
-
 Optional parameters
 -------------------
+
 FrAG configuration
 ``````````````````
 This are the options directly related to FrAG itself.
 
-- **-x**, **---growing_steps**: Number of Growing Steps (GS). By default: 10.
+- **-x**, **---growing_steps**: Number of Growing Steps (GS). By default: 10. Set 6 for small ligands and 2 to perform HT mode.
 - **-cr**, **---criteria**: Name of the column of the report file to select the structures that will spawn in the
   next GS. Additionally, this parameter will be the selection criteria to extract the best structure after completing
   the growing. By default: 'Binding Energy'.
@@ -81,6 +76,7 @@ Others
 ``````
 - **-pl**, **--plop_path**: Absolute path to PlopRotTemp.py.
 - **-sp**, **--sch_python**: Absolute path to Schrödinger's python.
+
 
 
 
