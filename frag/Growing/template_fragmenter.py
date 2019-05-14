@@ -427,6 +427,20 @@ class ReduceProperty:
             charge = atom.charge
             result = function(charge)
             self.template.list_of_atoms[key].charge = result
+    
+    def reduce_sgbnpGamma(self, function):
+        atoms = self.template.get_list_of_fragment_atoms()
+        for key, atom in atoms:
+            sgbnpGamma = atom.sgbnpGamma
+            result = function(sgbnpGamma)
+            self.template.list_of_atoms[key].sgbnpGamma = result
+
+    def reduce_sgbnpType(self, function):
+        atoms = self.template.get_list_of_fragment_atoms()
+        for key, atom in atoms:
+            sgbnpType = atom.sgbnpType
+            result = function(sgbnpType)
+            self.template.list_of_atoms[key].sgbnpType = result
 
     def reduce_radnpSGB(self, function):
         atoms = self.template.get_list_of_fragment_atoms()
@@ -559,10 +573,13 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     set_fragment_bonds(list_of_fragment_bonds=fragment_bonds)
     reductor = ReduceLinearly(templ_grw, lambda_to_reduce)
     reductor.reduce_sigmas(reductor.reduce_value)
+    reductor.reduce_epsilons(reductor.reduce_value)
     reductor.reduce_charges(reductor.reduce_value)
     reductor.reduce_bond_eq_dist(reductor.reduce_value)
     reductor.reduce_radnpSGB(reductor.reduce_value)
     reductor.reduce_radnpType(reductor.reduce_value)
+    reductor.reduce_sgbnpGamma(reductor.reduce_value)
+    reductor.reduce_sgbnpType(reductor.reduce_value)
     templ_grw.write_template_to_file(template_new_name=tmpl_out_path)
 
 
