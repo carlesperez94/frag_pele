@@ -449,6 +449,7 @@ if __name__ == '__main__':
     dict_traceback = corrector.main(complex_pdb)
     sh.check_instructions(list_of_instructions, complex_pdb, c_chain, f_chain)
     for instruction in list_of_instructions:
+        # SUCCESSIVE GROWING:
         # We will iterate trough all individual instructions of file.
         if type(instruction) == list:  #  If in the individual instruction we have more than one command means successive growing.
             growing_counter = len(instruction)  #  Doing so we will determinate how many successive growings the user wants to do.
@@ -467,6 +468,7 @@ if __name__ == '__main__':
                     ID = instruction[i][3]
                 else:  # If is not the first we will use as input the output of the previous iteration
                     complex_pdb = "pregrow/selected_result_{}.pdb".format(ID)
+                    dict_traceback = corrector.main(complex_pdb)
                     ID_completed = []
                     for id in instruction:
                         ID_completed.append(id[3])
@@ -483,7 +485,7 @@ if __name__ == '__main__':
 
                 except Exception:
                     traceback.print_exc()
-
+	# INDIVIDUAL GROWING
         else:
             # Initialize the growing for each line in the file
             fragment_pdb, core_atom, fragment_atom, ID = instruction[0], instruction[1], instruction[2], instruction[3]
