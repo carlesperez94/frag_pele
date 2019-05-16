@@ -368,9 +368,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
             simulation_file = Growing.simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license, overlapping_factor,
                                                              result, steps=steps, chain=c_chain, constraints=const, center=center,
                                                              temperature=temperature, seed=seed)
-                                                                     #  We have put [] in pdb_initialize
-                                                                     #  because by default we have to use
-                                                                     #  a list as input
+                                                                     #  pdb_initialize = list
+
         logger.info(c.LINES_MESSAGE)
         if i != 0:
             Growing.template_fragmenter.main(template_initial_path=os.path.join(path_to_templates_generated, template_initial),
@@ -378,10 +377,6 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                              step=i+1, total_steps=iterations, hydrogen_to_replace=replacement_atom,
                                              core_atom_linker=core_atom,
                                              tmpl_out_path=os.path.join(path_to_templates, template_final))
-
-#        elif i+1 == iterations:
-#            shutil.copy(os.path.join(path_to_templates_generated, template_final), os.path.join(path_to_templates,
-#            template_final))
 
         # Make a copy of the template file in growing_templates folder
         shutil.copy(os.path.join(path_to_templates, template_final), template)
@@ -420,19 +415,23 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                      "equilibration_result_{}".format(ID), steps=pele_eq_steps, chain=c_chain,
                                                      constraints=const, center=center, temperature=temperature,
                                                      seed=seed)
-    # Call PELE to run the simulation
+    # EQUILIBRATION SIMULATION
     if not (restart and os.path.exists("selected_result_{}".format(ID))):
         logger.info(".....STARTING EQUILIBRATION.....")
         Growing.simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
     equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "equilibration_result_{}".format(ID))
+    # SELECTION OF BEST STRUCTURES
     selected_results_path = "selected_result_{}".format(ID)
     if not os.path.exists(selected_results_path):  # Create the folder if it does not exist
         os.mkdir(selected_results_path)
     best_structure_file = Growing.bestStructs.main(criteria, selected_results_path, path=equilibration_path,
-                             n_structs=10)
-    shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(c.PRE_WORKING_DIR, selected_results_path + ".pdb"))
-    ans.main(report_prefix=report, path_to_equilibration=equilibration_path, out_report="frag_report.txt",
-             column=criteria, quantile_value=0.25)  # Write line in report (or create)
+                                                   n_structs=10)
+    shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(c.PRE_WORKING_DIR,
+                                                                                       selected_results_path + ".pdb"))
+    # COMPUTE AND SAVE THE SCORE
+    ans.analyse_at_epoch(report_prefix=report, path_to_equilibration=equilibration_path,
+                         column=criteria, quantile_value=0.25)
+    # COMPUTE TIME
     end_time = time.time()
     total_time = (end_time - start_time) / 60
     logging.info("Growing of {} in {} min".format(fragment_pdb, total_time))
@@ -449,8 +448,8 @@ if __name__ == '__main__':
     dict_traceback = corrector.main(complex_pdb)
     sh.check_instructions(list_of_instructions, complex_pdb, c_chain, f_chain)
     for instruction in list_of_instructions:
-        # SUCCESSIVE GROWING:
         # We will iterate trough all individual instructions of file.
+        # SUCCESSIVE GROWING
         if type(instruction) == list:  #  If in the individual instruction we have more than one command means successive growing.
             growing_counter = len(instruction)  #  Doing so we will determinate how many successive growings the user wants to do.
             for i in range(int(growing_counter)):
@@ -485,7 +484,7 @@ if __name__ == '__main__':
 
                 except Exception:
                     traceback.print_exc()
-	# INDIVIDUAL GROWING
+        # INDIVIDUAL GROWING
         else:
             # Initialize the growing for each line in the file
             fragment_pdb, core_atom, fragment_atom, ID = instruction[0], instruction[1], instruction[2], instruction[3]

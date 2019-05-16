@@ -92,17 +92,36 @@ def compute_sterr(dataframe, column, quantile_value):
     return err_subset
 
 
+def get_score_for_folder(report_prefix, path_to_equilibration, steps=False,
+                         column="Binding Energy", quantile_value=0.25):
+    df = pele_report2pandas(os.path.join(path_to_equilibration, report_prefix))
+    if steps:
+        df = select_subset_by_steps(df, steps)
+    mean_quartile = compute_mean_quantile(df, column, quantile_value)
+    results = (path_to_equilibration, mean_quartile)
+    return results
+
+
+def analyse_at_epoch(report_prefix, path_to_equilibration, steps=False, column="Binding Energy", quantile_value=0.25):
+    result = get_score_for_folder(report_prefix=report_prefix, path_to_equilibration=path_to_equilibration,
+                                  steps=steps, column=column, quantile_value=quantile_value)
+    out_file = "simulation_score_summary.tsv"
+    if os.path.exists(out_file):
+        df = pd.read_csv(out_file)
+    else:
+        df = pd.DataFrame(columns=["Fragment", "Score"])
+    df.append(result)
+    df.to_csv(out_file, sep="\t")
+
+
 def main(report_prefix, path_to_equilibration, equil_pattern="equilibration*", steps=False, out_report=False,
          column="Binding Energy", quantile_value=0.25):
     folder_list = glob.glob(os.path.join(path_to_equilibration, equil_pattern))
     for folder in list(folder_list):
         try:
-            df = pele_report2pandas(os.path.join(folder, report_prefix))
-            if steps:
-                df = select_subset_by_steps(df, steps)
-            mean_quartile = compute_mean_quantile(df, column, quantile_value)
-            results = (folder, mean_quartile)
-            line_of_report = "{}\t{:.2f}\n".format(results[0], float(results[1]))
+            result = get_score_for_folder(report_prefix=report_prefix, path_to_equilibration=folder, steps=steps,
+                                          column=column, quantile_value=quantile_value)
+            line_of_report = "{}\t{:.2f}\n".format(result[0], float(result[1]))
             print(line_of_report)
             if out_report:
                 if os.path.exists(out_report):
