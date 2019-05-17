@@ -3,7 +3,7 @@ FrAG-PELE:
 
 A novel fragment-based growing tool for hit-to-lead in drug design
 
-.. figure:: docs/_images/movie_growing_phenyl.gif
+.. image:: docs/_images/movie_growing_phenyl.gif
     :scale: 80%
     :align: center
 
