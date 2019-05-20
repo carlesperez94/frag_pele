@@ -46,7 +46,7 @@ def pele_report2pandas(path):
         This function merge the content of different report for PELE simulations in a single file pandas Data Frame.
     """
     data = []
-    report_list = glob.glob('{}[0-9]*'.format(path))
+    report_list = glob.glob('{}*'.format(path))
     for report in report_list:
         tmp_data = pd.read_csv(report, sep='    ', engine='python')
         processor = re.findall('\d+$'.format(path), report)
@@ -98,7 +98,8 @@ def get_score_for_folder(report_prefix, path_to_equilibration, steps=False,
     if steps:
         df = select_subset_by_steps(df, steps)
     mean_quartile = compute_mean_quantile(df, column, quantile_value)
-    results = (path_to_equilibration, mean_quartile)
+    results = [path_to_equilibration, mean_quartile]
+    print("SCORING results: {}	{}".format(results[0], results[1])
     return results
 
 
@@ -107,11 +108,11 @@ def analyse_at_epoch(report_prefix, path_to_equilibration, steps=False, column="
                                   steps=steps, column=column, quantile_value=quantile_value)
     out_file = "simulation_score_summary.tsv"
     if os.path.exists(out_file):
-        df = pd.read_csv(out_file)
+        df = pd.read_csv(out_file, sep="\t", header=0, ignore_index=True)
+        df = df.append([result], columns=["Fragment_Results_Folder", "Score"])
     else:
-        df = pd.DataFrame(columns=["Fragment", "Score"])
-    df.append(result)
-    df.to_csv(out_file, sep="\t")
+        df = pd.DataFrame([result], columns=["Fragment_Results_Folder", "Score"])
+    df.to_csv(out_file, sep="\t", index=False)
 
 
 def main(report_prefix, path_to_equilibration, equil_pattern="equilibration*", steps=False, out_report=False,
