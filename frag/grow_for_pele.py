@@ -98,6 +98,7 @@ def parse_arguments():
                         help="""Rotamers threshold used in the rotamers' library. 
                             By default = {}""".format(c.ROTRES))
 
+
     # PELE configuration arguments
     parser.add_argument("-d", "--pele_dir", default=c.PATH_TO_PELE,
                         help="Complete path to Pele_serial. "
@@ -474,22 +475,17 @@ if __name__ == '__main__':
                     ID = "".join(ID_completed)
 
                 try:
-                    if "/" in ID:
-                        ID = ID.split("/")[-1]
                     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                          sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
                          limit)
-
                 except Exception:
                     traceback.print_exc()
         # INDIVIDUAL GROWING
         else:
             # Initialize the growing for each line in the file
             fragment_pdb, core_atom, fragment_atom, ID = instruction[0], instruction[1], instruction[2], instruction[3]
-            if "/" in ID:
-                ID = ID.split("/")[-1]
             atoms_if_bond = sh.extract_hydrogens_from_instructions([fragment_pdb, core_atom, fragment_atom])
             if atoms_if_bond:
                 core_atom = atoms_if_bond[0]

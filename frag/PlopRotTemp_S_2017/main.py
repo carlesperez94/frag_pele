@@ -310,20 +310,21 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("mae_file", type=str, help="ligand maestro mae file")
     parser.add_argument("--core", type=int, help="Give one atom of the core section", default=-1)
-    parser.add_argument("--mtor", type=int, help="Gives the maximum number of torsions allowed in each group.  Will freeze bonds to extend the core if necessary.", default=4)
+    parser.add_argument("--mtor", type=int, help="Gives the maximum number of torsions allowed in each group.  Will freeze bonds to extend the core if necessary.", default=-1)
     parser.add_argument("--n", type=int, help="Maximum Number of Entries in Rotamer File", default=1000)
     parser.add_argument("--mae_charges", help="Use charges in mae", action='store_true')
     parser.add_argument("--clean", help="Whether to clean up all the intermediate files", action='store_true')
+    parser.add_argument("--gridres", help="Rotamer resolution", type=str, default="10.0")
     parser.add_argument("--out_temp", type=str, help="Template output path")
     parser.add_argument("--out_rot", type=str, help="Rotamer ouput path")
     args = parser.parse_args()
 
     
-    return args.mae_file, args.mtor, args.n, args.core, args.mae_charges, args.clean, args.out_temp, args.out_rot
+    return args.mae_file, args.mtor, args.n, args.core, args.mae_charges, args.clean, args.out_temp, args.out_rot, args.gridres
 
 if __name__ == "__main__":
-    mae_file, mtor, n, core, mae_charge, clean, out_temp, out_rot = parse_args() 
-    template, rotamers_file = main(mae_file, mtor, n, core, mae_charge, clean, out_temp, out_rot)
+    mae_file, mtor, n, core, mae_charge, clean, out_temp, out_rot, gridres = parse_args() 
+    template, rotamers_file = main(mae_file, mtor, n, core, mae_charge, clean, out_temp, out_rot, gridres=gridres)
     
 
     print("########################################################################")

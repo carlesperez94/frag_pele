@@ -91,14 +91,3 @@ def simulation_runner(path_to_pele, control_in, cpus=4):
         cmd = "{} {}".format(path_to_pele, control_in)
         logger.info("Running {}".format(cmd))
         subprocess.call(cmd.split())
-
-
-
-
-
-
-    
-
-
-
-

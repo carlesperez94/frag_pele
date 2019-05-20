@@ -42,5 +42,5 @@ def arg_parse():
   return args.pdb, args.gridres
 
 if __name__ == '__main__':
-	pdb, gridres = arg_parse()
-	create_template(pdb, gridres)
+    pdb, gridres = arg_parse()
+    create_template(pdb, gridres)
