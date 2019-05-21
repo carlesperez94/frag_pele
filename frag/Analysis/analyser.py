@@ -99,7 +99,7 @@ def get_score_for_folder(report_prefix, path_to_equilibration, steps=False,
         df = select_subset_by_steps(df, steps)
     mean_quartile = compute_mean_quantile(df, column, quantile_value)
     results = [path_to_equilibration, mean_quartile]
-    print("SCORING results: {}	{}".format(results[0], results[1])
+    print("SCORING results: {}	{}".format(results[0], results[1]))
     return results
 
 
