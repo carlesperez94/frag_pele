@@ -1,0 +1,38 @@
+# must do conda install -c NostrumBioDiscovery frag_pele 
+package:
+  name: frag_pele
+  version: "1.0.0"
+
+about:
+  home: https://github.com/carlesperez94/frag_pele
+  license: Apache
+  license_file: LICENSE
+  summary: FrAG, a new tool for in silico hit-to-lead drug design, capable of growing a fragment into a core while exploring the protein-ligand conformational space
+
+source:
+  path: ../
+
+build:
+  script: python -m pip install . --no-deps -vv
+  number: 0
+
+requirements:
+  host:
+    - python
+    - numpy
+
+  run:
+    # Base dependencies
+    - python
+    - numpy
+    - cython
+    - scipy
+    - prody
+    - six
+    - pandas
+
+test:
+  imports:
+    - frag
+  command:
+    - python -m frag.grow_for_pele -h 
