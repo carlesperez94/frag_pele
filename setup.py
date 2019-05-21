@@ -20,7 +20,7 @@ from distutils.command.sdist import sdist as _sdist
 
 # Run the following line to compile atomset package
 # python setup.py build_ext --inplace
-import FrAG.constants as constants
+import frag.constants as constants
 
 
 class PreInstallCommand(install):
@@ -54,7 +54,7 @@ class PreInstallCommand(install):
 
     def run(self):
         #print("Cythonazing")
-        #subprocess.call("python FrAG/setup.py build_ext --inplace".split())
+        #subprocess.call("python frag/setup.py build_ext --inplace".split())
         #print("Installing packages")
         #subprocess.call("pip install {}".format(" ".join(packages)).split())
         print("Setting environmental variables")
@@ -69,8 +69,8 @@ class PostInstallCommand(install):
 
 
 def installer(schr, pele, pele_exec, pele_license):
-    file_input = 'FrAG/constants.py'
-    shutil.copy('FrAG/Templates/constants.py', file_input)
+    file_input = 'frag/constants.py'
+    shutil.copy('frag/Templates/constants.py', file_input)
     d = {"SCHRODINGER":schr, "PELE":pele, "PELE_BIN":pele_exec, "LICENSE":pele_license }
     filein = open(file_input)
     src = Template( filein.read() )
@@ -100,29 +100,29 @@ class sdist(_sdist):
 
 if use_cython:
     ext_modules += [
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.atomset", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/atomset.pyx"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.SymmetryContactMapEvaluator", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/SymmetryContactMapEvaluator.pyx"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.RMSDCalculator", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/RMSDCalculator.pyx"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.freeEnergies.utils", ["FrAG/AdaptivePELE_repo/AdaptivePELE/freeEnergies/utils.pyx"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/freeEnergies"])
+        Extension("frag.AdaptivePELE_repo.AdaptivePELE.atomset.atomset", ["frag/AdaptivePELE_repo/AdaptivePELE/atomset/atomset.pyx"], include_dirs=["frag/AdaptivePELE_repo/AdaptivePELE", "frag/AdaptivePELE_repo/AdaptivePELE/atomset"]),
+        Extension("frag.AdaptivePELE_repo.AdaptivePELE.atomset.SymmetryContactMapEvaluator", ["frag/AdaptivePELE_repo/AdaptivePELE/atomset/SymmetryContactMapEvaluator.pyx"], include_dirs=["frag/AdaptivePELE_repo/AdaptivePELE", "frag/AdaptivePELE_repo/AdaptivePELE/atomset"]),
+        Extension("frag.AdaptivePELE_repo.AdaptivePELE.atomset.RMSDCalculator", ["frag/AdaptivePELE_repo/AdaptivePELE/atomset/RMSDCalculator.pyx"], include_dirs=["frag/AdaptivePELE_repo/AdaptivePELE", "frag/AdaptivePELE_repo/AdaptivePELE/atomset"]),
+        Extension("frag.AdaptivePELE_repo.AdaptivePELE.freeEnergies.utils", ["frag/AdaptivePELE_repo/AdaptivePELE/freeEnergies/utils.pyx"], include_dirs=["frag/AdaptivePELE_repo/AdaptivePELE", "frag/AdaptivePELE_repo/AdaptivePELE/freeEnergies"])
     ]
     cmdclass.update({'build_ext': build_ext})
 else:
     ext_modules += [
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.atomset", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/atomset.c"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.SymmetryContactMapEvaluator", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/SymmetryContactMapEvaluator.c"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.RMSDCalculator", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/RMSDCalculator.c"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.freeEnergies.utils", ["FrAG/AdaptivePELE_repo/AdaptivePELE/freeEnergies/utils.c"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/freeEnergies"])
+        Extension("frag.AdaptivePELE_repo.AdaptivePELE.atomset.atomset", ["frag/AdaptivePELE_repo/AdaptivePELE/atomset/atomset.c"], include_dirs=["frag/AdaptivePELE_repo/AdaptivePELE", "frag/AdaptivePELE_repo/AdaptivePELE/atomset"]),
+        Extension("frag.AdaptivePELE_repo.AdaptivePELE.atomset.SymmetryContactMapEvaluator", ["frag/AdaptivePELE_repo/AdaptivePELE/atomset/SymmetryContactMapEvaluator.c"], include_dirs=["frag/AdaptivePELE_repo/AdaptivePELE", "frag/AdaptivePELE_repo/AdaptivePELE/atomset"]),
+        Extension("frag.AdaptivePELE_repo.AdaptivePELE.atomset.RMSDCalculator", ["frag/AdaptivePELE_repo/AdaptivePELE/atomset/RMSDCalculator.c"], include_dirs=["frag/AdaptivePELE_repo/AdaptivePELE", "frag/AdaptivePELE_repo/AdaptivePELE/atomset"]),
+        Extension("frag.AdaptivePELE_repo.AdaptivePELE.freeEnergies.utils", ["frag/AdaptivePELE_repo/AdaptivePELE/freeEnergies/utils.c"], include_dirs=["frag/AdaptivePELE_repo/AdaptivePELE", "frag/AdaptivePELE_repo/AdaptivePELE/freeEnergies"])
     ]
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 setup(
-    name="FrAG",
+    name="frag",
     version="1.0",
-    description='FrAG, a new tool for in silico hit-to-lead drug design, capable of growing a fragment into a core while exploring the protein-ligand conformational space',
+    description='frag, a new tool for in silico hit-to-lead drug design, capable of growing a fragment into a core while exploring the protein-ligand conformational space',
     long_description=long_description,
-    url="https://github.com/danielSoler93/FrAG/",
+    url="https://github.com/danielSoler93/frag/",
     author='Carles Perez Lopez, Daniel Soler Viladrich',
     author_email='daniel.soler@nostrumbiodiscovery.com, carlesperez@gmail.com',
     license='',
@@ -141,9 +141,9 @@ setup(
         "Intended Audience :: Science/Research"
     ),
     project_urls={
-    'Documentation': 'https://danielsoler93.github.io/FrAG/',
-    'Source': 'https://danielsoler93.github.io/FrAG/',
-'Tracker': 'https://github.com/danielsoler93/FrAG/issues',
+    'Documentation': 'https://danielsoler93.github.io/frag/',
+    'Source': 'https://danielsoler93.github.io/frag/',
+'Tracker': 'https://github.com/danielsoler93/frag/issues',
 },
 )
 
