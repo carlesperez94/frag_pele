@@ -505,7 +505,12 @@ class TemplateBuilder:
 	  """
 	    Search and replace atom_names for numbers
 	  """
-	  to_replace = range(1, len(to_search)+1)
+	  try:
+	    to_replace = range(1, len(to_search)+1)
+	  except TypeError:
+	    raise TypeError("Couldn't find any position of the fragment that \
+        didn't clash with the core. Please, reorient the atom of the core \
+        that will attach with the fragment")
 
 	  with open(file, "r+") as f:
 	    lines = f.readlines()

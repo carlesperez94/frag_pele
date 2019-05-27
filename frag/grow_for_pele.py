@@ -169,7 +169,16 @@ def parse_arguments():
                         help="Maximum degrees that can accept the banned dihedral."
                              "By default = {}".format(c.BANNED_ANGLE_THRESHOLD))
 
+    #Protocol argumnet
+    parser.add_argument("-HT", "--highthroughput", action="store_true",
+                        help="Run frag pele high-throughput mode")
+
     args = parser.parse_args()
+
+    if args.highthroughput:
+        args.growing_steps = 3
+        args.growing_steps = 3
+        args.pele_eq_steps = 15
 
     return args.complex_pdb, args.growing_steps, \
            args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, \
@@ -292,7 +301,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                   Growing.add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers)
         new_env = os.environ.copy()
         new_env["PYTHONPATH"] = c.ENV_PYTHON2
-        subprocess.call(cmd.split(), env=new_env)
+        try:
+            subprocess.check_output(cmd.split(), env=new_env)
+        except subprocess.CalledProcessError as e:
+            sys.exit(-1)
         template_resname = Growing.add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(
                                                                                    Growing.add_fragment_from_pdbs.
                                                                                    c.PRE_WORKING_DIR, pdb_to_template),
