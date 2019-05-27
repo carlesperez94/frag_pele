@@ -4,7 +4,6 @@ import time
 import glob
 import argparse
 import os
-print(os.path.join(os.path.dirname(os.path.abspath(__file__)), "AdaptivePELE_repo"))
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "AdaptivePELE_repo"))
 import logging
 from logging.config import fileConfig
