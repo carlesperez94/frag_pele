@@ -36,6 +36,11 @@ Installation
    installation
    first_steps
 
+Protocols
+==========
+.. toctree::
+   protocols
+
 Documentation
 =============
 .. toctree::

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Search &mdash; FrAG-PELE 1.0.0 documentation</title>
+  <title>Protocols &mdash; FrAG-PELE 1.0.0 documentation</title>
   
 
   
@@ -27,7 +27,9 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="#" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Documentation" href="documentation.html" />
+    <link rel="prev" title="Getting Started" href="first_steps.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -59,7 +61,7 @@
 
           
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -80,8 +82,12 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="first_steps.html">Getting Started</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="protocols.html">Protocols</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Protocols</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ht">HT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#standard-precision">Standard Precision</a></li>
+</ul>
+</li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
@@ -130,12 +136,14 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Search</li>
+      <li>Protocols</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
+            <a href="_sources/protocols.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -147,24 +155,40 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search
-      functionality.
-    </p>
-  </div>
-  </noscript>
+  <div class="section" id="protocols">
+<h1>Protocols<a class="headerlink" href="#protocols" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="ht">
+<h2>HT<a class="headerlink" href="#ht" title="Permalink to this headline">¶</a></h2>
+<p>To run in HT mode use the flag -HT that will perform: 3 growing steps of 3 pelesteps
+and a final exploration of 20 pele steps</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">frag</span><span class="o">/</span><span class="n">grow_for_pele</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">cp</span> <span class="n">core</span><span class="o">.</span><span class="n">pdb</span> <span class="o">-</span><span class="n">sef</span> <span class="n">serie_file</span><span class="o">.</span><span class="n">conf</span> <span class="o">-</span><span class="n">HT</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="standard-precision">
+<h2>Standard Precision<a class="headerlink" href="#standard-precision" title="Permalink to this headline">¶</a></h2>
+<p>To run in SP mode use the dafault values that will perform: 6 growing steps of 6 pelesteps
+and a final exploration of 20 pele steps</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">frag</span><span class="o">/</span><span class="n">grow_for_pele</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">cp</span> <span class="n">core</span><span class="o">.</span><span class="n">pdb</span> <span class="o">-</span><span class="n">sef</span> <span class="n">serie_file</span><span class="o">.</span><span class="n">conf</span>
+</pre></div>
+</div>
+</div>
+</div>
 
-  
-  <div id="search-results">
-  
-  </div>
 
            </div>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="documentation.html" class="btn btn-neutral float-right" title="Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="first_steps.html" class="btn btn-neutral" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -197,7 +221,6 @@
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
-        <script type="text/javascript" src="_static/searchtools.js"></script>
     
 
   
@@ -208,14 +231,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script type="text/javascript" id="searchindexloader"></script>
-   
-
+  </script> 
 
 </body>
 </html>

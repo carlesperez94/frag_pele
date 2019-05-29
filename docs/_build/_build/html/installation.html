@@ -79,10 +79,16 @@
             
             
               <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul class="simple">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#conda-recommended">Conda (Recommended)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pypi">Pypi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#source-code">Source code</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="first_steps.html">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="protocols.html">Protocols</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
@@ -154,8 +160,23 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<p>FrAG-PELE installation requires several dependencies they must be set
-before practice. Furthermore FrAG-PELE requires Schrodinger and PELE installation.</p>
+<div class="section" id="conda-recommended">
+<h2>Conda (Recommended)<a class="headerlink" href="#conda-recommended" title="Permalink to this headline">¶</a></h2>
+<p>conda create -n frag_run_1.0 python=3.7</p>
+<p>conda install -c NostrumBioDiscovery frag_pele</p>
+<p>change PELE schrodinger &amp; mpirun under frag_pele/constants.py</p>
+</div>
+<div class="section" id="pypi">
+<h2>Pypi<a class="headerlink" href="#pypi" title="Permalink to this headline">¶</a></h2>
+<p>Ongoing</p>
+</div>
+<div class="section" id="source-code">
+<h2>Source code<a class="headerlink" href="#source-code" title="Permalink to this headline">¶</a></h2>
+<p>git clone <a class="reference external" href="https://github.com/carlesperez94/frag_pele.git">https://github.com/carlesperez94/frag_pele.git</a></p>
+<p>cd frag_pele</p>
+<p>python setup.py install</p>
+<p>change PELE schrodinger &amp; mpirun under frag_pele/constants.py</p>
+</div>
 </div>
 
 

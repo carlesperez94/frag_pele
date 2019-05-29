@@ -4,6 +4,7 @@ import time
 import glob
 import argparse
 import os
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "AdaptivePELE_repo"))
 import logging
 from logging.config import fileConfig
 import shutil
@@ -159,7 +160,16 @@ def parse_arguments():
                         help="Maximum degrees that can accept the banned dihedral."
                              "By default = {}".format(c.BANNED_ANGLE_THRESHOLD))
 
+    #Protocol argumnet
+    parser.add_argument("-HT", "--highthroughput", action="store_true",
+                        help="Run frag pele high-throughput mode")
+
     args = parser.parse_args()
+
+    if args.highthroughput:
+        args.growing_steps = 3
+        args.growing_steps = 3
+        args.pele_eq_steps = 15
 
     return args.complex_pdb, args.growing_steps, \
            args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, \
@@ -282,7 +292,6 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                   add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers)
         new_env = os.environ.copy()
         new_env["PYTHONPATH"] = "{}:{}".format(os.path.dirname(PackagePath), c.ENV_PYTHON)
-        print(new_env["PYTHONPATH"])
         subprocess.call(cmd.split(), env=new_env)
         template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(
                                                                                    add_fragment_from_pdbs.

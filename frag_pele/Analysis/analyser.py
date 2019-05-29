@@ -108,7 +108,11 @@ def analyse_at_epoch(report_prefix, path_to_equilibration, steps=False, column="
                                   steps=steps, column=column, quantile_value=quantile_value)
     out_file = "simulation_score_summary.tsv"
     if os.path.exists(out_file):
-        df = pd.read_csv(out_file, sep="\t", header=0, ignore_index=True)
+        #Pandas new version compatibility
+        try:
+            df = pd.read_csv(out_file, sep="\t", header=0, ignore_index=True)
+        except TypeError:
+            df = pd.read_csv(out_file, sep="\t", header=0, index_col=False)
         df = df.append([result], columns=["Fragment_Results_Folder", "Score"])
     else:
         df = pd.DataFrame([result], columns=["Fragment_Results_Folder", "Score"])

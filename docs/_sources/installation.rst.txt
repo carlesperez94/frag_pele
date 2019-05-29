@@ -5,5 +5,27 @@ Installation
 .. toctree::
    :maxdepth: 2
 
-FrAG-PELE installation requires several dependencies they must be set
-before practice. Furthermore FrAG-PELE requires Schrodinger and PELE installation.
+Conda (Recommended)
+====================
+
+conda create -n frag_run_1.0 python=3.7
+
+conda install -c NostrumBioDiscovery frag_pele
+
+change PELE schrodinger & mpirun under frag_pele/constants.py
+
+Pypi
+========
+
+Ongoing
+
+Source code
+=============
+
+git clone https://github.com/carlesperez94/frag_pele.git
+
+cd frag_pele
+
+python setup.py install
+
+change PELE schrodinger & mpirun under frag_pele/constants.py
