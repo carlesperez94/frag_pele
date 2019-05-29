@@ -113,7 +113,7 @@ def analyse_at_epoch(report_prefix, path_to_equilibration, steps=False, column="
             df = pd.read_csv(out_file, sep="\t", header=0, ignore_index=True)
         except TypeError:
             df = pd.read_csv(out_file, sep="\t", header=0, index_col=False)
-        df = df.append([result], columns=["Fragment_Results_Folder", "Score"])
+        df = pd.concat([df, pd.DataFrame([result],  columns=["Fragment_Results_Folder", "Score"])])
     else:
         df = pd.DataFrame([result], columns=["Fragment_Results_Folder", "Score"])
     df.to_csv(out_file, sep="\t", index=False)

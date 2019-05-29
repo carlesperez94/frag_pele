@@ -164,6 +164,11 @@ def parse_arguments():
     parser.add_argument("-HT", "--highthroughput", action="store_true",
                         help="Run frag pele high-throughput mode")
 
+    #Output format option
+    parser.add_argument("--mae", action="store_true",
+                        help="Retrieve .mae files intead of pdbs")
+
+
     args = parser.parse_args()
 
     if args.highthroughput:
@@ -177,14 +182,14 @@ def parse_arguments():
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.serie_file, \
            args.c_chain, args.f_chain, args.docontrolsim, args.steps, args.temperature, args.seed, args.rotamers, \
-           args.banned, args.limit
+           args.banned, args.limit, args.mae
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
          epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
          h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
-         banned=None, limit=None):
+         banned=None, limit=None, mae=False):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -426,13 +431,25 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     selected_results_path = "selected_result_{}".format(ID)
     if not os.path.exists(selected_results_path):  # Create the folder if it does not exist
         os.mkdir(selected_results_path)
-    best_structure_file = bestStructs.main(criteria, selected_results_path, path=equilibration_path,
+    best_structure_file, all_output_files = Growing.bestStructs.main(criteria, selected_results_path, path=equilibration_path,
                                                    n_structs=10)
+
     shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(c.PRE_WORKING_DIR,
                                                                                        selected_results_path + ".pdb"))
     # COMPUTE AND SAVE THE SCORE
     analyser.analyse_at_epoch(report_prefix=report, path_to_equilibration=equilibration_path,
                          column=criteria, quantile_value=0.25)
+
+    
+    #MOVE FROM PDB TO MAE
+    if mae:
+        schrodinger_path = os.path.dirname(os.path.dirname(sch_python))
+        python_file = os.path.join(os.path.dirname(FilePath), "Analysis/output_files.py")
+        for outputfile in all_output_files:
+            filename = os.path.join(selected_results_path, outputfile)
+            command = "{} {} {} --schr {} {}".format(sch_python, python_file, filename, schrodinger_path, "--remove") 
+            subprocess.call(command.split())
+
     # COMPUTE TIME
     end_time = time.time()
     total_time = (end_time - start_time) / 60
@@ -443,7 +460,7 @@ if __name__ == '__main__':
     complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
-    c_chain, f_chain, docontrolsim, steps, temperature, seed, rotamers, banned, limit = parse_arguments()
+    c_chain, f_chain, docontrolsim, steps, temperature, seed, rotamers, banned, limit, mae = parse_arguments()
     print(banned)
     list_of_instructions = serie_handler.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
@@ -480,7 +497,8 @@ if __name__ == '__main__':
                          sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
-                         limit)
+                         limit, mae)
+
                 except Exception:
                     traceback.print_exc()
         # INDIVIDUAL GROWING
@@ -500,7 +518,7 @@ if __name__ == '__main__':
                 main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                      pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
-                     h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit)
+                     h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae)
             except Exception:
                 traceback.print_exc()
     if docontrolsim:
