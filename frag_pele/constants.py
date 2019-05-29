@@ -30,11 +30,11 @@ elif "bsccv" in machine:
     ENV_PYTHON = "/data2/bsc72/SCHRODINGER_ACADEMIC/internal/lib/python2.7/site-packages/"
 else:
     # PELE parameters
-    PATH_TO_PELE = "/home/carlespl/PELE-repo/build/Pele_mpi"
+    PATH_TO_PELE = "/home/carlespl/PELE-repo/build/PELE-1.5_mpi"
     PATH_TO_PELE_DATA = "/home/carlespl/PELE-repo/Data"
     PATH_TO_PELE_DOCUMENTS = "/home/carlespl/PELE-repo/Documents"
     PATH_TO_LICENSE = "/home/carlespl/PELE-repo/licenses"
-    SCHRODINGER_PY_PATH = "/home/carlespl/schrodinger2017-1/utilities/python"
+    SCHRODINGER_PY_PATH = "/home/carlespl/schrodinger2019-2/run"
     ENV_PYTHON = ""
 
 CONTROL_TEMPLATE = os.path.join(DIR, "Templates/control_template.conf")

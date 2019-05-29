@@ -1,4 +1,5 @@
 import subprocess
+import __future__
 import os
 import shutil
 import re
@@ -254,7 +255,7 @@ class TemplateBuilder:
             of each atom the previous. To close the ring assign
             as parent of the initial atom the last.
         """
-        str1 = structure.StructureReader(self.input_file).next()
+        str1 = next(structure.StructureReader(self.input_file))
         rings = str1.ring
         for ring in rings:
             ring_atoms = ring.getAtomList()
@@ -290,7 +291,7 @@ class TemplateBuilder:
         :Ouput:
           - zmatrix: structure internal coord
       """
-      str1 = structure.StructureReader(self.input_file).next()
+      str1 = next(structure.StructureReader(self.input_file))
       order = [i for i in range(len(parents))]
       coordinates = [atom.xyz for atom in str1.atom]
       zmat = xyz2int(coordinates, order, parents)
@@ -329,7 +330,7 @@ class TemplateBuilder:
 
         """
         new_atom_types = atom_types[:]
-        st1 = structure.StructureReader(self.input_file).next()
+        st1 = next(structure.StructureReader(self.input_file))
 
         atoms_to_study = []
         indexes=[]
@@ -361,7 +362,7 @@ class TemplateBuilder:
           :Author: Daniel Soler
         """
         new_atom_types = atom_types[:]
-        st1 = structure.StructureReader(self.input_file).next()
+        st1 = next(structure.StructureReader(self.input_file))
         target_atoms = ['CA', 'C5A','CA5', 'C5B', 'C5BC', 'CN', 'CB', 'C56A', 'C56B', 'CT4', 'CRA', 'CN56', 'C5X', 'C5BB', 'CR3']
         new_atom_type = 'CA2'
 
@@ -494,10 +495,10 @@ class TemplateBuilder:
       lines = preproces_file_lines(SIMILARITY_PATH)
       for line in lines:
         line = line.split()
-        if(line[0]==atom_type and line[2]>similarity and line[1] not in tried):
+        if(line[0]==atom_type and float(line[2])>float(similarity) and line[1] not in tried):
           similarity = line[2]
           new_atom_type = line[1]
-        elif(line[1]==atom_type and line[2]>similarity  and line[0] not in tried):
+        elif(line[1]==atom_type and float(line[2])>float(similarity)  and line[0] not in tried):
           similarity = line[2]
           new_atom_type = line[0]
       if new_atom_type:

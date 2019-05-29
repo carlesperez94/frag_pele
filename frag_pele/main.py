@@ -281,7 +281,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         cmd = "{} {} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
                                   add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers)
         new_env = os.environ.copy()
-        new_env["PYTHONPATH"] = "{}:{}".format(c.ENV_PYTHON, os.path.dirname(PackagePath))
+        new_env["PYTHONPATH"] = "{}:{}".format(os.path.dirname(PackagePath), c.ENV_PYTHON)
         print(new_env["PYTHONPATH"])
         subprocess.call(cmd.split(), env=new_env)
         template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(

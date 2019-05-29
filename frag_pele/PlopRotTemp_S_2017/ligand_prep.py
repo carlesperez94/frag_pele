@@ -29,11 +29,13 @@ def convert_mae(ligands):
             structure.write(structure_mae)
     return structure_mae
 
+
 def create_template(pdb, gridres):
    mae_file = convert_mae(pdb)
    plop.main(mae_file, out_temp="DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated", out_rot="DataLocal/LigandRotamerLibs/",
              gridres=gridres)
    os.remove(mae_file)
+
 
 def arg_parse():
   parser = argparse.ArgumentParser()
@@ -41,6 +43,7 @@ def arg_parse():
   parser.add_argument("gridres", type=str, help="Degrees of rotation.")
   args = parser.parse_args()
   return args.pdb, args.gridres
+
 
 if __name__ == '__main__':
     pdb, gridres = arg_parse()
