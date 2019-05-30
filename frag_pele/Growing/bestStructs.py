@@ -122,7 +122,7 @@ def main(criteria, file_name, path=DIR, n_structs=10, sort_order="min", out_freq
             traj.append("ENDMDL\n")
             f.write("\n".join(traj))
         print("MODEL {} has been selected".format(f_out))
-    return files_out_best
+    return files_out_best, files_out
 
 
 def parse_values(reports, n_structs, criteria, sort_order, steps):

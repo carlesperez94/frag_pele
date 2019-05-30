@@ -431,8 +431,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     selected_results_path = "selected_result_{}".format(ID)
     if not os.path.exists(selected_results_path):  # Create the folder if it does not exist
         os.mkdir(selected_results_path)
-    best_structure_file, all_output_files = Growing.bestStructs.main(criteria, selected_results_path, path=equilibration_path,
-                                                   n_structs=10)
+    best_structure_file, all_output_files = bestStructs.main(criteria, selected_results_path, path=equilibration_path,
+                                                             n_structs=10)
 
     shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(c.PRE_WORKING_DIR,
                                                                                        selected_results_path + ".pdb"))
@@ -443,7 +443,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     
     #MOVE FROM PDB TO MAE
     if mae:
-        schrodinger_path = os.path.dirname(os.path.dirname(sch_python))
+        if sch_python.endswith("python"):
+            schrodinger_path = os.path.dirname(os.path.dirname(sch_python))
+        elif sch_python.endswith("run"):
+            schrodinger_path = os.path.dirname(sch_python)
         python_file = os.path.join(os.path.dirname(FilePath), "Analysis/output_files.py")
         for outputfile in all_output_files:
             filename = os.path.join(selected_results_path, outputfile)
@@ -461,7 +464,6 @@ if __name__ == '__main__':
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
     c_chain, f_chain, docontrolsim, steps, temperature, seed, rotamers, banned, limit, mae = parse_arguments()
-    print(banned)
     list_of_instructions = serie_handler.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
     dict_traceback = correct_fragment_names.main(complex_pdb)
@@ -484,6 +486,7 @@ if __name__ == '__main__':
                     h_frag = None
                 if i == 0:  # In the first iteration we will use the complex_pdb as input.
                     ID = instruction[i][3]
+                    print(ID)
                 else:  # If is not the first we will use as input the output of the previous iteration
                     complex_pdb = "pregrow/selected_result_{}.pdb".format(ID)
                     dict_traceback = correct_fragment_names.main(complex_pdb)
@@ -491,7 +494,10 @@ if __name__ == '__main__':
                     for id in instruction:
                         ID_completed.append(id[3])
                     ID = "".join(ID_completed)
-
+                try:
+                    ID = ID.split("/")[-1]
+                except Exception:
+                    traceback.print_exc()
                 try:
                     main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                          sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
@@ -506,6 +512,11 @@ if __name__ == '__main__':
             # Initialize the growing for each line in the file
             fragment_pdb, core_atom, fragment_atom, ID = instruction[0], instruction[1], instruction[2], instruction[3]
             atoms_if_bond = serie_handler.extract_hydrogens_from_instructions([fragment_pdb, core_atom, fragment_atom])
+            try:
+                ID = ID.split("/")[-1]
+            except Exception:
+                traceback.print_exc()
+
             if atoms_if_bond:
                 core_atom = atoms_if_bond[0]
                 h_core = atoms_if_bond[1]
