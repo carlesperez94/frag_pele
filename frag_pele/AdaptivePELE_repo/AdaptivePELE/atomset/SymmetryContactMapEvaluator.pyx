@@ -3,7 +3,7 @@ import atomset
 import numpy as np
 cimport cython
 cimport numpy as np
-cimport AdaptivePELE.atomset.atomset as atomset
+cimport frag_pele.AdaptivePELE_repo.AdaptivePELE.atomset.atomset as atomset
 
 
 cdef class SymmetryContactMapEvaluator:

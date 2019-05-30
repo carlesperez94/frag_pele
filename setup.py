@@ -1,4 +1,5 @@
 import subprocess
+import numpy
 import sys
 import shutil
 # subprocess.call("pip install numpy cython".split())
@@ -129,7 +130,8 @@ setup(
     packages=find_packages(exclude=['docs', 'tests']),
     package_data={"AdaptivePELE_repo/AdaptivePELE/atomset": ['*.pxd'], "Templates": ["*.pdb", "*.conf"] },
     include_package_data=True,
-    install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody', 'six', 'mdtraj' ],
+    include_dirs=[numpy.get_include()],
+    install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody', 'six'],
     cmdclass=cmdclass,
     ext_modules=ext_modules,  # accepts a glob pattern
     #include_dirs=[numpy.get_include()],

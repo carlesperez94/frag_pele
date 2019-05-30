@@ -19,20 +19,21 @@ build:
 requirements:
   host:
     - python
-    - numpy
+    - numpy>=1.16.4
 
   run:
     # Base dependencies
     - python
-    - numpy
+    - numpy>=1.16.4
     - cython
     - scipy
     - prody
     - six
     - pandas
+    - mdtraj
 
 test:
   imports:
-    - frag
+    - frag_pele
   command:
-    - python -m frag.grow_for_pele -h 
+    - python -m frag_pele.main -h 
