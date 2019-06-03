@@ -88,7 +88,7 @@ def main(criteria, file_name, path=DIR, n_structs=10, sort_order="min", out_freq
         raise IndexError("Not report file found. Check you are in adaptive's or Pele root folder")
 
     # Data Mining
-    min_values = parse_values(reports, n_structs, criteria, sort_order, steps)
+    min_values, steps = parse_values(reports, n_structs, criteria, sort_order, steps)
     values = min_values[criteria].tolist()
     paths = min_values[DIR].tolist()
     epochs = [os.path.basename(os.path.normpath(os.path.dirname(Path))) for Path in paths]
@@ -101,6 +101,7 @@ def main(criteria, file_name, path=DIR, n_structs=10, sort_order="min", out_freq
                                                                                 value), value) \
        for epoch, step, report, value in zip(epochs, step_indexes, file_ids, values)]
     files_out_best = sorted(files_out_tmp_tuple, key=lambda x: x[1])[0][0]
+    print(file_ids, files_out, step_indexes, paths, range(0, n_structs))
     for f_id, f_out, step, path, n in zip(file_ids, files_out, step_indexes, paths, range(0, n_structs)):
 
         # Read Trajetory from PELE's output
@@ -143,6 +144,7 @@ def parse_values(reports, n_structs, criteria, sort_order, steps):
         report_number = os.path.basename(f).split("_")[-1]
         data = pd.read_csv(f, sep='    ', engine='python')
         # Skip first line not to get initial structure
+        if not steps in list(data): steps="AcceptedSteps"
         selected_data = data.loc[1:, [steps, criteria]]
         if sort_order == "min":
                 report_values =  selected_data.nsmallest(n_structs, criteria)
@@ -158,7 +160,7 @@ def parse_values(reports, n_structs, criteria, sort_order, steps):
                 report_values.insert(1, REPORT, [report_number]*report_values[criteria].size)
                 mixed_values = pd.concat([min_values, report_values])
                 min_values = mixed_values.nlargest(n_structs, criteria)
-    return min_values
+    return min_values, steps
 
 
 def filter_non_numerical_folders(reports, numfolders):
