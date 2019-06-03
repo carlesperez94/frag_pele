@@ -11,7 +11,7 @@ import shutil
 import subprocess
 import traceback
 # Local imports
-from frag_pele.Helpers import clusterizer, checker, folder_handler, runner, constraints
+from frag_pele.Helpers import clusterizer, checker, folder_handler, runner, constraints, check_constants
 from frag_pele.Helpers import helpers, correct_fragment_names, center_of_mass
 from frag_pele.Growing import template_fragmenter, simulations_linker
 from frag_pele.Growing import add_fragment_from_pdbs, bestStructs
@@ -270,6 +270,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         :type temperature: int
     :return:
     """
+    #Check harcoded path in constants.py
+    check_constants.check()
     # Time computations
     start_time = time.time()
     # Path definition
@@ -295,9 +297,12 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
         cmd = "{} {} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
                                   add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers)
-        new_env = os.environ.copy()
-        new_env["PYTHONPATH"] = "{}:{}".format(os.path.dirname(PackagePath), c.ENV_PYTHON)
-        subprocess.call(cmd.split(), env=new_env)
+        #new_env = os.environ.copy()
+        #new_env["PYTHONPATH"] = "{}:{}".format(os.path.dirname(PackagePath), c.ENV_PYTHON)
+        try:
+            subprocess.call(cmd.split())
+        except OSError:
+            raise OSError("Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(sch_python))
         template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(
                                                                                    add_fragment_from_pdbs.
                                                                                    c.PRE_WORKING_DIR, pdb_to_template),

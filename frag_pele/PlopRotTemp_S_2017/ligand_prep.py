@@ -1,8 +1,11 @@
 import os
+import sys
 from schrodinger import structure as st
 import subprocess
 import argparse
 # Local import
+frag_pele_dirname = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(frag_pele_dirname)
 import frag_pele.PlopRotTemp_S_2017.main as plop
 
 
