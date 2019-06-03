@@ -162,9 +162,16 @@
 </div>
 <div class="section" id="conda-recommended">
 <h2>Conda (Recommended)<a class="headerlink" href="#conda-recommended" title="Permalink to this headline">¶</a></h2>
-<p>conda create -n frag_run_1.0 python=3.7</p>
-<p>conda install -c NostrumBioDiscovery frag_pele</p>
-<p>change PELE schrodinger &amp; mpirun under frag_pele/constants.py</p>
+<p>If you want to use a separate environment for frag:</p>
+<blockquote>
+<div><p>conda create -n frag python=3.7 (If you want to use a separate environment for frag)</p>
+<p>source activate frag</p>
+</div></blockquote>
+<p>Else start here:</p>
+<blockquote>
+<div><p>conda install -c NostrumBioDiscovery -c conda-forge frag_pele</p>
+<p>change PELE schrodinger &amp; mpirun under /conda/env/lib/pythonX/site-packages/frag_pele/constants.py</p>
+</div></blockquote>
 </div>
 <div class="section" id="pypi">
 <h2>Pypi<a class="headerlink" href="#pypi" title="Permalink to this headline">¶</a></h2>
@@ -174,8 +181,9 @@
 <h2>Source code<a class="headerlink" href="#source-code" title="Permalink to this headline">¶</a></h2>
 <p>git clone <a class="reference external" href="https://github.com/carlesperez94/frag_pele.git">https://github.com/carlesperez94/frag_pele.git</a></p>
 <p>cd frag_pele</p>
+<p>pip install numpy cython (in case not to have them)</p>
 <p>python setup.py install</p>
-<p>change PELE schrodinger &amp; mpirun under frag_pele/constants.py</p>
+<p>change PELE schrodinger &amp; mpirun under /site-packages/frag_pele/constants.py</p>
 </div>
 </div>
 
