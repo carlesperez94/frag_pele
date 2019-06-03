@@ -83,6 +83,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#conda-recommended">Conda (Recommended)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pypi">Pypi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#source-code">Source code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-it-works">Test it works</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="first_steps.html">Getting Started</a></li>
@@ -184,6 +185,12 @@
 <p>pip install numpy cython (in case not to have them)</p>
 <p>python setup.py install</p>
 <p>change PELE schrodinger &amp; mpirun under /site-packages/frag_pele/constants.py</p>
+</div>
+<div class="section" id="test-it-works">
+<h2>Test it works<a class="headerlink" href="#test-it-works" title="Permalink to this headline">¶</a></h2>
+<p>git clone <a class="reference external" href="https://github.com/carlesperez94/frag_pele.git">https://github.com/carlesperez94/frag_pele.git</a></p>
+<p>cd frag_pele/frag_pele/example/1W7H_example/</p>
+<p>python -m frag_pele.main -cp 1w7h_preparation_structure_2w.pdb -x 1 -sef serie_file.conf –pele_eq_steps 1 –cpus 3 –steps 1</p>
 </div>
 </div>
 

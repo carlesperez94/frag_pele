@@ -37,3 +37,12 @@ pip install numpy cython (in case not to have them)
 python setup.py install
 
 change PELE schrodinger & mpirun under /site-packages/frag_pele/constants.py
+
+Test it works
+===============
+
+git clone https://github.com/carlesperez94/frag_pele.git
+
+cd frag_pele/frag_pele/example/1W7H_example/
+
+python -m frag_pele.main -cp 1w7h_preparation_structure_2w.pdb -x 1 -sef serie_file.conf --pele_eq_steps 1 --cpus 3 --steps 1
