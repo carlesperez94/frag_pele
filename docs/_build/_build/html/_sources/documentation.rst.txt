@@ -19,6 +19,15 @@ Basic parameters
 Optional parameters
 -------------------
 
+Protocol
+----------
+
+- **-HT**: High throughput protocol
+
+- **default option**: Sp protocol
+
+For more information refer to the protocol tab
+
 FrAG configuration
 ``````````````````
 This are the options directly related to FrAG itself.
@@ -71,6 +80,10 @@ recommendable to modify default parameters.
   temperature T. By default: 'linear'.
 - **-ncl**, **--nclusters**: Number of initial structures that we want to use in each new GS. By default: 5.
 - **-pdbf**, **--pdbout**: Folder where PDBs selected to spawn in the next GS will be stored. By default: 'PDBs_growing'.
+
+Output configuration
+``````````````````````
+- **--mae**: Output mae files with binding energy trajectory as property inside the file
 
 Others
 ``````

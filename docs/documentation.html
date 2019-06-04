@@ -87,10 +87,12 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#basic-parameters">Basic parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-parameters">Optional parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#optional-parameters">Optional parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#protocol">Protocol</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#frag-configuration">FrAG configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pele-configuration">PELE configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#clustering-and-spawning-configuration">Clustering and spawning configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output-configuration">Output configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#others">Others</a></li>
 </ul>
 </li>
@@ -177,6 +179,14 @@ successive growings, using different fragments or different growing positions.</
 </div>
 <div class="section" id="optional-parameters">
 <h2>Optional parameters<a class="headerlink" href="#optional-parameters" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="protocol">
+<h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><strong>-HT</strong>: High throughput protocol</li>
+<li><strong>default option</strong>: Sp protocol</li>
+</ul>
+<p>For more information refer to the protocol tab</p>
 <div class="section" id="frag-configuration">
 <h3>FrAG configuration<a class="headerlink" href="#frag-configuration" title="Permalink to this headline">¶</a></h3>
 <p>This are the options directly related to FrAG itself.</p>
@@ -231,6 +241,12 @@ options: linear (proportional to metric) or Boltzmann weigths (proportional to e
 temperature T. By default: ‘linear’.</li>
 <li><strong>-ncl</strong>, <strong>–nclusters</strong>: Number of initial structures that we want to use in each new GS. By default: 5.</li>
 <li><strong>-pdbf</strong>, <strong>–pdbout</strong>: Folder where PDBs selected to spawn in the next GS will be stored. By default: ‘PDBs_growing’.</li>
+</ul>
+</div>
+<div class="section" id="output-configuration">
+<h3>Output configuration<a class="headerlink" href="#output-configuration" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>–mae</strong>: Output mae files with binding energy trajectory as property inside the file</li>
 </ul>
 </div>
 <div class="section" id="others">
