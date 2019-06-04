@@ -173,7 +173,7 @@ def parse_arguments():
 
     if args.highthroughput:
         args.growing_steps = 3
-        args.growing_steps = 3
+        args.steps = 3
         args.pele_eq_steps = 15
 
     return args.complex_pdb, args.growing_steps, \
@@ -306,7 +306,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(
                                                                                    add_fragment_from_pdbs.
                                                                                    c.PRE_WORKING_DIR, pdb_to_template),
-                                                                                   False)
+                                                                                   False, c_chain, f_chain)
         template_resnames.append(template_resname)
 
     # Set box center from ligand COM
