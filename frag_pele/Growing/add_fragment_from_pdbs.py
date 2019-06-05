@@ -523,7 +523,14 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     # Now, we want to extract this structure in a PDB to create the template file after the growing. We will do a copy
     # of the structure because then we will need to resize the fragment part, so be need to keep it as two different
     # residues.
-    structure_to_template = check_results.copy()
+    try:
+        structure_to_template = check_results.copy()
+    except AttributeError: 
+        raise AttributeError("Frag cannot superimpose the fragment onto the core's hydrogen.  \
+In order to create space for the fragment \
+manually rotate the hydrogen bond of the core where the fragment will be attached to.   \
+We are currently working to fix this automatically")
+
     # Once we have all the atom names unique, we will rename the resname and the resnum of both, core and fragment, to
     # GRW and 1. Doing this, the molecule composed by two parts will be transformed into a single one.
     changing_names = pdb_joiner.extract_and_change_atomnames(structure_to_template, fragment.getResnames()[0])

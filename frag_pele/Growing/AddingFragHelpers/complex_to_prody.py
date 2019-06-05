@@ -38,7 +38,11 @@ def check_protonation(selection):
     :param selection: prody molecule
     :return: if not hydrogens detected, prints a message.
     """
-    if not selection.select("hydrogen"):
-        logger.critical("We have not detected Hydrogens in your ligand. Please, add them before starting.")
+    try:
+        if not selection.select("hydrogen"):
+            logger.critical("We have not detected Hydrogens in your ligand. Please, add them before starting.")
+    except AttributeError:
+        raise AttributeError("Check ligand and core are in the L chain. Otherwise specify their chain using the flags \
+-cc chain_core -fc chain_frag. Fragment & Core must always be in the same chain.")
 
 
