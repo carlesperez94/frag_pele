@@ -24,7 +24,7 @@ def test_rotamers():
 
 def test_criteria():
     subprocess.call("bash test_criteria.sh".split())
-    assert os.path.exists("selected_result_aminoC1N1/epochequilibration_result_aminoC1N1_trajectory_1.2_sasaLig0.030873.pdb")
+    assert os.path.exists("selected_result_aminoC1N1/epochequilibration_result_aminoC1N1_trajectory_1.2_SASA0.030873.pdb")
 
 def test_chainame():
     subprocess.call("bash test_chain_core_frag.sh".split())
