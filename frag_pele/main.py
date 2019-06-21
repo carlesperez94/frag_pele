@@ -65,6 +65,7 @@ def parse_arguments():
                         And col3 is a string with the PDB atom name of the heavy atom of the fragment that will be used
                         to perform the bonding with the core.
                         """)
+    parser.add_argument("--core", type=str, default=None)
     parser.add_argument("-x", "--growing_steps", type=int, default=c.GROWING_STEPS,
                         help="""Number of Growing Steps (GS). By default = {}.""".format(c.GROWING_STEPS))
     parser.add_argument("-cr", "--criteria", default=c.SELECTION_CRITERIA,
@@ -164,9 +165,15 @@ def parse_arguments():
     parser.add_argument("-HT", "--highthroughput", action="store_true",
                         help="Run frag pele high-throughput mode")
 
+    parser.add_argument("--test", action="store_true", help="run test config")
+
     #Output format option
     parser.add_argument("--mae", action="store_true",
                         help="Retrieve .mae files intead of pdbs")
+
+    #Others
+    parser.add_argument("--no_rename", action="store_false",
+                        help="Avoid core renaming")
 
 
     args = parser.parse_args()
@@ -176,20 +183,26 @@ def parse_arguments():
         args.growing_steps = 3
         args.pele_eq_steps = 15
 
+    if args.test:
+        args.growing_steps = 1
+        args.steps = 1
+        args.pele_eq_steps = 1
+        args.temp = 1000000
+
     return args.complex_pdb, args.growing_steps, \
            args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, \
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.serie_file, \
            args.c_chain, args.f_chain, args.docontrolsim, args.steps, args.temperature, args.seed, args.rotamers, \
-           args.banned, args.limit, args.mae
+           args.banned, args.limit, args.mae, args.core, args.no_rename
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
          epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
          h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
-         banned=None, limit=None, mae=False):
+         banned=None, limit=None, mae=False, core=None, no_rename=False):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -288,7 +301,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = \
         add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, h_core=h_core,
-                                    h_frag=h_frag, core_chain=c_chain, fragment_chain=f_chain)
+                                    h_frag=h_frag, core_chain=c_chain, fragment_chain=f_chain, rename=no_rename)
 
     # Create the templates for the initial and final structures
     template_resnames = []
@@ -463,7 +476,8 @@ if __name__ == '__main__':
     complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
-    c_chain, f_chain, docontrolsim, steps, temperature, seed, rotamers, banned, limit, mae = parse_arguments()
+    c_chain, f_chain, docontrolsim, steps, temperature, seed, rotamers, banned, limit, mae, \
+    core, no_rename = parse_arguments()
     list_of_instructions = serie_handler.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
     dict_traceback = correct_fragment_names.main(complex_pdb)
@@ -503,7 +517,7 @@ if __name__ == '__main__':
                          sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
-                         limit, mae)
+                         limit, mae, core, no_rename)
 
                 except Exception:
                     traceback.print_exc()
@@ -529,7 +543,7 @@ if __name__ == '__main__':
                 main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                      pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
-                     h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae)
+                     h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, core, no_rename)
             except Exception:
                 traceback.print_exc()
     if docontrolsim:

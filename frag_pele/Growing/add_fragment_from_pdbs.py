@@ -451,7 +451,7 @@ def check_and_fix_repeated_lignames(pdb1, pdb2, ligand_chain_1="L", ligand_chain
 
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
          fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb",
-         h_core = None, h_frag = None):
+         h_core = None, h_frag = None, rename=False):
     """
     From a core (protein + ligand core = core_chain) and fragment (fragment_chain) pdb files, given the heavy atoms
     names that we want to connect, this function add the fragment to the core structure. We will get three PDB files:
@@ -526,7 +526,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     structure_to_template = check_results.copy()
     # Once we have all the atom names unique, we will rename the resname and the resnum of both, core and fragment, to
     # GRW and 1. Doing this, the molecule composed by two parts will be transformed into a single one.
-    changing_names = pdb_joiner.extract_and_change_atomnames(structure_to_template, fragment.getResnames()[0])
+    changing_names = pdb_joiner.extract_and_change_atomnames(structure_to_template, fragment.getResnames()[0], core_residue_name, rename=rename)
     molecule_names_changed, changing_names_dictionary = changing_names
 
     # Check if there is still overlapping names
@@ -548,7 +548,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     translate_to_position(hydrogen_atoms[0].get_coord(), point_reference.getCoords(), fragment_segment)
 
     # Repeat all the preparation process to finish the writing of the molecule.
-    changing_names = pdb_joiner.extract_and_change_atomnames(check_results, fragment.getResnames()[0])
+    changing_names = pdb_joiner.extract_and_change_atomnames(check_results, fragment.getResnames()[0], core_residue_name, rename=rename)
     molecule_names_changed, changing_names_dictionary = changing_names
     finishing_joining(molecule_names_changed)
     logger.info("The result of core + fragment(small) has been saved in '{}'. This will be used to initialise the growing."

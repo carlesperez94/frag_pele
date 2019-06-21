@@ -147,7 +147,7 @@ def transform_coords(atoms_with_coords):
     return np.asarray(coords)
 
 
-def extract_and_change_atomnames(molecule, selected_resname):
+def extract_and_change_atomnames(molecule, selected_resname, core_resname, rename=False):
     """
     Given a ProDy molecule and a Resname this function will rename the PDB atom names for the selected residue following
     the next pattern: G1, G2, G3...
@@ -155,17 +155,30 @@ def extract_and_change_atomnames(molecule, selected_resname):
     :param selected_resname: Residue name whose atoms you would like to rename.
     :return: ProDy molecule with atoms renamed and dictionary {"original atom name" : "new atom name"}
     """
-    selection_to_change = molecule.select("resname {}".format(selected_resname))
-    atoms = []
-    for atom in selection_to_change:
-        atom_info = (atom.getName(), atom.getElement())
-        atoms.append(atom_info)
+    assert selected_resname != core_resname, "core and fragment residue name must be different"
+    fragment = molecule.select("resname {}".format(selected_resname))
+    core = molecule.select("resname {}".format(core_resname))
+    core_atom_names  = [atom.getName() for atom in core]
+    fragment_atom_names  = [atom.getName() for atom in fragment]
     names_dictionary = {}
-    for n, atom in enumerate(atoms):
-        names_dictionary[atom[0]] = "G{}".format(n)
+    for n, atom_name in enumerate(fragment_atom_names):
+        if rename:
+            names_dictionary[atom_name] = "G{}".format(n)
+        else:
+            # If the atomname is repited
+            if atom_name in core_atom_names:
+                initial_atom_name = atom_name
+                while atom_name in core_atom_names:
+                    atom_name_digit = re.findall('\d+', atom_name)[0]
+                    new_atom_name_digit = int(atom_name_digit) + 1
+                    atom_name = atom_name.replace(atom_name_digit, str(new_atom_name_digit))
+                final_atom_name = atom_name
+                core_atom_names.append(final_atom_name)
+                names_dictionary[initial_atom_name] = final_atom_name
     for atom in molecule:
         if atom.getResname() == selected_resname:
-            atom.setName(names_dictionary[atom.getName()])
+            if atom.getName() in names_dictionary:
+                atom.setName(names_dictionary[atom.getName()])
     return molecule, names_dictionary
 
 
