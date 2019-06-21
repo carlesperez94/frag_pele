@@ -23,7 +23,5 @@ def main(pdb_path, lig_chain="L"):
             if len(new_name) > 4:
                 raise ValueError("Length of the string {} is too long. Only 4 characters accepted.".format(new_name))
         pdb_out.append(line)
-    with open(pdb_path, "w") as out_pdb:
-        out_pdb.writelines(pdb_out)
 
     return dictionary_to_transcript
