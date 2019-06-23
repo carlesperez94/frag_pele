@@ -562,7 +562,7 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     :type tmpl_out_path: str
     :return: None
     """
-    lambda_to_reduce = float(step/total_steps)
+    lambda_to_reduce = float(step/(total_steps+1))
     templ_ini = TemplateOPLS2005(template_initial_path)
     templ_grw = TemplateOPLS2005(template_grown_path)
     fragment_atoms = detect_fragment_atoms(template_initial=templ_ini, template_grown=templ_grw)
