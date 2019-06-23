@@ -285,6 +285,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     """
     # Time computations
     start_time = time.time()
+    # Global variable to keep info
+    simulation_info = []
     # Path definition
     plop_relative_path = os.path.join(PackagePath, plop_path)
     pdbout_folder = "{}_{}".format(pdbout, ID)
@@ -300,8 +302,9 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = \
-        add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, h_core=h_core,
-                                    h_frag=h_frag, core_chain=c_chain, fragment_chain=f_chain, rename=no_rename)
+        add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations,  
+                                    h_core=h_core, h_frag=h_frag, core_chain=c_chain, fragment_chain=f_chain,
+                                    rename=no_rename)
 
     # Create the templates for the initial and final structures
     template_resnames = []
@@ -471,6 +474,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     total_time = (end_time - start_time) / 60
     logging.info("Growing of {} in {} min".format(fragment_pdb, total_time))
 
+    return fragment_names_dict
+
 
 if __name__ == '__main__':
     complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
@@ -487,15 +492,25 @@ if __name__ == '__main__':
         # SUCCESSIVE GROWING
         if type(instruction) == list:  #  If in the individual instruction we have more than one command means successive growing.
             growing_counter = len(instruction)  #  Doing so we will determinate how many successive growings the user wants to do.
+            atomname_mappig = []
             for i in range(int(growing_counter)):
+                core_from_previous_fragment = instruction[i][-1]
                 fragment_pdb, core_atom, fragment_atom = instruction[i][0], instruction[i][1], instruction[i][2]
                 atoms_if_bond = serie_handler.extract_hydrogens_from_instructions([fragment_pdb, core_atom, fragment_atom])
                 if atoms_if_bond:
                     core_atom = atoms_if_bond[0]
-                    h_core = atoms_if_bond[1]
+                    if core_from_previous_fragment and i!=0:
+                        previous_fragment_atomnames_map = atomname_mappig[int(instruction[i][4])-1]
+                        core_atom = previous_fragment_atomnames_map[core_atom]
+                        h_core = previous_fragment_atomnames_map[atoms_if_bond[1]]
+                    else:
+                        h_core = atoms_if_bond[1]
                     fragment_atom = atoms_if_bond[2]
                     h_frag = atoms_if_bond[3]
                 else:
+                    if core_from_previous_fragment and i!=0:
+                        previous_fragment_atomnames_map = atomname_mappig[int(instruction[i][4])-1]
+                        core_atom = previous_fragment_atomnames_map[core_atom]
                     h_core = None
                     h_frag = None
                 if i == 0:  # In the first iteration we will use the complex_pdb as input.
@@ -513,11 +528,12 @@ if __name__ == '__main__':
                 except Exception:
                     traceback.print_exc()
                 try:
-                    main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
+                    atomname_map = main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                          sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
                          limit, mae, core, no_rename)
+                    atomname_mappig.append(atomname_map)
 
                 except Exception:
                     traceback.print_exc()
