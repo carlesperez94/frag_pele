@@ -209,7 +209,6 @@ def rotate_throught_bond(bond, angle, rotated_atoms, atoms_fixed):
     new_coords = []
     for coords in rotated_atoms.getCoords():
         new_coord = np.dot(coords, rot_mat)
-        print(new_coord)
         new_coords.append(new_coord)
     rotated_atoms.setCoords(new_coords)
     structure_result = atoms_fixed + rotated_atoms
