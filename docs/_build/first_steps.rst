@@ -19,45 +19,67 @@ How to do it?
 - **Serie file**: The instructions that explain how the growing has to be done are stored in this file. It must have the
   format described bellow.
 
-**Simple serie file** 
-++++++++++++++++++++++++
+**Growing of a fragment to a core** 
++++++++++++++++++++++++++++++++++++++
 
-Grow n fragments to n cores (Perform n sequencial growings).
+Grow 1 fragment to 1 cores
 
 +---------------+-------------------+-----------------------+
 | fragment PDB 1| heavy atom core 1 | heavy atom fragment 1 |
 +---------------+-------------------+-----------------------+
-| fragment PDB 2| heavy atom core 2 | heavy atom fragment 2 |
-+---------------+-------------------+-----------------------+
-| fragment PDB..| heavy atom core ..| heavy atom fragment ..|
-+---------------+-------------------+-----------------------+
-| fragment PDB n| heavy atom core n | heavy atom fragment n |
-+---------------+-------------------+-----------------------+
 
-**Serie file to successive growing to same position**  
+ie::
+
+    amino.pdb C1 N1
+
+**Growing of two fragment to the same core**  
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Add 1 fragment to an initial core. Then, add another fragment to the
-output of the first growin. Example: Grow two radicals onto a phenyl
+same core on the output of the 1st growing. Example: Grow two radicals onto a phenyl
 
 +---------------+------------------------+-----------------------+---------------+------------------------+-----------------------+
 | fragment PDB 1| heavy atom core 1 (C1) | heavy atom fragment 1 | fragment PDB 2| heavy atom core 1 (C2) | heavy atom fragment 2 |
 +---------------+------------------------+-----------------------+---------------+------------------------+-----------------------+
+
+i.e::
+
+    amino.pdb C1 N1 phenyl C1 C1
+
+
+**Growing of a fragment to a previously grown fragment**  
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Add 1 fragment to an initial core. Then, add another fragment to the
+previously grown fragment. Example: Grow one radical onto a phenyl and
+then another fragment into the previously grown radical.
+
++-----------+-------------------+-----------------------+---------------+--------------------------------------------+-----------------------+
+| fragment 1| heavy atom core 1 | heavy atom fragment 1 | fragment PDB 2| fragment atom core 1 (C2)*fragment_number* | heavy atom fragment 2 |
++-----------+-------------------+-----------------------+---------------+--------------------------------------------+-----------------------+
+
+i.e::
+
+    amino.pdb   C1  N1  phenyl.pdb  N1*1*    C1
 
 
 **All together** 
 ++++++++++++++++++
 
 Add 2 fragments onto different position of the same core. Then, perform another growing
-with a 3rd fragment onto a different core
+with a 3rd fragment onto a different core and a 4th into the previosuly grown fragment.
 
 
 +---------------+------------------------+-----------------------+---------------+------------------------+-----------------------+
 | fragment PDB 1| heavy atom core 1 (C1) | heavy atom fragment 1 | fragment PDB 2| heavy atom core 1 (C2) | heavy atom fragment 2 |
 +---------------+------------------------+-----------------------+---------------+------------------------+-----------------------+
-| fragment PDB 3| heavy atom core 2      | heavy atom fragment 3 |               |                        |                       |
+| fragment PDB 3| heavy atom core 2      | heavy atom fragment 3 | fragment PDB 4| heavy atom fragment 3  | heavy atom fragmnet 4 |
 +---------------+------------------------+-----------------------+---------------+------------------------+-----------------------+
 
+i.e::
+
+    amino.pdb C1 N1 phenyl C3 C1
+    ethyl C1  C2 methyl C1*1* C1
 
 
 **Launch simple FrAG-PELE simulation**
