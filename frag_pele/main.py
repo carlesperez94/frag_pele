@@ -493,7 +493,6 @@ if __name__ == '__main__':
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
     dict_traceback = correct_fragment_names.main(complex_pdb)
     for instruction in list_of_instructions:
-        print(instruction)
         # We will iterate trough all individual instructions of file.
         # SUCCESSIVE GROWING
         if type(instruction) == list:  #  If in the individual instruction we have more than one command means successive growing.
@@ -521,7 +520,6 @@ if __name__ == '__main__':
                     h_frag = None
                 if i == 0:  # In the first iteration we will use the complex_pdb as input.
                     ID = instruction[i][3]
-                    print(ID)
                 else:  # If is not the first we will use as input the output of the previous iteration
                     complex_pdb = "pregrow/selected_result_{}.pdb".format(ID)
                     dict_traceback = correct_fragment_names.main(complex_pdb)
