@@ -79,7 +79,7 @@ def get_pdb_fragments_and_atoms_from_instructions(list_of_instructions):
     return fragments_pdbs_and_atoms
 
     
-def check_instructions(list_of_instructions, complex_pdb, c_chain = "L", f_chain="L"):
+def check_instructions(instructions, complex_pdb, c_chain = "L", f_chain="L"):
     """
     It checks if the selected atoms exists in their correspondent PDB file and also checks if there are repeated
     PDB-atom-names in the PDB file.
@@ -87,7 +87,7 @@ def check_instructions(list_of_instructions, complex_pdb, c_chain = "L", f_chain
     :param complex: PDB file with the complex that contains the core
     :return: if something is wrong it raises an exception.
     """
-    fragments_and_atoms = get_pdb_fragments_and_atoms_from_instructions(list_of_instructions)
+    fragments_and_atoms = get_pdb_fragments_and_atoms_from_instructions([instructions])
     for fragment, atom_core, atom_fr in fragments_and_atoms:
         atoms_if_bond = extract_hydrogens_from_instructions([fragment, atom_core, atom_fr])
         if atoms_if_bond:

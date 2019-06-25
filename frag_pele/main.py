@@ -172,7 +172,7 @@ def parse_arguments():
                         help="Retrieve .mae files intead of pdbs")
 
     #Others
-    parser.add_argument("--no_rename", action="store_false",
+    parser.add_argument("--rename", action="store_true",
                         help="Avoid core renaming")
 
 
@@ -195,14 +195,14 @@ def parse_arguments():
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.serie_file, \
            args.c_chain, args.f_chain, args.docontrolsim, args.steps, args.temperature, args.seed, args.rotamers, \
-           args.banned, args.limit, args.mae, args.core, args.no_rename
+           args.banned, args.limit, args.mae, args.core, args.rename
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
          epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
          h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
-         banned=None, limit=None, mae=False, core=None, no_rename=False):
+         banned=None, limit=None, mae=False, core=None, rename=False):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -304,7 +304,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = \
         add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations,  
                                     h_core=h_core, h_frag=h_frag, core_chain=c_chain, fragment_chain=f_chain,
-                                    rename=no_rename)
+                                    rename=rename)
 
     # Create the templates for the initial and final structures
     template_resnames = []
@@ -440,6 +440,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                      seed=seed)
     # EQUILIBRATION SIMULATION
     if not (restart and os.path.exists("selected_result_{}".format(ID))):
+        shutil.copy(os.path.join(path_to_templates_generated, template_final), path_to_templates)
         logger.info(".....STARTING EQUILIBRATION.....")
         simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
     equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "equilibration_result_{}".format(ID))
@@ -448,7 +449,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     if not os.path.exists(selected_results_path):  # Create the folder if it does not exist
         os.mkdir(selected_results_path)
     best_structure_file, all_output_files = bestStructs.main(criteria, selected_results_path, path=equilibration_path,
-                                                             n_structs=10)
+                                                             n_structs=50)
 
     shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(c.PRE_WORKING_DIR,
                                                                                        selected_results_path + ".pdb"))
@@ -482,12 +483,12 @@ if __name__ == '__main__':
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
     c_chain, f_chain, docontrolsim, steps, temperature, seed, rotamers, banned, limit, mae, \
-    core, no_rename = parse_arguments()
+    core, rename = parse_arguments()
     list_of_instructions = serie_handler.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
     dict_traceback = correct_fragment_names.main(complex_pdb)
-    serie_handler.check_instructions(list_of_instructions, complex_pdb, c_chain, f_chain)
     for instruction in list_of_instructions:
+        print(instruction)
         # We will iterate trough all individual instructions of file.
         # SUCCESSIVE GROWING
         if type(instruction) == list:  #  If in the individual instruction we have more than one command means successive growing.
@@ -520,7 +521,7 @@ if __name__ == '__main__':
                     complex_pdb = "pregrow/selected_result_{}.pdb".format(ID)
                     dict_traceback = correct_fragment_names.main(complex_pdb)
                     ID_completed = []
-                    for id in instruction:
+                    for id in instruction[0:i+1]:
                         ID_completed.append(id[3])
                     ID = "".join(ID_completed)
                 try:
@@ -528,11 +529,12 @@ if __name__ == '__main__':
                 except Exception:
                     traceback.print_exc()
                 try:
+                    serie_handler.check_instructions(instruction[i], complex_pdb, c_chain, f_chain)
                     atomname_map = main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                          sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
-                         limit, mae, core, no_rename)
+                         limit, mae, core, rename)
                     atomname_mappig.append(atomname_map)
 
                 except Exception:
@@ -559,7 +561,7 @@ if __name__ == '__main__':
                 main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                      pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
-                     h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, core, no_rename)
+                     h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, core, rename)
             except Exception:
                 traceback.print_exc()
     if docontrolsim:
