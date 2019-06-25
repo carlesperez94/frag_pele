@@ -1,4 +1,5 @@
 import sys
+import re
 import os
 import logging
 # Local imports 
@@ -42,9 +43,15 @@ def read_instructions_from_file(file):
                     try:
                         fragment_pdb = line.split()[i * 3]
                         core_atom = line.split()[(i * 3) + 1]
+                        if "*" in core_atom:
+                            # Get fragment number and remove part of string
+                            fragment_number = re.findall(r'[*]\d[*]', core_atom)[0].strip("*")
+                            core_atom = core_atom.replace("*{}*".format(fragment_number), "")
+                        else:
+                            fragment_number = None
                         fragment_atom = line.split()[(i * 3) + 2]
                         ID = "{}{}{}".format(os.path.splitext(fragment_pdb)[0], core_atom, fragment_atom)
-                        task = (fragment_pdb, core_atom, fragment_atom, ID)
+                        task = (fragment_pdb, core_atom, fragment_atom, ID, fragment_number)
                         successive_tasks.append(task)
                     except IndexError:
                         logger.critical("Check that the serie file {} contains: 'PDB_fragment_file'\t'PDB_core_atom_name'\t'PDB_fragment_atom_name' ".format(file))
@@ -72,7 +79,7 @@ def get_pdb_fragments_and_atoms_from_instructions(list_of_instructions):
     return fragments_pdbs_and_atoms
 
     
-def check_instructions(list_of_instructions, complex_pdb, c_chain = "L", f_chain="L"):
+def check_instructions(instructions, complex_pdb, c_chain = "L", f_chain="L"):
     """
     It checks if the selected atoms exists in their correspondent PDB file and also checks if there are repeated
     PDB-atom-names in the PDB file.
@@ -80,7 +87,7 @@ def check_instructions(list_of_instructions, complex_pdb, c_chain = "L", f_chain
     :param complex: PDB file with the complex that contains the core
     :return: if something is wrong it raises an exception.
     """
-    fragments_and_atoms = get_pdb_fragments_and_atoms_from_instructions(list_of_instructions)
+    fragments_and_atoms = get_pdb_fragments_and_atoms_from_instructions([instructions])
     for fragment, atom_core, atom_fr in fragments_and_atoms:
         atoms_if_bond = extract_hydrogens_from_instructions([fragment, atom_core, atom_fr])
         if atoms_if_bond:
@@ -108,11 +115,14 @@ def extract_hydrogens_from_instructions(instruction):
     Otherwise it returns False.
     """
     if "-" in instruction[1] or "-" in instruction[2]:
-        heavy_core = instruction[1].split("-")[0]
-        hydrogen_core = instruction[1].split("-")[1]
-        heavy_fragment = instruction[2].split("-")[0]
-        hydrogen_fragment = instruction[2].split("-")[1]
-        return heavy_core, hydrogen_core, heavy_fragment, hydrogen_fragment
+        try:
+            heavy_core = instruction[1].split("-")[0]
+            hydrogen_core = instruction[1].split("-")[1]
+            heavy_fragment = instruction[2].split("-")[0]
+            hydrogen_fragment = instruction[2].split("-")[1]
+            return heavy_core, hydrogen_core, heavy_fragment, hydrogen_fragment
+        except IndexError:
+            raise IndexError("To use steriochemistry the hydrogen from the core AND fragmet must be specified via controlfile")
     else:
         return False
 
