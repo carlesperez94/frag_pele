@@ -175,6 +175,8 @@ def extract_and_change_atomnames(molecule, selected_resname, core_resname, renam
                 final_atom_name = atom_name
                 core_atom_names.append(final_atom_name)
                 names_dictionary[initial_atom_name] = final_atom_name
+            else:
+                names_dictionary[atom_name] = atom_name
     for atom in molecule:
         if atom.getResname() == selected_resname:
             if atom.getName() in names_dictionary:
