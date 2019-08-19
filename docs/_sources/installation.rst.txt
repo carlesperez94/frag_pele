@@ -23,7 +23,7 @@ Else start here:
 Pypi
 ========
 
-Ongoing
+pip install frag_pele
 
 Source code
 =============
