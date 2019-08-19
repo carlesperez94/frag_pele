@@ -119,8 +119,8 @@ else:
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 setup(
-    name="FrAG",
-    version="1.0",
+    name="frag_pele",
+    version="1.1.0.4",
     description='FrAG, a new tool for in silico hit-to-lead drug design, capable of growing a frag_pelement into a core while exploring the protein-ligand conformational space',
     long_description=long_description,
     url="https://github.com/carlesperez94/frag_pele/",
@@ -128,7 +128,7 @@ setup(
     author_email='daniel.soler@nostrumbiodiscovery.com, carlesperez@gmail.com',
     license='',
     packages=find_packages(exclude=['docs', 'tests']),
-    package_data={"AdaptivePELE_repo/AdaptivePELE/atomset": ['*.pxd'], "Templates": ["*.pdb", "*.conf"] },
+    package_data={"frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset": ['*.pxd'], "Templates": ["*.pdb", "*.conf"] },
     include_package_data=True,
     include_dirs=[numpy.get_include()],
     install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody', 'six'],
