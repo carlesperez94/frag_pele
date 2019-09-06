@@ -57,8 +57,10 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_hydrogen=None, c
     :return: hydrogen atom of the ligand placed at bonding distance of the heavy atom
     """
     # Select the hydrogens bonded to the heavy atom 'PDB_atom_name'
-    selected_h = prody_complex.select("chain {} and hydrogen within 1.70 of name {}".format(chain, PDB_atom_name)) # Replace for 1.53 :)
 
+    selected_h = prody_complex.select("chain {} and hydrogen within 1.70 of name {}".format(chain, PDB_atom_name)) # Replace for 1.53 :)
+    if PDB_atom_hydrogen:
+        print("HYDROGEN SELECTED: {}".format(PDB_atom_hydrogen))
     # In case that we found more than one we have to select one of them
     try:
         number_of_h = len(selected_h)
@@ -70,20 +72,19 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_hydrogen=None, c
             # We will select atoms of the protein in interaction distance
             select_h_bonds = prody_complex.select("protein and within 2.5 of (name {} and chain L)"
                                                   .format(selected_h.getNames()[idx]))
-
-            if select_h_bonds is not None and PDB_atom_hydrogen is None:
+            if PDB_atom_hydrogen:
+                print("Forming a bond between {} and {}...".format(PDB_atom_name, PDB_atom_hydrogen))
+                select_specific_h_bonds = selected_h.select("name {}".format(PDB_atom_hydrogen))
+                hydrogen_pdbatomname = select_specific_h_bonds.getNames()[0]
+                return hydrogen_pdbatomname
+            elif select_h_bonds is not None and PDB_atom_hydrogen is None:
                 print("WARNING: {} is forming a close interaction with the protein! We will try to grow"
                                " in another direction.".format(selected_h.getNames()[idx]))
                 # We put this elif to select one of H randomly if all of them have contacts
                 if (select_h_bonds is not None) and (int(idx) == int(len(selected_h)-1)):
                     hydrogen_pdbatomname = selected_h.getNames()[1]
                     return hydrogen_pdbatomname
-            elif select_h_bonds is None and PDB_atom_hydrogen is not None:
-                print("Forming a bond between {} and {}...".format(PDB_atom_name, PDB_atom_hydrogen))
-                select_specific_h_bonds = selected_h.select("name {}".format(PDB_atom_hydrogen))
-                hydrogen_pdbatomname = select_specific_h_bonds.getNames()[0]
-                return hydrogen_pdbatomname
-            else:
+            elif select_h_bonds is None and PDB_atom_hydrogen is None:
                 hydrogen_pdbatomname = selected_h.getNames()[idx]
                 return hydrogen_pdbatomname
     else:

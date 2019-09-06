@@ -88,6 +88,7 @@ def extract_hydrogens(pdb_atom_names, lists_of_bioatoms, list_of_pdbs, h_core=No
     :param list_of_pdbs: list of PDB files.
     :return: Bio.PDB.Atom object correspondent to the hydrogen bonded to the heavy atom
     """
+
     hydrogens = []
     selected_hydrogens = [h_core, h_frag]
     chains = [c_chain, f_chain]
@@ -216,7 +217,7 @@ def rotate_throught_bond(bond, angle, rotated_atoms, atoms_fixed):
 
 
 def check_collision(merged_structure, bond, theta, theta_interval, core_bond, list_of_atoms, fragment_bond,
-                    core_structure, fragment_structure):
+                    core_structure, fragment_structure, threshold_clash=1.70):
     """
     Given a structure composed by a core and a fragment, it checks that there is not collisions between the atoms of
     both. If it finds a collision, the molecule will be rotated "theta_interval" radians and the checking will be
@@ -237,25 +238,25 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
     clashes) around the axis of the bond.
     """
     core_resname = bond[0].get_parent().get_resname()
-    core_pdb_name = bond[0].get_name()
     frag_resname = bond[1].get_parent().get_resname()
     if core_resname is frag_resname:
         logger.critical("The resname of the core and the fragment is the same. Please, change one of both")
-    check_possible_collision = merged_structure.select("resname {} and within 1.7 of resname {}".format(core_resname,
+    check_possible_collision = merged_structure.select("resname {} and within {} of resname {}".format(core_resname,
+                                                                                                       threshold_clash,
                                                                                                         frag_resname))
 
     # This list only should have the atom of the fragment that will be bonded to the core, so if not we will have to
     # solve it
     if len(check_possible_collision.getNames()) > 1 or check_possible_collision.getNames()[0] != bond[0].name:
-        logger.info("We have a collision between atoms of the fragment and the core! Rotating the fragment to solve it...")
+        print("We have a collision between atoms of the fragment and the core! Rotating the fragment to solve it...")
         theta = theta + theta_interval
         if theta >= math.pi*2:
-            logger.warning("Not possible solution, decreasing the angle of rotation...")
+            print("Not possible solution, decreasing the angle of rotation...")
         else:
             rotated_structure = rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, core_structure,
                                                       fragment_structure)
             recall = check_collision(rotated_structure[0], bond, theta, theta_interval, core_bond, list_of_atoms,
-                                     fragment_bond, core_structure, fragment_structure)
+                                     fragment_bond, core_structure, fragment_structure, threshold_clash=threshold_clash)
             return recall
     else:
         return merged_structure
@@ -450,7 +451,7 @@ def check_and_fix_repeated_lignames(pdb1, pdb2, ligand_chain_1="L", ligand_chain
 
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
          fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb",
-         h_core = None, h_frag = None, rename=False):
+         h_core = None, h_frag = None, rename=False, threshold_clash=1.70):
     """
     From a core (protein + ligand core = core_chain) and fragment (fragment_chain) pdb files, given the heavy atoms
     names that we want to connect, this function add the fragment to the core structure. We will get three PDB files:
@@ -514,11 +515,13 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
     # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
     check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/18, core_bond,
-                                    bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment)
+                                    bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment,
+                                    threshold_clash=threshold_clash)
     # If we do not find a solution in the previous step, we will repeat the rotations applying only increments of 1º
     if not check_results:
         check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/180, core_bond,
-                                        bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment)
+                                        bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment,
+                                        threshold_clash=threshold_clash)
     # Now, we want to extract this structure in a PDB to create the template file after the growing. We will do a copy
     # of the structure because then we will need to resize the fragment part, so be need to keep it as two different
     # residues.
