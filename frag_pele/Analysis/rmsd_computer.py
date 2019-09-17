@@ -1,11 +1,10 @@
 import sys
 import os
 import re
-import ntpath
-import prody
+import mdtraj
 import glob
 import argparse
-import pandas as pn
+import pandas as pd
 import matplotlib.pyplot as plt
 
 
@@ -24,48 +23,21 @@ def parse_arguments():
     required_named.add_argument("-p", "--path", required=True,
                                 help="""Path to folder to be analyzed. """)
 
-    parser.add_argument("-pdbt", "--pdb_target",
-                                help="""Target pdb file. """)
+    parser.add_argument("-r", "--resname", default="GRW",
+                        help="Resame of the ligand.")
+    parser.add_argument("-c", "--csv", default="summary/summary_report_1.csv",
+                        help="Relative path to csv file")
 
-    parser.add_argument("-wp", "--w2pdb", default=False,
-                        help="If true export a pdb file with the alignment result.")
-    parser.add_argument("-ch", "--chain", default="L",
-                        help="Name of the ligand's chain")
-    parser.add_argument("-o", "--out", default="report_rmsd.txt",
-                        help="Output file name.")
-    parser.add_argument("-c", "--column_to_add", default="Binding Energy",
-                        help="Column name of the report file that you want to add to the report")
+
     # Plot arguments
-    parser.add_argument("-x", "--xcol", default="RMSD",
+    parser.add_argument("-y", "--ycol", default="RMSD",
                         help="Column name of the report file that you want to use as X axis in the plot.")
-    parser.add_argument("-op", "--out_plot", default="plot.png",
-                        help="Filename of the output graph.")
+    parser.add_argument("-op", "--plot", default=False, action="store_true",
+                        help="Flag to plot the results.")
 
     args = parser.parse_args()
 
-    return args.pdb_reference, args.path, args.pdb_target, args.w2pdb, args.chain, args.out, args.column_to_add, \
-           args.xcol, args.out_plot
-
-
-def superimpose_backbones(pdb_target, pdb_reference):
-    # Loading PDB files
-    target = prody.parsePDB(pdb_target)
-    reference = prody.parsePDB(pdb_reference)
-    # Selection of the backbone
-    target_backbone = target.select("backbone and not water")
-    reference_backbone = reference.select("backbone and not water")
-    # Obtain common residues
-    common_residues = check_common_residues(target_backbone, reference_backbone)
-    common_residues = [str(residue) for residue in common_residues]
-    # Select only common residues
-    target_common = target_backbone.select("resnum {}".format(' '.join(common_residues)))
-    reference_common = reference_backbone.select("resnum {}".format(' '.join(common_residues)))
-    # Superimpose the target to the reference backbone
-    transformation = prody.calcTransformation(target_common, reference_common)
-    prody.applyTransformation(transformation, target)
-    prody.writePDB("/home/carlespl/project/growing/Ligand_growing/Analysis/check_target.pdb", target)
-    prody.writePDB("/home/carlespl/project/growing/Ligand_growing/Analysis/check_ref.pdb", reference)
-    return target, reference
+    return args.pdb_reference, args.path, args.resname, args.csv, args.ycol, args.plot
 
 
 def check_common_residues(pdb_target_prody, pdb_reference_prody):
@@ -83,7 +55,7 @@ def check_common_residues(pdb_target_prody, pdb_reference_prody):
     return only_resnums
 
 
-def ligands_rmsd_calculator(pdb_target, pdb_reference, column_to_add=None, write2pdb=False, ligand_chain="L", ):
+def ligands_rmsd_calculator(pdb_target, pdb_reference, resname="GRW"):
     """
 
     :param pdb_target: problem pdb file
@@ -93,37 +65,15 @@ def ligands_rmsd_calculator(pdb_target, pdb_reference, column_to_add=None, write
     :param ligand_chain: name of the chain of the ligand
     :return: superpose the backbone of the pdb_target to the pdb_reference and computes the RMSD of the ligand
     """
+    # Reparation of PDB files if it is needed
     repair_pdbs(pdb_target)
-    target, reference = superimpose_backbones(pdb_target, pdb_reference)
-    target_ligand = target.select("chain {} and heavy".format(ligand_chain))
-    reference_ligand = reference.select("chain {} and heavy".format(ligand_chain))
-
-    # Creating temporary files to perform RMSD computations in futher steps
-    prody.writePDB("structure_superposed_target_tmp.pdb", target_ligand)
-    prody.writePDB("structure_superposed_reference_tmp.pdb", reference_ligand)
-    sort_atoms_by_name("structure_superposed_reference_tmp.pdb")
-    results = []
-    for i, pdb in enumerate(check_if_multimodels_and_split("structure_superposed_target_tmp.pdb")):
-        with open("structure_superposed_target_tmp.pdb", "w") as write_pdb:
-            write_pdb.write(pdb)
-        sort_atoms_by_name("structure_superposed_target_tmp.pdb")
-        target_sorted = prody.parsePDB("structure_superposed_target_tmp.pdb")
-        reference_sorted = prody.parsePDB("structure_superposed_reference_tmp.pdb")
-        RMSD = prody.calcRMSD(reference_sorted, target_sorted)
-        print(RMSD)
-        if column_to_add:
-            column = get_report_column_from_trajectory(pdb_target, "report_", column_to_add, i)
-            result_sumary = "{}\t{}\t{:2.3f}\t{}".format(pdb_target, i, RMSD, column)
-        else:
-            result_sumary = "{}\t{}\t{:2.3f}\t ".format(pdb_target, i, RMSD)
-        results.append(result_sumary)
-
-    if write2pdb:
-        prody.writePDB("structure_superposed.pdb", target+reference)
-    # Deleting temporary files
-    os.remove("structure_superposed_target_tmp.pdb")
-    os.remove("structure_superposed_reference_tmp.pdb")
-    return results
+    # Load the data to mdtraj
+    target = mdtraj.load(pdb_target)
+    reference = mdtraj.load(pdb_reference)
+    # Get the indexes of heavy atoms of the ligands
+    ligand = reference.topology.select('resname "{}"'.format(resname))
+    rmsd = mdtraj.rmsd(target, reference=reference, atom_indices=ligand)
+    return rmsd
 
 
 def repair_pdbs(pdb_file):
@@ -155,19 +105,34 @@ def sort_atoms_by_name(pdb_file):
         write_output.write(new_pdb_content)
 
 
-def compute_rmsd_in_serie(pdb_reference, path, column_to_add, ligand_chain="L", output_file="report_rmsd.txt"):
-    equilibration_files = glob.glob("{}/equilibration*/trajectory*.pdb".format(path))
-    if os.path.exists(os.path.join(path, output_file)):
-        os.remove(os.path.join(path, output_file))
+def compute_rmsd_in_serie(pdb_reference, path, resname="GRW", pattern_to_csv="summary/summary_report_1.csv", plot=False,
+                          y=None):
+    equilibration_files = sorted(glob.glob("{}/trajectory_[0-9]*.pdb".format(path)))
+    csv = os.path.join(path, pattern_to_csv)
+    df = pd.read_csv(csv)
     for file in equilibration_files:
-        result = ligands_rmsd_calculator(file, pdb_reference, column_to_add, write2pdb=False, ligand_chain=ligand_chain)
-        for line in result:
-            if os.path.exists(os.path.join(path, output_file)):
-                with open(os.path.join(path, output_file), "a") as writing_file:
-                    writing_file.write("{}\n".format(line))
-            else:
-                with open(os.path.join(path, output_file), "w") as writing_file:
-                    writing_file.write("{}\n".format(line))
+        result = ligands_rmsd_calculator(file, pdb_reference, resname=resname)
+        processor = re.findall(r'\d+', file.split("/")[-1])[0]
+        try:
+            indexes = search_indexes_with_certain_value_in_column(df, int(processor), "Processor")
+            for rmsd, index in zip(result, indexes):
+                add_data_to_dataframe(dataframe=df, value_to_add=rmsd, row_to_add=index, column_name="rmsd")
+        except Exception as e:
+            print(e)
+    # Overwriting the initial report
+    df.to_csv(csv)
+    if plot:
+        filename = os.path.join(path, "{}_rmsd.png".format(y))
+        plot_results(df, xcolumn="rmsd", ycolumn=y, outfile=filename)
+
+
+def add_data_to_dataframe(dataframe, value_to_add, row_to_add, column_name="new_column"):
+    dataframe.loc[row_to_add, column_name] = value_to_add
+
+
+def search_indexes_with_certain_value_in_column(dataframe, value_to_seach, column_to_seach):
+    idx = dataframe.index[dataframe[column_to_seach] == value_to_seach]
+    return idx
 
 
 def check_if_multimodels_and_split(pdb_file):
@@ -192,19 +157,11 @@ def get_report_file_from_trajectory(trajectory_path, report_prefix):
     return path_completed
 
 
-def get_report_column_from_trajectory(trajectory_path, report_prefix, column, model):
-    report_path = get_report_file_from_trajectory(trajectory_path, report_prefix)
-    report_data = pn.read_csv(report_path, sep="    ")
-    return report_data[column][model]
-
-
-def plot_results(report_file, x, y, xcolumn, ycolumn, output_name):
-    data = pn.read_csv(report_file, sep="\t")
-    data.plot(x, y, kind="scatter")
+def plot_results(dataframe, xcolumn, ycolumn, outfile):
+    dataframe.plot(xcolumn, ycolumn, kind="scatter")
     plt.xlabel(xcolumn)
     plt.ylabel(ycolumn)
-    print(output_name)
-    plt.savefig(output_name)
+    plt.savefig(outfile)
     plt.show()
 
 
@@ -220,19 +177,12 @@ def get_min_row(data, column_number):
 
 
 def get_pdb_by_min_value(report_file, column_number):
-    data = pn.read_csv(report_file, sep="\t", header=None)
+    data = pd.read_csv(report_file, sep="\t", header=None)
     minium_row = get_min_row(data, column_number)
     return minium_row[0].values[0], minium_row[1].values[0]
 
 
 if __name__ == '__main__':
-    pdb_reference, path, pdb_target, w2pdb, chain, output_file, column_to_add, xcol, out_plot = parse_arguments()
-    compute_rmsd_in_serie(pdb_reference, path, column_to_add, ligand_chain="L", output_file=output_file)
-    get_snapshot(get_pdb_by_min_value(os.path.join(path, output_file), 2)[0],
-                 get_pdb_by_min_value(os.path.join(path, output_file), 2)[1],
-                 os.path.join(path, "minimum_rmsd.pdb"))
-    get_snapshot(get_pdb_by_min_value(os.path.join(path, output_file), 3)[0],
-                 get_pdb_by_min_value(os.path.join(path, output_file), 3)[1],
-                 os.path.join(path, "minimum_{}.pdb".format(column_to_add.replace(" ", ""))))
-    plot_results(os.path.join(path, output_file), 2, 3, xcol, column_to_add, os.path.join(path, out_plot))
+    pdb_reference, path, resname, csv, ycol, plot = parse_arguments()
+    compute_rmsd_in_serie(pdb_reference, path, pattern_to_csv=csv, resname=resname, plot=plot, y=ycol)
 
