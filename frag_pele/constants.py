@@ -11,6 +11,8 @@ DIR = os.path.dirname(__file__)
 
 machine = socket.getfqdn()
 print(machine)
+
+# Paths definitions (IMPORTANT!)
 if "bsc.mn" in machine:
     # PELE parameters
     PATH_TO_PELE = "/gpfs/projects/bsc72/PELE++/mniv/rev12536/bin/Pele_mpi"
@@ -37,28 +39,41 @@ else:
     SCHRODINGER_PY_PATH = "/home/carlespl/schrodinger2019-2/run"
     ENV_PYTHON = ""
 
+# FragPELE configuration
 CONTROL_TEMPLATE = os.path.join(DIR, "Templates/control_template.conf")
-RESULTS_FOLDER = "growing_output"
 GROWING_STEPS = 10
 SELECTION_CRITERIA = "Binding Energy"
-SERIE_FILE = False
+CPUS = 48
+PELE_EQ_STEPS = 20  # PELE steps in the equilibration
+RESTART = False
+STEPS = 6  # PELE steps for growing step
+BANNED_DIHEDRALS_ATOMS = None
+BANNED_ANGLE_THRESHOLD = None
+
+# PELE control file configuration
 REPORT_NAME = "report"
 TRAJECTORY_NAME = "trajectory"
-CPUS = 48
-PELE_EQ_STEPS = 20
-RESTART = False
-STEPS = 6
+RESULTS_FOLDER = "growing_output"
 TEMPERATURE = 1000
 MAX_OVERLAP = 0.70
 MIN_OVERLAP = 0.50
 SEED = 1279183
+STEERING = 0
+TRANSLATION_HIGH = 0.05 #Amstrongs
+ROTATION_HIGH = 0.10 # Radiants
+TRANSLATION_LOW = 0.02
+ROTATION_LOW = 0.05 
+RADIUS_BOX = 4  # Amstrongs
+# PlopRotTemp configuration
 ROTRES = "10.0"
+
 # Clustering parameters
 DISTANCE_COUNTER = 4
 CONTACT_THRESHOLD = 0.3
 EPSILON = 0.5
-BANNED_DIHEDRALS_ATOMS = None
-BANNED_ANGLE_THRESHOLD = None
+CONDITION = "min"   #   min or max
+METRICS_WEIGHTS = "linear"
+NUM_CLUSTERS = 5
 ##############################################
 
 # PRIVATE CONSTANTS (not to change)
@@ -70,10 +85,7 @@ OUTPUT_FOLDER = "growing_results/"
 TEMPLATES_FOLDER = "growing_templates"
 CONFIG_PATH = "log_configure.ini"
 PLOP_PATH = "PlopRotTemp_S_2017/ligand_prep.py"
-# Clustering constants
-CONDITION = "min"   #   min or max
-METRICS_WEIGHTS = "linear"
-NUM_CLUSTERS = 5
+
 # Messages constants
 TEMPLATE_MESSAGE = "We are going to transform the template _{}_ into _{}_ in _{}_ steps! Starting..."
 LINES_MESSAGE = "\n•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•\n"

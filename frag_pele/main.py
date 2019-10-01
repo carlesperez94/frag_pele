@@ -79,8 +79,6 @@ def parse_arguments():
     parser.add_argument("-fc", "--f_chain", default="L", help="Chain name of the fragment. By default = 'L'")
     parser.add_argument("-tc", "--clash_thr", default=1.7, help="Threshold distance that would to classify intramolecular"
                                                                 "clashes.")
-    parser.add_argument("-docon", "--docontrolsim", action="store_true",
-                        help="""When it is set, FrAG runs a negative-control simulation (without growing).""")
 
 
     # Plop related arguments
@@ -129,6 +127,24 @@ def parse_arguments():
     parser.add_argument("-sd", "--seed", default=c.SEED,
                         help="Seed to get the random numbers that will be used in the PELE simulation"
                              "By default = {}".format(c.SEED))
+    parser.add_argument("-st", "--steering", default=c.STEERING,
+                        help="Steering that will be used in the PELE simulation"
+                             "By default = {}".format(c.STEERING))
+    parser.add_argument("-trh", "--translation_high", default=c.TRANSLATION_HIGH,
+                        help="Translation that will be used in the PELE simulation to displace the ligand. Low value."
+                             "By default = {}".format(c.TRANSLATION_HIGH))
+    parser.add_argument("-roth", "--rotation_high", default=c.ROTATION_HIGH,
+                        help="Rad of rotation that will be used in the PELE simulation to perturb the ligand. "
+                             "Low value. By default = {}".format(c.ROTATION_HIGH))
+    parser.add_argument("-trl", "--translation_low", default=c.TRANSLATION_LOW,
+                        help="Translation that will be used in the PELE simulation to displace the ligand. Low value."
+                             "By default = {}".format(c.TRANSLATION_LOW))
+    parser.add_argument("-rotl", "--rotation_low", default=c.ROTATION_LOW,
+                        help="Rad of rotation that will be used in the PELE simulation to perturb the ligand. "
+                             "Low value. By default = {}".format(c.ROTATION_LOW))
+    parser.add_argument("-rad", "--radius_box", default=c.RADIUS_BOX,
+                        help="Size of the radius to define the box in the PELE simulation where the ligand will be"
+                             "perturbed. By default = {}".format(c.RADIUS_BOX))
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
@@ -163,9 +179,12 @@ def parse_arguments():
                         help="Maximum degrees that can accept the banned dihedral."
                              "By default = {}".format(c.BANNED_ANGLE_THRESHOLD))
 
-    #Protocol argumnet
+    #Protocol argument
     parser.add_argument("-HT", "--highthroughput", action="store_true",
                         help="Run frag pele high-throughput mode")
+
+    parser.add_argument("-EX", "--explorative", action="store_true",
+                        help="Run frag pele explorative mode: sampling simulation with high movement of the ligand.")
 
     parser.add_argument("--test", action="store_true", help="run test config")
 
@@ -176,7 +195,6 @@ def parse_arguments():
     #Others
     parser.add_argument("--rename", action="store_true",
                         help="Avoid core renaming")
-
 
     args = parser.parse_args()
 
@@ -196,15 +214,20 @@ def parse_arguments():
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.serie_file, \
-           args.c_chain, args.f_chain, args.docontrolsim, args.steps, args.temperature, args.seed, args.rotamers, \
-           args.banned, args.limit, args.mae, args.core, args.rename, args.clash_thr
+           args.c_chain, args.f_chain, args.steps, args.temperature, args.seed, args.rotamers, \
+           args.banned, args.limit, args.mae, args.core, args.rename, args.clash_thr, args.steering, \
+           args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
+           args.radius_box
+
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
          epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
          h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
-         banned=None, limit=None, mae=False, core=None, rename=False, threshold_clash=1.7):
+         banned=None, limit=None, mae=False, core=None, rename=False, threshold_clash=1.7, steering=0,
+         translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
+         radius_box=4):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -382,7 +405,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
             pdbs_with_banned_dihedrals = Detector.check_folder(folder=os.path.join(pdbout_folder, str(i-1)),
                                                          threshold=limit,
                                                          dihedrals=banned,
-                                                         lig_chain=c_chain, processors=cpus)
+                                                         lig_chain=c_chain,
+                                                         processors=cpus)
             pdb_input_paths = [pdb_file for pdb_file, flag in pdbs_with_banned_dihedrals.items() if flag]
 
         # Control file modification
@@ -392,13 +416,18 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         if i != 0:
             simulation_file = simulations_linker.control_file_modifier(contrl, pdb_input_paths, i, license, overlapping_factor,
                                                              result, steps=steps, chain=c_chain, constraints=const, center=center,
-                                                             temperature=temperature, seed=seed)
+                                                             temperature=temperature, seed=seed, steering=steering,
+                                                             translation_high=translation_high, translation_low=translation_low,
+                                                             rotation_high=rotation_high, rotation_low=rotation_low,
+                                                             radius=radius_box)
         else:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
             simulation_file = simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license, overlapping_factor,
                                                              result, steps=steps, chain=c_chain, constraints=const, center=center,
-                                                             temperature=temperature, seed=seed)
-                                                                     #  pdb_initialize = list
+                                                             temperature=temperature, seed=seed, steering=steering,
+                                                             translation_high=translation_high, translation_low=translation_low,
+                                                             rotation_high=rotation_high, rotation_low=rotation_low,
+                                                             radius=radius_box)
 
         logger.info(c.LINES_MESSAGE)
         if i != 0:
@@ -434,23 +463,41 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     pdb_inputs = ["{}".format(os.path.join(pdbout_folder, str(iterations), pdb_file)) for pdb_file in pdb_selected_names]
     if banned:
         pdbs_with_banned_dihedrals = Detector.check_folder(folder=os.path.join(pdbout_folder, str(iterations)),
-                                                     threshold=limit,
-                                                     dihedrals=banned,
-                                                     lig_chain=c_chain, processors=cpus)
+                                                           threshold=limit,
+                                                           dihedrals=banned,
+                                                           lig_chain=c_chain,
+                                                           processors=cpus)
         pdb_inputs = [pdb_file for pdb_file, flag in pdbs_with_banned_dihedrals.items() if flag]
-    if not os.path.exists("equilibration_result_{}".format(ID)):  # Create the folder if it does not exist
-        os.mkdir("equilibration_result_{}".format(ID))
-    # Modify the control file to increase the steps to 20 and change the output path
-    simulation_file = simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
-                                                     "equilibration_result_{}".format(ID), steps=pele_eq_steps, chain=c_chain,
-                                                     constraints=const, center=center, temperature=temperature,
-                                                     seed=seed)
+    if not os.path.exists("sampling_result_{}".format(ID)):  # Create the folder if it does not exist
+        os.mkdir("sampling_result_{}".format(ID))
+    # Modify the control file to increase the steps TO THE SAMPLING SIMULATION
+    if not explorative:
+        simulation_file = simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
+                                                     "sampling_result_{}".format(ID), steps=pele_eq_steps,
+                                                     chain=c_chain, constraints=const, center=center,
+                                                     temperature=temperature, seed=seed, steering=steering,
+                                                     translation_high=translation_high, translation_low=translation_low,
+                                                     rotation_high=rotation_high, rotation_low=rotation_low,
+                                                     radius=radius_box)
+
+    else:
+        simulation_file = simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
+                                                                   "sampling_result_{}".format(ID),
+                                                                   steps=pele_eq_steps,
+                                                                   chain=c_chain, constraints=const, center=center,
+                                                                   temperature=temperature, seed=seed,
+                                                                   steering=2,
+                                                                   translation_high=0.5,
+                                                                   translation_low=0.3,
+                                                                   rotation_high=0.4,
+                                                                   rotation_low=0.15,
+                                                                   radius=25)
     # EQUILIBRATION SIMULATION
     if not (restart and os.path.exists("selected_result_{}".format(ID))):
         shutil.copy(os.path.join(path_to_templates_generated, template_final), path_to_templates)
         logger.info(".....STARTING EQUILIBRATION.....")
         simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
-    equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "equilibration_result_{}".format(ID))
+    equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "sampling_result_{}".format(ID))
     # SELECTION OF BEST STRUCTURES
     selected_results_path = "selected_result_{}".format(ID)
     if not os.path.exists(selected_results_path):  # Create the folder if it does not exist
@@ -462,7 +509,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                                        selected_results_path + ".pdb"))
     # COMPUTE AND SAVE THE SCORE
     analyser.analyse_at_epoch(report_prefix=report, path_to_equilibration=equilibration_path,
-                         column=criteria, quantile_value=0.25)
+                              column=criteria, quantile_value=0.25)
 
     
     #MOVE FROM PDB TO MAE
@@ -489,8 +536,9 @@ if __name__ == '__main__':
     complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
-    c_chain, f_chain, docontrolsim, steps, temperature, seed, rotamers, banned, limit, mae, \
-    core, rename, threshold_clash = parse_arguments()
+    c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
+    core, rename, threshold_clash, steering, translation_high, rotation_high, \
+    translation_low, rotation_low, explorative, radius_box = parse_arguments()
     list_of_instructions = serie_handler.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
     dict_traceback = correct_fragment_names.main(complex_pdb)
@@ -541,7 +589,8 @@ if __name__ == '__main__':
                          sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
-                         limit, mae, core, rename, threshold_clash)
+                         limit, mae, core, rename, threshold_clash, steering, translation_high, rotation_high,
+                         translation_low, rotation_low, explorative, radius_box)
                     atomname_mappig.append(atomname_map)
 
                 except Exception:
@@ -571,13 +620,8 @@ if __name__ == '__main__':
                      pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, core, rename,
-                     threshold_clash)
+                     threshold_clash, steering, translation_high, rotation_high,
+                     translation_low, rotation_low, explorative, radius_box)
             except Exception:
                 traceback.print_exc()
-    if docontrolsim:
-        logging.info("INITIALIZING NON-GROWING SIMULATION :)")
-        ID = "{}_cntrl".format(complex_pdb)
-        runner.run_no_grow(complex_pdb, sch_python, resfold, iterations, cpus, ID, pele_dir,
-                                   pdbout, restart, min_overlap, max_overlap, contrl, criteria, report,
-                                   epsilon, threshold, distcont, condition, traject,
-                                   metricweights, nclusters, pele_eq_steps, license)
+
