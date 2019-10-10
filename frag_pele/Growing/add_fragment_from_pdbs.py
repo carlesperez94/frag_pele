@@ -1,6 +1,7 @@
 import prody
 import logging
 import numpy as np
+from scipy.spatial import distance
 import math
 import os
 import shutil
@@ -10,7 +11,7 @@ import Bio.PDB as bio
 # Local imports
 import frag_pele.constants as c
 from frag_pele.Helpers import checker
-from frag_pele.Growing.AddingFragHelpers import complex_to_prody, pdb_joiner
+from frag_pele.Growing.AddingFragHelpers import complex_to_prody, pdb_joiner, atom_constants
 
 
 # Getting the name of the module for the log system
@@ -144,7 +145,7 @@ def bond(hydrogen_atom_names, molecules):
     return bonds
 
 
-def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fragment_structure):
+def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fragment_structure, bond_type="single"):
     """
     It joins two ProDy structures into a single one, merging both bonds (core bond and fragment bond) creating a unique
     bond between the molecules. In order to do that this function performs a cross superimposition (in BioPython) of
@@ -169,8 +170,48 @@ def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fra
     transform_coords_from_bio2prody(fragment_structure, list_of_atoms)
     # Now, we have to remove the hydrogens of the binding
     h_atom_names = [core_bond[1].name, fragment_bond[0].name]
+    # Correcting linking distance
+    hvy_core_coords = find_coords_of_atom(core_bond[0].name, core_structure)
+    hvy_frag_coords = find_coords_of_atom(fragment_bond[1].name, fragment_structure)
+    new_distance = atom_constants.BONDING_DISTANCES[core_bond[0].element, fragment_bond[1].element, bond_type]
+    # Compute new coords and set it into the fragment atoms
+    new_coords = modify_fragment_core_distance(hvy_core_coords, hvy_frag_coords, fragment_structure.getCoords(),
+                                               new_distance)
+    fragment_structure.setCoords(new_coords)
     merged_structure = bond(h_atom_names, [core_structure, fragment_structure])
     return merged_structure
+
+
+def find_coords_of_atom(atom_to_find, structure_prody):
+    for atomname, coords in zip(structure_prody.getNames(), structure_prody.getCoords()):
+        if atomname == atom_to_find:
+            return coords
+
+
+def compute_vector_between_atoms(coords_atom_1, coords_atom_2):
+    vector = coords_atom_2 - coords_atom_1
+    return vector  # Vector from point 1 to point 2
+
+
+def compute_distance_between_atoms(coords_atom_1, coords_atom_2):
+    vector = compute_vector_between_atoms(coords_atom_1, coords_atom_2)
+    module = np.linalg.norm(vector)
+    return module
+
+
+def compute_unit_vector_between_atoms(coords_atom_1, coords_atom_2):
+    vector = compute_vector_between_atoms(coords_atom_1, coords_atom_2)
+    module = np.linalg.norm(vector)
+    unit_vector = vector / module
+    return unit_vector
+
+
+def modify_fragment_core_distance(coords_core, coords_fragment, coords_to_move, new_distance):
+    unit_vector = compute_unit_vector_between_atoms(coords_core, coords_fragment)
+    new_point = coords_core + (unit_vector*new_distance)
+    vector_to_add = compute_vector_between_atoms(coords_fragment, new_point)
+    new_coords = coords_to_move + vector_to_add
+    return new_coords
 
 
 def rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, core_structure, fragment_structure):
