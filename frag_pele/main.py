@@ -77,6 +77,8 @@ def parse_arguments():
                              "restart in the equilibration phase.")
     parser.add_argument("-cc", "--c_chain", default="L", help="Chain name of the core. By default = 'L'")
     parser.add_argument("-fc", "--f_chain", default="L", help="Chain name of the fragment. By default = 'L'")
+    parser.add_argument("-tc", "--clash_thr", default=1.7, help="Threshold distance that would to classify intramolecular"
+                                                                "clashes.")
     parser.add_argument("-docon", "--docontrolsim", action="store_true",
                         help="""When it is set, FrAG runs a negative-control simulation (without growing).""")
 
@@ -195,14 +197,14 @@ def parse_arguments():
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.serie_file, \
            args.c_chain, args.f_chain, args.docontrolsim, args.steps, args.temperature, args.seed, args.rotamers, \
-           args.banned, args.limit, args.mae, args.core, args.rename
+           args.banned, args.limit, args.mae, args.core, args.rename, args.clash_thr
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
          epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
          h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
-         banned=None, limit=None, mae=False, core=None, rename=False):
+         banned=None, limit=None, mae=False, core=None, rename=False, threshold_clash=1.7):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -306,7 +308,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = \
         add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations,  
                                     h_core=h_core, h_frag=h_frag, core_chain=c_chain, fragment_chain=f_chain,
-                                    rename=rename)
+                                    rename=rename, threshold_clash=threshold_clash)
 
     # Create the templates for the initial and final structures
     template_resnames = []
@@ -488,7 +490,7 @@ if __name__ == '__main__':
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
     c_chain, f_chain, docontrolsim, steps, temperature, seed, rotamers, banned, limit, mae, \
-    core, rename = parse_arguments()
+    core, rename, threshold_clash = parse_arguments()
     list_of_instructions = serie_handler.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
     dict_traceback = correct_fragment_names.main(complex_pdb)
@@ -533,11 +535,13 @@ if __name__ == '__main__':
                     traceback.print_exc()
                 try:
                     serie_handler.check_instructions(instruction[i], complex_pdb, c_chain, f_chain)
+                    print("PERFORMING SUCCESSIVE GROWING...")
+                    print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
                     atomname_map = main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                          sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
-                         limit, mae, core, rename)
+                         limit, mae, core, rename, threshold_clash)
                     atomname_mappig.append(atomname_map)
 
                 except Exception:
@@ -561,10 +565,13 @@ if __name__ == '__main__':
                 h_core = None
                 h_frag = None
             try:
+                print("PERFORMING INDIVIDUAL GROWING...")
+                print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
                 main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                      pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
-                     h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, core, rename)
+                     h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, core, rename,
+                     threshold_clash)
             except Exception:
                 traceback.print_exc()
     if docontrolsim:

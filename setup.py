@@ -121,6 +121,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 setup(
     name="frag_pele",
     version="1.1.0.4",
+    origin/V1.1
     description='FrAG, a new tool for in silico hit-to-lead drug design, capable of growing a frag_pelement into a core while exploring the protein-ligand conformational space',
     long_description=long_description,
     url="https://github.com/carlesperez94/frag_pele/",
@@ -131,7 +132,7 @@ setup(
     package_data={"frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset": ['*.pxd'], "Templates": ["*.pdb", "*.conf"] },
     include_package_data=True,
     include_dirs=[numpy.get_include()],
-    install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody', 'six'],
+    install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody==1.10', 'six'],
     cmdclass=cmdclass,
     ext_modules=ext_modules,  # accepts a glob pattern
     #include_dirs=[numpy.get_include()],

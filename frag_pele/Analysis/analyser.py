@@ -18,11 +18,11 @@ def parse_arguments():
         template,modifying Vann Der Waals, bond lengths and deleting charges.""")
     required_named = parser.add_argument_group('required named arguments')
     # Growing related arguments
-    required_named.add_argument("-r", "--rep_pref", required=True,
-                                help="""Prefix of the report file: usually 'report_'. """)
-    required_named.add_argument("-p", "--path", required=True,
+    required_named.add_argument("path_to_analyze",
                                 help="""Path of the folder to be analyzed""")
 
+    parser.add_argument("-r", "--rep_pref", default='report_',
+                                help="""Prefix of the report file: usually 'report_'. """)
     parser.add_argument("-s", "--steps", default=False,
                         help="Used to filter n by PELE steps")
     parser.add_argument("-f", "--file", default=False,
@@ -35,13 +35,17 @@ def parse_arguments():
                         help="Name of the column that we will use to find the minimum value of the PELE report")
     parser.add_argument("-q", "--quart", default=0.25,
                         help="Quartile that will be used to compute the mean")
+    parser.add_argument("-csv", "--export_csv", default=True,
+                        help="By default a csv file with a summary of all reports will be stored. If you do not"
+                        "want to save it, set the flag to False.")
 
     args = parser.parse_args()
 
-    return args.rep_pref, args.path, args.steps, args.file, args.out, args.equil_folder, args.col, args.quart
+    return  args.path_to_analyze, args.rep_pref, args.steps, args.file, args.out, args.equil_folder, args.col, args.quart, \
+           args.export_csv
 
 
-def pele_report2pandas(path):
+def pele_report2pandas(path, export=True):
     """
         This function merge the content of different report for PELE simulations in a single file pandas Data Frame.
     """
@@ -52,7 +56,23 @@ def pele_report2pandas(path):
         processor = re.findall('\d+$'.format(path), report)
         tmp_data['Processor'] = processor[0]
         data.append(tmp_data)
-    return pd.concat(data)
+    result = pd.concat(data)
+    if export:
+        path_to_folder = "/".join(path.split("/")[0:-1])
+        new_dir = path_to_folder + "/summary"
+        if not os.path.exists(new_dir):
+            os.mkdir(new_dir)
+        while True:
+            counter = 1
+            try:
+                result.to_csv("{}/summary_report_{}.csv".format(new_dir, counter))
+                print("Data saved in {}/summary_report_{}.csv".format(new_dir, counter))
+                break
+            except FileExistsError:
+                counter =+ 1
+                result.to_csv("{}/summary_report_{}.csv".format(new_dir, counter))
+
+    return result
 
 
 def select_subset_by_steps(dataframe, steps):
@@ -93,8 +113,8 @@ def compute_sterr(dataframe, column, quantile_value):
 
 
 def get_score_for_folder(report_prefix, path_to_equilibration, steps=False,
-                         column="Binding Energy", quantile_value=0.25):
-    df = pele_report2pandas(os.path.join(path_to_equilibration, report_prefix))
+                         column="Binding Energy", quantile_value=0.25, export=True):
+    df = pele_report2pandas(os.path.join(path_to_equilibration, report_prefix), export)
     if steps:
         df = select_subset_by_steps(df, steps)
     mean_quartile = compute_mean_quantile(df, column, quantile_value)
@@ -120,12 +140,12 @@ def analyse_at_epoch(report_prefix, path_to_equilibration, steps=False, column="
 
 
 def main(report_prefix, path_to_equilibration, equil_pattern="equilibration*", steps=False, out_report=False,
-         column="Binding Energy", quantile_value=0.25):
+         column="Binding Energy", quantile_value=0.25, export=True):
     folder_list = glob.glob(os.path.join(path_to_equilibration, equil_pattern))
     for folder in list(folder_list):
         try:
             result = get_score_for_folder(report_prefix=report_prefix, path_to_equilibration=folder, steps=steps,
-                                          column=column, quantile_value=quantile_value)
+                                          column=column, quantile_value=quantile_value, export=export)
             line_of_report = "{}\t{:.2f}\n".format(result[0], float(result[1]))
             print(line_of_report)
             if out_report:
@@ -135,14 +155,14 @@ def main(report_prefix, path_to_equilibration, equil_pattern="equilibration*", s
                 else:
                     with open(out_report, "w") as report:
                         report.write("# FragmentResultsFolder\tFrAG-score\n")
-        except:
-            print("ERROR in {}".format(folder))
+        except Exception as e:
+            print("ERROR {} in {}".format(e, folder))
 
 
 if __name__ == '__main__':
-    rep_pref, path, steps, file, out, equil_folder, col, quart = parse_arguments()
+    path, rep_pref, steps, file, out, equil_folder, col, quart, export = parse_arguments()
     main(report_prefix=rep_pref, path_to_equilibration=path, equil_pattern=equil_folder, steps=steps, out_report=out,
-         column=col, quantile_value=quart)
+         column=col, quantile_value=quart, export=export)
 
 
 

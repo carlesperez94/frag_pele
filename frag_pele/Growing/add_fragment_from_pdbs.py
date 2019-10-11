@@ -1,6 +1,7 @@
 import prody
 import logging
 import numpy as np
+from scipy.spatial import distance
 import math
 import os
 import shutil
@@ -10,7 +11,7 @@ import Bio.PDB as bio
 # Local imports
 import frag_pele.constants as c
 from frag_pele.Helpers import checker
-from frag_pele.Growing.AddingFragHelpers import complex_to_prody, pdb_joiner
+from frag_pele.Growing.AddingFragHelpers import complex_to_prody, pdb_joiner, atom_constants
 
 
 # Getting the name of the module for the log system
@@ -88,6 +89,7 @@ def extract_hydrogens(pdb_atom_names, lists_of_bioatoms, list_of_pdbs, h_core=No
     :param list_of_pdbs: list of PDB files.
     :return: Bio.PDB.Atom object correspondent to the hydrogen bonded to the heavy atom
     """
+
     hydrogens = []
     selected_hydrogens = [h_core, h_frag]
     chains = [c_chain, f_chain]
@@ -143,7 +145,7 @@ def bond(hydrogen_atom_names, molecules):
     return bonds
 
 
-def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fragment_structure):
+def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fragment_structure, bond_type="single"):
     """
     It joins two ProDy structures into a single one, merging both bonds (core bond and fragment bond) creating a unique
     bond between the molecules. In order to do that this function performs a cross superimposition (in BioPython) of
@@ -168,8 +170,48 @@ def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fra
     transform_coords_from_bio2prody(fragment_structure, list_of_atoms)
     # Now, we have to remove the hydrogens of the binding
     h_atom_names = [core_bond[1].name, fragment_bond[0].name]
+    # Correcting linking distance
+    hvy_core_coords = find_coords_of_atom(core_bond[0].name, core_structure)
+    hvy_frag_coords = find_coords_of_atom(fragment_bond[1].name, fragment_structure)
+    new_distance = atom_constants.BONDING_DISTANCES[core_bond[0].element, fragment_bond[1].element, bond_type]
+    # Compute new coords and set it into the fragment atoms
+    new_coords = modify_fragment_core_distance(hvy_core_coords, hvy_frag_coords, fragment_structure.getCoords(),
+                                               new_distance)
+    fragment_structure.setCoords(new_coords)
     merged_structure = bond(h_atom_names, [core_structure, fragment_structure])
     return merged_structure
+
+
+def find_coords_of_atom(atom_to_find, structure_prody):
+    for atomname, coords in zip(structure_prody.getNames(), structure_prody.getCoords()):
+        if atomname == atom_to_find:
+            return coords
+
+
+def compute_vector_between_atoms(coords_atom_1, coords_atom_2):
+    vector = coords_atom_2 - coords_atom_1
+    return vector  # Vector from point 1 to point 2
+
+
+def compute_distance_between_atoms(coords_atom_1, coords_atom_2):
+    vector = compute_vector_between_atoms(coords_atom_1, coords_atom_2)
+    module = np.linalg.norm(vector)
+    return module
+
+
+def compute_unit_vector_between_atoms(coords_atom_1, coords_atom_2):
+    vector = compute_vector_between_atoms(coords_atom_1, coords_atom_2)
+    module = np.linalg.norm(vector)
+    unit_vector = vector / module
+    return unit_vector
+
+
+def modify_fragment_core_distance(coords_core, coords_fragment, coords_to_move, new_distance):
+    unit_vector = compute_unit_vector_between_atoms(coords_core, coords_fragment)
+    new_point = coords_core + (unit_vector*new_distance)
+    vector_to_add = compute_vector_between_atoms(coords_fragment, new_point)
+    new_coords = coords_to_move + vector_to_add
+    return new_coords
 
 
 def rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, core_structure, fragment_structure):
@@ -216,7 +258,7 @@ def rotate_throught_bond(bond, angle, rotated_atoms, atoms_fixed):
 
 
 def check_collision(merged_structure, bond, theta, theta_interval, core_bond, list_of_atoms, fragment_bond,
-                    core_structure, fragment_structure):
+                    core_structure, fragment_structure, threshold_clash=1.70):
     """
     Given a structure composed by a core and a fragment, it checks that there is not collisions between the atoms of
     both. If it finds a collision, the molecule will be rotated "theta_interval" radians and the checking will be
@@ -237,25 +279,25 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
     clashes) around the axis of the bond.
     """
     core_resname = bond[0].get_parent().get_resname()
-    core_pdb_name = bond[0].get_name()
     frag_resname = bond[1].get_parent().get_resname()
     if core_resname is frag_resname:
         logger.critical("The resname of the core and the fragment is the same. Please, change one of both")
-    check_possible_collision = merged_structure.select("resname {} and within 1.7 of resname {}".format(core_resname,
+    check_possible_collision = merged_structure.select("resname {} and within {} of resname {}".format(core_resname,
+                                                                                                       threshold_clash,
                                                                                                         frag_resname))
 
     # This list only should have the atom of the fragment that will be bonded to the core, so if not we will have to
     # solve it
     if len(check_possible_collision.getNames()) > 1 or check_possible_collision.getNames()[0] != bond[0].name:
-        logger.info("We have a collision between atoms of the fragment and the core! Rotating the fragment to solve it...")
+        print("We have a collision between atoms of the fragment and the core! Rotating the fragment to solve it...")
         theta = theta + theta_interval
         if theta >= math.pi*2:
-            logger.warning("Not possible solution, decreasing the angle of rotation...")
+            print("Not possible solution, decreasing the angle of rotation...")
         else:
             rotated_structure = rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, core_structure,
                                                       fragment_structure)
             recall = check_collision(rotated_structure[0], bond, theta, theta_interval, core_bond, list_of_atoms,
-                                     fragment_bond, core_structure, fragment_structure)
+                                     fragment_bond, core_structure, fragment_structure, threshold_clash=threshold_clash)
             return recall
     else:
         return merged_structure
@@ -450,7 +492,7 @@ def check_and_fix_repeated_lignames(pdb1, pdb2, ligand_chain_1="L", ligand_chain
 
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
          fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb",
-         h_core = None, h_frag = None, rename=False):
+         h_core = None, h_frag = None, rename=False, threshold_clash=1.70):
     """
     From a core (protein + ligand core = core_chain) and fragment (fragment_chain) pdb files, given the heavy atoms
     names that we want to connect, this function add the fragment to the core structure. We will get three PDB files:
@@ -514,11 +556,13 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
     # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
     check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/18, core_bond,
-                                    bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment)
+                                    bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment,
+                                    threshold_clash=threshold_clash)
     # If we do not find a solution in the previous step, we will repeat the rotations applying only increments of 1º
     if not check_results:
         check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/180, core_bond,
-                                        bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment)
+                                        bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment,
+                                        threshold_clash=threshold_clash)
     # Now, we want to extract this structure in a PDB to create the template file after the growing. We will do a copy
     # of the structure because then we will need to resize the fragment part, so be need to keep it as two different
     # residues.
