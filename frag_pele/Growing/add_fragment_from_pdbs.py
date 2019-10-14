@@ -164,6 +164,14 @@ def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fra
     :return: ProDy molecule with the core_structure and the fragment_structure (with the coordinates modified)
     concatenated.
     """
+    core_replaced = False
+    fragment_replaced = False
+    if core_bond[1].element != "H":
+        replace_heavy_by_hydrogen(core_bond[1], core_structure)
+        core_replaced = True
+    if fragment_bond[0].element != "H":
+        replace_heavy_by_hydrogen(fragment_bond[0], fragment_structure)
+        fragment_replaced = True
     # Superimpose atoms of the fragment to the core bond
     pdb_joiner.superimpose(core_bond, fragment_bond, list_of_atoms)
     # Get the new coords and change them in prody
@@ -179,7 +187,39 @@ def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fra
                                                new_distance)
     fragment_structure.setCoords(new_coords)
     merged_structure = bond(h_atom_names, [core_structure, fragment_structure])
-    return merged_structure
+    return merged_structure, core_replaced, fragment_replaced
+
+
+def replace_heavy_by_hydrogen(heavy_atom, structure):
+    print("HEAVY ATOM TO REPLACE DETECTED!")
+    index_of_atom = find_index_by_name(heavy_atom.name, structure)
+    structure[index_of_atom].setElement("H")
+    hydrogen_name = autoname_atoms(structure.getNames(), "H")
+    structure[index_of_atom].setName(hydrogen_name)
+    print("{} has been replaced for {}.".format(heavy_atom.name, structure.getNames()[index_of_atom]))
+
+
+def find_index_by_name(name, structure):
+    for n, atom in enumerate(structure.getNames()):
+        if atom == name:
+            return n
+    print("Atom not found!")
+
+
+def autoname_atoms(list_of_atom_names, element):
+    dictionary_of_elements = {}
+    for name in list_of_atom_names:
+        element_of_name = " ".join(re.split("[^a-zA-Z]*", name)).strip()
+        if element_of_name in dictionary_of_elements.keys():
+            dictionary_of_elements[element_of_name] += 1
+        else:
+            dictionary_of_elements[element_of_name] = 1
+    while True:
+        final_name = "{}{}".format(element, dictionary_of_elements[element])
+        if final_name not in list_of_atom_names:
+            return final_name
+        else:
+            dictionary_of_elements[element] += 1
 
 
 def find_coords_of_atom(atom_to_find, structure_prody):
@@ -238,7 +278,8 @@ def rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, 
         # Multiply the matrix of coordinates for the transpose of the rotation matrix to get the coordinates rotated
         atom.transform(rot_mat, (0, 0, 0))
         transform_coords_from_bio2prody(fragment_structure, list_of_atoms)
-    rotated_structure = join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fragment_structure)
+    rotated_structure, core_flag, fragment_flag = join_structures(core_bond, fragment_bond, list_of_atoms,
+                                                                 core_structure, fragment_structure)
     return rotated_structure
 
 
@@ -543,8 +584,8 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     heavy_atoms = extract_heavy_atoms(pdb_atom_names, bioatoms_core_and_frag)
     # Once we have the heavy atoms, for each structure we will obtain the hydrogens bonded to each heavy atom.
     # We will need pdbs because we will use the information of the protein to select the hydrogens properly.
-    hydrogen_atoms = extract_hydrogens(pdb_atom_names, bioatoms_core_and_frag, [pdb_complex_core, pdb_fragment], h_core, h_frag,
-        core_chain, fragment_chain)
+    hydrogen_atoms = extract_hydrogens(pdb_atom_names, bioatoms_core_and_frag, [pdb_complex_core, pdb_fragment], h_core,
+                                       h_frag, core_chain, fragment_chain)
     # Create a list with the atoms that form a bond in core and fragment.
     core_bond = [heavy_atoms[0], hydrogen_atoms[0]]
     fragment_bond = [hydrogen_atoms[1], heavy_atoms[1]]  # This has to be in inverted order to do correctly the superimposition
@@ -552,7 +593,8 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                 .format(fragment_bond, core_bond))
     # Using the previous information we will superimpose the whole fragment on the bond of the core in order to place
     # the fragment in the correct position, deleting the H.
-    merged_structure = join_structures(core_bond, fragment_bond, bioatoms_core_and_frag[1], ligand_core, fragment)
+    merged_structure, core_flag, fragment_flag = join_structures(core_bond, fragment_bond, bioatoms_core_and_frag[1],
+                                                                 ligand_core, fragment)
     # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
     # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
     check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/18, core_bond,
