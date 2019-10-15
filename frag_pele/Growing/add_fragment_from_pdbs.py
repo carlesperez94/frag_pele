@@ -166,28 +166,60 @@ def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fra
     """
     core_replaced = False
     fragment_replaced = False
+    name_to_replace_core = core_bond[1].name
+    name_to_replace_fragment = fragment_bond[0].name
     if core_bond[1].element != "H":
-        replace_heavy_by_hydrogen(core_bond[1], core_structure)
+        atom_replaced_idx = replace_heavy_by_hydrogen(core_bond[1], core_structure)
+        new_coords = correct_hydrogen_position(hydrogen_atom=core_structure[atom_replaced_idx],
+                                               atom_to_bond_with=core_bond[0],
+                                               structure=core_structure[atom_replaced_idx])
+        core_structure[atom_replaced_idx].setCoords(new_coords)
+        prody.writePDB("pregrow/{}.pdb".format(core_structure.getResnames()[0]),
+                       core_structure)  # Overwrite the initial structure
+        name_to_replace_core = core_structure[atom_replaced_idx].getName()
         core_replaced = True
     if fragment_bond[0].element != "H":
-        replace_heavy_by_hydrogen(fragment_bond[0], fragment_structure)
+        atom_replaced_idx = replace_heavy_by_hydrogen(fragment_bond[0], fragment_structure)
+        new_coords = correct_hydrogen_position(hydrogen_atom=fragment_structure[atom_replaced_idx],
+                                               atom_to_bond_with=fragment_bond[1],
+                                               structure=fragment_structure[atom_replaced_idx])
+        fragment_structure[atom_replaced_idx].setCoords(new_coords)
+        prody.writePDB("pregrow/{}.pdb".format(fragment_structure.getResnames()[0]),
+                       core_structure)  # Overwrite the initial structure
+        name_to_replace_core = fragment_structure[atom_replaced_idx].getName()
         fragment_replaced = True
+    # USE PRODY TO SUPERPOSE STRUCTURES!
     # Superimpose atoms of the fragment to the core bond
     pdb_joiner.superimpose(core_bond, fragment_bond, list_of_atoms)
     # Get the new coords and change them in prody
     transform_coords_from_bio2prody(fragment_structure, list_of_atoms)
     # Now, we have to remove the hydrogens of the binding
-    h_atom_names = [core_bond[1].name, fragment_bond[0].name]
+    h_atom_names = [name_to_replace_core, name_to_replace_fragment]
     # Correcting linking distance
-    hvy_core_coords = find_coords_of_atom(core_bond[0].name, core_structure)
-    hvy_frag_coords = find_coords_of_atom(fragment_bond[1].name, fragment_structure)
-    new_distance = atom_constants.BONDING_DISTANCES[core_bond[0].element, fragment_bond[1].element, bond_type]
-    # Compute new coords and set it into the fragment atoms
-    new_coords = modify_fragment_core_distance(hvy_core_coords, hvy_frag_coords, fragment_structure.getCoords(),
-                                               new_distance)
+    new_coords = correct_bonding_distance(atom_reference=core_bond[0], atom_to_correct=fragment_bond[1],
+                                          reference_structure=core_structure, movil_structure=fragment_structure,
+                                          bond_type=bond_type)
     fragment_structure.setCoords(new_coords)
     merged_structure = bond(h_atom_names, [core_structure, fragment_structure])
     return merged_structure, core_replaced, fragment_replaced
+
+
+def correct_bonding_distance(atom_reference, atom_to_correct, reference_structure, movil_structure, bond_type="single"):
+    hvy_core_coords = find_coords_of_atom(atom_reference.name, reference_structure)
+    hvy_frag_coords = find_coords_of_atom(atom_to_correct.name, movil_structure)
+    new_distance = atom_constants.BONDING_DISTANCES[atom_reference.element, atom_to_correct.element, bond_type]
+    new_coords = modify_distance_between_structures(hvy_core_coords, hvy_frag_coords, movil_structure.getCoords(),
+                                                    new_distance)
+    return new_coords
+
+
+def correct_hydrogen_position(hydrogen_atom, atom_to_bond_with, structure):
+    coords_atom_to_bond = atom_to_bond_with.coord
+    coords_H_to_move = hydrogen_atom.getCoords()
+    new_distance = atom_constants.BONDING_DISTANCES["H", atom_to_bond_with.element, "single"]
+    new_coords = modify_distance_between_structures(coords_atom_to_bond, coords_H_to_move, structure.getCoords(),
+                                                    new_distance)
+    return new_coords
 
 
 def replace_heavy_by_hydrogen(heavy_atom, structure):
@@ -197,6 +229,7 @@ def replace_heavy_by_hydrogen(heavy_atom, structure):
     hydrogen_name = autoname_atoms(structure.getNames(), "H")
     structure[index_of_atom].setName(hydrogen_name)
     print("{} has been replaced for {}.".format(heavy_atom.name, structure.getNames()[index_of_atom]))
+    return index_of_atom
 
 
 def find_index_by_name(name, structure):
@@ -223,9 +256,13 @@ def autoname_atoms(list_of_atom_names, element):
 
 
 def find_coords_of_atom(atom_to_find, structure_prody):
-    for atomname, coords in zip(structure_prody.getNames(), structure_prody.getCoords()):
-        if atomname == atom_to_find:
-            return coords
+    try:
+        for atomname, coords in zip(structure_prody.getNames(), structure_prody.getCoords()):
+            if atomname == atom_to_find:
+                return coords
+    except AttributeError:  # If we get the attribute error probably the structure has a single atom.
+        coords = structure_prody.getCoords()
+        return coords
 
 
 def compute_vector_between_atoms(coords_atom_1, coords_atom_2):
@@ -246,7 +283,7 @@ def compute_unit_vector_between_atoms(coords_atom_1, coords_atom_2):
     return unit_vector
 
 
-def modify_fragment_core_distance(coords_core, coords_fragment, coords_to_move, new_distance):
+def modify_distance_between_structures(coords_core, coords_fragment, coords_to_move, new_distance):
     unit_vector = compute_unit_vector_between_atoms(coords_core, coords_fragment)
     new_point = coords_core + (unit_vector*new_distance)
     vector_to_add = compute_vector_between_atoms(coords_fragment, new_point)
@@ -612,13 +649,14 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
         structure_to_template = check_results.copy()
     except AttributeError: 
         raise AttributeError("Frag cannot superimpose the fragment onto the core's hydrogen.  \
-In order to create space for the fragment \
-manually rotate the hydrogen bond of the core where the fragment will be attached to.   \
-We are currently working to fix this automatically")
+                              In order to create space for the fragment \
+                              manually rotate the hydrogen bond of the core where the fragment will be attached to.   \
+                              We are currently working to fix this automatically")
 
     # Once we have all the atom names unique, we will rename the resname and the resnum of both, core and fragment, to
     # GRW and 1. Doing this, the molecule composed by two parts will be transformed into a single one.
-    changing_names = pdb_joiner.extract_and_change_atomnames(structure_to_template, fragment.getResnames()[0], core_residue_name, rename=rename)
+    changing_names = pdb_joiner.extract_and_change_atomnames(structure_to_template, fragment.getResnames()[0],
+                                                             core_residue_name, rename=rename)
     molecule_names_changed, changing_names_dictionary = changing_names
 
     # Check if there is still overlapping names
