@@ -177,6 +177,7 @@ def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fra
         prody.writePDB("pregrow/{}.pdb".format(core_structure.getResnames()[0]),
                        core_structure)  # Overwrite the initial structure
         name_to_replace_core = core_structure[atom_replaced_idx].getName()
+        core_bond[1].coord = new_coords
         core_replaced = True
     if fragment_bond[0].element != "H":
         atom_replaced_idx = replace_heavy_by_hydrogen(fragment_bond[0], fragment_structure)
@@ -187,8 +188,8 @@ def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fra
         prody.writePDB("pregrow/{}.pdb".format(fragment_structure.getResnames()[0]),
                        core_structure)  # Overwrite the initial structure
         name_to_replace_core = fragment_structure[atom_replaced_idx].getName()
+        fragment_bond[0].coord = new_coords
         fragment_replaced = True
-    # USE PRODY TO SUPERPOSE STRUCTURES!
     # Superimpose atoms of the fragment to the core bond
     pdb_joiner.superimpose(core_bond, fragment_bond, list_of_atoms)
     # Get the new coords and change them in prody
@@ -386,7 +387,7 @@ def get_previous_bond(structure, core_atom, core_resname):
     return bond_selection
 
 
-def finishing_joining(molecule):
+def finishing_joining(molecule, chain):
     """
     Given a ProDy molecule this function change the Resname of the atoms to "GRW" and the Resnum to "1". Following this
     process it is possible to transform a ProDy object with more than one element with different resnums and resnames
@@ -396,6 +397,7 @@ def finishing_joining(molecule):
     """
     molecule.setResnames("GRW")
     molecule.setResnums(1)
+    molecule.setChids(chain)
 
 
 def compute_centroid(molecule):
@@ -666,7 +668,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     logger.info("The following names of the fragment have been changed:")
     for transformation in changing_names_dictionary:
         logger.info("{} --> {}".format(transformation, changing_names_dictionary[transformation]))
-    finishing_joining(molecule_names_changed)
+    finishing_joining(molecule_names_changed, core_chain)
     # Extract a PDB file to do the templates
     prody.writePDB(os.path.join(c.PRE_WORKING_DIR, output_file_to_tmpl), molecule_names_changed)
     logger.info("The result of core + fragment has been saved in '{}'. This will be used to create the template file."
@@ -680,7 +682,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     # Repeat all the preparation process to finish the writing of the molecule.
     changing_names = pdb_joiner.extract_and_change_atomnames(check_results, fragment.getResnames()[0], core_residue_name, rename=rename)
     molecule_names_changed, changing_names_dictionary = changing_names
-    finishing_joining(molecule_names_changed)
+    finishing_joining(molecule_names_changed, core_chain)
     logger.info("The result of core + fragment(small) has been saved in '{}'. This will be used to initialise the growing."
                 .format(output_file_to_grow))
     # Add the protein to the ligand
