@@ -164,8 +164,7 @@ def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fra
     :return: ProDy molecule with the core_structure and the fragment_structure (with the coordinates modified)
     concatenated.
     """
-    core_replaced = False
-    fragment_replaced = False
+
     name_to_replace_core = core_bond[1].name
     name_to_replace_fragment = fragment_bond[0].name
     if core_bond[1].element != "H":
@@ -178,7 +177,6 @@ def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fra
                        core_structure)  # Overwrite the initial structure
         name_to_replace_core = core_structure[atom_replaced_idx].getName()
         core_bond[1].coord = new_coords
-        core_replaced = True
     if fragment_bond[0].element != "H":
         atom_replaced_idx = replace_heavy_by_hydrogen(fragment_bond[0], fragment_structure)
         new_coords = correct_hydrogen_position(hydrogen_atom=fragment_structure[atom_replaced_idx],
@@ -186,10 +184,9 @@ def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fra
                                                structure=fragment_structure[atom_replaced_idx])
         fragment_structure[atom_replaced_idx].setCoords(new_coords)
         prody.writePDB("pregrow/{}.pdb".format(fragment_structure.getResnames()[0]),
-                       core_structure)  # Overwrite the initial structure
-        name_to_replace_core = fragment_structure[atom_replaced_idx].getName()
+                       fragment_structure)  # Overwrite the initial structure
+        name_to_replace_fragment = fragment_structure[atom_replaced_idx].getName()
         fragment_bond[0].coord = new_coords
-        fragment_replaced = True
     # Superimpose atoms of the fragment to the core bond
     pdb_joiner.superimpose(core_bond, fragment_bond, list_of_atoms)
     # Get the new coords and change them in prody
@@ -202,7 +199,7 @@ def join_structures(core_bond, fragment_bond, list_of_atoms, core_structure, fra
                                           bond_type=bond_type)
     fragment_structure.setCoords(new_coords)
     merged_structure = bond(h_atom_names, [core_structure, fragment_structure])
-    return merged_structure, core_replaced, fragment_replaced
+    return merged_structure, core_bond[1].name, fragment_bond[0].name
 
 
 def correct_bonding_distance(atom_reference, atom_to_correct, reference_structure, movil_structure, bond_type="single"):
@@ -316,8 +313,9 @@ def rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, 
         # Multiply the matrix of coordinates for the transpose of the rotation matrix to get the coordinates rotated
         atom.transform(rot_mat, (0, 0, 0))
         transform_coords_from_bio2prody(fragment_structure, list_of_atoms)
-    rotated_structure, core_flag, fragment_flag = join_structures(core_bond, fragment_bond, list_of_atoms,
-                                                                 core_structure, fragment_structure)
+    rotated_structure, core_original_atom, fragment_original_atom = join_structures(core_bond, fragment_bond,
+                                                                                    list_of_atoms, core_structure,
+                                                                                    fragment_structure)
     return rotated_structure
 
 
@@ -632,8 +630,9 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                 .format(fragment_bond, core_bond))
     # Using the previous information we will superimpose the whole fragment on the bond of the core in order to place
     # the fragment in the correct position, deleting the H.
-    merged_structure, core_flag, fragment_flag = join_structures(core_bond, fragment_bond, bioatoms_core_and_frag[1],
-                                                                 ligand_core, fragment)
+    merged_structure, core_original_atom, fragment_original_atom = join_structures(core_bond, fragment_bond,
+                                                                                   bioatoms_core_and_frag[1],
+                                                                                   ligand_core, fragment)
     # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
     # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
     check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/18, core_bond,
@@ -706,6 +705,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     shutil.copy(os.path.join(c.PRE_WORKING_DIR, output_file_to_grow), ".")  # We assume that the user will be running FrAG in PELE's main folder...
     # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
     # are returning this dictionary in the function.
-    return changing_names_dictionary, hydrogen_atoms, "{}.pdb".format(core_residue_name), output_file_to_tmpl, output_file_to_grow
+    return changing_names_dictionary, hydrogen_atoms, "{}.pdb".format(core_residue_name), output_file_to_tmpl, \
+           output_file_to_grow, core_original_atom, fragment_original_atom
 
 

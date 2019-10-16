@@ -305,18 +305,19 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     helpers.create_symlinks(c.PATH_TO_PELE_DOCUMENTS, 'Documents')
 
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
-    fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = \
-        add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations,  
-                                    h_core=h_core, h_frag=h_frag, core_chain=c_chain, fragment_chain=f_chain,
-                                    rename=rename, threshold_clash=threshold_clash)
+    fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
+    core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom,
+                                                                             fragment_atom, iterations, h_core=h_core,
+                                                                             h_frag=h_frag, core_chain=c_chain,
+                                                                             fragment_chain=f_chain, rename=rename,
+                                                                             threshold_clash=threshold_clash)
 
     # Create the templates for the initial and final structures
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
         cmd = "{} {} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
                                   add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers)
-        #new_env = os.environ.copy()
-        #new_env["PYTHONPATH"] = "{}:{}".format(os.path.dirname(PackagePath), c.ENV_PYTHON)
+
         try:
             subprocess.call(cmd.split())
         except OSError:
@@ -345,12 +346,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, cpus-1)]
 
-    original_atom = hydrogen_atoms[0].get_name()  # Hydrogen of the core that we will use as growing point
     # Generate starting templates
-    replacement_atom = fragment_names_dict[fragment_atom]
     template_fragmenter.main(template_initial_path=os.path.join(path_to_templates_generated, template_initial),
                                      template_grown_path=os.path.join(path_to_templates_generated, template_final),
-                                     step=1, total_steps=iterations, hydrogen_to_replace=replacement_atom,
+                                     step=1, total_steps=iterations, hydrogen_to_replace=core_original_atom,
                                      core_atom_linker=core_atom,
                                      tmpl_out_path=os.path.join(path_to_templates_generated,
                                                                 "{}_0".format(template_final)))
@@ -404,7 +403,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         if i != 0:
             template_fragmenter.main(template_initial_path=os.path.join(path_to_templates_generated, template_initial),
                                              template_grown_path=os.path.join(path_to_templates_generated, template_final),
-                                             step=i+1, total_steps=iterations, hydrogen_to_replace=replacement_atom,
+                                             step=i+1, total_steps=iterations, hydrogen_to_replace=core_original_atom,
                                              core_atom_linker=core_atom,
                                              tmpl_out_path=os.path.join(path_to_templates, template_final))
 
