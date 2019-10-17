@@ -44,7 +44,7 @@ def select_atoms_from_list(PDB_atom_name, atoms_list):
             return atom
 
 
-def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_hydrogen=None, chain="L"):
+def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_to_replace=None, chain="L"):
     """
     Given a heavy atom name (string) and a complex (prody molecule) it returns the hydrogen atom of the chain L
     placed at bonding distance of the input atom name. If there is more than one, a checking of contacts with the
@@ -53,43 +53,48 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_hydrogen=None, c
     protein, the first of them will be selected and a warning will be printed.
     :param PDB_atom_name: heavy atom name (string) of a ligand
     :param prody_complex: prody molecule object
-    :param PDB_atom_hydrogen: if selected, the name of the specific H atom that you want to bond.
+    :param PDB_atom_to_replace: if selected, the name of the specific H atom that you want to bond.
     :return: hydrogen atom of the ligand placed at bonding distance of the heavy atom
     """
     # Select the hydrogens bonded to the heavy atom 'PDB_atom_name'
 
-    selected_h = prody_complex.select("chain {} and hydrogen within 1.70 of name {}".format(chain, PDB_atom_name)) # Replace for 1.53 :)
-    if PDB_atom_hydrogen:
-        print("HYDROGEN SELECTED: {}".format(PDB_atom_hydrogen))
+    # When non specific atom is selected we search hydrogens automatically
+    selected_atom = prody_complex.select("chain {} and hydrogen within 1.70 of name {}".format(chain, PDB_atom_name))  # Replace for 1.53 :)
+    # If it is selected, we have to differentiate between hydrogens or heavy atoms
+    if PDB_atom_to_replace:
+        print("ATOM TO REPLACE: {}".format(PDB_atom_to_replace))
+        if not "H" in PDB_atom_to_replace:
+            replaceble_pdbatomname = PDB_atom_to_replace
+            return replaceble_pdbatomname
     # In case that we found more than one we have to select one of them
     try:
-        number_of_h = len(selected_h)
+        number_of_h = len(selected_atom)
         print("Number of hydrogens bonded to {}: {}".format(PDB_atom_name, number_of_h))
     except TypeError:
         raise TypeError("Check either core or fragment atom to bound when passing parameters")
-    if len(selected_h) > 1:
-        for idx, hydrogen in enumerate(selected_h):
+    if len(selected_atom) > 1:
+        for idx, hydrogen in enumerate(selected_atom):
             # We will select atoms of the protein in interaction distance
             select_h_bonds = prody_complex.select("protein and within 2.5 of (name {} and chain L)"
-                                                  .format(selected_h.getNames()[idx]))
-            if PDB_atom_hydrogen:
-                print("Forming a bond between {} and {}...".format(PDB_atom_name, PDB_atom_hydrogen))
-                select_specific_h_bonds = selected_h.select("name {}".format(PDB_atom_hydrogen))
-                hydrogen_pdbatomname = select_specific_h_bonds.getNames()[0]
-                return hydrogen_pdbatomname
-            elif select_h_bonds is not None and PDB_atom_hydrogen is None:
+                                                  .format(selected_atom.getNames()[idx]))
+            if PDB_atom_to_replace:
+                print("Forming a bond between {} and {}...".format(PDB_atom_name, PDB_atom_to_replace))
+                select_specific_h_bonds = selected_atom.select("name {}".format(PDB_atom_to_replace))
+                replaceble_pdbatomname = select_specific_h_bonds.getNames()[0]
+                return replaceble_pdbatomname
+            elif select_h_bonds is not None and PDB_atom_to_replace is None:
                 print("WARNING: {} is forming a close interaction with the protein! We will try to grow"
-                               " in another direction.".format(selected_h.getNames()[idx]))
+                               " in another direction.".format(selected_atom.getNames()[idx]))
                 # We put this elif to select one of H randomly if all of them have contacts
-                if (select_h_bonds is not None) and (int(idx) == int(len(selected_h)-1)):
-                    hydrogen_pdbatomname = selected_h.getNames()[1]
-                    return hydrogen_pdbatomname
-            elif select_h_bonds is None and PDB_atom_hydrogen is None:
-                hydrogen_pdbatomname = selected_h.getNames()[idx]
-                return hydrogen_pdbatomname
+                if (select_h_bonds is not None) and (int(idx) == int(len(selected_atom)-1)):
+                    replaceble_pdbatomname = selected_atom.getNames()[1]
+                    return replaceble_pdbatomname
+            elif select_h_bonds is None and PDB_atom_to_replace is None:
+                replaceble_pdbatomname = selected_atom.getNames()[idx]
+                return replaceble_pdbatomname
     else:
-        hydrogen_pdbatomname = selected_h.getNames()
-        return hydrogen_pdbatomname
+        replaceble_pdbatomname = selected_atom.getNames()
+        return replaceble_pdbatomname
 
 
 # This function is prepared to rename PDB atom names of the repeated names, but is not working currently
