@@ -3,6 +3,9 @@ import subprocess
 import os
 
 
+def test_big_replace():
+    subprocess.call("bash test_big_replace.sh".split())
+    assert os.path.exist("selected_result_phenylmethylC5-O1C1-C7/epochsampling_result_phenylmethylC5-O1C1-C7_trajectory_1.1_BindingEnergy-52.0111.pdb")
 
 def test_HT():
     subprocess.call("bash test_HT.sh".split())
