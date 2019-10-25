@@ -2,6 +2,7 @@ import prody
 import Bio.PDB as bio
 import logging
 import numpy as np
+import random
 import re
 import sys
 
@@ -95,6 +96,20 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_to_replace=None,
     else:
         replaceble_pdbatomname = selected_atom.getNames()
         return replaceble_pdbatomname
+
+
+def get_H_bonded_to_atom(PDB_atom_name, prody_complex, banned_hydrogen, chain="L"):
+    # When non specific atom is selected we search hydrogens automatically
+    selected_atom = prody_complex.select("chain {} and hydrogen within 1.70 of name {}".format(chain, PDB_atom_name))
+    try:
+        number_of_h = len(selected_atom)
+        print("Number of hydrogens bonded to {}: {}".format(PDB_atom_name, number_of_h))
+    except TypeError:
+        raise TypeError("Check either core or fragment atom to bound when passing parameters")
+    hydrogen = random.choice(selected_atom.getNames())
+    while hydrogen == banned_hydrogen:
+        hydrogen = random.choice(selected_atom.getNames())
+    return hydrogen
 
 
 # This function is prepared to rename PDB atom names of the repeated names, but is not working currently

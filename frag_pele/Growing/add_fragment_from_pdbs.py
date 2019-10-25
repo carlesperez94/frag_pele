@@ -146,7 +146,7 @@ def bond(hydrogen_atom_names, molecules):
 
 
 def join_structures(core_bond, fragment_bond, core_structure, fragment_structure, pdb_complex,
-                    pdb_fragment, chain_complex, chain_fragment, bond_type="single"):
+                    pdb_fragment, chain_complex, chain_fragment):
     """
     It joins two ProDy structures into a single one, merging both bonds (core bond and fragment bond) creating a unique
     bond between the molecules. In order to do that this function performs a cross superimposition (in BioPython) of
@@ -168,15 +168,17 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
 
     name_to_replace_core = core_bond[1].name
     name_to_replace_fragment = fragment_bond[0].name
+
     atoms_to_delete_core = tree_detector.main(pdb_complex, (core_bond[0].name, name_to_replace_core),
                                               chain_ligand=chain_complex)
 
-    atoms_to_delete_fragment = tree_detector.main(pdb_fragment, (name_to_replace_fragment, fragment_bond[1].name),
+    atoms_to_delete_fragment = tree_detector.main(pdb_fragment, (fragment_bond[1].name, name_to_replace_fragment),
+                                                  # The order must be inverted because we want to keep the atoms in the
+                                                  #  oposite direction
                                                   chain_ligand=chain_fragment)
     bond_fragment = detect_fragment_bond_type(fragment_structure, fragment_bond[0], fragment_bond[1],
                                               atom_constants.BONDING_DISTANCES)
-    print(bond_fragment)
-    import pdb; pdb.set_trace()
+    bond_type = bond_fragment[2]
     if core_bond[1].element != "H":
         atom_replaced_idx = replace_heavy_by_hydrogen(core_bond[1], core_structure)
         new_coords = correct_hydrogen_position(hydrogen_atom=core_structure[atom_replaced_idx],
@@ -216,6 +218,21 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
     new_coords = correct_bonding_distance(atom_reference=core_bond[0], atom_to_correct=fragment_bond[1],
                                           reference_structure=core_structure, movil_structure=fragment_structure,
                                           bond_type=bond_type)
+    if bond_type == "double":
+        hydrogen_to_delete = pdb_joiner.get_H_bonded_to_atom(core_bond[0].name, core_structure,
+                                                             banned_hydrogen=name_to_replace_core)
+        names_to_keep = list(core_structure.getNames())
+        names_to_keep.remove(hydrogen_to_delete)
+        core_structure = core_structure.select("name {}".format(" ".join(names_to_keep)))
+
+    if bond_type == "triple":
+        for n in range(2):
+            hydrogen_to_delete = pdb_joiner.get_H_bonded_to_atom(core_bond[0].name, core_structure,
+                                                                 banned_hydrogen=name_to_replace_core)
+            names_to_keep = list(core_structure.getNames())
+            names_to_keep.remove(hydrogen_to_delete)
+            core_structure = core_structure.select("name {}".format(" ".join(names_to_keep)))
+
     fragment_structure.setCoords(new_coords)
     merged_structure = bond(h_atom_names, [core_structure, fragment_structure])
     return merged_structure, name_to_replace_core, name_to_replace_fragment
