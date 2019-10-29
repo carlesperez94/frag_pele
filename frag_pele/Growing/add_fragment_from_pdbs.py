@@ -11,9 +11,10 @@ import frag_pele.constants as c
 from frag_pele.Helpers import checker
 from frag_pele.Growing.AddingFragHelpers import complex_to_prody, pdb_joiner, atom_constants
 # Other imports
-RDKIT = True
+
 try:
     import rdkit
+    RDKIT = True
 except ImportError:
     RDKIT = False
 if RDKIT:

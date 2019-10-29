@@ -79,6 +79,8 @@ def parse_arguments():
     parser.add_argument("-fc", "--f_chain", default="L", help="Chain name of the fragment. By default = 'L'")
     parser.add_argument("-tc", "--clash_thr", default=1.7, help="Threshold distance that would to classify intramolecular"
                                                                 "clashes.")
+    parser.add_argument("-sc",  "--sampling_control", default=None, help="If set, templatized control file to use in the"
+                                                                         " sampling simulation.")
 
 
     # Plop related arguments
@@ -215,18 +217,18 @@ def parse_arguments():
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.serie_file, \
            args.c_chain, args.f_chain, args.steps, args.temperature, args.seed, args.rotamers, \
-           args.banned, args.limit, args.mae, args.core, args.rename, args.clash_thr, args.steering, \
+           args.banned, args.limit, args.mae, args.rename, args.clash_thr, args.steering, \
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
-           args.radius_box
+           args.radius_box, args.sampling_control
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
          epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
          h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
-         banned=None, limit=None, mae=False, core=None, rename=False, threshold_clash=1.7, steering=0,
+         banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
          translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
-         radius_box=4):
+         radius_box=4, sampling_control=None):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -410,8 +412,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         overlapping_factor = "{0:.2f}".format(overlapping_factor)
 
         if i != 0:
-            simulation_file = simulations_linker.control_file_modifier(contrl, pdb_input_paths, i, license,
-                                                                       overlapping_factor, result, steps=steps,
+            simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_input_paths, step=i,
+                                                                       license=license,
+                                                                       overlap=overlapping_factor, results_path=result,
+                                                                       steps=steps,
                                                                        chain=c_chain, constraints=const, center=center,
                                                                        temperature=temperature, seed=seed,
                                                                        steering=steering,
@@ -422,8 +426,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                        radius=radius_box)
         else:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
-            simulation_file = simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license,
-                                                                       overlapping_factor, result, steps=steps,
+            simulation_file = simulations_linker.control_file_modifier(contrl, pdb=[pdb_initialize], step=i,
+                                                                       license=license,
+                                                                       overlap=overlapping_factor, results_path=result,
+                                                                       steps=steps,
                                                                        chain=c_chain, constraints=const, center=center,
                                                                        temperature=temperature, seed=seed,
                                                                        steering=steering,
@@ -475,9 +481,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     if not os.path.exists("sampling_result_{}".format(ID)):  # Create the folder if it does not exist
         os.mkdir("sampling_result_{}".format(ID))
     # Modify the control file to increase the steps TO THE SAMPLING SIMULATION
-    if not explorative:
-        simulation_file = simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
-                                                                   "sampling_result_{}".format(ID),
+    if sampling_control:
+        simulation_file = simulations_linker.control_file_modifier(sampling_control, pdb=pdb_inputs, step=iterations,
+                                                                   license=license, overlap=max_overlap,
+                                                                   results_path="sampling_result_{}".format(ID),
                                                                    steps=pele_eq_steps, chain=c_chain,
                                                                    constraints=const, center=center,
                                                                    temperature=temperature, seed=seed, steering=steering,
@@ -485,10 +492,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                    translation_low=translation_low,
                                                                    rotation_high=rotation_high, rotation_low=rotation_low,
                                                                    radius=radius_box)
-
-    else:
-        simulation_file = simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
-                                                                   "sampling_result_{}".format(ID),
+    elif explorative and not sampling_control:
+        simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, license=license, step=iterations,
+                                                                   overlap=max_overlap,
+                                                                   results_path="sampling_result_{}".format(ID),
                                                                    steps=pele_eq_steps,
                                                                    chain=c_chain, constraints=const, center=center,
                                                                    temperature=temperature, seed=seed,
@@ -498,6 +505,18 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                    rotation_high=0.4,
                                                                    rotation_low=0.15,
                                                                    radius=25)
+    else:
+        simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, step=iterations,
+                                                                   license=license, overlap=max_overlap,
+                                                                   results_path="sampling_result_{}".format(ID),
+                                                                   steps=pele_eq_steps, chain=c_chain,
+                                                                   constraints=const, center=center,
+                                                                   temperature=temperature, seed=seed, steering=steering,
+                                                                   translation_high=translation_high,
+                                                                   translation_low=translation_low,
+                                                                   rotation_high=rotation_high, rotation_low=rotation_low,
+                                                                   radius=radius_box)
+
     # EQUILIBRATION SIMULATION
     if not (restart and os.path.exists("selected_result_{}".format(ID))):
         shutil.copy(os.path.join(path_to_templates_generated, template_final), path_to_templates)
@@ -543,8 +562,8 @@ if __name__ == '__main__':
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
     c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
-    core, rename, threshold_clash, steering, translation_high, rotation_high, \
-    translation_low, rotation_low, explorative, radius_box = parse_arguments()
+    rename, threshold_clash, steering, translation_high, rotation_high, \
+    translation_low, rotation_low, explorative, radius_box, sampling_control = parse_arguments()
     list_of_instructions = serie_handler.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
     dict_traceback = correct_fragment_names.main(complex_pdb)
@@ -595,8 +614,8 @@ if __name__ == '__main__':
                          sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
-                         limit, mae, core, rename, threshold_clash, steering, translation_high, rotation_high,
-                         translation_low, rotation_low, explorative, radius_box)
+                         limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
+                         translation_low, rotation_low, explorative, radius_box, sampling_control)
                     atomname_mappig.append(atomname_map)
 
                 except Exception:
@@ -625,9 +644,9 @@ if __name__ == '__main__':
                 main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                      pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
-                     h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, core, rename,
+                     h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
                      threshold_clash, steering, translation_high, rotation_high,
-                     translation_low, rotation_low, explorative, radius_box)
+                     translation_low, rotation_low, explorative, radius_box, sampling_control)
             except Exception:
                 traceback.print_exc()
 

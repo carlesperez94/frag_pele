@@ -11,7 +11,7 @@ import frag_pele.Helpers.templatize as tp
 logger = logging.getLogger(__name__)
 
 
-def control_file_modifier(control_template, pdb, step, license, overlap, results_path="/growing_output", steps=6,
+def control_file_modifier(control_template, pdb, license, overlap=0.7, step=0, results_path="/growing_output", steps=6,
                           chain="L", constraints=" ", center="", temperature=1000, seed=1279183, steering=0,
                           translation_high=0.05, translation_low=0.02, rotation_high=0.10, rotation_low=0.05,
                           radius=4):
