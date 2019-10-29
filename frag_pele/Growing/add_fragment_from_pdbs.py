@@ -11,8 +11,13 @@ import frag_pele.constants as c
 from frag_pele.Helpers import checker
 from frag_pele.Growing.AddingFragHelpers import complex_to_prody, pdb_joiner, atom_constants
 # Other imports
-from lib_prep.FragmentTools import tree_detector
-
+RDKIT = True
+try:
+    import rdkit
+except ImportError:
+    RDKIT = False
+if RDKIT:
+    from lib_prep.FragmentTools import tree_detector
 
 # Getting the name of the module for the log system
 logger = logging.getLogger(__name__)
@@ -169,44 +174,50 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
     name_to_replace_core = core_bond[1].name
     name_to_replace_fragment = fragment_bond[0].name
 
-    atoms_to_delete_core = tree_detector.main(pdb_complex, (core_bond[0].name, name_to_replace_core),
-                                              chain_ligand=chain_complex)
+    if RDKIT:
 
-    atoms_to_delete_fragment = tree_detector.main(pdb_fragment, (fragment_bond[1].name, name_to_replace_fragment),
-                                                  # The order must be inverted because we want to keep the atoms in the
-                                                  #  oposite direction
-                                                  chain_ligand=chain_fragment)
+        atoms_to_delete_core = tree_detector.main(pdb_complex, (core_bond[0].name, name_to_replace_core),
+                                                  chain_ligand=chain_complex)
+
+        atoms_to_delete_fragment = tree_detector.main(pdb_fragment, (fragment_bond[1].name, name_to_replace_fragment),
+                                                      # The order must be inverted because we want to keep the atoms in the
+                                                      #  oposite direction
+                                                      chain_ligand=chain_fragment)
+    else:
+        print("WARNING: YOU CAN NOT REPLACE HEAVY ATOMS FOR HYDROGENS WITHOUT RDKIT!")
+
     bond_fragment = detect_fragment_bond_type(fragment_structure, fragment_bond[0], fragment_bond[1],
                                               atom_constants.BONDING_DISTANCES)
     bond_type = bond_fragment[2]
-    if core_bond[1].element != "H":
-        atom_replaced_idx = replace_heavy_by_hydrogen(core_bond[1], core_structure)
-        new_coords = correct_hydrogen_position(hydrogen_atom=core_structure[atom_replaced_idx],
-                                               atom_to_bond_with=core_bond[0],
-                                               structure=core_structure[atom_replaced_idx])
-        core_structure[atom_replaced_idx].setCoords(new_coords)
-        names_to_keep = list(
-            set(core_structure.getNames()) ^ set(atoms_to_delete_core))  # Compare two sets and get the common items
-        names_to_keep.remove(name_to_replace_core)
-        core_structure = core_structure.select("name {}".format(" ".join(names_to_keep)))
-        prody.writePDB("pregrow/{}.pdb".format(core_structure.getResnames()[0]),
-                       core_structure)  # Overwrite the initial structure
-        name_to_replace_core = core_structure[atom_replaced_idx].getName()
-        core_bond[1].coord = new_coords
-    if fragment_bond[0].element != "H":
-        atom_replaced_idx = replace_heavy_by_hydrogen(fragment_bond[0], fragment_structure)
-        new_coords = correct_hydrogen_position(hydrogen_atom=fragment_structure[atom_replaced_idx],
-                                               atom_to_bond_with=fragment_bond[1],
-                                               structure=fragment_structure[atom_replaced_idx])
-        fragment_structure[atom_replaced_idx].setCoords(new_coords)
-        names_to_keep = list(
-            set(fragment_structure.getNames()) ^ set(atoms_to_delete_fragment))  # Compare two sets and get the common items
-        names_to_keep.remove(name_to_replace_fragment)
-        fragment_structure = fragment_structure.select("name {}".format(" ".join(names_to_keep)))
-        prody.writePDB("pregrow/{}.pdb".format(fragment_structure.getResnames()[0]),
-                       fragment_structure)  # Overwrite the initial structure
-        name_to_replace_fragment = fragment_structure[atom_replaced_idx].getName()
-        fragment_bond[0].coord = new_coords
+    if RDKIT:
+        if core_bond[1].element != "H":
+            atom_replaced_idx = replace_heavy_by_hydrogen(core_bond[1], core_structure)
+            new_coords = correct_hydrogen_position(hydrogen_atom=core_structure[atom_replaced_idx],
+                                                   atom_to_bond_with=core_bond[0],
+                                                   structure=core_structure[atom_replaced_idx])
+            core_structure[atom_replaced_idx].setCoords(new_coords)
+            names_to_keep = list(
+                set(core_structure.getNames()) ^ set(atoms_to_delete_core))  # Compare two sets and get the common items
+            names_to_keep.remove(name_to_replace_core)
+            core_structure = core_structure.select("name {}".format(" ".join(names_to_keep)))
+            prody.writePDB("pregrow/{}.pdb".format(core_structure.getResnames()[0]),
+                           core_structure)  # Overwrite the initial structure
+            name_to_replace_core = core_structure[atom_replaced_idx].getName()
+            core_bond[1].coord = new_coords
+        if fragment_bond[0].element != "H":
+            atom_replaced_idx = replace_heavy_by_hydrogen(fragment_bond[0], fragment_structure)
+            new_coords = correct_hydrogen_position(hydrogen_atom=fragment_structure[atom_replaced_idx],
+                                                   atom_to_bond_with=fragment_bond[1],
+                                                   structure=fragment_structure[atom_replaced_idx])
+            fragment_structure[atom_replaced_idx].setCoords(new_coords)
+            names_to_keep = list(
+                set(fragment_structure.getNames()) ^ set(atoms_to_delete_fragment))  # Compare two sets and get the common items
+            names_to_keep.remove(name_to_replace_fragment)
+            fragment_structure = fragment_structure.select("name {}".format(" ".join(names_to_keep)))
+            prody.writePDB("pregrow/{}.pdb".format(fragment_structure.getResnames()[0]),
+                           fragment_structure)  # Overwrite the initial structure
+            name_to_replace_fragment = fragment_structure[atom_replaced_idx].getName()
+            fragment_bond[0].coord = new_coords
     bio_list = from_pdb_to_bioatomlist(["pregrow/{}".format(fragment_structure.getResnames()[0])])[0] # Its a list, so we keep only the unique element that is inside
     # Superimpose atoms of the fragment to the core bond
     pdb_joiner.superimpose(core_bond, fragment_bond, bio_list)
