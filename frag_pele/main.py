@@ -220,7 +220,6 @@ def parse_arguments():
            args.radius_box
 
 
-
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
          epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
@@ -339,14 +338,13 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
         cmd = "{} {} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
-                                  add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers)
+                                   add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers)
 
         try:
             subprocess.call(cmd.split())
         except OSError:
             raise OSError("Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(sch_python))
-        template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(
-                                                                                   add_fragment_from_pdbs.
+        template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(add_fragment_from_pdbs.
                                                                                    c.PRE_WORKING_DIR, pdb_to_template),
                                                                                    False, c_chain, f_chain)
         template_resnames.append(template_resname)
@@ -371,11 +369,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     # Generate starting templates
     template_fragmenter.main(template_initial_path=os.path.join(path_to_templates_generated, template_initial),
-                                     template_grown_path=os.path.join(path_to_templates_generated, template_final),
-                                     step=1, total_steps=iterations, hydrogen_to_replace=core_original_atom,
-                                     core_atom_linker=core_atom,
-                                     tmpl_out_path=os.path.join(path_to_templates_generated,
-                                                                "{}_0".format(template_final)))
+                             template_grown_path=os.path.join(path_to_templates_generated, template_final),
+                             step=1, total_steps=iterations, hydrogen_to_replace=core_original_atom,
+                             core_atom_linker=core_atom,
+                             tmpl_out_path=os.path.join(path_to_templates_generated, "{}_0".format(template_final)))
 
     # Make a copy in the main folder of Templates in order to use it as template for the simulation
     shutil.copy(os.path.join(path_to_templates_generated, "{}_0".format(template_final)),
@@ -402,10 +399,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         # Banned dihedrals will be checked here
         if banned:
             pdbs_with_banned_dihedrals = Detector.check_folder(folder=os.path.join(pdbout_folder, str(i-1)),
-                                                         threshold=limit,
-                                                         dihedrals=banned,
-                                                         lig_chain=c_chain,
-                                                         processors=cpus)
+                                                               threshold=limit,
+                                                               dihedrals=banned,
+                                                               lig_chain=c_chain,
+                                                               processors=cpus)
             pdb_input_paths = [pdb_file for pdb_file, flag in pdbs_with_banned_dihedrals.items() if flag]
 
         # Control file modification
@@ -413,28 +410,36 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         overlapping_factor = "{0:.2f}".format(overlapping_factor)
 
         if i != 0:
-            simulation_file = simulations_linker.control_file_modifier(contrl, pdb_input_paths, i, license, overlapping_factor,
-                                                             result, steps=steps, chain=c_chain, constraints=const, center=center,
-                                                             temperature=temperature, seed=seed, steering=steering,
-                                                             translation_high=translation_high, translation_low=translation_low,
-                                                             rotation_high=rotation_high, rotation_low=rotation_low,
-                                                             radius=radius_box)
+            simulation_file = simulations_linker.control_file_modifier(contrl, pdb_input_paths, i, license,
+                                                                       overlapping_factor, result, steps=steps,
+                                                                       chain=c_chain, constraints=const, center=center,
+                                                                       temperature=temperature, seed=seed,
+                                                                       steering=steering,
+                                                                       translation_high=translation_high,
+                                                                       translation_low=translation_low,
+                                                                       rotation_high=rotation_high,
+                                                                       rotation_low=rotation_low,
+                                                                       radius=radius_box)
         else:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
-            simulation_file = simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license, overlapping_factor,
-                                                             result, steps=steps, chain=c_chain, constraints=const, center=center,
-                                                             temperature=temperature, seed=seed, steering=steering,
-                                                             translation_high=translation_high, translation_low=translation_low,
-                                                             rotation_high=rotation_high, rotation_low=rotation_low,
-                                                             radius=radius_box)
+            simulation_file = simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license,
+                                                                       overlapping_factor, result, steps=steps,
+                                                                       chain=c_chain, constraints=const, center=center,
+                                                                       temperature=temperature, seed=seed,
+                                                                       steering=steering,
+                                                                       translation_high=translation_high,
+                                                                       translation_low=translation_low,
+                                                                       rotation_high=rotation_high,
+                                                                       rotation_low=rotation_low,
+                                                                       radius=radius_box)
 
         logger.info(c.LINES_MESSAGE)
         if i != 0:
             template_fragmenter.main(template_initial_path=os.path.join(path_to_templates_generated, template_initial),
-                                             template_grown_path=os.path.join(path_to_templates_generated, template_final),
-                                             step=i+1, total_steps=iterations, hydrogen_to_replace=core_original_atom,
-                                             core_atom_linker=core_atom,
-                                             tmpl_out_path=os.path.join(path_to_templates, template_final))
+                                     template_grown_path=os.path.join(path_to_templates_generated, template_final),
+                                     step=i+1, total_steps=iterations, hydrogen_to_replace=core_original_atom,
+                                     core_atom_linker=core_atom,
+                                     tmpl_out_path=os.path.join(path_to_templates, template_final))
 
         # Make a copy of the template file in growing_templates folder
         shutil.copy(os.path.join(path_to_templates, template_final), template)
@@ -472,12 +477,14 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     # Modify the control file to increase the steps TO THE SAMPLING SIMULATION
     if not explorative:
         simulation_file = simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
-                                                     "sampling_result_{}".format(ID), steps=pele_eq_steps,
-                                                     chain=c_chain, constraints=const, center=center,
-                                                     temperature=temperature, seed=seed, steering=steering,
-                                                     translation_high=translation_high, translation_low=translation_low,
-                                                     rotation_high=rotation_high, rotation_low=rotation_low,
-                                                     radius=radius_box)
+                                                                   "sampling_result_{}".format(ID),
+                                                                   steps=pele_eq_steps, chain=c_chain,
+                                                                   constraints=const, center=center,
+                                                                   temperature=temperature, seed=seed, steering=steering,
+                                                                   translation_high=translation_high,
+                                                                   translation_low=translation_low,
+                                                                   rotation_high=rotation_high, rotation_low=rotation_low,
+                                                                   radius=radius_box)
 
     else:
         simulation_file = simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,

@@ -85,7 +85,7 @@ class Atom:
         self.is_linker = bool(is_linker)
 
     def write_resx(self):
-        return PATTERN_OPLS2005_RESX_LINE.format(self.atom_id, self.parent_id, self.location, self.atom_type,
+        return PATTERN_OPLS2005_RESX_LINE.format(self.atom_id, self.parent_id, self.location, self.atom_type.strip(),
                                                  self.pdb_atom_name, self.unknown, self.x_zmatrix,
                                                  self.y_zmatrix, self.z_zmatrix)
 
@@ -177,7 +177,7 @@ class TemplateOPLS2005:
                 atom_id = get_string_from_line(line=line, index_initial=0, index_final=6)
                 parent_id = get_string_from_line(line=line, index_initial=6, index_final=11)
                 location = get_string_from_line(line=line, index_initial=12, index_final=13)
-                atom_type = get_string_from_line(line=line, index_initial=16, index_final=20)
+                atom_type = get_string_from_line(line=line, index_initial=15, index_final=20)
                 pdb_atom_name = get_string_from_line(line=line, index_initial=21, index_final=25)
                 unknown = get_string_from_line(line=line, index_initial=26, index_final=31)
                 x_zmatrix = get_string_from_line(line=line, index_initial=32, index_final=43)
