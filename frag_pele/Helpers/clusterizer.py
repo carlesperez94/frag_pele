@@ -7,9 +7,10 @@ import pandas as pd
 import glob
 import os
 
+
 def cluster_traject(resname, trajToDistribute, columnToChoose, distance_contact, clusterThreshold, path_to_cluster,
-                    output_path, epsilon=0.5, report_basename="report", condition ="min", metricweights="linear",
-                    nclusters=5):
+                    output_path, mapping_out, epsilon=0.5, report_basename="report", condition="min",
+                    metricweights="linear", nclusters=5):
 
     outputPathConst = constants.OutputPathConstants(output_path)
     outputPathConst.tmpFolder = output_path
@@ -33,11 +34,14 @@ def cluster_traject(resname, trajToDistribute, columnToChoose, distance_contact,
     spawning_params.condition = condition
 
     density = densitycalculator.NullDensityCalculator()
-    spawningObject = spawning.EpsilonDegeneracyCalculator(density)
+    spawningObject = spawning.EpsilonDegeneracyCalculator(spawning_params, density)
     degeneracy = spawningObject.calculate(clusteringObject.clusters, trajToDistribute, spawning_params)
     spawningObject.log()
 
-    spawningObject.writeSpawningInitialStructures(outputPathConst, degeneracy, clusteringObject, 0)
+    _, procMapping = spawningObject.writeSpawningInitialStructures(outputPathConst, degeneracy, clusteringObject,
+                                                                   0)
+    processorManagerFilename = "processorMapping.txt"
+    utilities.writeProcessorMappingToDisk(mapping_out, processorManagerFilename, procMapping)
 
 
 def get_column_num(path, header_column, report_basename="report"):
