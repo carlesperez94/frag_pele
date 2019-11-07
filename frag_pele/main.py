@@ -465,9 +465,9 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         column_number = clusterizer.get_column_num(result_abs, criteria, report)
         # Selection of the trajectory used as new input
         clusterizer.cluster_traject(str(template_resnames[1]), cpus-1, column_number, distance_contact,
-                                            clusterThreshold, "{}*".format(os.path.join(result_abs, traject)),
-                                            os.path.join(pdbout_folder, str(i)), epsilon, report, condition, metricweights,
-                                            nclusters)
+                                        clusterThreshold, "{}*".format(os.path.join(result_abs, traject)),
+                                        os.path.join(pdbout_folder, str(i)), os.path.join(result_abs),
+                                        epsilon, report, condition, metricweights, nclusters)
     # ----------------------------------------------------EQUILIBRATION-------------------------------------------------
     # Set input PDBs
     pdb_inputs = ["{}".format(os.path.join(pdbout_folder, str(iterations), pdb_file)) for pdb_file in pdb_selected_names]
