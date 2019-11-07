@@ -11,7 +11,6 @@ import itertools
 import re
 from ast import literal_eval
 from AdaptivePELE.utilities import utilities
-from AdaptivePELE.atomset import atomset
 try:
     basestring
 except NameError:
@@ -22,7 +21,8 @@ def parseArguments():
     """
         Parse the command-line options
 
-        :returns: str, str, str --  path to file to backtrack,
+        :returns: str, str, str, str --  path to file to backtrack,
+            path to the result files,
             output path where to write the files, name of the files
     """
     desc = "Write the information related to the conformation network to file\n"
