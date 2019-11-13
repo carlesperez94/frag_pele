@@ -121,7 +121,6 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 setup(
     name="frag_pele",
     version="1.1.0.4",
-    origin/V1.1
     description='FrAG, a new tool for in silico hit-to-lead drug design, capable of growing a frag_pelement into a core while exploring the protein-ligand conformational space',
     long_description=long_description,
     url="https://github.com/carlesperez94/frag_pele/",
