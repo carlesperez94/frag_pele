@@ -158,7 +158,7 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
     bond between the molecules. In order to do that this function performs a cross superimposition (in BioPython) of
     the whole fragment using as reference (fixed part) the atoms of the bond. Then, it transforms this BioPython object
     into ProDy molecule with the coordinates modified. Once we have all ready, the Hydrogens of the bonds will be
-    deleted and both structures will be concatenated into a single ProDy object.
+    deleted accordingly with the bond type, and both structures will be concatenated into a single ProDy object.
 
     :param core_bond: Bio.PDB.Atom list with two elements: [heavy atom, hydrogen atom]. These two atoms have to be the
     ones participating in the bond of the core that we would like to use as linking point between core and fragment.
@@ -168,6 +168,10 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
     coordinates.
     :param core_structure: ProDy molecule that contain only the core ligand.
     :param fragment_structure: ProDy molecule that contain only the fragment ligand.
+    :param pdb_complex: path to the file in PDB with the protein-ligand complex.
+    :param pdb_fragment: path to the file in PDB with the fragment.
+    :param chain_complex: label of the ligand chain in the pdb_complex.
+    :param chain_fragment: label of the ligand chain in the pdb_fragment.
     :return: ProDy molecule with the core_structure and the fragment_structure (with the coordinates modified)
     concatenated.
     """
@@ -634,7 +638,7 @@ def check_and_fix_repeated_lignames(pdb1, pdb2, ligand_chain_1="L", ligand_chain
 
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
          fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb",
-         h_core = None, h_frag = None, rename=False, threshold_clash=1.70):
+         h_core=None, h_frag=None, rename=False, threshold_clash=1.70):
     """
     From a core (protein + ligand core = core_chain) and fragment (fragment_chain) pdb files, given the heavy atoms
     names that we want to connect, this function add the fragment to the core structure. We will get three PDB files:
@@ -660,6 +664,16 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     default.
     :param output_file_to_grow: name of the pdb file that will be used to initialise PELE simulations. string.
     "initialization_grow.pdb" by default.
+    :param h_core: if the user wants to select an specific hydrogen atom of the core to create the new bond, its name
+    must be specified here.
+    :param h_frag: if the user wants to select an specific hydrogen atom of the fragment to create the new bond, its name
+    must be specified here.
+    :param rename: if set, the names of the pdb atom names will be replaced with "G+atom_number_fragment".
+    :param threshold_clash: distance that will be used to identity which atoms are doing clashes between atoms of the
+    fragment and the core.
+    :returns: [changing_names_dictionary, hydrogen_atoms, "{}.pdb".format(core_residue_name), output_file_to_tmpl,
+    output_file_to_grow, core_original_atom, fragment_original_atom]
+
     """
     if not os.path.exists(c.PRE_WORKING_DIR):
         os.mkdir(c.PRE_WORKING_DIR)
