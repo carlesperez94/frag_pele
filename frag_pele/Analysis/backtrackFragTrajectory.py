@@ -39,6 +39,18 @@ def parseArguments():
 
 
 def main(file_to_backtrack, results_path, outputPath, out_filename):
+    """
+
+    :param file_to_backtrack: File of the selected_results folder that you want to backtrack.
+    :type file_to_backtrack: str
+    :param results_path: Path where the growing simulations are stored.
+    :type results_path: str
+    :param outputPath: Output folder path.
+    :type outputPath: str
+    :param out_filename: Output filename prefix.
+    :type out_filename: str
+    :return: None
+    """
     if outputPath is not None:
         outputPath = os.path.join(outputPath, "")
         if not os.path.exists(outputPath):

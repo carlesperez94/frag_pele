@@ -13,7 +13,7 @@ def parse_arguments():
         :returns: str, str, str --  path to file to backtrack,
             output path where to write the files, name of the files
     """
-    desc = "Write the information related to the conformation network to file\n"
+    desc = "Adds the connectivity information to a trajectory file that does not have it.\n"
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument("pathway", type=str, help="Trajectory file with the backtracked pathway")
     parser.add_argument("pdb_with_connects", type=str, help="PDB of the final structure prepared. Must contain"
