@@ -3,7 +3,7 @@ import numpy
 import sys
 import shutil
 # subprocess.call("pip install numpy cython".split())
-from setuptools import setup, find_packages, Command
+from setuptools import setup, find_packages # , Command
 from string import Template
 # To use a consistent encoding
 from codecs import open
@@ -97,24 +97,6 @@ class sdist(_sdist):
         _sdist.run(self)
         cmdclass['sdist'] = sdist
 
-        
-
-if use_cython:
-    ext_modules += [
-        Extension("frag_pele.AdaptivePELE_repo.AdaptivePELE.atomset.atomset", ["frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset/atomset.pyx"], include_dirs=["frag_pele/AdaptivePELE_repo/AdaptivePELE", "frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("frag_pele.AdaptivePELE_repo.AdaptivePELE.atomset.SymmetryContactMapEvaluator", ["frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset/SymmetryContactMapEvaluator.pyx"], include_dirs=["frag_pele/AdaptivePELE_repo/AdaptivePELE", "frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("frag_pele.AdaptivePELE_repo.AdaptivePELE.atomset.RMSDCalculator", ["frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset/RMSDCalculator.pyx"], include_dirs=["frag_pele/AdaptivePELE_repo/AdaptivePELE", "frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("frag_pele.AdaptivePELE_repo.AdaptivePELE.freeEnergies.utils", ["frag_pele/AdaptivePELE_repo/AdaptivePELE/freeEnergies/utils.pyx"], include_dirs=["frag_pele/AdaptivePELE_repo/AdaptivePELE", "frag_pele/AdaptivePELE_repo/AdaptivePELE/freeEnergies"])
-    ]
-    cmdclass.update({'build_ext': build_ext})
-else:
-    ext_modules += [
-        Extension("frag_pele.AdaptivePELE_repo.AdaptivePELE.atomset.atomset", ["frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset/atomset.c"], include_dirs=["frag_pele/AdaptivePELE_repo/AdaptivePELE", "frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("frag_pele.AdaptivePELE_repo.AdaptivePELE.atomset.SymmetryContactMapEvaluator", ["frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset/SymmetryContactMapEvaluator.c"], include_dirs=["frag_pele/AdaptivePELE_repo/AdaptivePELE", "frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("frag_pele.AdaptivePELE_repo.AdaptivePELE.atomset.RMSDCalculator", ["frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset/RMSDCalculator.c"], include_dirs=["frag_pele/AdaptivePELE_repo/AdaptivePELE", "frag_pele/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("frag_pele.AdaptivePELE_repo.AdaptivePELE.freeEnergies.utils", ["frag_pele/AdaptivePELE_repo/AdaptivePELE/freeEnergies/utils.c"], include_dirs=["frag_pele/AdaptivePELE_repo/AdaptivePELE", "frag_pele/AdaptivePELE_repo/AdaptivePELE/freeEnergies"])
-    ]
-
 # Get the long description from the README file
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
@@ -128,20 +110,20 @@ setup(
     author_email='daniel.soler@nostrumbiodiscovery.com, carlesperez@gmail.com',
     license='',
     packages=find_packages(exclude=['docs', 'tests']),
-    package_data={"AdaptivePELE_repo/AdaptivePELE/atomset": ['*.pxd'], "Templates": ["*.pdb", "*.conf"] },
+    package_data={"Templates": ["*.pdb", "*.conf"] },
     include_package_data=True,
     include_dirs=[numpy.get_include()],
-    install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody==1.10', 'six'],
+    install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody==1.10', 'six', 'AdaptivePELE'],
     cmdclass=cmdclass,
     ext_modules=ext_modules,  # accepts a glob pattern
     #include_dirs=[numpy.get_include()],
-    classifiers=(
+    classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 2.7",
         "License :: OSI Approved :: MIT License",
         "Operating System :: POSIX :: Linux",
         "Intended Audience :: Science/Research"
-    ),
+    ],
     project_urls={
     'Documentation': 'https://carlesperez94.github.io/frag_pele/',
     'Source': 'https://carlesperez94.github.io/frag_pele/',
