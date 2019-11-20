@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Getting Started &mdash; FrAG-PELE 1.0.0 documentation</title>
+  <title>Getting Started &mdash; FragPELE 2.0.0 documentation</title>
   
 
   
@@ -17,38 +17,49 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'2.0.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Protocols" href="protocols.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> FrAG-PELE
+            <a href="index.html" class="icon icon-home"> FragPELE
           
 
           
@@ -56,6 +67,10 @@
 
           
             
+            
+              <div class="version">
+                2.0
+              </div>
             
           
 
@@ -88,6 +103,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#growing-of-a-fragment-to-a-previously-grown-fragment"><strong>Growing of a fragment to a previously grown fragment</strong></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#all-together"><strong>All together</strong></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#launch-simple-frag-pele-simulation"><strong>Launch simple FrAG-PELE simulation</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#growing-a-fragment-specifying-direction"><strong>Growing a fragment specifying direction</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#growing-through-bond-like-selection"><strong>Growing through BOND-LIKE selection</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#growing-by-double-or-triple-bonding"><strong>Growing by double or triple bonding</strong></a></li>
 </ul>
 </li>
 </ul>
@@ -112,7 +130,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">FrAG-PELE</a>
+          <a href="index.html">FragPELE</a>
         
       </nav>
 
@@ -166,7 +184,7 @@
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<p>Here you will learn how to run your first FrAG-PELE simulation.</p>
+<p>Here you will learn how to run your first FragPELE’s simulation.</p>
 <div class="section" id="how-to-do-it">
 <h2>How to do it?<a class="headerlink" href="#how-to-do-it" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="previous-requisites">
@@ -300,6 +318,58 @@ with a 3rd fragment onto a different core and a 4th into the previosuly grown fr
 </pre></div>
 </div>
 </div>
+<div class="section" id="growing-a-fragment-specifying-direction">
+<h3><strong>Growing a fragment specifying direction</strong><a class="headerlink" href="#growing-a-fragment-specifying-direction" title="Permalink to this headline">¶</a></h3>
+<p>FragPELE selects by default an H atom with less clashes with the protein. It will take this atom as direction to grow,
+replacing this hydrogen by the whole fragment. Additionally, the atom of the fragment that will be replaced is also
+selected randomly. Sometimes you would like to specify which atom to replace. Then, the format to do that is the following:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="38%" />
+<col width="46%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>fragment PDB 1</td>
+<td>heavy atom core 1 - H atom core</td>
+<td>heavy atom fragment 1 - H atom fragment</td>
+</tr>
+</tbody>
+</table>
+<p>i.e:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">amino</span><span class="o">.</span><span class="n">pdb</span>   <span class="n">C1</span><span class="o">-</span><span class="n">H1</span>   <span class="n">N1</span><span class="o">-</span><span class="n">H1</span>
+</pre></div>
+</div>
+<p>In FragPELE 2.0 can also grow fragments onto NON-hydrogen atoms, but you must specify the atom name:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">amino</span><span class="o">.</span><span class="n">pdb</span>   <span class="n">C1</span><span class="o">-</span><span class="n">BR1</span>  <span class="n">N1</span><span class="o">-</span><span class="n">H1</span>   <span class="p">(</span><span class="n">BR1</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">heavy</span> <span class="n">atom</span><span class="p">,</span> <span class="n">therefore</span><span class="p">,</span> <span class="n">it</span> <span class="n">can</span> <span class="ow">not</span> <span class="n">be</span> <span class="n">automatically</span> <span class="n">detected</span> <span class="ow">and</span> <span class="n">must</span> <span class="n">be</span> <span class="n">specified</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="growing-through-bond-like-selection">
+<h3><strong>Growing through BOND-LIKE selection</strong><a class="headerlink" href="#growing-through-bond-like-selection" title="Permalink to this headline">¶</a></h3>
+<p>In FragPELE 2.0, you can also grow through a BOND-LIKE selection.</p>
+<a class="reference internal image-reference" href="_images/bond_like_explanation.png"><img alt="_images/bond_like_explanation.png" class="align-center" src="_images/bond_like_explanation.png" style="width: 768.0px; height: 432.0px;" /></a>
+<p>In this case, as the selection has been done in a NON-terminal bond, the tree of atoms after the selected bond will be
+deleted and replaced by the fragment.</p>
+<p>i.e:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">amino</span><span class="o">.</span><span class="n">pdb</span>   <span class="n">C6</span><span class="o">-</span><span class="n">C7</span>   <span class="n">N1</span><span class="o">-</span><span class="n">H1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="growing-by-double-or-triple-bonding">
+<h3><strong>Growing by double or triple bonding</strong><a class="headerlink" href="#growing-by-double-or-triple-bonding" title="Permalink to this headline">¶</a></h3>
+<p>Imagine that we have the following situation:</p>
+<a class="reference internal image-reference" href="_images/bond_triple_explanation.png"><img alt="_images/bond_triple_explanation.png" class="align-center" src="_images/bond_triple_explanation.png" style="width: 768.0px; height: 432.0px;" /></a>
+<p>In this case we would like to replace a simple bond by a triple bond, thus, it is required to have a fragment containing
+this triple bond (at least the fragment must have two heavy atoms, otherwise would never have valid double or triple bonds).</p>
+<p>The software automatically will detect which bond type is present between the selected atoms of the fragment. So, in the
+input you just need to specify the atom names of this atoms:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ciano</span><span class="o">.</span><span class="n">pdb</span>   <span class="n">C7</span><span class="o">-</span><span class="n">H11</span>  <span class="n">N1</span><span class="o">-</span><span class="n">C1</span>
+</pre></div>
+</div>
+<p>Take in mind that the “BOND direction” defined by (first_atom - second_atom) also defines the direction of atom’s deletion,
+so, in the fragment’s case writing the N1-C1 bond are keeping the N1 and remove everything towards.</p>
+</div>
 </div>
 </div>
 
@@ -314,7 +384,7 @@ with a 3rd fragment onto a different core and a 4th into the previosuly grown fr
         <a href="protocols.html" class="btn btn-neutral float-right" title="Protocols" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="installation.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -340,26 +410,16 @@ with a 3rd fragment onto a different core and a 4th into the previosuly grown fr
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

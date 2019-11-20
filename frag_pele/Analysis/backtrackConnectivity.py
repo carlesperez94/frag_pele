@@ -15,7 +15,7 @@ def parse_arguments():
     """
     desc = "Adds the connectivity information to a trajectory file that does not have it.\n"
     parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument("pathway", type=str, help="Trajectory file with the backtracked pathway")
+    parser.add_argument("pathway", type=str, help="Trajectory file with the backtracked pathway.")
     parser.add_argument("pdb_with_connects", type=str, help="PDB of the final structure prepared. Must contain"
                                                             " CONNECTS section. Remember to not delete water molecules!")
     parser.add_argument("--ligand_chain", type=str, default="L", help="Chain of the ligand.")

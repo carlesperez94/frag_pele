@@ -13,23 +13,22 @@ def parse_arguments():
             Output: list with all the user arguments
         """
     # All the docstrings are very provisional and some of them are old, they would be changed in further steps!!
-    parser = argparse.ArgumentParser(description="""From an input file, correspondent to the template of the initial 
-        structure of the ligand,this function will generate "x_fragments" intermediate templates until reach the final 
-        template,modifying Vann Der Waals, bond lengths and deleting charges.""")
+    parser = argparse.ArgumentParser(description="""Computes the mean of the 25% lowest values of the sampling simulation
+    for each fragment grown. """)
     required_named = parser.add_argument_group('required named arguments')
     # Growing related arguments
     required_named.add_argument("path_to_analyze",
-                                help="""Path of the folder to be analyzed""")
+                                help="""Path of the folder to be analyzed, where all simulations are stored.""")
 
     parser.add_argument("-r", "--rep_pref", default='report_',
                                 help="""Prefix of the report file: usually 'report_'. """)
     parser.add_argument("-s", "--steps", default=False,
-                        help="Used to filter n by PELE steps")
+                        help="Used to filter by N PELE steps")
     parser.add_argument("-f", "--file", default=False,
                         help="Used to set the flag 'export file? to True'")
     parser.add_argument("-o", "--out", default="",
                         help="Name of the output file")
-    parser.add_argument("-e", "--equil_folder", default="equilibration*",
+    parser.add_argument("-e", "--equil_folder", default="sampling_results*",
                         help="Prefix of the equilibration folder (where the results are)")
     parser.add_argument("-c", "--col", default="Binding Energy",
                         help="Name of the column that we will use to find the minimum value of the PELE report")
