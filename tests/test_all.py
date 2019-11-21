@@ -5,12 +5,12 @@ import os
 
 def test_double():
     subprocess.call("bash test_double_bond.sh".split())
-    assert os.path.exists("selected_result_carbonylC6-H7O1-C1/epochsampling_result_carbonylC6-H7O1-C1_trajectory_1.1_BindingEnergy-43.5471.pdb") \
+    assert os.path.exists("selected_result_carbonylC6-H7O1-C1/epochsampling_result_carbonylC6-H7O1-C1_trajectory_1.1_BindingEnergy-40.5463.pdb") \
     or os.path.exists("selected_result_carbonylC6-H7O1-C1/epochsampling_result_carbonylC6-H7O1-C1_trajectory_1.1_BindingEnergy-42.5163.pdb")
 
 def test_HT():
     subprocess.call("bash test_HT.sh".split())
-    assert os.path.exists("selected_result_aminoC1N1/epochsampling_result_aminoC1N1_trajectory_1.10_BindingEnergy-49.0131.pdb") \
+    assert os.path.exists("selected_result_aminoC1N1/epochsampling_result_aminoC1N1_trajectory_1.10_BindingEnergy-45.4364.pdb") \
     or os.path.exists("selected_result_aminoC1N1/epochsampling_result_aminoC1N1_trajectory_1.10_BindingEnergy-49.3207.pdb")  \
     or os.path.exists("selected_result_aminoC1N1/epochsampling_result_aminoC1N1_trajectory_1.11_BindingEnergy-48.7485.pdb")
 
@@ -35,7 +35,7 @@ def test_criteria():
 
 def test_chainame():
     subprocess.call("bash test_chain_core_frag.sh".split())
-    assert os.path.exists("selected_result_phenyl2C6C1/epochsampling_result_phenyl2C6C1_trajectory_1.1_BindingEnergy-55.6055.pdb") \
+    assert os.path.exists("selected_result_phenyl2C6C1/epochsampling_result_phenyl2C6C1_trajectory_1.1_BindingEnergy-51.5974.pdb") \
     or os.path.exists("selected_result_phenyl2C6C1/epochesampling_result_phenyl2C6C1_trajectory_1.1_BindingEnergy-46.979.pdb") \
     or os.path.exists("selected_result_phenyl2C6C1/epochsampling_result_phenyl2C6C1_trajectory_1.1_BindingEnergy-45.3478.pdb")
 
