@@ -6,7 +6,7 @@ import os
 def test_double():
     subprocess.call("bash test_double_bond.sh".split())
     assert os.path.exists("selected_result_carbonylC6-H7O1-C1/epochsampling_result_carbonylC6-H7O1-C1_trajectory_1.1_BindingEnergy-40.5463.pdb") \
-    or os.path.exists("selected_result_carbonylC6-H7O1-C1/epochsampling_result_carbonylC6-H7O1-C1_trajectory_1.1_BindingEnergy-42.5163.pdb")
+    or os.path.exists("selected_result_carbonylC6-H7O1-C1/epochsampling_result_carbonylC6-H7O1-C1_trajectory_1.1_BindingEnergy-40.1397.pdb")
 
 def test_HT():
     subprocess.call("bash test_HT.sh".split())
