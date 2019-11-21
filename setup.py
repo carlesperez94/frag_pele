@@ -3,7 +3,7 @@ import numpy
 import sys
 import shutil
 # subprocess.call("pip install numpy cython".split())
-from setuptools import setup, find_packages # , Command
+from setuptools import setup, find_packages, Command
 from string import Template
 # To use a consistent encoding
 from codecs import open
@@ -24,78 +24,10 @@ from distutils.command.sdist import sdist as _sdist
 import frag_pele.constants as constants
 
 
-class PreInstallCommand(install):
-    description = "Installer"
-    user_options = install.user_options + [
-        ('schr=', None, 'SCRHODINGER main path. i.e /opt/apps/schrodinger-2017/'),
-        ('pele=', None, 'PELE main path. i.e /opt/apps/PELErev1234/'),
-        ('pele-exec=', None, 'PELE bin path. i.e /opt/apps/PELErev1234/bin/Pele_mpi'),
-        ('pele-license=', None, 'PELE licenses PATH. i.e /opt/apps/PELErev12345/licenses/')
-    ]
-
-    def initialize_options(self):
-        install.initialize_options(self)
-        self.schr = None
-        self.pele = None
-        self.pele_exec = None
-        self.pele_license = None
-
-    def finalize_options(self):
-        install.finalize_options(self)
-        #if not self.schr:
-        #    raise ValueError("Define --schr path. Check --help-commands for more help")
-        #if not self.pele:
-        #    raise ValueError("Define --pele path. Check --help-commands for more help")
-        #if not self.pele_exec:
-        #    raise ValueError("Define --pele-exec path. Check --help-commands for more help")
-        #if not self.pele_license:
-        #    raise ValueError("Define --pele-license path. Check --help-commands for more help")
-        #if not self.mpirun:
-        #    raise ValueError("Define --mpirun path. Check --help-commands for more help")
-
-    def run(self):
-        #print("Cythonazing")
-        #subprocess.call("python frag_pele/setup.py build_ext --inplace".split())
-        #print("Installing packages")
-        #subprocess.call("pip install {}".format(" ".join(packages)).split())
-        print("Setting environmental variables")
-        installer(self.schr, self.pele, self.pele_exec, self.pele_license)
-        print("Install")
-        install.run(self)
-
-class PostInstallCommand(install):
-    """Post-installation for installation mode."""
-    def run(self):
-        install.run(self)
-
-
-def installer(schr, pele, pele_exec, pele_license):
-    file_input = 'frag_pele_pele/constants.py'
-    shutil.copy('frag_pele_pele/Templates/constants.py', file_input)
-    d = {"SCHRODINGER":schr, "PELE":pele, "PELE_BIN":pele_exec, "LICENSE":pele_license }
-    filein = open(file_input)
-    src = Template( filein.read() )
-    installation_content = src.safe_substitute(d)
-    filein.close()
-    with open(file_input, "w") as f:
-        f.write(installation_content)
-
-        
-
 here = path.abspath(path.dirname(__file__))
 ext_modules = []
 cmdclass = {}
 #cmdclass.update({'install': PreInstallCommand})
-
-
-class sdist(_sdist):
-    def run(self):
-        # Make sure the compiled Cython files in the distribution are
-        # up-to-date
-        from Cython.Build import cythonize
-        cythonize(['cython/mycythonmodule.pyx'])
-        _sdist.run(self)
-        cmdclass['sdist'] = sdist
 
 # Get the long description from the README file
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
@@ -110,20 +42,19 @@ setup(
     author_email='daniel.soler@nostrumbiodiscovery.com, carlesperez@gmail.com',
     license='',
     packages=find_packages(exclude=['docs', 'tests']),
-    package_data={"Templates": ["*.pdb", "*.conf"] },
     include_package_data=True,
     include_dirs=[numpy.get_include()],
-    install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody==1.10', 'six', 'AdaptivePELE'],
+    install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody==1.10', 'six'],
     cmdclass=cmdclass,
     ext_modules=ext_modules,  # accepts a glob pattern
     #include_dirs=[numpy.get_include()],
-    classifiers=[
+    classifiers=(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 2.7",
         "License :: OSI Approved :: MIT License",
         "Operating System :: POSIX :: Linux",
         "Intended Audience :: Science/Research"
-    ],
+    ),
     project_urls={
     'Documentation': 'https://carlesperez94.github.io/frag_pele/',
     'Source': 'https://carlesperez94.github.io/frag_pele/',
