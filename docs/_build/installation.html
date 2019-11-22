@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; FrAG-PELE 1.0.0 documentation</title>
+  <title>Installation &mdash; FragPELE 2.0.0 documentation</title>
   
 
   
@@ -17,38 +17,49 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'2.0.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Getting Started" href="first_steps.html" />
     <link rel="prev" title="FrAG-PELE. Fragment-based Automatic Growing." href="index.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> FrAG-PELE
+            <a href="index.html" class="icon icon-home"> FragPELE
           
 
           
@@ -58,7 +69,7 @@
             
             
               <div class="version">
-                1.0
+                2.0
               </div>
             
           
@@ -83,10 +94,17 @@
             
             
               <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul class="simple">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#conda-recommended">Conda (Recommended)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pypi">Pypi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#source-code">Source code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-it-works-fast-test">Test it works (fast test)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="first_steps.html">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="protocols.html">Protocols</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
@@ -104,7 +122,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">FrAG-PELE</a>
+          <a href="index.html">FragPELE</a>
         
       </nav>
 
@@ -141,7 +159,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/installation.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -158,8 +176,37 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<p>FrAG-PELE installation requires several dependencies they must be set
-before practice. Furthermore FrAG-PELE requires Schrodinger and PELE installation.</p>
+<div class="section" id="conda-recommended">
+<h2>Conda (Recommended)<a class="headerlink" href="#conda-recommended" title="Permalink to this headline">¶</a></h2>
+<p>If you want to use a separate environment for frag:</p>
+<blockquote>
+<div><p>conda create -n frag python=3.7 –yes</p>
+<p>source activate frag</p>
+</div></blockquote>
+<p>Else start here:</p>
+<blockquote>
+<div><p>conda install -c NostrumBioDiscovery -c conda-forge frag_pele –yes</p>
+<p>change PELE schrodinger &amp; mpirun under /conda/env/lib/pythonX/site-packages/frag_pele/constants.py</p>
+</div></blockquote>
+</div>
+<div class="section" id="pypi">
+<h2>Pypi<a class="headerlink" href="#pypi" title="Permalink to this headline">¶</a></h2>
+<p>Ongoing</p>
+</div>
+<div class="section" id="source-code">
+<h2>Source code<a class="headerlink" href="#source-code" title="Permalink to this headline">¶</a></h2>
+<p>git clone <a class="reference external" href="https://github.com/carlesperez94/frag_pele.git">https://github.com/carlesperez94/frag_pele.git</a></p>
+<p>cd frag_pele</p>
+<p>pip install numpy cython (in case not to have them)</p>
+<p>python setup.py install</p>
+<p>change PELE schrodinger &amp; mpirun under /site-packages/frag_pele/constants.py</p>
+</div>
+<div class="section" id="test-it-works-fast-test">
+<h2>Test it works (fast test)<a class="headerlink" href="#test-it-works-fast-test" title="Permalink to this headline">¶</a></h2>
+<p>git clone <a class="reference external" href="https://github.com/carlesperez94/frag_pele.git">https://github.com/carlesperez94/frag_pele.git</a></p>
+<p>cd frag_pele/frag_pele/example/1W7H_example/</p>
+<p>python -m frag_pele.main -cp 1w7h_preparation_structure_2w.pdb -x 1 –steps 1 -sef sequential.conf –pele_eq_steps 1 sequential_frag.conf –cpus 2 –steps 1 –temp 1000000</p>
+</div>
 </div>
 
 
@@ -173,7 +220,7 @@ before practice. Furthermore FrAG-PELE requires Schrodinger and PELE installatio
         <a href="first_steps.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="FrAG-PELE. Fragment-based Automatic Growing." accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="FrAG-PELE. Fragment-based Automatic Growing." accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -182,7 +229,7 @@ before practice. Furthermore FrAG-PELE requires Schrodinger and PELE installatio
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Carles Perez Lopez, with colaboration of Dani Soler.
+        &copy; Copyright 2019, Carles Perez Lopez and Dani Soler
 
     </p>
   </div>
@@ -199,26 +246,16 @@ before practice. Furthermore FrAG-PELE requires Schrodinger and PELE installatio
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

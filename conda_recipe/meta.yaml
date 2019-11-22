@@ -1,13 +1,13 @@
-# must do conda install -c NostrumBioDiscovery frag_pele 
+# must do: conda-build -c conda-forge -c nostrumbiodiscovery -c rdkit -c carlesperez94 . 
 package:
   name: frag_pele
-  version: "1.1.0"
+  version: "2.0.0"
 
 about:
   home: https://github.com/carlesperez94/frag_pele
   license: Apache
   license_file: LICENSE
-  summary: FrAG, a new tool for in silico hit-to-lead drug design, capable of growing a fragment into a core while exploring the protein-ligand conformational space
+  summary: FragPELE, a new tool for in silico hit-to-lead drug design, capable of growing a fragment into a core while exploring the protein-ligand conformational space.
 
 source:
   path: ../
@@ -31,10 +31,15 @@ requirements:
     - prody
     - six
     - pandas
+    - rdkit
+    - lib_prep
     - mdtraj
+    - adaptive_pele
+    - pytest
 
 test:
   imports:
     - frag_pele
   command:
-    - python -m frag_pele.main -h 
+    - python -m frag_pele.main -h
+

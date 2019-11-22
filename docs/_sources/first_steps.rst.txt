@@ -5,7 +5,7 @@ Getting Started
 .. toctree::
    :maxdepth: 2
 
-Here you will learn how to run your first FrAG-PELE simulation.
+Here you will learn how to run your first FragPELE's simulation.
 
 How to do it?
 -------------
@@ -92,4 +92,58 @@ Default: 10 growing steps of 6 pele steps, and a final equilibration simulation 
     python3.X grow_for_pele.py -cp path_to_complex_pdb -sef serie_file
 
 
+**Growing a fragment specifying direction**
++++++++++++++++++++++++++++++++++++++++++++
+
+FragPELE selects by default an H atom with less clashes with the protein. It will take this atom as direction to grow,
+replacing this hydrogen by the whole fragment. Additionally, the atom of the fragment that will be replaced is also
+selected randomly. Sometimes you would like to specify which atom to replace. Then, the format to do that is the following:
+
++---------------+----------------------------------+-----------------------------------------+
+| fragment PDB 1| heavy atom core 1 - H atom core  | heavy atom fragment 1 - H atom fragment |
++---------------+----------------------------------+-----------------------------------------+
+
+i.e::
+
+    amino.pdb   C1-H1   N1-H1
+
+In FragPELE 2.0 can also grow fragments onto NON-hydrogen atoms, but you must specify the atom name::
+
+    amino.pdb   C1-BR1  N1-H1   (BR1 is a heavy atom, therefore, it can not be automatically detected and must be specified)
+
+**Growing through BOND-LIKE selection**
++++++++++++++++++++++++++++++++++++++++
+
+In FragPELE 2.0, you can also grow through a BOND-LIKE selection.
+
+.. image:: img/bond_like_explanation.png
+   :scale: 80 %
+   :align: center
+
+In this case, as the selection has been done in a NON-terminal bond, the tree of atoms after the selected bond will be
+deleted and replaced by the fragment.
+
+i.e::
+
+    amino.pdb   C6-C7   N1-H1
+
+**Growing by double or triple bonding**
++++++++++++++++++++++++++++++++++++++++
+
+Imagine that we have the following situation:
+
+.. image:: img/bond_triple_explanation.png
+   :scale: 80 %
+   :align: center
+
+In this case we would like to replace a simple bond by a triple bond, thus, it is required to have a fragment containing
+this triple bond (at least the fragment must have two heavy atoms, otherwise would never have valid double or triple bonds).
+
+The software automatically will detect which bond type is present between the selected atoms of the fragment. So, in the
+input you just need to specify the atom names of this atoms::
+
+    ciano.pdb   C7-H11  N1-C1
+
+Take in mind that the "BOND direction" defined by (first_atom - second_atom) also defines the direction of atom's deletion,
+so, in the fragment's case writing the N1-C1 bond are keeping the N1 and remove everything towards.
 

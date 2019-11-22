@@ -79,9 +79,8 @@ def parse_arguments():
     parser.add_argument("-fc", "--f_chain", default="L", help="Chain name of the fragment. By default = 'L'")
     parser.add_argument("-tc", "--clash_thr", default=1.7, help="Threshold distance that would to classify intramolecular"
                                                                 "clashes.")
-    parser.add_argument("-docon", "--docontrolsim", action="store_true",
-                        help="""When it is set, FrAG runs a negative-control simulation (without growing).""")
-
+    parser.add_argument("-sc",  "--sampling_control", default=None, help="If set, templatized control file to use in the"
+                                                                         " sampling simulation.")
 
     # Plop related arguments
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
@@ -129,6 +128,24 @@ def parse_arguments():
     parser.add_argument("-sd", "--seed", default=c.SEED,
                         help="Seed to get the random numbers that will be used in the PELE simulation"
                              "By default = {}".format(c.SEED))
+    parser.add_argument("-st", "--steering", default=c.STEERING,
+                        help="Steering that will be used in the PELE simulation"
+                             "By default = {}".format(c.STEERING))
+    parser.add_argument("-trh", "--translation_high", default=c.TRANSLATION_HIGH,
+                        help="Translation that will be used in the PELE simulation to displace the ligand. Low value."
+                             "By default = {}".format(c.TRANSLATION_HIGH))
+    parser.add_argument("-roth", "--rotation_high", default=c.ROTATION_HIGH,
+                        help="Rad of rotation that will be used in the PELE simulation to perturb the ligand. "
+                             "Low value. By default = {}".format(c.ROTATION_HIGH))
+    parser.add_argument("-trl", "--translation_low", default=c.TRANSLATION_LOW,
+                        help="Translation that will be used in the PELE simulation to displace the ligand. Low value."
+                             "By default = {}".format(c.TRANSLATION_LOW))
+    parser.add_argument("-rotl", "--rotation_low", default=c.ROTATION_LOW,
+                        help="Rad of rotation that will be used in the PELE simulation to perturb the ligand. "
+                             "Low value. By default = {}".format(c.ROTATION_LOW))
+    parser.add_argument("-rad", "--radius_box", default=c.RADIUS_BOX,
+                        help="Size of the radius to define the box in the PELE simulation where the ligand will be"
+                             "perturbed. By default = {}".format(c.RADIUS_BOX))
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
@@ -163,9 +180,12 @@ def parse_arguments():
                         help="Maximum degrees that can accept the banned dihedral."
                              "By default = {}".format(c.BANNED_ANGLE_THRESHOLD))
 
-    #Protocol argumnet
+    #Protocol argument
     parser.add_argument("-HT", "--highthroughput", action="store_true",
                         help="Run frag pele high-throughput mode")
+
+    parser.add_argument("-EX", "--explorative", action="store_true",
+                        help="Run frag pele explorative mode: sampling simulation with high movement of the ligand.")
 
     parser.add_argument("--test", action="store_true", help="run test config")
 
@@ -176,7 +196,6 @@ def parse_arguments():
     #Others
     parser.add_argument("--rename", action="store_true",
                         help="Avoid core renaming")
-
 
     args = parser.parse_args()
 
@@ -198,91 +217,129 @@ def parse_arguments():
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.serie_file, \
            args.c_chain, args.f_chain, args.docontrolsim, args.steps, args.temperature, args.seed, args.rotamers, \
            args.banned, args.limit, args.mae, args.core, args.rename, args.clash_thr
+           args.c_chain, args.f_chain, args.steps, args.temperature, args.seed, args.rotamers, \
+           args.banned, args.limit, args.mae, args.rename, args.clash_thr, args.steering, \
+           args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
+           args.radius_box, args.sampling_control
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
          pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
          epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
          h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
-         banned=None, limit=None, mae=False, core=None, rename=False, threshold_clash=1.7):
+         banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
+         translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
+         radius_box=4, sampling_control=None):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
     :param complex_pdb: Path to the PDB file which must contain a protein-ligand complex. Its ligand will be
     used as the core structure. Remember to rename the ligand chain with a different character in
     order to detect it.
-        :type complex_pdb: str
+    :type complex_pdb: str
     :param fragment_pdb: Path to the PDB file containing the fragment.
-        :type fragment_pdb: str
+    :type fragment_pdb: str
     :param core_atom: PDB-atom-name of the atom of the core that will be used as starting point to grow the fragment.
-        :type core_atom: str (max length: 4)
+    :type core_atom: str (max length: 4)
     :param fragment_atom: PDB-atom-name of the atom of the fragment that will bond the core.
-        :type fragment_atom: str (max length: 4)
+    :type fragment_atom: str (max length: 4)
     :param iterations: Number of Growing Steps (GS).
-        :type iterations: int
+    :type iterations: int
     :param criteria: Name of the column of the report file to select the structures that will spawn in the
     next GS. Additionally, this parameter will be the selection criteria to extract the best
     structure after completing the growing.
-        :type criteria: str
+    :type criteria: str
     :param plop_path: Absolute path to PlopRotTemp.py.
-        :type plop_path: str
+    :type plop_path: str
     :param sch_python: Absolute path to Schrodinger's python.
-        :type sch_python: str
+    :type sch_python: str
     :param pele_dir: Absolute path to PELE executables.
-        :type pele_dir: str
+    :type pele_dir: str
     :param contrl: Name of the PELE's control file templatized.
-        :type contrl: str
+    :type contrl: str
     :param license: Absolute path to PELE's license file.
-        :type license: str
+    :type license: str
     :param resfold: Name of the results folder.
-        :type resfold: str
+    :type resfold: str
     :param report: Prefix name of PELE's output file.
-        :type report: str
+    :type report: str
     :param traject: Prefix name of the trajectory file generated by PELE.
-        :type traject: str
+    :type traject: str
     :param pdbout: Prefix name of the output PDB extracted from FrAG in each iteration.
-        :type pdbout: str
+    :type pdbout: str
     :param cpus: Number of CPUs that will be used to perform the simulation.
-        :type cpus: int
+    :type cpus: int
     :param distance_contact: This distance will be used to determine which amino acids are in contact with the ligand.
     Then, this information will be useful to generate different clusters of structures to initialize the next iteration.
-        :type distance_contact: float
+    :type distance_contact: float
     :param clusterThreshold: Threshold that will be used in the clustering step.
-        :type clusterThreshold: float (from 0 to 1)
+    :type clusterThreshold: float (from 0 to 1)
     :param epsilon: Epsilon parameter used in the clustering.
-        :type epsilon: float (from 0 to 1)
+    :type epsilon: float (from 0 to 1)
     :param condition: Condition to select best values to cluster: minimum or maximum.
-        :type condition: str
+    :type condition: str
     :param metricweights: Selects how to distribute the weights of the cluster according to its metric,
     two options: linear (proportional to metric) or Boltzmann weigths (proportional to exp(-metric/T).
     Needs to define the temperature T.
-        :type metricweights: str
+    :type metricweights: str
     :param nclusters: Number of cluster that we would like to generate.
-        :type nclusters: int
+    :type nclusters: int
     :param pele_eq_steps: Number of PELE steps that we want to perform in the equilibration.
-        :type pele_eq_steps: int
+    :type pele_eq_steps: int
     :param restart: If set FrAG will find your last iteration completed and will restart from this point.
-        :type restart: bool
+    :type restart: bool
     :param min_overlap: Minimun value of overlapping factor that will be replaced in the control file.
-        :type min_overlap: float (from 0 to 1)
+    :type min_overlap: float (from 0 to 1)
     :param max_overlap: Maximum value of overlapping factor that will be replaced in the control file.
-        :type max_overlap: float (from 0 to 1)
+    :type max_overlap: float (from 0 to 1)
     :param ID: Name to identify the new ligand in certain folder.
-        :type ID: str
+    :type ID: str
     :param h_core: PDB-atom-name of the hydrogen bonded to the selected heavy atom of the core that will be replaced for
      the fragment, being the initial point of the growing.
-        :type h_core: str (max length: 4)
+    :type h_core: str (max length: 4)
     :param h_frag: PDB-atom-name of the hydrogen bonded to the selected heavy atom of the fragment that will removed to
     bond the fragment with the core.
-        :type h_frag: str (max length: 4)
+    :type h_frag: str (max length: 4)
     :param c_chain: Chain name for the ligand in the complex_pdb.
-        :type c_chain: str (max length: 1)
+    :type c_chain: str (max length: 1)
     :param f_chain: Chain name for the ligand in the fragment_pdb.
-        :type f_chain: str (max length: 1)
+    :type f_chain: str (max length: 1)
     :param steps: PELE steps to do in each GS.
-        :type steps: int
+    :type steps: int
     :param temperature: Temperature to add in the control file.
-        :type temperature: int
+    :type temperature: int
+    :param seed: Seed in the PELE's control file.
+    :type seed: int
+    :param rotamers: Degrees of rotation used to select the rotamer's library. Higher value, faster but less accuracy.
+    :type rotamers: str
+    :param banned: If set, list of tuples with the atom names of the angles that will not be modified.
+    :type banned: list
+    :param limit: Limit angle in degrees of the banned angles. Any structure with a higher value will be discarted.
+    :type limit: int
+    :param mae: If set, the output structures will be saved in "mae." format.
+    :type mae: bool
+    :param rename: If set, the pdb atom names of the fragment will be renamed with "G+atom_number".
+    :type rename: bool
+    :param threshold_clash: Distance that will be used to detect contacts between atoms of the fragment and atoms
+    of the core.
+    :type threshold_clash: float
+    :param steering: Steering parameter of the PELE's control file.
+    :type steering: int
+    :param translation_high: Translation (high value) of the PELE's control file. In anstrongs.
+    :type translation_high: float
+    :param translation_low: Translation (low value) of the PELE's control file. In anstrongs.
+    :type translation_low: float
+    :param rotation_high: Rotation (high value) of PELE's control file. In rad.
+    :type rotation_high: float
+    :param rotation_low: Rotation (low value) of PELE's control file. In rad.
+    :type rotation_low: float
+    :param explorative: Set all parameters to perform a more explorative simulation after the growing, in the sampling
+    simulation.
+    :type explorative: bool
+    :param radius_box: Radius box size of PELE's control file. In anstrongs.
+    :type radius_box: float
+    :param sampling_control: templatized control file to be used in the sampling simulation.
+    :type sampling_control: str
     :return:
     """
     #Check harcoded path in constants.py
@@ -305,24 +362,24 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     helpers.create_symlinks(c.PATH_TO_PELE_DOCUMENTS, 'Documents')
 
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
-    fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize = \
-        add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations,  
-                                    h_core=h_core, h_frag=h_frag, core_chain=c_chain, fragment_chain=f_chain,
-                                    rename=rename, threshold_clash=threshold_clash)
+    fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
+    core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom,
+                                                                             fragment_atom, iterations, h_core=h_core,
+                                                                             h_frag=h_frag, core_chain=c_chain,
+                                                                             fragment_chain=f_chain, rename=rename,
+                                                                             threshold_clash=threshold_clash)
 
     # Create the templates for the initial and final structures
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
         cmd = "{} {} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
-                                  add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers)
-        #new_env = os.environ.copy()
-        #new_env["PYTHONPATH"] = "{}:{}".format(os.path.dirname(PackagePath), c.ENV_PYTHON)
+                                   add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers)
+
         try:
             subprocess.call(cmd.split())
         except OSError:
             raise OSError("Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(sch_python))
-        template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(
-                                                                                   add_fragment_from_pdbs.
+        template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(add_fragment_from_pdbs.
                                                                                    c.PRE_WORKING_DIR, pdb_to_template),
                                                                                    False, c_chain, f_chain)
         template_resnames.append(template_resname)
@@ -345,15 +402,12 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, cpus-1)]
 
-    original_atom = hydrogen_atoms[0].get_name()  # Hydrogen of the core that we will use as growing point
     # Generate starting templates
-    replacement_atom = fragment_names_dict[fragment_atom]
     template_fragmenter.main(template_initial_path=os.path.join(path_to_templates_generated, template_initial),
-                                     template_grown_path=os.path.join(path_to_templates_generated, template_final),
-                                     step=1, total_steps=iterations, hydrogen_to_replace=replacement_atom,
-                                     core_atom_linker=core_atom,
-                                     tmpl_out_path=os.path.join(path_to_templates_generated,
-                                                                "{}_0".format(template_final)))
+                             template_grown_path=os.path.join(path_to_templates_generated, template_final),
+                             step=1, total_steps=iterations, hydrogen_to_replace=core_original_atom,
+                             core_atom_linker=core_atom,
+                             tmpl_out_path=os.path.join(path_to_templates_generated, "{}_0".format(template_final)))
 
     # Make a copy in the main folder of Templates in order to use it as template for the simulation
     shutil.copy(os.path.join(path_to_templates_generated, "{}_0".format(template_final)),
@@ -380,9 +434,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         # Banned dihedrals will be checked here
         if banned:
             pdbs_with_banned_dihedrals = Detector.check_folder(folder=os.path.join(pdbout_folder, str(i-1)),
-                                                         threshold=limit,
-                                                         dihedrals=banned,
-                                                         lig_chain=c_chain, processors=cpus)
+                                                               threshold=limit,
+                                                               dihedrals=banned,
+                                                               lig_chain=c_chain,
+                                                               processors=cpus)
             pdb_input_paths = [pdb_file for pdb_file, flag in pdbs_with_banned_dihedrals.items() if flag]
 
         # Control file modification
@@ -390,23 +445,40 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         overlapping_factor = "{0:.2f}".format(overlapping_factor)
 
         if i != 0:
-            simulation_file = simulations_linker.control_file_modifier(contrl, pdb_input_paths, i, license, overlapping_factor,
-                                                             result, steps=steps, chain=c_chain, constraints=const, center=center,
-                                                             temperature=temperature, seed=seed)
+            simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_input_paths, step=i,
+                                                                       license=license,
+                                                                       overlap=overlapping_factor, results_path=result,
+                                                                       steps=steps,
+                                                                       chain=c_chain, constraints=const, center=center,
+                                                                       temperature=temperature, seed=seed,
+                                                                       steering=steering,
+                                                                       translation_high=translation_high,
+                                                                       translation_low=translation_low,
+                                                                       rotation_high=rotation_high,
+                                                                       rotation_low=rotation_low,
+                                                                       radius=radius_box)
         else:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
-            simulation_file = simulations_linker.control_file_modifier(contrl, [pdb_initialize], i, license, overlapping_factor,
-                                                             result, steps=steps, chain=c_chain, constraints=const, center=center,
-                                                             temperature=temperature, seed=seed)
-                                                                     #  pdb_initialize = list
+            simulation_file = simulations_linker.control_file_modifier(contrl, pdb=[pdb_initialize], step=i,
+                                                                       license=license,
+                                                                       overlap=overlapping_factor, results_path=result,
+                                                                       steps=steps,
+                                                                       chain=c_chain, constraints=const, center=center,
+                                                                       temperature=temperature, seed=seed,
+                                                                       steering=steering,
+                                                                       translation_high=translation_high,
+                                                                       translation_low=translation_low,
+                                                                       rotation_high=rotation_high,
+                                                                       rotation_low=rotation_low,
+                                                                       radius=radius_box)
 
         logger.info(c.LINES_MESSAGE)
         if i != 0:
             template_fragmenter.main(template_initial_path=os.path.join(path_to_templates_generated, template_initial),
-                                             template_grown_path=os.path.join(path_to_templates_generated, template_final),
-                                             step=i+1, total_steps=iterations, hydrogen_to_replace=replacement_atom,
-                                             core_atom_linker=core_atom,
-                                             tmpl_out_path=os.path.join(path_to_templates, template_final))
+                                     template_grown_path=os.path.join(path_to_templates_generated, template_final),
+                                     step=i+1, total_steps=iterations, hydrogen_to_replace=core_original_atom,
+                                     core_atom_linker=core_atom,
+                                     tmpl_out_path=os.path.join(path_to_templates, template_final))
 
         # Make a copy of the template file in growing_templates folder
         shutil.copy(os.path.join(path_to_templates, template_final), template)
@@ -426,31 +498,64 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         column_number = clusterizer.get_column_num(result_abs, criteria, report)
         # Selection of the trajectory used as new input
         clusterizer.cluster_traject(str(template_resnames[1]), cpus-1, column_number, distance_contact,
-                                            clusterThreshold, "{}*".format(os.path.join(result_abs, traject)),
-                                            os.path.join(pdbout_folder, str(i)), epsilon, report, condition, metricweights,
-                                            nclusters)
+                                        clusterThreshold, "{}*".format(os.path.join(result_abs, traject)),
+                                        os.path.join(pdbout_folder, str(i)), os.path.join(result_abs),
+                                        epsilon, report, condition, metricweights, nclusters)
     # ----------------------------------------------------EQUILIBRATION-------------------------------------------------
     # Set input PDBs
     pdb_inputs = ["{}".format(os.path.join(pdbout_folder, str(iterations), pdb_file)) for pdb_file in pdb_selected_names]
     if banned:
         pdbs_with_banned_dihedrals = Detector.check_folder(folder=os.path.join(pdbout_folder, str(iterations)),
-                                                     threshold=limit,
-                                                     dihedrals=banned,
-                                                     lig_chain=c_chain, processors=cpus)
+                                                           threshold=limit,
+                                                           dihedrals=banned,
+                                                           lig_chain=c_chain,
+                                                           processors=cpus)
         pdb_inputs = [pdb_file for pdb_file, flag in pdbs_with_banned_dihedrals.items() if flag]
-    if not os.path.exists("equilibration_result_{}".format(ID)):  # Create the folder if it does not exist
-        os.mkdir("equilibration_result_{}".format(ID))
-    # Modify the control file to increase the steps to 20 and change the output path
-    simulation_file = simulations_linker.control_file_modifier(contrl, pdb_inputs, iterations, license, max_overlap,
-                                                     "equilibration_result_{}".format(ID), steps=pele_eq_steps, chain=c_chain,
-                                                     constraints=const, center=center, temperature=temperature,
-                                                     seed=seed)
+    if not os.path.exists("sampling_result_{}".format(ID)):  # Create the folder if it does not exist
+        os.mkdir("sampling_result_{}".format(ID))
+    # Modify the control file to increase the steps TO THE SAMPLING SIMULATION
+    if sampling_control:
+        simulation_file = simulations_linker.control_file_modifier(sampling_control, pdb=pdb_inputs, step=iterations,
+                                                                   license=license, overlap=max_overlap,
+                                                                   results_path="sampling_result_{}".format(ID),
+                                                                   steps=pele_eq_steps, chain=c_chain,
+                                                                   constraints=const, center=center,
+                                                                   temperature=temperature, seed=seed, steering=steering,
+                                                                   translation_high=translation_high,
+                                                                   translation_low=translation_low,
+                                                                   rotation_high=rotation_high, rotation_low=rotation_low,
+                                                                   radius=radius_box)
+    elif explorative and not sampling_control:
+        simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, license=license, step=iterations,
+                                                                   overlap=max_overlap,
+                                                                   results_path="sampling_result_{}".format(ID),
+                                                                   steps=pele_eq_steps,
+                                                                   chain=c_chain, constraints=const, center=center,
+                                                                   temperature=temperature, seed=seed,
+                                                                   steering=2,
+                                                                   translation_high=0.5,
+                                                                   translation_low=0.3,
+                                                                   rotation_high=0.4,
+                                                                   rotation_low=0.15,
+                                                                   radius=25)
+    else:
+        simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, step=iterations,
+                                                                   license=license, overlap=max_overlap,
+                                                                   results_path="sampling_result_{}".format(ID),
+                                                                   steps=pele_eq_steps, chain=c_chain,
+                                                                   constraints=const, center=center,
+                                                                   temperature=temperature, seed=seed, steering=steering,
+                                                                   translation_high=translation_high,
+                                                                   translation_low=translation_low,
+                                                                   rotation_high=rotation_high, rotation_low=rotation_low,
+                                                                   radius=radius_box)
+
     # EQUILIBRATION SIMULATION
     if not (restart and os.path.exists("selected_result_{}".format(ID))):
         shutil.copy(os.path.join(path_to_templates_generated, template_final), path_to_templates)
         logger.info(".....STARTING EQUILIBRATION.....")
         simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
-    equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "equilibration_result_{}".format(ID))
+    equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "sampling_result_{}".format(ID))
     # SELECTION OF BEST STRUCTURES
     selected_results_path = "selected_result_{}".format(ID)
     if not os.path.exists(selected_results_path):  # Create the folder if it does not exist
@@ -462,7 +567,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                                        selected_results_path + ".pdb"))
     # COMPUTE AND SAVE THE SCORE
     analyser.analyse_at_epoch(report_prefix=report, path_to_equilibration=equilibration_path,
-                         column=criteria, quantile_value=0.25)
+                              column=criteria, quantile_value=0.25)
 
     
     #MOVE FROM PDB TO MAE
@@ -489,8 +594,9 @@ if __name__ == '__main__':
     complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
-    c_chain, f_chain, docontrolsim, steps, temperature, seed, rotamers, banned, limit, mae, \
-    core, rename, threshold_clash = parse_arguments()
+    c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
+    rename, threshold_clash, steering, translation_high, rotation_high, \
+    translation_low, rotation_low, explorative, radius_box, sampling_control = parse_arguments()
     list_of_instructions = serie_handler.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
     dict_traceback = correct_fragment_names.main(complex_pdb)
@@ -541,7 +647,8 @@ if __name__ == '__main__':
                          sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
-                         limit, mae, core, rename, threshold_clash)
+                         limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
+                         translation_low, rotation_low, explorative, radius_box, sampling_control)
                     atomname_mappig.append(atomname_map)
 
                 except Exception:
@@ -570,14 +677,9 @@ if __name__ == '__main__':
                 main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                      pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
-                     h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, core, rename,
-                     threshold_clash)
+                     h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
+                     threshold_clash, steering, translation_high, rotation_high,
+                     translation_low, rotation_low, explorative, radius_box, sampling_control)
             except Exception:
                 traceback.print_exc()
-    if docontrolsim:
-        logging.info("INITIALIZING NON-GROWING SIMULATION :)")
-        ID = "{}_cntrl".format(complex_pdb)
-        runner.run_no_grow(complex_pdb, sch_python, resfold, iterations, cpus, ID, pele_dir,
-                                   pdbout, restart, min_overlap, max_overlap, contrl, criteria, report,
-                                   epsilon, threshold, distcont, condition, traject,
-                                   metricweights, nclusters, pele_eq_steps, license)
+

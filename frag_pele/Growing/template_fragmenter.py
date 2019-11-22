@@ -85,7 +85,7 @@ class Atom:
         self.is_linker = bool(is_linker)
 
     def write_resx(self):
-        return PATTERN_OPLS2005_RESX_LINE.format(self.atom_id, self.parent_id, self.location, self.atom_type,
+        return PATTERN_OPLS2005_RESX_LINE.format(self.atom_id, self.parent_id, self.location, self.atom_type.strip(),
                                                  self.pdb_atom_name, self.unknown, self.x_zmatrix,
                                                  self.y_zmatrix, self.z_zmatrix)
 
@@ -177,7 +177,7 @@ class TemplateOPLS2005:
                 atom_id = get_string_from_line(line=line, index_initial=0, index_final=6)
                 parent_id = get_string_from_line(line=line, index_initial=6, index_final=11)
                 location = get_string_from_line(line=line, index_initial=12, index_final=13)
-                atom_type = get_string_from_line(line=line, index_initial=16, index_final=20)
+                atom_type = get_string_from_line(line=line, index_initial=15, index_final=20)
                 pdb_atom_name = get_string_from_line(line=line, index_initial=21, index_final=25)
                 unknown = get_string_from_line(line=line, index_initial=26, index_final=31)
                 x_zmatrix = get_string_from_line(line=line, index_initial=32, index_final=43)
@@ -499,12 +499,14 @@ def find_equal_pdb_atom_names(template1, template2):
     return list(set(pdb_atom_names_tmpl_1).intersection(pdb_atom_names_tmpl_2))
 
 
-def detect_fragment_atoms(template_initial, template_grown):
+def detect_fragment_atoms(template_initial, template_grown, hydrogen_to_replace):
     fragment_atoms = []
     core_atoms = find_equal_pdb_atom_names(template_initial, template_grown)
     for key, atom in template_grown.list_of_atoms.items():
         pdb_atom_name = atom.pdb_atom_name
         if pdb_atom_name not in core_atoms:
+            fragment_atoms.append(atom)
+        elif hydrogen_to_replace in pdb_atom_name:
             fragment_atoms.append(atom)
     return fragment_atoms
 
@@ -565,7 +567,8 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     lambda_to_reduce = float(step/(total_steps+1))
     templ_ini = TemplateOPLS2005(template_initial_path)
     templ_grw = TemplateOPLS2005(template_grown_path)
-    fragment_atoms = detect_fragment_atoms(template_initial=templ_ini, template_grown=templ_grw)
+    fragment_atoms = detect_fragment_atoms(template_initial=templ_ini, template_grown=templ_grw,
+                                           hydrogen_to_replace=hydrogen_to_replace)
     set_fragment_atoms(list_of_fragment_atoms=fragment_atoms)
     set_connecting_atom(template_grown=templ_grw, pdb_atom_name=hydrogen_to_replace)
     set_connecting_atom(template_grown=templ_grw, pdb_atom_name=core_atom_linker)

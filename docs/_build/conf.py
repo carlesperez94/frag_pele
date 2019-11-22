@@ -15,20 +15,20 @@
 # import os
 import sys
 import sphinx_rtd_theme
-sys.path.insert(0,"../FrAG/")
+sys.path.insert(0,"../frag_pele/")
 # sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'FrAG-PELE'
+project = 'FragPELE'
 copyright = '2019, Carles Perez Lopez and Dani Soler'
 author = 'Carles Perez Lopez and Dani Soler'
 
 # The short X.Y version
-version = ''
+version = '2.0'
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = '2.0.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -108,7 +108,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'FrAG-PELEdoc'
+htmlhelp_basename = 'FragPELEdoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
