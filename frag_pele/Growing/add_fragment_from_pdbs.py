@@ -347,11 +347,7 @@ def compute_unit_vector_between_atoms(coords_atom_1, coords_atom_2):
     return unit_vector
 
 
-<<<<<<< HEAD
-def modify_fragment_core_distance(coords_core, coords_fragment, coords_to_move, new_distance):
-=======
 def modify_distance_between_structures(coords_core, coords_fragment, coords_to_move, new_distance):
->>>>>>> V2.0
     unit_vector = compute_unit_vector_between_atoms(coords_core, coords_fragment)
     new_point = coords_core + (unit_vector*new_distance)
     vector_to_add = compute_vector_between_atoms(coords_fragment, new_point)
@@ -724,6 +720,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
     # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
     check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/18, core_bond,
+                                    pdb_complex_core, pdb_fragment, core_chain, fragment_chain,
                                     bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment,
                                     threshold_clash=threshold_clash)
     # If we do not find a solution in the previous step, we will repeat the rotations applying only increments of 1º

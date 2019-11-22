@@ -215,8 +215,6 @@ def parse_arguments():
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.serie_file, \
-           args.c_chain, args.f_chain, args.docontrolsim, args.steps, args.temperature, args.seed, args.rotamers, \
-           args.banned, args.limit, args.mae, args.core, args.rename, args.clash_thr
            args.c_chain, args.f_chain, args.steps, args.temperature, args.seed, args.rotamers, \
            args.banned, args.limit, args.mae, args.rename, args.clash_thr, args.steering, \
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \

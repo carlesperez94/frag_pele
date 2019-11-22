@@ -33,7 +33,8 @@ def test_criteria():
     subprocess.call("bash test_criteria.sh".split())
     assert os.path.exists("selected_result_aminoC1N1/epochsampling_result_aminoC1N1_trajectory_1.10_currentEnergy-13507.9.pdb") \
     or os.path.exists("selected_result_aminoC1N1/epochsampling_result_aminoC1N1_trajectory_1.10_currentEnergy-13516.9.pdb") \
-    or os.path.exists("selected_result_aminoC1N1/epochsampling_result_aminoC1N1_trajectory_1.1_currentEnergy-13500.1.pdb")
+    or os.path.exists("selected_result_aminoC1N1/epochsampling_result_aminoC1N1_trajectory_1.1_currentEnergy-13500.1.pdb") \
+    or os.path.exists("selected_result_aminoC1N1/epochsampling_result_aminoC1N1_trajectory_1.10_currentEnergy-13503.7.pdb")
 
 def test_chainame():
     subprocess.call("bash test_chain_core_frag.sh".split())
