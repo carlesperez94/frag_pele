@@ -89,7 +89,7 @@ Default: 10 growing steps of 6 pele steps, and a final equilibration simulation 
 
 ::
 
-    python3.X grow_for_pele.py -cp path_to_complex_pdb -sef serie_file
+    python3.X main.py -cp path_to_complex_pdb -sef serie_file
 
 
 **Growing a fragment specifying direction**

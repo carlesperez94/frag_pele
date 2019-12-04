@@ -37,11 +37,17 @@ def parse_arguments():
     parser.add_argument("-csv", "--export_csv", default=True,
                         help="By default a csv file with a summary of all reports will be stored. If you do not"
                         "want to save it, set the flag to False.")
+    parser.add_argument("-l", "--limit_column", default=None, type=str,
+                        help="Column used to subset the results.")
+    parser.add_argument("-lu", "--limit_up", default=None, type=float,
+                        help="Top value to create the new subset of samples.")
+    parser.add_argument("-ld", "--limit_down", default=None, type=float,
+                        help="Lowest value to create the new subset of samples.")
 
     args = parser.parse_args()
 
-    return  args.path_to_analyze, args.rep_pref, args.steps, args.file, args.out, args.equil_folder, args.col, args.quart, \
-           args.export_csv
+    return args.path_to_analyze, args.rep_pref, args.steps, args.file, args.out, args.equil_folder, args.col, \
+           args.quart, args.export_csv, args.limit_column, args.limit_up, args.limit_down
 
 
 def pele_report2pandas(path, export=True):
@@ -52,6 +58,7 @@ def pele_report2pandas(path, export=True):
     report_list = glob.glob('{}*'.format(path))
     for report in report_list:
         tmp_data = pd.read_csv(report, sep='    ', engine='python')
+        tmp_data = tmp_data.iloc[1:]  # We must discard the first row
         processor = re.findall('\d+$'.format(path), report)
         tmp_data['Processor'] = processor[0]
         data.append(tmp_data)
@@ -93,7 +100,14 @@ def get_min_value(dataframe, column):
         return minimum[column].min()
 
 
-def compute_mean_quantile(dataframe, column, quantile_value):
+def compute_mean_quantile(dataframe, column, quantile_value, limit_col=None, limit_up=None, limit_down=None):
+    if limit_col:
+        if not limit_up:
+            raise ValueError("You must fill the argument '--limit_up'!")
+        if not limit_down:
+            raise ValueError("You must fill the argument '--limit_down'!")
+        dataframe = dataframe[dataframe[limit_col] > float(limit_down)]
+        dataframe = dataframe[dataframe[limit_col] < float(limit_up)]
     dataframe = dataframe[dataframe[column] < dataframe[column].quantile(quantile_value)]
     dataframe = dataframe[column]
     mean_subset = dataframe.mean()
@@ -112,11 +126,12 @@ def compute_sterr(dataframe, column, quantile_value):
 
 
 def get_score_for_folder(report_prefix, path_to_equilibration, steps=False,
-                         column="Binding Energy", quantile_value=0.25, export=True):
+                         column="Binding Energy", quantile_value=0.25, export=True,
+                         limit_col=None, limit_up=None, limit_down=None):
     df = pele_report2pandas(os.path.join(path_to_equilibration, report_prefix), export)
     if steps:
         df = select_subset_by_steps(df, steps)
-    mean_quartile = compute_mean_quantile(df, column, quantile_value)
+    mean_quartile = compute_mean_quantile(df, column, quantile_value, limit_col, limit_up, limit_down)
     results = [path_to_equilibration, mean_quartile]
     print("SCORING results: {}	{}".format(results[0], results[1]))
     return results
@@ -139,12 +154,13 @@ def analyse_at_epoch(report_prefix, path_to_equilibration, steps=False, column="
 
 
 def main(report_prefix, path_to_equilibration, equil_pattern="equilibration*", steps=False, out_report=False,
-         column="Binding Energy", quantile_value=0.25, export=True):
+         column="Binding Energy", quantile_value=0.25, export=True, limit_col=None, limit_up=None, limit_down=None):
     folder_list = glob.glob(os.path.join(path_to_equilibration, equil_pattern))
     for folder in list(folder_list):
         try:
             result = get_score_for_folder(report_prefix=report_prefix, path_to_equilibration=folder, steps=steps,
-                                          column=column, quantile_value=quantile_value, export=export)
+                                          column=column, quantile_value=quantile_value, export=export,
+                                          limit_col=limit_col, limit_up=limit_up, limit_down=limit_down)
             line_of_report = "{}\t{:.2f}\n".format(result[0], float(result[1]))
             print(line_of_report)
             if out_report:
@@ -159,9 +175,10 @@ def main(report_prefix, path_to_equilibration, equil_pattern="equilibration*", s
 
 
 if __name__ == '__main__':
-    path, rep_pref, steps, file, out, equil_folder, col, quart, export = parse_arguments()
+    path, rep_pref, steps, file, out, equil_folder, col, quart, export, limit_col, limit_up, limit_down= \
+        parse_arguments()
     main(report_prefix=rep_pref, path_to_equilibration=path, equil_pattern=equil_folder, steps=steps, out_report=out,
-         column=col, quantile_value=quart, export=export)
+         column=col, quantile_value=quart, export=export, limit_col=limit_col, limit_up=limit_up, limit_down=limit_down)
 
 
 

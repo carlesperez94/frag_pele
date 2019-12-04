@@ -20,20 +20,11 @@
   <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'2.0.0',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -43,7 +34,9 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Documentation" href="documentation.html" />
+    <link rel="prev" title="Protocols" href="protocols.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -97,6 +90,26 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="protocols.html">Protocols</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Analysis Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#backtracking-trajectories">Backtracking trajectories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#positional-arguments">Positional arguments:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-arguments">Optional arguments:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#backtracking-connectivity">Backtracking connectivity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Positional arguments:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Optional arguments:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#analyser">Analyser</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Positional arguments:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Optional arguments:</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
@@ -184,15 +197,15 @@ final structure to the initial one.</p>
 <div class="section" id="positional-arguments">
 <h3>Positional arguments:<a class="headerlink" href="#positional-arguments" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>file_to_backtrack: File of the selected_results folder that one’s wants to backtrack.</li>
+<li><p>file_to_backtrack: File of the selected_results folder that one’s wants to backtrack.</p></li>
 </ul>
 </div>
 <div class="section" id="optional-arguments">
 <h3>Optional arguments:<a class="headerlink" href="#optional-arguments" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><strong>-p</strong>: Path to the folder that contains the growing results (all growing simulations). By default: “growing_results”.</li>
-<li><strong>-o</strong>: Output path where the traceback trajectory will be written. By default it writes the file in the current directory.</li>
-<li><strong>—name*</strong>: Name of the output pdb file. By default “pathway.pdb”.</li>
+<li><p><strong>-p</strong>: Path to the folder that contains the growing results (all growing simulations). By default: “growing_results”.</p></li>
+<li><p><strong>-o</strong>: Output path where the traceback trajectory will be written. By default it writes the file in the current directory.</p></li>
+<li><p><strong>—name*</strong>: Name of the output pdb file. By default “pathway.pdb”.</p></li>
 </ul>
 <p>i.e:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">Analysis</span><span class="o">/</span><span class="n">backtrackFragFrajectory</span><span class="o">.</span><span class="n">py</span> <span class="n">selected_result_aminoC1N1</span><span class="o">/</span><span class="n">epochsampling_result_aminoC1N1_trajectory_1</span><span class="o">.</span><span class="mi">1</span><span class="n">_BindingEnergy</span><span class="o">-</span><span class="mf">47.6974</span><span class="o">.</span><span class="n">pdb</span>
@@ -214,15 +227,15 @@ the connectivity in the rest of the trajectory</p>
 <div class="section" id="id1">
 <h3>Positional arguments:<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>pathway: Trajectory file with the backtracked pathway. It expects the output of backtrackFragTrajectory.py</li>
-<li>pdb_with_connects: PDB of the final structure prepared. Must contain CONNECTS section. Remember to not delete water molecules!</li>
+<li><p>pathway: Trajectory file with the backtracked pathway. It expects the output of backtrackFragTrajectory.py</p></li>
+<li><p>pdb_with_connects: PDB of the final structure prepared. Must contain CONNECTS section. Remember to not delete water molecules!</p></li>
 </ul>
 </div>
 <div class="section" id="id2">
 <h3>Optional arguments:<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><strong>-o</strong>: Output file of the new trajectory. By default it has the input pathway name with “_connected.pdb” added.</li>
-<li><strong>—ligand_chain*</strong>: Name of the ligand chain. By default “L”.</li>
+<li><p><strong>-o</strong>: Output file of the new trajectory. By default it has the input pathway name with “_connected.pdb” added.</p></li>
+<li><p><strong>—ligand_chain*</strong>: Name of the ligand chain. By default “L”.</p></li>
 </ul>
 <p>i.e:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">AnalysisbacktrackConnectivity</span><span class="o">.</span><span class="n">py</span> <span class="n">pathway</span><span class="o">.</span><span class="n">pdb</span> <span class="n">epochsampling_result_aminoC1N1_trajectory_1</span><span class="o">.</span><span class="mi">1</span><span class="n">_BindingEnergy</span><span class="o">-</span><span class="mf">47.6974</span><span class="n">_with_connects</span><span class="o">.</span><span class="n">pdb</span>
@@ -240,20 +253,20 @@ the connectivity in the rest of the trajectory</p>
 <div class="section" id="id3">
 <h3>Positional arguments:<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>path_to_analyze: Path of the folder to be analyzed, where all simulations are stored. Is the directory where you have run FragPELE.</li>
+<li><p>path_to_analyze: Path of the folder to be analyzed, where all simulations are stored. Is the directory where you have run FragPELE.</p></li>
 </ul>
 </div>
 <div class="section" id="id4">
 <h3>Optional arguments:<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><strong>-r</strong>, <strong>—rep_pref</strong>: Prefix to the report files. By default “report*”.</li>
-<li><strong>-s</strong>, <strong>—steps</strong>: Used to compute the score only with the first N steps of the sampling simulation.</li>
-<li><strong>-f</strong>, <strong>—file</strong>: Flag to export to files. By default “False”.</li>
-<li><strong>-o</strong>, <strong>—out</strong> : Name of the output file. By default “None”.</li>
-<li><strong>-e</strong>, <strong>—equil_folder</strong>: Prefix of the sampling folder (where the results are stored). By default: “sampling_results*”.</li>
-<li><strong>-c</strong>, <strong>—col</strong>: Name of the column that we will use to find the minimum value of the PELE report. By default “Binding Energy”.</li>
-<li><strong>-q</strong>, <strong>—quart</strong>: Quartile that will be used to subset the whole sample to compute the mean then. By default 0.25.</li>
-<li><strong>-csv</strong>, <strong>—export_csv</strong>: Flag to export all results to a csv file. Set this flag to “False” if you do not want to store them. By default “True”.</li>
+<li><p><strong>-r</strong>, <strong>—rep_pref</strong>: Prefix to the report files. By default “report*”.</p></li>
+<li><p><strong>-s</strong>, <strong>—steps</strong>: Used to compute the score only with the first N steps of the sampling simulation.</p></li>
+<li><p><strong>-f</strong>, <strong>—file</strong>: Flag to export to files. By default “False”.</p></li>
+<li><p><strong>-o</strong>, <strong>—out</strong> : Name of the output file. By default “None”.</p></li>
+<li><p><strong>-e</strong>, <strong>—equil_folder</strong>: Prefix of the sampling folder (where the results are stored). By default: “sampling_results*”.</p></li>
+<li><p><strong>-c</strong>, <strong>—col</strong>: Name of the column that we will use to find the minimum value of the PELE report. By default “Binding Energy”.</p></li>
+<li><p><strong>-q</strong>, <strong>—quart</strong>: Quartile that will be used to subset the whole sample to compute the mean then. By default 0.25.</p></li>
+<li><p><strong>-csv</strong>, <strong>—export_csv</strong>: Flag to export all results to a csv file. Set this flag to “False” if you do not want to store them. By default “True”.</p></li>
 </ul>
 </div>
 </div>
@@ -264,6 +277,15 @@ the connectivity in the rest of the trajectory</p>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="documentation.html" class="btn btn-neutral float-right" title="Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="protocols.html" class="btn btn-neutral float-left" title="Protocols" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

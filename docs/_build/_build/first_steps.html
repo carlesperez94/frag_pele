@@ -20,20 +20,11 @@
   <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'2.0.0',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -115,6 +106,9 @@
 <li class="toctree-l1"><a class="reference internal" href="protocols.html">Protocols</a></li>
 </ul>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="analysis_tools.html">Analysis Tools</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
 </ul>
 
@@ -190,26 +184,26 @@
 <div class="section" id="previous-requisites">
 <h3><strong>Previous Requisites</strong><a class="headerlink" href="#previous-requisites" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><strong>Complex PDB</strong>: PDB processed, with the protein and the ligand prepared to run with PELE.
-Remember to rename the ligand chain to “L”.</li>
-<li><strong>Fragment PDB</strong>: PDB with the desired fragment. Remember to rename the chain to “L”.</li>
-<li><strong>Serie file</strong>: The instructions that explain how the growing has to be done are stored in this file. It must have the
-format described bellow.</li>
+<li><p><strong>Complex PDB</strong>: PDB processed, with the protein and the ligand prepared to run with PELE.
+Remember to rename the ligand chain to “L”.</p></li>
+<li><p><strong>Fragment PDB</strong>: PDB with the desired fragment. Remember to rename the chain to “L”.</p></li>
+<li><p><strong>Serie file</strong>: The instructions that explain how the growing has to be done are stored in this file. It must have the
+format described bellow.</p></li>
 </ul>
 </div>
 <div class="section" id="growing-of-a-fragment-to-a-core">
 <h3><strong>Growing of a fragment to a core</strong><a class="headerlink" href="#growing-of-a-fragment-to-a-core" title="Permalink to this headline">¶</a></h3>
 <p>Grow 1 fragment to 1 cores</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="26%" />
-<col width="33%" />
-<col width="40%" />
+<col style="width: 26%" />
+<col style="width: 33%" />
+<col style="width: 40%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>fragment PDB 1</td>
-<td>heavy atom core 1</td>
-<td>heavy atom fragment 1</td>
+<tbody>
+<tr class="row-odd"><td><p>fragment PDB 1</p></td>
+<td><p>heavy atom core 1</p></td>
+<td><p>heavy atom fragment 1</p></td>
 </tr>
 </tbody>
 </table>
@@ -222,22 +216,22 @@ format described bellow.</li>
 <h3><strong>Growing of two fragment to the same core</strong><a class="headerlink" href="#growing-of-two-fragment-to-the-same-core" title="Permalink to this headline">¶</a></h3>
 <p>Add 1 fragment to an initial core. Then, add another fragment to the
 same core on the output of the 1st growing. Example: Grow two radicals onto a phenyl</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="12%" />
-<col width="19%" />
-<col width="19%" />
-<col width="12%" />
-<col width="19%" />
-<col width="19%" />
+<col style="width: 12%" />
+<col style="width: 19%" />
+<col style="width: 19%" />
+<col style="width: 12%" />
+<col style="width: 19%" />
+<col style="width: 19%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>fragment PDB 1</td>
-<td>heavy atom core 1 (C1)</td>
-<td>heavy atom fragment 1</td>
-<td>fragment PDB 2</td>
-<td>heavy atom core 1 (C2)</td>
-<td>heavy atom fragment 2</td>
+<tbody>
+<tr class="row-odd"><td><p>fragment PDB 1</p></td>
+<td><p>heavy atom core 1 (C1)</p></td>
+<td><p>heavy atom fragment 1</p></td>
+<td><p>fragment PDB 2</p></td>
+<td><p>heavy atom core 1 (C2)</p></td>
+<td><p>heavy atom fragment 2</p></td>
 </tr>
 </tbody>
 </table>
@@ -251,22 +245,22 @@ same core on the output of the 1st growing. Example: Grow two radicals onto a ph
 <p>Add 1 fragment to an initial core. Then, add another fragment to the
 previously grown fragment. Example: Grow one radical onto a phenyl and
 then another fragment into the previously grown radical.</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="8%" />
-<col width="14%" />
-<col width="17%" />
-<col width="11%" />
-<col width="33%" />
-<col width="17%" />
+<col style="width: 8%" />
+<col style="width: 14%" />
+<col style="width: 17%" />
+<col style="width: 11%" />
+<col style="width: 33%" />
+<col style="width: 17%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>fragment 1</td>
-<td>heavy atom core 1</td>
-<td>heavy atom fragment 1</td>
-<td>fragment PDB 2</td>
-<td>fragment atom core 1 (C2)*fragment_number*</td>
-<td>heavy atom fragment 2</td>
+<tbody>
+<tr class="row-odd"><td><p>fragment 1</p></td>
+<td><p>heavy atom core 1</p></td>
+<td><p>heavy atom fragment 1</p></td>
+<td><p>fragment PDB 2</p></td>
+<td><p>fragment atom core 1 (C2)*fragment_number*</p></td>
+<td><p>heavy atom fragment 2</p></td>
 </tr>
 </tbody>
 </table>
@@ -279,29 +273,29 @@ then another fragment into the previously grown radical.</p>
 <h3><strong>All together</strong><a class="headerlink" href="#all-together" title="Permalink to this headline">¶</a></h3>
 <p>Add 2 fragments onto different position of the same core. Then, perform another growing
 with a 3rd fragment onto a different core and a 4th into the previosuly grown fragment.</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="12%" />
-<col width="19%" />
-<col width="19%" />
-<col width="12%" />
-<col width="19%" />
-<col width="19%" />
+<col style="width: 12%" />
+<col style="width: 19%" />
+<col style="width: 19%" />
+<col style="width: 12%" />
+<col style="width: 19%" />
+<col style="width: 19%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>fragment PDB 1</td>
-<td>heavy atom core 1 (C1)</td>
-<td>heavy atom fragment 1</td>
-<td>fragment PDB 2</td>
-<td>heavy atom core 1 (C2)</td>
-<td>heavy atom fragment 2</td>
+<tbody>
+<tr class="row-odd"><td><p>fragment PDB 1</p></td>
+<td><p>heavy atom core 1 (C1)</p></td>
+<td><p>heavy atom fragment 1</p></td>
+<td><p>fragment PDB 2</p></td>
+<td><p>heavy atom core 1 (C2)</p></td>
+<td><p>heavy atom fragment 2</p></td>
 </tr>
-<tr class="row-even"><td>fragment PDB 3</td>
-<td>heavy atom core 2</td>
-<td>heavy atom fragment 3</td>
-<td>fragment PDB 4</td>
-<td>heavy atom fragment 3</td>
-<td>heavy atom fragmnet 4</td>
+<tr class="row-even"><td><p>fragment PDB 3</p></td>
+<td><p>heavy atom core 2</p></td>
+<td><p>heavy atom fragment 3</p></td>
+<td><p>fragment PDB 4</p></td>
+<td><p>heavy atom fragment 3</p></td>
+<td><p>heavy atom fragmnet 4</p></td>
 </tr>
 </tbody>
 </table>
@@ -314,7 +308,7 @@ with a 3rd fragment onto a different core and a 4th into the previosuly grown fr
 <div class="section" id="launch-simple-frag-pele-simulation">
 <h3><strong>Launch simple FrAG-PELE simulation</strong><a class="headerlink" href="#launch-simple-frag-pele-simulation" title="Permalink to this headline">¶</a></h3>
 <p>Default: 10 growing steps of 6 pele steps, and a final equilibration simulation of 20 pele steps</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span><span class="o">.</span><span class="n">X</span> <span class="n">grow_for_pele</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">cp</span> <span class="n">path_to_complex_pdb</span> <span class="o">-</span><span class="n">sef</span> <span class="n">serie_file</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span><span class="o">.</span><span class="n">X</span> <span class="n">main</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">cp</span> <span class="n">path_to_complex_pdb</span> <span class="o">-</span><span class="n">sef</span> <span class="n">serie_file</span>
 </pre></div>
 </div>
 </div>
@@ -323,16 +317,16 @@ with a 3rd fragment onto a different core and a 4th into the previosuly grown fr
 <p>FragPELE selects by default an H atom with less clashes with the protein. It will take this atom as direction to grow,
 replacing this hydrogen by the whole fragment. Additionally, the atom of the fragment that will be replaced is also
 selected randomly. Sometimes you would like to specify which atom to replace. Then, the format to do that is the following:</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="17%" />
-<col width="38%" />
-<col width="46%" />
+<col style="width: 17%" />
+<col style="width: 38%" />
+<col style="width: 46%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>fragment PDB 1</td>
-<td>heavy atom core 1 - H atom core</td>
-<td>heavy atom fragment 1 - H atom fragment</td>
+<tbody>
+<tr class="row-odd"><td><p>fragment PDB 1</p></td>
+<td><p>heavy atom core 1 - H atom core</p></td>
+<td><p>heavy atom fragment 1 - H atom fragment</p></td>
 </tr>
 </tbody>
 </table>
