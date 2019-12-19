@@ -443,7 +443,13 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         overlapping_factor = "{0:.2f}".format(overlapping_factor)
 
         if i != 0:
-            simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_input_paths, step=i,
+            # Check atom overlapping
+            pdbs_with_overlapping = clusterizer.check_atom_overlapping(pdb_input_paths)
+            pdb_input_paths_checked = []
+            for pdb in pdb_input_paths:
+                if pdb not in pdbs_with_overlapping:
+                    pdb_input_paths_checked.append(pdb)
+            simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_input_paths_checked, step=i,
                                                                        license=license,
                                                                        overlap=overlapping_factor, results_path=result,
                                                                        steps=steps,

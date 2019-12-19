@@ -1,4 +1,5 @@
 import sys
+import mdtraj as md
 from AdaptivePELE.clustering import clustering, thresholdcalculator
 from AdaptivePELE.spawning import spawning, densitycalculator
 from AdaptivePELE.constants import constants
@@ -56,3 +57,13 @@ def get_column_num(path, header_column, report_basename="report"):
     column_number = header_list.index(header_column)
     return column_number
 
+
+def check_atom_overlapping(pdb_list, ligand_resname="GRW"):
+    pdb_wrong = []
+    for pdb in pdb_list:
+        structure = md.load(pdb)
+        ligand = structure.topology.select("resname {}".format(ligand_resname))
+        clash = md.compute_neighbors(structure, cutoff=0.002, query_indices=ligand)
+        if len(clash[0]) != 0:
+            pdb_wrong.append(pdb)
+    return pdb_wrong
