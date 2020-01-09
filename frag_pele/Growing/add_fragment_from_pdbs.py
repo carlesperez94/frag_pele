@@ -179,10 +179,9 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
     name_to_replace_fragment = fragment_bond[0].name
 
     if RDKIT:
-
         atoms_to_delete_core = tree_detector.main(pdb_complex, (core_bond[0].name, name_to_replace_core),
                                                   chain_ligand=chain_complex)
-
+        
         atoms_to_delete_fragment = tree_detector.main(pdb_fragment, (fragment_bond[1].name, name_to_replace_fragment),
                                                       # The order must be inverted because we want to keep the atoms in the
                                                       #  oposite direction
@@ -445,9 +444,10 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
         else:
             rotated_structure = rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, core_structure,
                                                       fragment_structure, pdb_complex, pdb_fragment, chain_complex, chain_fragment)
-            recall = check_collision(rotated_structure[0], bond, theta, theta_interval, core_bond, list_of_atoms,
-                                     fragment_bond, core_structure, fragment_structure, pdb_complex, pdb_fragment,
-                                     chain_complex, chain_fragment, threshold_clash=threshold_clash)
+            recall = check_collision(merged_structure=rotated_structure[0], bond=bond, theta=theta, theta_interval=theta_interval, 
+                                     core_bond=core_bond, list_of_atoms=list_of_atoms, fragment_bond=fragment_bond, core_structure=core_structure,
+                                     fragment_structure=fragment_structure, pdb_complex=pdb_complex, pdb_fragment=pdb_fragment, 
+                                     chain_complex=pdb_fragment, chain_fragment=chain_fragment,threshold_clash=threshold_clash)
             return recall
     else:
         return merged_structure
@@ -719,16 +719,18 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                                                                    core_chain, fragment_chain)
     # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
     # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
-    check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/18, core_bond,
-                                    pdb_complex_core, pdb_fragment, core_chain, fragment_chain,
-                                    bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment,
-                                    threshold_clash=threshold_clash)
+    check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0, 
+                                    theta_interval=math.pi/18, core_bond=core_bond, list_of_atoms=bioatoms_core_and_frag[1], 
+                                    fragment_bond=fragment_bond, core_structure=ligand_core, fragment_structure=fragment, 
+                                    pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain, 
+                                    chain_fragment=fragment_chain, threshold_clash=threshold_clash)
     # If we do not find a solution in the previous step, we will repeat the rotations applying only increments of 1º
     if not check_results:
-        check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/180, core_bond,
-                                        bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment,
-                                        pdb_complex_core, pdb_fragment, core_chain, fragment_chain,
-                                        threshold_clash=threshold_clash)
+        check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0,
+                                        theta_interval=math.pi/180, core_bond=core_bond, list_of_atoms=bioatoms_core_and_frag[1], 
+                                        fragment_bond=fragment_bond, core_structure=ligand_core, fragment_structure=fragment,
+                                        pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain, 
+                                        chain_fragment=fragment_chain, threshold_clash=threshold_clash)
     # Now, we want to extract this structure in a PDB to create the template file after the growing. We will do a copy
     # of the structure because then we will need to resize the fragment part, so be need to keep it as two different
     # residues.
