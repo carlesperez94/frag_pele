@@ -146,6 +146,10 @@ def parse_arguments():
     parser.add_argument("-rad", "--radius_box", default=c.RADIUS_BOX,
                         help="Size of the radius to define the box in the PELE simulation where the ligand will be"
                              "perturbed. By default = {}".format(c.RADIUS_BOX))
+    parser.add_argument("-dat", "--data", default=c.PATH_TO_PELE_DATA,
+                        help="Path to PELE Data folder.")
+    parser.add_argument("-doc", "--documents", default=c.PATH_TO_PELE_DOCUMENTS,
+                        help="Path to PELE Documents folder.")
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
@@ -218,7 +222,7 @@ def parse_arguments():
            args.c_chain, args.f_chain, args.steps, args.temperature, args.seed, args.rotamers, \
            args.banned, args.limit, args.mae, args.rename, args.clash_thr, args.steering, \
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
-           args.radius_box, args.sampling_control
+           args.radius_box, args.sampling_control, args.data, args.documents
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -227,7 +231,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
          h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
          banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
          translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
-         radius_box=4, sampling_control=None):
+         radius_box=4, sampling_control=None, data=None, documents=None):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -356,8 +360,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     # Creating constraints
     const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10))
     # Creating symbolic links
-    helpers.create_symlinks(c.PATH_TO_PELE_DATA, 'Data')
-    helpers.create_symlinks(c.PATH_TO_PELE_DOCUMENTS, 'Documents')
+    helpers.create_symlinks(data, 'Data')
+    helpers.create_symlinks(documents, 'Documents')
 
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
@@ -600,7 +604,7 @@ if __name__ == '__main__':
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
     c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
     rename, threshold_clash, steering, translation_high, rotation_high, \
-    translation_low, rotation_low, explorative, radius_box, sampling_control = parse_arguments()
+    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents = parse_arguments()
     list_of_instructions = serie_handler.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
     dict_traceback = correct_fragment_names.main(complex_pdb)
@@ -652,7 +656,7 @@ if __name__ == '__main__':
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
                          limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
-                         translation_low, rotation_low, explorative, radius_box, sampling_control)
+                         translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents)
                     atomname_mappig.append(atomname_map)
 
                 except Exception:
@@ -683,7 +687,7 @@ if __name__ == '__main__':
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
                      threshold_clash, steering, translation_high, rotation_high,
-                     translation_low, rotation_low, explorative, radius_box, sampling_control)
+                     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents)
             except Exception:
                 traceback.print_exc()
 
