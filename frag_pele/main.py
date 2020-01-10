@@ -352,16 +352,27 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     simulation_info = []
     # Path definition
     plop_relative_path = os.path.join(PackagePath, plop_path)
-    pdbout_folder = "{}_{}".format(pdbout, ID)
-    path_to_templates_generated = "DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated"
-    path_to_templates = "DataLocal/Templates/OPLS2005/HeteroAtoms"
+    current_path = os.path.abspath(".")
+
+    pdb_basename = complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
+    if "/" in pdb_basename:
+        pdb_basename = pdb_basename.split("/")[-1]  # And if it is a path, get only the name
+
+    working_dir = os.path.join(current_path, "{}_{}".format(pdb_basename, ID))
+    if not os.path.exists(working_dir):
+        os.mkdir(working_dir)   # Creating a working directory for each PDB-fragment combination
+    pdbout_folder = os.path.join(working_dir, pdbout)
+    path_to_templates_generated = os.path.join(working_dir,
+                                               "DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated")
+    path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/HeteroAtoms")
+    path_to_lib = os.path.join(working_dir, "DataLocal/LigandRotamerLibs")
     # Creation of output folder
-    folder_handler.check_and_create_DataLocal()
+    folder_handler.check_and_create_DataLocal(working_dir=working_dir)
     # Creating constraints
     const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10))
     # Creating symbolic links
-    helpers.create_symlinks(data, 'Data')
-    helpers.create_symlinks(documents, 'Documents')
+    helpers.create_symlinks(data, os.path.join(working_dir, 'Data'))
+    helpers.create_symlinks(documents, os.path.join(working_dir, 'Documents'))
 
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
@@ -369,28 +380,30 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                              fragment_atom, iterations, h_core=h_core,
                                                                              h_frag=h_frag, core_chain=c_chain,
                                                                              fragment_chain=f_chain, rename=rename,
-                                                                             threshold_clash=threshold_clash)
+                                                                             threshold_clash=threshold_clash,
+                                                                             output_path=working_dir)
 
     # Create the templates for the initial and final structures
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
-        cmd = "{} {} {} {}".format(sch_python, plop_relative_path, os.path.join(curr_dir,
-                                   add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers)
+        cmd = "{} {} {} {} {} {}".format(sch_python, plop_relative_path, os.path.join(working_dir,
+                                         add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers,
+                                         path_to_templates_generated, path_to_lib)
 
         try:
             subprocess.call(cmd.split())
         except OSError:
             raise OSError("Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(sch_python))
-        template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(add_fragment_from_pdbs.
-                                                                                   c.PRE_WORKING_DIR, pdb_to_template),
-                                                                                   False, c_chain, f_chain)
+        template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(working_dir, add_fragment_from_pdbs.
+                                                                           c.PRE_WORKING_DIR, pdb_to_template),
+                                                                           False, c_chain, f_chain)
         template_resnames.append(template_resname)
 
     # Set box center from ligand COM
     resname_core = template_resnames[0]
-    center = center_of_mass.center_of_mass(os.path.join("pregrow", "{}.pdb".format(resname_core)))
+    center = center_of_mass.center_of_mass(os.path.join(working_dir, c.PRE_WORKING_DIR, "{}.pdb".format(resname_core)))
 
-    # Now, move the templates to their respective folders
+    # Get template filenames
     template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
 
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
@@ -398,7 +411,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     templates = ["{}_{}".format(os.path.join(path_to_templates_generated, template_final), n) for n in range(0, iterations+1)]
 
-    results = ["{}{}_{}{}".format(c.OUTPUT_FOLDER, ID, resfold, n) for n in range(0, iterations+1)]
+    results = [os.path.join(working_dir, c.OUTPUT_FOLDER, str(n)) for n in range(0, iterations+1)]
 
     pdbs = [pdb_initialize if n == 0 else "{}_{}".format(n, pdb_initialize) for n in range(0, iterations+1)]
 
@@ -455,6 +468,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                     pdb_input_paths_checked.append(pdb)
             simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_input_paths_checked, step=i,
                                                                        license=license,
+                                                                       working_dir=working_dir,
                                                                        overlap=overlapping_factor, results_path=result,
                                                                        steps=steps,
                                                                        chain=c_chain, constraints=const, center=center,
@@ -469,6 +483,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
             simulation_file = simulations_linker.control_file_modifier(contrl, pdb=[pdb_initialize], step=i,
                                                                        license=license,
+                                                                       working_dir=working_dir,
                                                                        overlap=overlapping_factor, results_path=result,
                                                                        steps=steps,
                                                                        chain=c_chain, constraints=const, center=center,
@@ -492,7 +507,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         shutil.copy(os.path.join(path_to_templates, template_final), template)
 
         # Creating results folder
-        folder_handler.check_and_create_results_folder(result)
+        folder_handler.check_and_create_results_folder(result, working_dir)
+        # ------SIMULATION PART------
+        # Change directory to the working one
+        os.chdir(working_dir)
         simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
         logger.info(c.LINES_MESSAGE)
         logger.info(c.FINISH_SIM_MESSAGE.format(result))
@@ -519,13 +537,14 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                            lig_chain=c_chain,
                                                            processors=cpus)
         pdb_inputs = [pdb_file for pdb_file, flag in pdbs_with_banned_dihedrals.items() if flag]
-    if not os.path.exists("sampling_result_{}".format(ID)):  # Create the folder if it does not exist
-        os.mkdir("sampling_result_{}".format(ID))
+    if not os.path.exists(os.path.join(working_dir, "sampling_result")):  # Create the folder if it does not exist
+        os.mkdir(os.path.join(working_dir, "sampling_result"))
     # Modify the control file to increase the steps TO THE SAMPLING SIMULATION
     if sampling_control:
         simulation_file = simulations_linker.control_file_modifier(sampling_control, pdb=pdb_inputs, step=iterations,
-                                                                   license=license, overlap=max_overlap,
-                                                                   results_path="sampling_result_{}".format(ID),
+                                                                   license=license, working_dir=working_dir,
+                                                                   overlap=max_overlap,
+                                                                   results_path=os.path.join(working_dir, "sampling_result"),
                                                                    steps=pele_eq_steps, chain=c_chain,
                                                                    constraints=const, center=center,
                                                                    temperature=temperature, seed=seed, steering=steering,
@@ -534,9 +553,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                    rotation_high=rotation_high, rotation_low=rotation_low,
                                                                    radius=radius_box)
     elif explorative and not sampling_control:
-        simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, license=license, step=iterations,
+        simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, license=license,
+                                                                   working_dir=working_dir, step=iterations,
                                                                    overlap=max_overlap,
-                                                                   results_path="sampling_result_{}".format(ID),
+                                                                   results_path=os.path.join(working_dir, "sampling_result"),
                                                                    steps=pele_eq_steps,
                                                                    chain=c_chain, constraints=const, center=center,
                                                                    temperature=temperature, seed=seed,
@@ -549,7 +569,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     else:
         simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, step=iterations,
                                                                    license=license, overlap=max_overlap,
-                                                                   results_path="sampling_result_{}".format(ID),
+                                                                   working_dir=working_dir,
+                                                                   results_path=os.path.join(working_dir, "sampling_result"),
                                                                    steps=pele_eq_steps, chain=c_chain,
                                                                    constraints=const, center=center,
                                                                    temperature=temperature, seed=seed, steering=steering,
@@ -559,22 +580,23 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                    radius=radius_box)
 
     # EQUILIBRATION SIMULATION
-    if not (restart and os.path.exists("selected_result_{}".format(ID))):
+    if not (restart and os.path.exists("selected_result")):
         shutil.copy(os.path.join(path_to_templates_generated, template_final), path_to_templates)
         logger.info(".....STARTING EQUILIBRATION.....")
         simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
-    equilibration_path = os.path.join(os.path.abspath(os.path.curdir), "sampling_result_{}".format(ID))
+    os.chdir(curr_dir)
+    equilibration_path = os.path.join(working_dir, "sampling_result")
     # SELECTION OF BEST STRUCTURES
-    selected_results_path = "selected_result_{}".format(ID)
+    selected_results_path = os.path.join(working_dir, "top_result")
     if not os.path.exists(selected_results_path):  # Create the folder if it does not exist
         os.mkdir(selected_results_path)
     best_structure_file, all_output_files = bestStructs.main(criteria, selected_results_path, path=equilibration_path,
                                                              n_structs=50)
 
-    shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(c.PRE_WORKING_DIR,
+    shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(working_dir, c.PRE_WORKING_DIR,
                                                                                        selected_results_path + ".pdb"))
     # COMPUTE AND SAVE THE SCORE
-    analyser.analyse_at_epoch(report_prefix=report, path_to_equilibration=equilibration_path,
+    analyser.analyse_at_epoch(report_prefix=report, path_to_equilibration=equilibration_path, execution_dir=curr_dir,
                               column=criteria, quantile_value=0.25)
 
     
@@ -637,7 +659,11 @@ if __name__ == '__main__':
                 if i == 0:  # In the first iteration we will use the complex_pdb as input.
                     ID = instruction[i][3]
                 else:  # If is not the first we will use as input the output of the previous iteration
-                    complex_pdb = "pregrow/selected_result_{}.pdb".format(ID)
+                    pdb_basename = complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
+                    if "/" in pdb_basename:
+                        pdb_basename = pdb_basename.split("/")[-1]  # And if it is a path, get only the name
+                    working_dir = "{}_{}".format(pdb_basename, ID)
+                    complex_pdb = os.path.join(working_dir, c.PRE_WORKING_DIR)
                     dict_traceback = correct_fragment_names.main(complex_pdb)
                     ID_completed = []
                     for id in instruction[0:i+1]:

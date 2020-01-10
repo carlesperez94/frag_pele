@@ -137,10 +137,10 @@ def get_score_for_folder(report_prefix, path_to_equilibration, steps=False,
     return results
 
 
-def analyse_at_epoch(report_prefix, path_to_equilibration, steps=False, column="Binding Energy", quantile_value=0.25):
+def analyse_at_epoch(report_prefix, path_to_equilibration, execution_dir, steps=False, column="Binding Energy", quantile_value=0.25):
     result = get_score_for_folder(report_prefix=report_prefix, path_to_equilibration=path_to_equilibration,
                                   steps=steps, column=column, quantile_value=quantile_value)
-    out_file = "simulation_score_summary.tsv"
+    out_file = os.path.join(execution_dir, "simulation_score_summary.tsv")
     if os.path.exists(out_file):
         #Pandas new version compatibility
         try:
