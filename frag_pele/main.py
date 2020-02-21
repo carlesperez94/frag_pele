@@ -81,6 +81,10 @@ def parse_arguments():
                                                                 "clashes.")
     parser.add_argument("-sc",  "--sampling_control", default=None, help="If set, templatized control file to use in the"
                                                                          " sampling simulation.")
+    parser.add_argument("-op",  "--only_prepare", action="store_true", help="If set, all files to run growing are"
+                                                                            " prepared, it stops before running PELE.")
+    parser.add_argument("-og", "--only_grow", action="store_true", help="If set, it runs all growings of folders "
+                                                                        "already prepared.")
 
     # Plop related arguments
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
@@ -222,7 +226,7 @@ def parse_arguments():
            args.c_chain, args.f_chain, args.steps, args.temperature, args.seed, args.rotamers, \
            args.banned, args.limit, args.mae, args.rename, args.clash_thr, args.steering, \
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
-           args.radius_box, args.sampling_control, args.data, args.documents
+           args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -231,7 +235,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
          h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
          banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
          translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
-         radius_box=4, sampling_control=None, data=None, documents=None):
+         radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -405,6 +409,9 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     # Get template filenames
     template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
+
+    if only_prepare:
+        sys.exit("Files of {} prepared".format(ID))
 
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
     # Lists definitions
@@ -626,9 +633,11 @@ if __name__ == '__main__':
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
     c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
     rename, threshold_clash, steering, translation_high, rotation_high, \
-    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents = parse_arguments()
+    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
+    only_prepare, only_grow = parse_arguments()
     list_of_instructions = serie_handler.read_instructions_from_file(serie_file)
-    print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the trip :)".format(len(list_of_instructions)))
+    print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the "
+          "trip :)".format(len(list_of_instructions)))
     dict_traceback = correct_fragment_names.main(complex_pdb)
     for instruction in list_of_instructions:
         # We will iterate trough all individual instructions of file.
@@ -682,7 +691,8 @@ if __name__ == '__main__':
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
                          limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
-                         translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents)
+                         translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
+                                        only_prepare)
                     atomname_mappig.append(atomname_map)
 
                 except Exception:
@@ -713,7 +723,8 @@ if __name__ == '__main__':
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
                      threshold_clash, steering, translation_high, rotation_high,
-                     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents)
+                     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
+                     only_prepare)
             except Exception:
                 traceback.print_exc()
 
