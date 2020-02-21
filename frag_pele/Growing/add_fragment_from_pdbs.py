@@ -1,6 +1,7 @@
 import prody
 import logging
 import numpy as np
+import pickle
 from scipy.spatial import distance
 import math
 import os
@@ -802,12 +803,13 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
         shutil.copy(os.path.join(WORK_PATH, output_file_to_grow), ".")  # We assume that the user will be running FrAG in PELE's main folder...
         # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
         # are returning this dictionary in the function.
+        with open( os.path.join(WORK_PATH, "changingatoms.dict"), "w") as pkl:
+            pickle.dump(changing_names_dictionary, pkl)
     else:
-        structure = prody.parsePDB(os.path.join(WORK_PATH, output_file_to_tmpl))
-        changing_names = pdb_joiner.extract_and_change_atomnames(structure, fragment.getResnames()[0],
-                                                                 core_residue_name, rename=rename)
-        molecule_names_changed, changing_names_dictionary = changing_names
+        with open( os.path.join(WORK_PATH, "changingatoms.dict"), "rb") as pkl:
+            changing_names_dictionary = pickle.load(pkl)
 
+            
     return changing_names_dictionary, hydrogen_atoms, "{}.pdb".format(core_residue_name), \
            os.path.join(WORK_PATH, output_file_to_tmpl), \
            os.path.join(WORK_PATH, output_file_to_grow), \
