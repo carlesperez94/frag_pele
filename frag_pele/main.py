@@ -411,7 +411,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
 
     if only_prepare:
-        sys.exit("Files of {} prepared".format(ID))
+        print("Files of {} prepared".format(ID))
+        return
 
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
     # Lists definitions
