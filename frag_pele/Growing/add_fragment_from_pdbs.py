@@ -803,13 +803,13 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
         shutil.copy(os.path.join(WORK_PATH, output_file_to_grow), ".")  # We assume that the user will be running FrAG in PELE's main folder...
         # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
         # are returning this dictionary in the function.
-        with open( os.path.join(WORK_PATH, "changingatoms.dict"), "w") as pkl:
+        with open(os.path.join(WORK_PATH, "changingatoms.dict"), "wb") as pkl:
             pickle.dump(changing_names_dictionary, pkl)
     else:
         with open( os.path.join(WORK_PATH, "changingatoms.dict"), "rb") as pkl:
             changing_names_dictionary = pickle.load(pkl)
 
-            
+
     return changing_names_dictionary, hydrogen_atoms, "{}.pdb".format(core_residue_name), \
            os.path.join(WORK_PATH, output_file_to_tmpl), \
            os.path.join(WORK_PATH, output_file_to_grow), \
