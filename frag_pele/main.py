@@ -364,7 +364,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
     working_dir = os.path.join(current_path, "{}_{}".format(pdb_basename, ID))
     if not os.path.exists(working_dir):
-        os.mkdir(working_dir)   # Creating a working directory for each PDB-fragment combination
+        os.mkdir(working_dir)  # Creating a working directory for each PDB-fragment combination
     pdbout_folder = os.path.join(working_dir, pdbout)
     path_to_templates_generated = os.path.join(working_dir,
                                                "DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated")
@@ -377,27 +377,29 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     # Creating symbolic links
     helpers.create_symlinks(data, os.path.join(working_dir, 'Data'))
     helpers.create_symlinks(documents, os.path.join(working_dir, 'Documents'))
-
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
-    fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
-    core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom,
-                                                                             fragment_atom, iterations, h_core=h_core,
-                                                                             h_frag=h_frag, core_chain=c_chain,
-                                                                             fragment_chain=f_chain, rename=rename,
-                                                                             threshold_clash=threshold_clash,
-                                                                             output_path=working_dir)
-
+    if not only_grow:
+        fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
+        core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom,
+                                                                                 fragment_atom, iterations, h_core=h_core,
+                                                                                 h_frag=h_frag, core_chain=c_chain,
+                                                                                 fragment_chain=f_chain, rename=rename,
+                                                                                 threshold_clash=threshold_clash,
+                                                                                 output_path=working_dir)
+        print(fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize,
+              core_original_atom, fragment_original_atom)
     # Create the templates for the initial and final structures
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
-        cmd = "{} {} {} {} {} {}".format(sch_python, plop_relative_path, os.path.join(working_dir,
-                                         add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers,
-                                         path_to_templates_generated, path_to_lib)
+        if not only_grow:
+            cmd = "{} {} {} {} {} {}".format(sch_python, plop_relative_path, os.path.join(working_dir,
+                                             add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers,
+                                             path_to_templates_generated, path_to_lib)
 
-        try:
-            subprocess.call(cmd.split())
-        except OSError:
-            raise OSError("Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(sch_python))
+            try:
+                subprocess.call(cmd.split())
+            except OSError:
+                raise OSError("Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(sch_python))
         template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(working_dir, add_fragment_from_pdbs.
                                                                            c.PRE_WORKING_DIR, pdb_to_template),
                                                                            False, c_chain, f_chain)
@@ -693,7 +695,7 @@ if __name__ == '__main__':
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
                          limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
                          translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                                        only_prepare)
+                                        only_prepare, only_grow)
                     atomname_mappig.append(atomname_map)
 
                 except Exception:
@@ -725,7 +727,7 @@ if __name__ == '__main__':
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
                      threshold_clash, steering, translation_high, rotation_high,
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                     only_prepare)
+                     only_prepare, only_grow)
             except Exception:
                 traceback.print_exc()
 
