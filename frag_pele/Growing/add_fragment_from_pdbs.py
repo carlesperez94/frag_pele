@@ -151,7 +151,7 @@ def bond(hydrogen_atom_names, molecules):
 
 
 def join_structures(core_bond, fragment_bond, core_structure, fragment_structure, pdb_complex,
-                    pdb_fragment, chain_complex, chain_fragment, output_path):
+                    pdb_fragment, chain_complex, chain_fragment, output_path, only_grow=False):
     """
     It joins two ProDy structures into a single one, merging both bonds (core bond and fragment bond) creating a unique
     bond between the molecules. In order to do that this function performs a cross superimposition (in BioPython) of
@@ -177,6 +177,8 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
 
     name_to_replace_core = core_bond[1].name
     name_to_replace_fragment = fragment_bond[0].name
+    if only_grow:
+        return 0, name_to_replace_core, name_to_replace_fragment
 
     if RDKIT:
         atoms_to_delete_core = tree_detector.main(pdb_complex, (core_bond[0].name, name_to_replace_core),
@@ -646,7 +648,7 @@ def check_and_fix_repeated_lignames(pdb1, pdb2, ligand_chain_1="L", ligand_chain
 
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
          fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb",
-         h_core=None, h_frag=None, rename=False, threshold_clash=1.70, output_path=None):
+         h_core=None, h_frag=None, rename=False, threshold_clash=1.70, output_path=None, only_grow=False):
     """
     From a core (protein + ligand core = core_chain) and fragment (fragment_chain) pdb files, given the heavy atoms
     names that we want to connect, this function add the fragment to the core structure. We will get three PDB files:
@@ -722,83 +724,89 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                                                                    pdb_complex_core, pdb_fragment,
                                                                                    core_chain, fragment_chain,
                                                                                    output_path=WORK_PATH)
-    # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
-    # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
-    check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0, 
-                                    theta_interval=math.pi/18, core_bond=core_bond, list_of_atoms=bioatoms_core_and_frag[1], 
-                                    fragment_bond=fragment_bond, core_structure=ligand_core, fragment_structure=fragment, 
-                                    pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain, 
-                                    chain_fragment=fragment_chain, output_path=WORK_PATH, threshold_clash=threshold_clash)
-    # If we do not find a solution in the previous step, we will repeat the rotations applying only increments of 1º
-    if not check_results:
+    if not only_grow:
+        # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
+        # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
         check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0,
-                                        theta_interval=math.pi/180, core_bond=core_bond, list_of_atoms=bioatoms_core_and_frag[1], 
+                                        theta_interval=math.pi/18, core_bond=core_bond, list_of_atoms=bioatoms_core_and_frag[1],
                                         fragment_bond=fragment_bond, core_structure=ligand_core, fragment_structure=fragment,
-                                        pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain, 
-                                        chain_fragment=fragment_chain, output_path=WORK_PATH,
-                                        threshold_clash=threshold_clash)
-    # Now, we want to extract this structure in a PDB to create the template file after the growing. We will do a copy
-    # of the structure because then we will need to resize the fragment part, so be need to keep it as two different
-    # residues.
-    try:
-        structure_to_template = check_results.copy()
-    except AttributeError: 
-        raise AttributeError("Frag cannot superimpose the fragment onto the core's hydrogen.  \
-                              In order to create space for the fragment \
-                              manually rotate the hydrogen bond of the core where the fragment will be attached to.   \
-                              We are currently working to fix this automatically")
+                                        pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
+                                        chain_fragment=fragment_chain, output_path=WORK_PATH, threshold_clash=threshold_clash)
+        # If we do not find a solution in the previous step, we will repeat the rotations applying only increments of 1º
+        if not check_results:
+            check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0,
+                                            theta_interval=math.pi/180, core_bond=core_bond, list_of_atoms=bioatoms_core_and_frag[1],
+                                            fragment_bond=fragment_bond, core_structure=ligand_core, fragment_structure=fragment,
+                                            pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
+                                            chain_fragment=fragment_chain, output_path=WORK_PATH,
+                                            threshold_clash=threshold_clash)
+        # Now, we want to extract this structure in a PDB to create the template file after the growing. We will do a copy
+        # of the structure because then we will need to resize the fragment part, so be need to keep it as two different
+        # residues.
+        try:
+            structure_to_template = check_results.copy()
+        except AttributeError:
+            raise AttributeError("Frag cannot superimpose the fragment onto the core's hydrogen.  \
+                                  In order to create space for the fragment \
+                                  manually rotate the hydrogen bond of the core where the fragment will be attached to.   \
+                                  We are currently working to fix this automatically")
 
-    # Once we have all the atom names unique, we will rename the resname and the resnum of both, core and fragment, to
-    # GRW and 1. Doing this, the molecule composed by two parts will be transformed into a single one.
-    changing_names = pdb_joiner.extract_and_change_atomnames(structure_to_template, fragment.getResnames()[0],
-                                                             core_residue_name, rename=rename)
-    molecule_names_changed, changing_names_dictionary = changing_names
+        # Once we have all the atom names unique, we will rename the resname and the resnum of both, core and fragment, to
+        # GRW and 1. Doing this, the molecule composed by two parts will be transformed into a single one.
+        changing_names = pdb_joiner.extract_and_change_atomnames(structure_to_template, fragment.getResnames()[0],
+                                                                 core_residue_name, rename=rename)
+        molecule_names_changed, changing_names_dictionary = changing_names
 
-    # Check if there is still overlapping names
-    if pdb_joiner.check_overlapping_names(molecule_names_changed):
-        logger.critical("{} is repeated in the fragment and the core. Please, change this atom name of the core by"
-                        " another one.".format(pdb_joiner.check_overlapping_names(molecule_names_changed)))
-    logger.info("The following names of the fragment have been changed:")
-    for transformation in changing_names_dictionary:
-        logger.info("{} --> {}".format(transformation, changing_names_dictionary[transformation]))
-    finishing_joining(molecule_names_changed, core_chain)
-    # Extract a PDB file to do the templates
-    prody.writePDB(os.path.join(WORK_PATH, output_file_to_tmpl), molecule_names_changed)
-    logger.info("The result of core + fragment has been saved in '{}'. This will be used to create the template file."
-                .format(os.path.join(WORK_PATH, output_file_to_tmpl)))
-    # Now, we will use the original molecule to do the resizing of the fragment.
-    reduce_molecule_size(check_results, frag_residue_name, steps)
-    point_reference = check_results.select("name {} and resname {}".format(pdb_atom_fragment_name, frag_residue_name))
-    fragment_segment = check_results.select("resname {}".format(frag_residue_name))
-    translate_to_position(hydrogen_atoms[0].get_coord(), point_reference.getCoords(), fragment_segment)
+        # Check if there is still overlapping names
+        if pdb_joiner.check_overlapping_names(molecule_names_changed):
+            logger.critical("{} is repeated in the fragment and the core. Please, change this atom name of the core by"
+                            " another one.".format(pdb_joiner.check_overlapping_names(molecule_names_changed)))
+        logger.info("The following names of the fragment have been changed:")
+        for transformation in changing_names_dictionary:
+            logger.info("{} --> {}".format(transformation, changing_names_dictionary[transformation]))
+        finishing_joining(molecule_names_changed, core_chain)
+        # Extract a PDB file to do the templates
+        prody.writePDB(os.path.join(WORK_PATH, output_file_to_tmpl), molecule_names_changed)
+        logger.info("The result of core + fragment has been saved in '{}'. This will be used to create the template file."
+                    .format(os.path.join(WORK_PATH, output_file_to_tmpl)))
+        # Now, we will use the original molecule to do the resizing of the fragment.
+        reduce_molecule_size(check_results, frag_residue_name, steps)
+        point_reference = check_results.select("name {} and resname {}".format(pdb_atom_fragment_name, frag_residue_name))
+        fragment_segment = check_results.select("resname {}".format(frag_residue_name))
+        translate_to_position(hydrogen_atoms[0].get_coord(), point_reference.getCoords(), fragment_segment)
 
-    # Repeat all the preparation process to finish the writing of the molecule.
-    changing_names = pdb_joiner.extract_and_change_atomnames(check_results, fragment.getResnames()[0], core_residue_name, rename=rename)
-    molecule_names_changed, changing_names_dictionary = changing_names
-    finishing_joining(molecule_names_changed, core_chain)
-    logger.info("The result of core + fragment(small) has been saved in '{}'. This will be used to initialise the growing."
-                .format(os.path.join(WORK_PATH, output_file_to_grow)))
-    # Add the protein to the ligand
-    output_ligand_grown_path = os.path.join(WORK_PATH, "ligand_grown.pdb")
-    prody.writePDB(output_ligand_grown_path, molecule_names_changed)
+        # Repeat all the preparation process to finish the writing of the molecule.
+        changing_names = pdb_joiner.extract_and_change_atomnames(check_results, fragment.getResnames()[0], core_residue_name, rename=rename)
+        molecule_names_changed, changing_names_dictionary = changing_names
+        finishing_joining(molecule_names_changed, core_chain)
+        logger.info("The result of core + fragment(small) has been saved in '{}'. This will be used to initialise the growing."
+                    .format(os.path.join(WORK_PATH, output_file_to_grow)))
+        # Add the protein to the ligand
+        output_ligand_grown_path = os.path.join(WORK_PATH, "ligand_grown.pdb")
+        prody.writePDB(output_ligand_grown_path, molecule_names_changed)
 
-    with open(output_ligand_grown_path) as lig:
-        content_lig = lig.readlines()
-        content_lig = content_lig[1:]
-        content_lig = "".join(content_lig)
+        with open(output_ligand_grown_path) as lig:
+            content_lig = lig.readlines()
+            content_lig = content_lig[1:]
+            content_lig = "".join(content_lig)
 
-    # Join all parts of the PDB
-    output_file = []
-    chain_not_lig = get_everything_except_ligand(pdb_complex_core, core_chain)
-    output_file.append(chain_not_lig)
-    output_file.append("{}TER".format(content_lig))
-    out_joined = "".join(output_file)
-    with open(os.path.join(WORK_PATH, output_file_to_grow), "w") as output: # Save the file in the pregrow folder
-        output.write(out_joined)
-    # Make a copy of output files in the main directory
-    shutil.copy(os.path.join(WORK_PATH, output_file_to_grow), ".")  # We assume that the user will be running FrAG in PELE's main folder...
-    # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
-    # are returning this dictionary in the function.
+        # Join all parts of the PDB
+        output_file = []
+        chain_not_lig = get_everything_except_ligand(pdb_complex_core, core_chain)
+        output_file.append(chain_not_lig)
+        output_file.append("{}TER".format(content_lig))
+        out_joined = "".join(output_file)
+        with open(os.path.join(WORK_PATH, output_file_to_grow), "w") as output: # Save the file in the pregrow folder
+            output.write(out_joined)
+        # Make a copy of output files in the main directory
+        shutil.copy(os.path.join(WORK_PATH, output_file_to_grow), ".")  # We assume that the user will be running FrAG in PELE's main folder...
+        # In further steps we will probably need to recover the names of the atoms for the fragment, so for this reason we
+        # are returning this dictionary in the function.
+    else:
+        structure = prody.parsePDB(WORK_PATH, output_file_to_tmpl)
+        changing_names = pdb_joiner.extract_and_change_atomnames(structure, fragment.getResnames()[0],
+                                                                 core_residue_name, rename=rename)
+        molecule_names_changed, changing_names_dictionary = changing_names
 
     return changing_names_dictionary, hydrogen_atoms, "{}.pdb".format(core_residue_name), \
            os.path.join(WORK_PATH, output_file_to_tmpl), \

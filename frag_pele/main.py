@@ -378,16 +378,15 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     helpers.create_symlinks(data, os.path.join(working_dir, 'Data'))
     helpers.create_symlinks(documents, os.path.join(working_dir, 'Documents'))
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
-    if not only_grow:
-        fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
-        core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom,
-                                                                                 fragment_atom, iterations, h_core=h_core,
-                                                                                 h_frag=h_frag, core_chain=c_chain,
-                                                                                 fragment_chain=f_chain, rename=rename,
-                                                                                 threshold_clash=threshold_clash,
-                                                                                 output_path=working_dir)
-        print(fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize,
-              core_original_atom, fragment_original_atom)
+    fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
+    core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom,
+                                                                             fragment_atom, iterations, h_core=h_core,
+                                                                             h_frag=h_frag, core_chain=c_chain,
+                                                                             fragment_chain=f_chain, rename=rename,
+                                                                             threshold_clash=threshold_clash,
+                                                                             output_path=working_dir,
+                                                                             only_grow=only_grow)
+
     # Create the templates for the initial and final structures
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:

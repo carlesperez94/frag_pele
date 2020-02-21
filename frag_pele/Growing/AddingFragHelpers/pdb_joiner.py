@@ -179,8 +179,8 @@ def extract_and_change_atomnames(molecule, selected_resname, core_resname, renam
     assert selected_resname != core_resname, "core and fragment residue name must be different"
     fragment = molecule.select("resname {}".format(selected_resname))
     core = molecule.select("resname {}".format(core_resname))
-    core_atom_names  = [atom.getName() for atom in core]
-    fragment_atom_names  = [atom.getName() for atom in fragment]
+    core_atom_names = [atom.getName() for atom in core]
+    fragment_atom_names = [atom.getName() for atom in fragment]
     names_dictionary = {}
     for n, atom_name in enumerate(fragment_atom_names):
         if rename:
