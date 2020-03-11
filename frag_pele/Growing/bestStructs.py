@@ -138,7 +138,7 @@ def parse_values(reports, n_structs, criteria, sort_order, steps):
                     (steps, []),
                     (criteria, [])
                     ]
-    min_values = pd.DataFrame.from_items(INITIAL_DATA)
+    min_values = pd.DataFrame.from_dict(dict(INITIAL_DATA))
     for f in reports:
         report_number = os.path.basename(f).split("_")[-1]
         data = pd.read_csv(f, sep='    ', engine='python')
