@@ -9,28 +9,32 @@ Conda (Recommended)
 ====================
 
 If you want to use a separate environment for frag:
-    
+
+::
+
     conda create -n frag python=3.7 --yes
 
     source activate frag
 
 Else start here:
 
+::
+
     conda install -c NostrumBioDiscovery -c conda-forge frag_pele --yes
 
     change PELE schrodinger & mpirun under /conda/env/lib/pythonX/site-packages/frag_pele/constants.py
 
 Pypi
-========
+====
 
 pip install frag_pele
 
 Source code
-=============
-
-git clone https://github.com/carlesperez94/frag_pele.git
+===========
 
 ::
+
+    git clone https://github.com/carlesperez94/frag_pele.git
 
     cd frag_pele
 
@@ -41,9 +45,10 @@ git clone https://github.com/carlesperez94/frag_pele.git
 change PELE schrodinger & mpirun under /site-packages/frag_pele/constants.py
 
 Test it works (fast test)
-===========================
+=========================
 
 ::
+
     git clone https://github.com/carlesperez94/frag_pele.git
 
     cd frag_pele/frag_pele/example/1W7H_example/
