@@ -21,7 +21,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 setup(
     name="FragPELE",
-    version="2.0.0",
+    version="2.1.0",
     description='FragPELE, a new tool for in silico hit-to-lead drug design, capable of growing a frag_pelement into a core while exploring the protein-ligand conformational space',
     long_description=long_description,
     url="https://github.com/carlesperez94/frag_pele/",
