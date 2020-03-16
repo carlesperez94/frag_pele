@@ -25,6 +25,8 @@ Protocol
 - **-HT**, **---highthroughput**: High throughput protocol.
 - **-EX**, **---explorative**: Explorative protocol.
 - **-sc**, **---sampling_control**: Templatized control file that will be used in the sampling simulation instead of the default one.
+- **-op**,  **---only_prepare**: If set, all PDB and conf files to run growing are prepared, it stops before running PELE.
+- **-og**,  **---only_grow**: If set, it runs all growings from folders already prepared. .
 - **default option**: Sp protocol.
 
 For more information refer to the protocol tab.
@@ -42,6 +44,7 @@ This are the options directly related to Frag itself.
 - **-cc**, **---c_chain**: Chain name of the core. By default: 'L'.
 - **-fc**, **---f_chain**: Chain name of the fragment. By default: 'L'.
 - **-tc**, **---clash_thr**: Threshold distance to detect intramolecular clashes between the fragment and the core.
+
 
 PlopRotTemp configuration
 `````````````````````````
@@ -75,6 +78,8 @@ documentation.
 - **-roth**, **---rotation_high**: Rotation (radians) to use in the PELE's simulation to perturb the ligand. High value. By default: 0.10.
 - **-rotl**, **---rotation_low**: Rotation (radians) to use in the PELE's simulation to perturb the ligand. Low value. By default: 0.05.
 - **-rad**, **---radius_box**: Size of the radius to define the box in the PELE's simulation where the ligand will be perturbed. By default: 4.
+- **-dat**, **---data**: Path to PELE Data folder to create symbolic links.
+- **-doc**, **---documents**: Path to PELE Documents folder to create symbolic links.
 
 Clustering and spawning configuration
 `````````````````````````````````````

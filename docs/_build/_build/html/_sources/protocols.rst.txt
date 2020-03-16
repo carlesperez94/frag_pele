@@ -44,3 +44,23 @@ If you want to use a different templatized control file in the sampling simulati
 ::
 
     python frag_pele/main.py -cp core.pdb -sef serie_file.conf -sc /path/to/control_personalized.conf
+
+Only prepare
+------------
+
+If for any reason you would need to prepare all PDB files, templates and configuration files but without growing you can
+use this mode setting the flag -op. FragPELE will generate one folder for each fragment-core connection specified in the
+serie_file.conf.
+
+::
+
+    python frag_pele/main.py -cp core.pdb -sef serie_file.conf -op
+
+Only grow
+---------
+After using the previous mode, to only execute the growing part of the code set the flag -og. Take into account that you
+will use the configuration specified in the preparation step.
+
+::
+
+    python frag_pele/main.py -cp core.pdb -sef serie_file.conf -og

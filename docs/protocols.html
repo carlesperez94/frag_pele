@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Protocols &mdash; FragPELE 2.0.0 documentation</title>
+  <title>Protocols &mdash; FragPELE 2.1.0 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -94,6 +94,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#standard-precision">Standard Precision</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#explorative">Explorative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#personalized-sampling-simulation">Personalized Sampling Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#only-prepare">Only prepare</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#only-grow">Only grow</a></li>
 </ul>
 </li>
 </ul>
@@ -195,6 +197,23 @@ and a final exploration of 20 pele steps</p>
 <h2>Personalized Sampling Simulation<a class="headerlink" href="#personalized-sampling-simulation" title="Permalink to this headline">¶</a></h2>
 <p>If you want to use a different templatized control file in the sampling simulation, use the flag <strong>-sc</strong> to set its path</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">cp</span> <span class="n">core</span><span class="o">.</span><span class="n">pdb</span> <span class="o">-</span><span class="n">sef</span> <span class="n">serie_file</span><span class="o">.</span><span class="n">conf</span> <span class="o">-</span><span class="n">sc</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">control_personalized</span><span class="o">.</span><span class="n">conf</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="only-prepare">
+<h2>Only prepare<a class="headerlink" href="#only-prepare" title="Permalink to this headline">¶</a></h2>
+<p>If for any reason you would need to prepare all PDB files, templates and configuration files but without growing you can
+use this mode setting the flag -op. FragPELE will generate one folder for each fragment-core connection specified in the
+serie_file.conf.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">cp</span> <span class="n">core</span><span class="o">.</span><span class="n">pdb</span> <span class="o">-</span><span class="n">sef</span> <span class="n">serie_file</span><span class="o">.</span><span class="n">conf</span> <span class="o">-</span><span class="n">op</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="only-grow">
+<h2>Only grow<a class="headerlink" href="#only-grow" title="Permalink to this headline">¶</a></h2>
+<p>After using the previous mode, to only execute the growing part of the code set the flag -og. Take into account that you
+will use the configuration specified in the preparation step.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">cp</span> <span class="n">core</span><span class="o">.</span><span class="n">pdb</span> <span class="o">-</span><span class="n">sef</span> <span class="n">serie_file</span><span class="o">.</span><span class="n">conf</span> <span class="o">-</span><span class="n">og</span>
 </pre></div>
 </div>
 </div>
