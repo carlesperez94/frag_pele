@@ -2,13 +2,15 @@ Analysis Tools
 ==============
 
 You have at your disposal several tools to analyse FragPELE simulations. Go into the following path to have access to all
-of them::
+of them:
+
+::
 
     cd frag_pele/Analysis
 
-
 WARNING: In the new version all analysis tools except the automatic SCORE computed inside FragPELE run will be inoperative due to path modification.
 It will be solved in further versions.
+
 Backtracking trajectories
 -------------------------
 
@@ -17,7 +19,9 @@ growing step. Therefore, the traceback between snapshots is lost along with the 
 we have modified an AdaptivePELE's tool to do the backtracking of snapshots, to get all of them from the selected
 final structure to the initial one.
 
-usage::
+usage:
+
+::
 
     backtrackFragTrajectory.py [-h] [-p P] [-o O] [--name NAME] file_to_backtrack
 
@@ -33,7 +37,9 @@ Optional arguments:
 - **-o**: Output path where the traceback trajectory will be written. By default it writes the file in the current directory.
 - **---name***: Name of the output pdb file. By default "pathway.pdb".
 
-i.e::
+i.e:
+
+::
 
     python frag_pele/Analysis/backtrackFragFrajectory.py selected_result_aminoC1N1/epochsampling_result_aminoC1N1_trajectory_1.1_BindingEnergy-47.6974.pdb
 
@@ -50,7 +56,9 @@ all bonds will be interpreted as single type. Prepare with Maestro one of the se
 the connectivity in the rest of the trajectory
 
 
-usage::
+usage:
+
+::
 
     backtrackConnectivity.py [-h] [--ligand_chain LIGAND_CHAIN] [-o O] pathway pdb_with_connects
 
@@ -66,19 +74,21 @@ Optional arguments:
 - **-o**: Output file of the new trajectory. By default it has the input pathway name with "_connected.pdb" added.
 - **---ligand_chain***: Name of the ligand chain. By default "L".
 
-i.e::
+i.e:
+
+::
 
     python frag_pele/AnalysisbacktrackConnectivity.py pathway.pdb epochsampling_result_aminoC1N1_trajectory_1.1_BindingEnergy-47.6974_with_connects.pdb
-
 
 Analyser
 --------
 Computes the mean of the 25% lowest values of the sampling simulation for each fragment grown: **FragPELE SCORE**.
 
-usage::
+usage:
+
+::
 
     analyser.py [-h] [-r REP_PREF] [-s STEPS] [-f FILE] [-o OUT] [-e EQUIL_FOLDER] [-c COL] [-q QUART] [-csv EXPORT_CSV] path_to_analyze
-
 
 Positional arguments:
 +++++++++++++++++++++
