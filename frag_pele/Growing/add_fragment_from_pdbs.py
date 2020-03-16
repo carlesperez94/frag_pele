@@ -180,14 +180,10 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
     name_to_replace_fragment = fragment_bond[0].name
     if only_grow:
         return 0, name_to_replace_core, name_to_replace_fragment
-
     if RDKIT:
         atoms_to_delete_core = tree_detector.main(pdb_complex, (core_bond[0].name, name_to_replace_core),
                                                   chain_ligand=chain_complex)
-        
         atoms_to_delete_fragment = tree_detector.main(pdb_fragment, (fragment_bond[1].name, name_to_replace_fragment),
-                                                      # The order must be inverted because we want to keep the atoms in the
-                                                      #  oposite direction
                                                       chain_ligand=chain_fragment)
     else:
         print("WARNING: YOU CAN NOT REPLACE HEAVY ATOMS FOR HYDROGENS WITHOUT RDKIT!")
@@ -358,7 +354,7 @@ def modify_distance_between_structures(coords_core, coords_fragment, coords_to_m
 
 
 def rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, core_structure, fragment_structure,
-                          pdb_complex, pdb_fragment, chain_complex, chain_fragment, output_path):
+                          pdb_complex, pdb_fragment, chain_complex, chain_fragment, output_path, only_grow=False):
     """
     Given a core molecule and a fragment, this function rotates the fragment atoms a certain theta angle around an axis
     (set by the bond).
@@ -389,7 +385,8 @@ def rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, 
                                                                                     pdb_fragment=pdb_fragment,
                                                                                     chain_complex=chain_complex,
                                                                                     chain_fragment=chain_fragment,
-                                                                                    output_path=output_path)
+                                                                                    output_path=output_path,
+                                                                                    only_grow=only_grow)
     return rotated_structure
 
 
@@ -410,7 +407,7 @@ def rotate_throught_bond(bond, angle, rotated_atoms, atoms_fixed):
 
 def check_collision(merged_structure, bond, theta, theta_interval, core_bond, list_of_atoms, fragment_bond,
                     core_structure, fragment_structure, pdb_complex, pdb_fragment, chain_complex, chain_fragment,
-                    output_path, threshold_clash=1.70):
+                    output_path, threshold_clash=1.70, only_grow=False):
     """
     Given a structure composed by a core and a fragment, it checks that there is not collisions between the atoms of
     both. If it finds a collision, the molecule will be rotated "theta_interval" radians and the checking will be
@@ -448,12 +445,12 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
         else:
             rotated_structure = rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, core_structure,
                                                       fragment_structure, pdb_complex, pdb_fragment, chain_complex, chain_fragment,
-                                                      output_path=output_path)
+                                                      output_path=output_path, only_grow=only_grow)
             recall = check_collision(merged_structure=rotated_structure[0], bond=bond, theta=theta, theta_interval=theta_interval, 
                                      core_bond=core_bond, list_of_atoms=list_of_atoms, fragment_bond=fragment_bond, core_structure=core_structure,
                                      fragment_structure=fragment_structure, pdb_complex=pdb_complex, pdb_fragment=pdb_fragment, 
-                                     chain_complex=pdb_fragment, chain_fragment=chain_fragment,
-                                     output_path=output_path, threshold_clash=threshold_clash)
+                                     chain_complex=chain_complex, chain_fragment=chain_fragment,
+                                     output_path=output_path, threshold_clash=threshold_clash, only_grow=only_grow)
             return recall
     else:
         return merged_structure
@@ -724,7 +721,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                                                                    ligand_core, fragment,
                                                                                    pdb_complex_core, pdb_fragment,
                                                                                    core_chain, fragment_chain,
-                                                                                   output_path=WORK_PATH)
+                                                                                   output_path=WORK_PATH, only_grow=only_grow)
     if not only_grow:
         # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
         # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
@@ -732,7 +729,8 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                         theta_interval=math.pi/18, core_bond=core_bond, list_of_atoms=bioatoms_core_and_frag[1],
                                         fragment_bond=fragment_bond, core_structure=ligand_core, fragment_structure=fragment,
                                         pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
-                                        chain_fragment=fragment_chain, output_path=WORK_PATH, threshold_clash=threshold_clash)
+                                        chain_fragment=fragment_chain, output_path=WORK_PATH, threshold_clash=threshold_clash,
+                                        only_grow=only_grow)
         # If we do not find a solution in the previous step, we will repeat the rotations applying only increments of 1º
         if not check_results:
             check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0,
@@ -740,7 +738,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                             fragment_bond=fragment_bond, core_structure=ligand_core, fragment_structure=fragment,
                                             pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
                                             chain_fragment=fragment_chain, output_path=WORK_PATH,
-                                            threshold_clash=threshold_clash)
+                                            threshold_clash=threshold_clash, only_grow=only_grow)
         # Now, we want to extract this structure in a PDB to create the template file after the growing. We will do a copy
         # of the structure because then we will need to resize the fragment part, so be need to keep it as two different
         # residues.

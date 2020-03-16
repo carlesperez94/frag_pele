@@ -76,8 +76,8 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_to_replace=None,
     if len(selected_atom) > 1:
         for idx, hydrogen in enumerate(selected_atom):
             # We will select atoms of the protein in interaction distance
-            select_h_bonds = prody_complex.select("protein and within 2.5 of (name {} and chain L)"
-                                                  .format(selected_atom.getNames()[idx]))
+            select_h_bonds = prody_complex.select("protein and within 2.5 of (name {} and chain {})"
+                                                  .format(selected_atom.getNames()[idx], chain))
             if PDB_atom_to_replace:
                 print("Forming a bond between {} and {}...".format(PDB_atom_name, PDB_atom_to_replace))
                 select_specific_h_bonds = selected_atom.select("name {}".format(PDB_atom_to_replace))
