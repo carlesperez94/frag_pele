@@ -33,21 +33,25 @@ def convert_mae(ligands):
     return structure_mae
 
 
-def create_template(pdb, gridres):
+def create_template(pdb, gridres, out_temp, out_lib):
    mae_file = convert_mae(pdb)
-   plop.main(mae_file, out_temp="DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated", out_rot="DataLocal/LigandRotamerLibs/",
-             gridres=gridres)
+   plop.main(mae_file, out_temp=out_temp, out_rot=out_lib, gridres=gridres)
    os.remove(mae_file)
 
 
 def arg_parse():
   parser = argparse.ArgumentParser()
+
   parser.add_argument("pdb", type=str, help="ligand file to templatize")
   parser.add_argument("gridres", type=str, help="Degrees of rotation.")
+  parser.add_argument("out_temp", type=str, help="Output template path.")
+  parser.add_argument("out_lib", type=str, help="Output rotamer library path.")
+
   args = parser.parse_args()
-  return args.pdb, args.gridres
+
+  return args.pdb, args.gridres, args.out_temp, args.out_lib
 
 
 if __name__ == '__main__':
-    pdb, gridres = arg_parse()
-    create_template(pdb, gridres)
+    pdb, gridres, outtemp, outlib = arg_parse()
+    create_template(pdb, gridres, outtemp, outlib)

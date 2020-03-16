@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; FragPELE 2.0.0 documentation</title>
+  <title>Installation &mdash; FragPELE 2.1.0 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -190,16 +190,23 @@
 <div class="section" id="source-code">
 <h2>Source code<a class="headerlink" href="#source-code" title="Permalink to this headline">¶</a></h2>
 <p>git clone <a class="reference external" href="https://github.com/carlesperez94/frag_pele.git">https://github.com/carlesperez94/frag_pele.git</a></p>
-<p>cd frag_pele</p>
-<p>pip install numpy cython (in case not to have them)</p>
-<p>python setup.py install</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">frag_pele</span>
+
+<span class="n">pip</span> <span class="n">install</span> <span class="n">numpy</span> <span class="n">cython</span> <span class="p">(</span><span class="ow">in</span> <span class="n">case</span> <span class="ow">not</span> <span class="n">to</span> <span class="n">have</span> <span class="n">them</span><span class="p">)</span>
+
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
 <p>change PELE schrodinger &amp; mpirun under /site-packages/frag_pele/constants.py</p>
 </div>
 <div class="section" id="test-it-works-fast-test">
 <h2>Test it works (fast test)<a class="headerlink" href="#test-it-works-fast-test" title="Permalink to this headline">¶</a></h2>
-<p>git clone <a class="reference external" href="https://github.com/carlesperez94/frag_pele.git">https://github.com/carlesperez94/frag_pele.git</a></p>
+<dl>
+<dt>::</dt><dd><p>git clone <a class="reference external" href="https://github.com/carlesperez94/frag_pele.git">https://github.com/carlesperez94/frag_pele.git</a></p>
 <p>cd frag_pele/frag_pele/example/1W7H_example/</p>
 <p>python -m frag_pele.main -cp 1w7h_preparation_structure_2w.pdb -x 1 –steps 1 -sef sequential.conf –pele_eq_steps 1 sequential_frag.conf –cpus 2 –steps 1 –temp 1000000</p>
+</dd>
+</dl>
 </div>
 </div>
 

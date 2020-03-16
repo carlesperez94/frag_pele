@@ -30,19 +30,22 @@ Source code
 
 git clone https://github.com/carlesperez94/frag_pele.git
 
-cd frag_pele
+::
 
-pip install numpy cython (in case not to have them)
+    cd frag_pele
 
-python setup.py install
+    pip install numpy cython (in case not to have them)
+
+    python setup.py install
 
 change PELE schrodinger & mpirun under /site-packages/frag_pele/constants.py
 
 Test it works (fast test)
 ===========================
 
-git clone https://github.com/carlesperez94/frag_pele.git
+::
+    git clone https://github.com/carlesperez94/frag_pele.git
 
-cd frag_pele/frag_pele/example/1W7H_example/
+    cd frag_pele/frag_pele/example/1W7H_example/
 
-python -m frag_pele.main -cp 1w7h_preparation_structure_2w.pdb -x 1 --steps 1 -sef sequential.conf --pele_eq_steps 1 sequential_frag.conf --cpus 2 --steps 1 --temp 1000000
+    python -m frag_pele.main -cp 1w7h_preparation_structure_2w.pdb -x 1 --steps 1 -sef sequential.conf --pele_eq_steps 1 sequential_frag.conf --cpus 2 --steps 1 --temp 1000000

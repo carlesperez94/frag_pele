@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Documentation &mdash; FragPELE 2.0.0 documentation</title>
+  <title>Documentation &mdash; FragPELE 2.1.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                2.0
+                2.1
               </div>
             
           
@@ -195,6 +195,8 @@ successive growings, using different fragments or different growing positions.</
 <li><p><strong>-HT</strong>, <strong>—highthroughput</strong>: High throughput protocol.</p></li>
 <li><p><strong>-EX</strong>, <strong>—explorative</strong>: Explorative protocol.</p></li>
 <li><p><strong>-sc</strong>, <strong>—sampling_control</strong>: Templatized control file that will be used in the sampling simulation instead of the default one.</p></li>
+<li><p><strong>-op</strong>,  <strong>—only_prepare</strong>: If set, all PDB and conf files to run growing are prepared, it stops before running PELE.</p></li>
+<li><p><strong>-og</strong>,  <strong>—only_grow</strong>: If set, it runs all growings from folders already prepared. .</p></li>
 <li><p><strong>default option</strong>: Sp protocol.</p></li>
 </ul>
 <p>For more information refer to the protocol tab.</p>
@@ -247,6 +249,8 @@ PELE will be accepted when applying the Metropolis Criteria. By default: 1000.</
 <li><p><strong>-roth</strong>, <strong>—rotation_high</strong>: Rotation (radians) to use in the PELE’s simulation to perturb the ligand. High value. By default: 0.10.</p></li>
 <li><p><strong>-rotl</strong>, <strong>—rotation_low</strong>: Rotation (radians) to use in the PELE’s simulation to perturb the ligand. Low value. By default: 0.05.</p></li>
 <li><p><strong>-rad</strong>, <strong>—radius_box</strong>: Size of the radius to define the box in the PELE’s simulation where the ligand will be perturbed. By default: 4.</p></li>
+<li><p><strong>-dat</strong>, <strong>—data</strong>: Path to PELE Data folder to create symbolic links.</p></li>
+<li><p><strong>-doc</strong>, <strong>—documents</strong>: Path to PELE Documents folder to create symbolic links.</p></li>
 </ul>
 </div>
 <div class="section" id="clustering-and-spawning-configuration">

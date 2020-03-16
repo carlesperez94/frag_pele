@@ -13,19 +13,18 @@ def check_and_create_folder(path):
         os.mkdir(path)
 
 
-def check_and_create_DataLocal():
+def check_and_create_DataLocal(working_dir):
     # Get current path
-    curr_dir = os.path.abspath(os.path.curdir)
-    check_and_create_folder((os.path.join(curr_dir, "DataLocal")))
-    check_and_create_folder((os.path.join(curr_dir, "DataLocal/LigandRotamerLibs")))
-    check_and_create_folder((os.path.join(curr_dir, "DataLocal/Templates")))
-    check_and_create_folder((os.path.join(curr_dir, "DataLocal/Templates/OPLS2005")))
-    check_and_create_folder((os.path.join(curr_dir, "DataLocal/Templates/OPLS2005/HeteroAtoms")))
-    check_and_create_folder((os.path.join(curr_dir, "DataLocal/Templates/OPLS2005/HeteroAtoms", "templates_generated")))
+    check_and_create_folder((os.path.join(working_dir, "DataLocal")))
+    check_and_create_folder((os.path.join(working_dir, "DataLocal/LigandRotamerLibs")))
+    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates")))
+    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OPLS2005")))
+    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OPLS2005/HeteroAtoms")))
+    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OPLS2005/HeteroAtoms", "templates_generated")))
 
 
-def check_and_create_results_folder(results_folder):
-    check_and_create_folder(c.OUTPUT_FOLDER)
+def check_and_create_results_folder(results_folder, workdir):
+    check_and_create_folder(os.path.join(workdir, c.OUTPUT_FOLDER))
     check_and_create_folder(results_folder)
 
 

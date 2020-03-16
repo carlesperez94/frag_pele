@@ -11,16 +11,16 @@ import frag_pele.Helpers.templatize as tp
 logger = logging.getLogger(__name__)
 
 
-def control_file_modifier(control_template, pdb, license, overlap=0.7, step=0, results_path="/growing_output", steps=6,
-                          chain="L", constraints=" ", center="", temperature=1000, seed=1279183, steering=0,
-                          translation_high=0.05, translation_low=0.02, rotation_high=0.10, rotation_low=0.05,
-                          radius=4):
+def control_file_modifier(control_template, pdb, license, working_dir, overlap=0.7, step=0,
+                          results_path="/growing_output", steps=6, chain="L", constraints=" ", center="",
+                          temperature=1000, seed=1279183, steering=0, translation_high=0.05, translation_low=0.02,
+                          rotation_high=0.10, rotation_low=0.05, radius=4):
     """
     This function creates n control files for each intermediate template created in order to change
     the logPath, reportPath and trajectoryPath to have all control files prepared for PELE simulations.
     """
 
-    ctrl_fold_name = "control_folder"
+    ctrl_fold_name = os.path.join(working_dir, "control_folder")
     controlfile_path = control_template
     control_template = os.path.basename(control_template)
 
@@ -59,18 +59,19 @@ def control_file_modifier(control_template, pdb, license, overlap=0.7, step=0, r
 
     # Create a copy of the control template in the control folder, because templatize.py replace the original template
     if not os.path.exists(os.path.join(ctrl_fold_name, control_template)):
-        shutil.copyfile(controlfile_path, control_template)
+        shutil.copyfile(controlfile_path, os.path.join(ctrl_fold_name, control_template))
+        shutil.copyfile(os.path.join(ctrl_fold_name, control_template), os.path.join(working_dir, control_template))
 
     # Else, if has been created this means that we already have a template in this folder, so we will need a copy of the
     # file in the main folder to then replace the template for a real control file
     else:
-        shutil.copyfile(controlfile_path, control_template)
+        shutil.copyfile(os.path.join(ctrl_fold_name, control_template), os.path.join(working_dir, control_template))
 
     # Modifying the control file template
-    tp.TemplateBuilder(control_template, keywords)
+    tp.TemplateBuilder(os.path.join(working_dir, control_template), keywords)
     # Make a copy in the control files folder
     simulation_file = os.path.join(ctrl_fold_name, "{}_{}".format(step, control_template))
-    shutil.copyfile(control_template, simulation_file)
+    shutil.copyfile(os.path.join(working_dir, control_template), simulation_file)
     logger.info("{}_{} has been created successfully!".format(step, control_template))
 
     return simulation_file

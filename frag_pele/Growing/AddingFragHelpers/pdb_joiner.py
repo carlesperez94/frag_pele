@@ -76,8 +76,8 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_to_replace=None,
     if len(selected_atom) > 1:
         for idx, hydrogen in enumerate(selected_atom):
             # We will select atoms of the protein in interaction distance
-            select_h_bonds = prody_complex.select("protein and within 2.5 of (name {} and chain L)"
-                                                  .format(selected_atom.getNames()[idx]))
+            select_h_bonds = prody_complex.select("protein and within 2.5 of (name {} and chain {})"
+                                                  .format(selected_atom.getNames()[idx], chain))
             if PDB_atom_to_replace:
                 print("Forming a bond between {} and {}...".format(PDB_atom_name, PDB_atom_to_replace))
                 select_specific_h_bonds = selected_atom.select("name {}".format(PDB_atom_to_replace))
@@ -179,8 +179,8 @@ def extract_and_change_atomnames(molecule, selected_resname, core_resname, renam
     assert selected_resname != core_resname, "core and fragment residue name must be different"
     fragment = molecule.select("resname {}".format(selected_resname))
     core = molecule.select("resname {}".format(core_resname))
-    core_atom_names  = [atom.getName() for atom in core]
-    fragment_atom_names  = [atom.getName() for atom in fragment]
+    core_atom_names = [atom.getName() for atom in core]
+    fragment_atom_names = [atom.getName() for atom in fragment]
     names_dictionary = {}
     for n, atom_name in enumerate(fragment_atom_names):
         if rename:
