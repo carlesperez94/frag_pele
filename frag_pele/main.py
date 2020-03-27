@@ -211,7 +211,7 @@ def parse_arguments():
     if args.highthroughput:
         args.growing_steps = 1
         args.steps = 3
-        args.pele_eq_steps = 5
+        args.pele_eq_steps = 10
 
     if args.test:
         args.growing_steps = 1
