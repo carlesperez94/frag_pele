@@ -209,9 +209,9 @@ def parse_arguments():
     args = parser.parse_args()
 
     if args.highthroughput:
-        args.growing_steps = 3
+        args.growing_steps = 1
         args.steps = 3
-        args.pele_eq_steps = 15
+        args.pele_eq_steps = 5
 
     if args.test:
         args.growing_steps = 1
@@ -634,6 +634,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
 
 if __name__ == '__main__':
+    #HOT FIX!! Fix it properly
+    original_dir = os.path.abspath(os.getcwd())
     complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
@@ -702,6 +704,7 @@ if __name__ == '__main__':
                     atomname_mappig.append(atomname_map)
 
                 except Exception:
+                    os.chdir(original_dir)
                     traceback.print_exc()
         # INDIVIDUAL GROWING
         else:
@@ -732,5 +735,6 @@ if __name__ == '__main__':
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
                      only_prepare, only_grow, no_check)
             except Exception:
+                os.chdir(original_dir)
                 traceback.print_exc()
 
