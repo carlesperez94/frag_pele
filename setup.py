@@ -21,7 +21,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 setup(
     name="FragPELE",
-    version="2.1.0",
+    version="2.1.1",
     description='FragPELE, a new tool for in silico hit-to-lead drug design, capable of growing a frag_pelement into a core while exploring the protein-ligand conformational space',
     long_description=long_description,
     url="https://github.com/carlesperez94/frag_pele/",
@@ -31,7 +31,8 @@ setup(
     packages=find_packages(exclude=['docs', 'tests']),
     include_package_data=True,
     include_dirs=[numpy.get_include()],
-    install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody==1.10', 'six', 'pytest'],
+    install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody==1.10', 'pytest',
+    'AdaptivePELE', 'lib_prep'],
     cmdclass=cmdclass,
     ext_modules=ext_modules,  # accepts a glob pattern
     #include_dirs=[numpy.get_include()],
