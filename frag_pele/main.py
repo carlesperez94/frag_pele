@@ -66,6 +66,7 @@ def parse_arguments():
                         to perform the bonding with the core.
                         """)
     parser.add_argument("--core", type=str, default=None)
+    parser.add_argument("-nc", "--no_check", action="store_true", help="Don't perform the environment variables check")
     parser.add_argument("-x", "--growing_steps", type=int, default=c.GROWING_STEPS,
                         help="""Number of Growing Steps (GS). By default = {}.""".format(c.GROWING_STEPS))
     parser.add_argument("-cr", "--criteria", default=c.SELECTION_CRITERIA,
@@ -208,9 +209,9 @@ def parse_arguments():
     args = parser.parse_args()
 
     if args.highthroughput:
-        args.growing_steps = 3
+        args.growing_steps = 1
         args.steps = 3
-        args.pele_eq_steps = 15
+        args.pele_eq_steps = 10
 
     if args.test:
         args.growing_steps = 1
@@ -226,7 +227,8 @@ def parse_arguments():
            args.c_chain, args.f_chain, args.steps, args.temperature, args.seed, args.rotamers, \
            args.banned, args.limit, args.mae, args.rename, args.clash_thr, args.steering, \
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
-           args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow
+           args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow, \
+           args.no_check
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -235,7 +237,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
          h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
          banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
          translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
-         radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False):
+         radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
+         no_check=False):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -349,7 +352,8 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     :return:
     """
     #Check harcoded path in constants.py
-    check_constants.check()
+    if not no_check:
+        check_constants.check()
     # Time computations
     start_time = time.time()
     # Global variable to keep info
@@ -630,13 +634,15 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
 
 
 if __name__ == '__main__':
+    #HOT FIX!! Fix it properly
+    original_dir = os.path.abspath(os.getcwd())
     complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
     c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
     rename, threshold_clash, steering, translation_high, rotation_high, \
     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
-    only_prepare, only_grow = parse_arguments()
+    only_prepare, only_grow, no_check = parse_arguments()
     list_of_instructions = serie_handler.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the "
           "trip :)".format(len(list_of_instructions)))
@@ -694,10 +700,11 @@ if __name__ == '__main__':
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
                          limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
                          translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                                        only_prepare, only_grow)
+                                        only_prepare, only_grow, no_check)
                     atomname_mappig.append(atomname_map)
 
                 except Exception:
+                    os.chdir(original_dir)
                     traceback.print_exc()
         # INDIVIDUAL GROWING
         else:
@@ -726,7 +733,8 @@ if __name__ == '__main__':
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
                      threshold_clash, steering, translation_high, rotation_high,
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                     only_prepare, only_grow)
+                     only_prepare, only_grow, no_check)
             except Exception:
+                os.chdir(original_dir)
                 traceback.print_exc()
 
