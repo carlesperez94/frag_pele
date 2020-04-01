@@ -260,7 +260,7 @@ class TemplateOPLS2005:
                 id_atom2 = int(get_string_from_line(line=line, index_initial=6, index_final=11))
                 id_atom3 = int(get_string_from_line(line=line, index_initial=12, index_final=17))
                 id_atom4 = int(get_string_from_line(line=line, index_initial=18, index_final=23))
-                constant = get_string_from_line(line=line, index_initial=26, index_final=32)
+                constant = get_string_from_line(line=line, index_initial=25, index_final=32)
                 preafactor = get_string_from_line(line=line, index_initial=33, index_final=38)
                 nterm = get_string_from_line(line=line, index_initial=39, index_final=42)
                 # Create bond instance
