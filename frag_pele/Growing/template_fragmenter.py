@@ -464,6 +464,24 @@ class ReduceProperty:
             result = function(radnpType)
             self.template.list_of_atoms[key].radnpType = result
 
+    def reduce_nbon_params(self, function):
+        atoms = self.template.get_list_of_fragment_atoms()
+        for key, atom in atoms:
+            result = function(atom.epsilon)
+            self.template.list_of_atoms[key].epsilon = result
+            result = function(atom.sigma)
+            self.template.list_of_atoms[key].sigma = result
+            result = function(atom.charge)
+            self.template.list_of_atoms[key].charge = result
+            result = function(atom.sgbnpGamma)
+            self.template.list_of_atoms[key].sgbnpGamma = result
+            result = function(atom.sgbnpType)
+            self.template.list_of_atoms[key].sgbnpType = result
+            result = function(atom.radnpSGB)
+            self.template.list_of_atoms[key].radnpSGB = result
+            result = function(atom.radnpType)
+            self.template.list_of_atoms[key].radnpType = result
+
     def reduce_bond_eq_dist(self, function):
         bonds = self.template.get_list_of_fragment_bonds()
         for key, bond in bonds:
@@ -504,6 +522,30 @@ class ReduceProperty:
                    result = function(atom_c.charge, atom_g.charge)
                    self.template.list_of_atoms[index_g].charge = result
 
+    def modify_core_nbond_params(self, function):
+        atoms_grw = self.template.get_list_of_core_atoms()
+        atoms_ini = self.template_core.get_list_of_core_atoms()
+        for atom_grow in atoms_grw:
+            index_g, atom_g = atom_grow
+            for atom_core in atoms_ini:
+               index_c, atom_c = atom_core
+               if atom_g.pdb_atom_name == atom_c.pdb_atom_name and not atom_g.is_fragment:
+                   result = function(atom_c.epsilon, atom_g.epsilon)
+                   self.template.list_of_atoms[index_g].epsilon = result
+                   result = function(atom_c.sigma, atom_g.sigma)
+                   self.template.list_of_atoms[index_g].sigma = result
+                   result = function(atom_c.charge, atom_g.charge)
+                   self.template.list_of_atoms[index_g].charge = result
+                   result = function(atom_c.sgbnpGamma, atom_g.sgbnpGamma)
+                   self.template.list_of_atoms[index_g].sgbnpGamma = result
+                   result = function(atom_c.sgbnpType, atom_g.sgbnpType)
+                   self.template.list_of_atoms[index_g].sgbnpType = result
+                   result = function(atom_c.radnpSGB, atom_g.radnpSGB)
+                   self.template.list_of_atoms[index_g].radnpSGB = result
+                   result = function(atom_c.radnpType, atom_g.radnpType)
+                   self.template.list_of_atoms[index_g].radnpType = result
+                   
+
     def modify_core_bond_eq_dist(self, function):
         bonds_grw = self.template
         bonds_ini = self.template_core
@@ -519,9 +561,26 @@ class ReduceProperty:
                 if sorted(atoms_i) == sorted(atoms_g) and not bond_g.is_linker:
                     result = function(bond_i.eq_dist, bond_g.eq_dist)
                     bond_g.eq_dist = result
-                
-                
-                
+    
+    def modify_core_theta(self, function):
+        grw = self.template
+        ini = self.template_core
+        for theta_grw in grw.list_of_thetas.items():
+            key_grw, theta_g = theta_grw
+            # Get PDB atom names of the atoms forming angle
+            atoms_g = [grw.list_of_atoms[theta_g.atom1].pdb_atom_name,
+                       grw.list_of_atoms[theta_g.atom2].pdb_atom_name,
+                       grw.list_of_atoms[theta_g.atom3].pdb_atom_name]
+            for theta_ini in ini.list_of_thetas.items():
+                key_ini, theta_i = theta_ini
+                atoms_i = [ini.list_of_atoms[theta_i.atom1].pdb_atom_name,
+                           ini.list_of_atoms[theta_i.atom2].pdb_atom_name,
+                           ini.list_of_atoms[theta_i.atom3].pdb_atom_name]
+                if sorted(atoms_i) == sorted(atoms_g):
+                    result = function(theta_i.spring, theta_g.spring)
+                    theta_g.spring = result
+                    result = function(theta_i.eq_angle, theta_g.eq_angle)
+                    theta_g.eq_angle = result
 
 
     def modify_core_sgbnpGamma(self, function):
@@ -670,26 +729,15 @@ def set_connecting_atom(template_grown, pdb_atom_name):
 
 def reduce_fragment_parameters_linearly(template_object, lambda_to_reduce):
     reductor = ReduceLinearly(template_object, lambda_to_reduce)
-    reductor.reduce_sigmas(reductor.reduce_value)
-    reductor.reduce_epsilons(reductor.reduce_value)
-    reductor.reduce_charges(reductor.reduce_value)
+    reductor.reduce_nbon_params(reductor.reduce_value)
     reductor.reduce_bond_eq_dist(reductor.reduce_value)
-    reductor.reduce_radnpSGB(reductor.reduce_value)
-    reductor.reduce_radnpType(reductor.reduce_value)
-    reductor.reduce_sgbnpGamma(reductor.reduce_value)
-    reductor.reduce_sgbnpType(reductor.reduce_value)
 
 
 def modify_core_parameters_linearly(template_grow, lambda_to_reduce, template_core):
     reductor = ReduceLinearly(template_grow, lambda_to_reduce, template_core)
-    reductor.modify_core_epsilons(reductor.reduce_value_from_diference)
-    reductor.modify_core_sigmas(reductor.reduce_value_from_diference)
-    reductor.modify_core_charges(reductor.reduce_value_from_diference)
+    reductor.modify_core_nbond_params(reductor.reduce_value_from_diference)
     reductor.modify_core_bond_eq_dist(reductor.reduce_value_from_diference)
-    reductor.modify_core_radnpSGB(reductor.reduce_value_from_diference)
-    reductor.modify_core_radnpType(reductor.reduce_value_from_diference)
-    reductor.modify_core_sgbnpGamma(reductor.reduce_value_from_diference)
-    reductor.modify_core_sgbnpType(reductor.reduce_value_from_diference)
+    reductor.modify_core_theta(reductor.reduce_value_from_diference)
 
 
 def main(template_initial_path, template_grown_path, step, total_steps, hydrogen_to_replace, core_atom_linker,
