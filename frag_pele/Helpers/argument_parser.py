@@ -7,7 +7,7 @@ import argparse
 import frag_pele.constants as const
 
 
-def _create_parser():
+def _create_parser():  # Todo: Not tested
     # All the docstrings are very provisional and some of them are old, they would be changed in further steps!!
     parser = argparse.ArgumentParser(description="""Description: FrAG is a Fragment-based ligand growing software which
     performs automatically the addition of several fragments to a core structure of the ligand in a protein-ligand
@@ -18,7 +18,7 @@ def _create_parser():
     return parser
 
 
-def _add_all_arguments(parser):
+def _add_all_arguments(parser):  # Todo: Not tested
     _add_required_named_arguments(parser)
     _add_standard_arguments(parser)
     _add_plop_arguments(parser)
@@ -29,7 +29,7 @@ def _add_all_arguments(parser):
     _add_others_arguments(parser)
 
 
-def _add_required_named_arguments(parser):
+def _add_required_named_arguments(parser):   # Todo: Not tested
     required_named = parser.add_argument_group('required named arguments')
 
     # FrAG related arguments
@@ -57,7 +57,7 @@ def _add_required_named_arguments(parser):
                         """)
 
 
-def _add_standard_arguments(parser):
+def _add_standard_arguments(parser):   # Todo: Not tested
     parser.add_argument("--core", type=str, default=None)
     parser.add_argument("-nc", "--no_check", action="store_true", help="Don't perform the environment variables check")
     parser.add_argument("-x", "--growing_steps", type=int, default=const.GROWING_STEPS,
@@ -81,7 +81,7 @@ def _add_standard_arguments(parser):
                         help="If set, it runs all growings of folders already prepared.")
 
 
-def _add_plop_arguments(parser):
+def _add_plop_arguments(parser):  # Todo: Not tested
     parser.add_argument("-pl", "--plop_path", default=const.PLOP_PATH,
                         help="Absolute path to PlopRotTemp.py. By default = {}".format(const.PLOP_PATH))
     parser.add_argument("-sp", "--sch_python", default=const.SCHRODINGER_PY_PATH,
@@ -92,7 +92,7 @@ def _add_plop_arguments(parser):
                         By default = {}""".format(const.ROTRES))
 
 
-def _add_pele_conf_arguments(parser):
+def _add_pele_conf_arguments(parser):  # Todo: Not tested
     parser.add_argument("-d", "--pele_dir", default=const.PATH_TO_PELE,
                         help="Complete path to Pele_serial. "
                              "By default = {}".format(const.PATH_TO_PELE))
@@ -157,7 +157,7 @@ def _add_pele_conf_arguments(parser):
                         help="Path to PELE Documents folder.")
 
 
-def _add_clustering_arguments(parser):
+def _add_clustering_arguments(parser):  # Todo: Not tested
     parser.add_argument("-dis", "--distcont", default=const.DISTANCE_COUNTER,
                         help="""Distance used to determine which amino acids are in contact with the ligand to generate 
                         different clusters of structures to initialize the next GS. 
@@ -193,7 +193,7 @@ def _add_clustering_arguments(parser):
                              "By default = {}".format(const.BANNED_ANGLE_THRESHOLD))
 
 
-def _add_protocol_arguments(parser):
+def _add_protocol_arguments(parser):  # Todo: Not tested
     parser.add_argument("-HT", "--highthroughput", action="store_true",
                         help="Run frag pele high-throughput mode")
     parser.add_argument("-EX", "--explorative", action="store_true",
@@ -201,24 +201,24 @@ def _add_protocol_arguments(parser):
     parser.add_argument("--test", action="store_true", help="run test config")
 
 
-def _add_output_format_arguments(parser):
+def _add_output_format_arguments(parser):  # Todo: Not tested
     parser.add_argument("--mae", action="store_true",
                         help="Retrieve .mae files intead of pdbs")
 
 
-def _add_others_arguments(parser):
+def _add_others_arguments(parser):  # Todo: Not tested
     parser.add_argument("--rename", action="store_true",
                         help="Avoid core renaming")
 
 
-def _check_highthroughput_in_args(args):
+def _check_highthroughput_in_args(args):  # Todo: Not tested
     if args.highthroughput:
         args.growing_steps = 1
         args.steps = 3
         args.pele_eq_steps = 10
 
 
-def _check_test_in_args(args):
+def _check_test_in_args(args):  # Todo: Not tested
     if args.test:
         args.growing_steps = 1
         args.steps = 1
@@ -226,7 +226,7 @@ def _check_test_in_args(args):
         args.temp = 1000000
 
 
-def parse_arguments():
+def parse_arguments():  # Todo: Not tested
     """
         Parse user arguments
         Output: list with all the user arguments
