@@ -32,7 +32,7 @@ setup(
     include_package_data=True,
     include_dirs=[numpy.get_include()],
     install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody==1.10', 'pytest',
-    'AdaptivePELE', 'lib_prep'],
+    'AdaptivePELE', 'lib_prep', 'nose'],
     cmdclass=cmdclass,
     ext_modules=ext_modules,  # accepts a glob pattern
     #include_dirs=[numpy.get_include()],
@@ -46,7 +46,7 @@ setup(
     project_urls={
     'Documentation': 'https://carlesperez94.github.io/frag_pele/',
     'Source': 'https://carlesperez94.github.io/frag_pele/',
-'Tracker': 'https://github.com/carlesperez94/frag_pele/issues',
+    'Tracker': 'https://github.com/carlesperez94/frag_pele/issues',
 },
 )
 
