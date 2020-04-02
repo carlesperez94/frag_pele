@@ -92,7 +92,7 @@ def _add_plop_arguments(parser):  # Todo: Not tested
                         By default = {}""".format(const.ROTRES))
 
 
-def _add_pele_conf_arguments(parser):  # Todo: Not tested
+def _add_pele_conf_arguments(parser):
     parser.add_argument("-d", "--pele_dir", default=const.PATH_TO_PELE,
                         help="Complete path to Pele_serial. "
                              "By default = {}".format(const.PATH_TO_PELE))
@@ -157,7 +157,7 @@ def _add_pele_conf_arguments(parser):  # Todo: Not tested
                         help="Path to PELE Documents folder.")
 
 
-def _add_clustering_arguments(parser):  # Todo: Not tested
+def _add_clustering_arguments(parser):
     parser.add_argument("-dis", "--distcont", default=const.DISTANCE_COUNTER,
                         help="""Distance used to determine which amino acids are in contact with the ligand to generate 
                         different clusters of structures to initialize the next GS. 
@@ -193,7 +193,7 @@ def _add_clustering_arguments(parser):  # Todo: Not tested
                              "By default = {}".format(const.BANNED_ANGLE_THRESHOLD))
 
 
-def _add_protocol_arguments(parser):  # Todo: Not tested
+def _add_protocol_arguments(parser):
     parser.add_argument("-HT", "--highthroughput", action="store_true",
                         help="Run frag pele high-throughput mode")
     parser.add_argument("-EX", "--explorative", action="store_true",
@@ -201,24 +201,24 @@ def _add_protocol_arguments(parser):  # Todo: Not tested
     parser.add_argument("--test", action="store_true", help="run test config")
 
 
-def _add_output_format_arguments(parser):  # Todo: Not tested
+def _add_output_format_arguments(parser):
     parser.add_argument("--mae", action="store_true",
                         help="Retrieve .mae files intead of pdbs")
 
 
-def _add_others_arguments(parser):  # Todo: Not tested
+def _add_others_arguments(parser):
     parser.add_argument("--rename", action="store_true",
                         help="Avoid core renaming")
 
 
-def _check_highthroughput_in_args(args):  # Todo: Not tested
+def _check_highthroughput_in_args(args):
     if args.highthroughput:
         args.growing_steps = 1
         args.steps = 3
         args.pele_eq_steps = 10
 
 
-def _check_test_in_args(args):  # Todo: Not tested
+def _check_test_in_args(args):
     if args.test:
         args.growing_steps = 1
         args.steps = 1
