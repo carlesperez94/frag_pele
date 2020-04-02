@@ -18,7 +18,7 @@ def _create_parser():  # Todo: Not tested
     return parser
 
 
-def _add_all_arguments(parser):  # Todo: Not tested
+def _add_all_arguments(parser):
     _add_required_named_arguments(parser)
     _add_standard_arguments(parser)
     _add_plop_arguments(parser)
@@ -31,7 +31,10 @@ def _add_all_arguments(parser):  # Todo: Not tested
 
 def _add_required_named_arguments(parser):   # Todo: Not tested
     required_named = parser.add_argument_group('required named arguments')
+    _add_arguments_to_required_named(required_named)
 
+
+def _add_arguments_to_required_named(required_named):
     # FrAG related arguments
     required_named.add_argument("-cp", "--complex_pdb", required=True,
                                 help="""Path to the PDB file which must contain a protein-ligand complex. Its ligand 
@@ -42,7 +45,7 @@ def _add_required_named_arguments(parser):   # Todo: Not tested
                                 help=""" Name of the tabular file which must contain the instructions required to 
                                 perform several successive growings, using different fragments or different growing 
                                 positions.
-                                
+
                         To do simple growings:
                         col1   col2    col3
                         To do successive growings:
@@ -57,7 +60,7 @@ def _add_required_named_arguments(parser):   # Todo: Not tested
                         """)
 
 
-def _add_standard_arguments(parser):   # Todo: Not tested
+def _add_standard_arguments(parser):
     parser.add_argument("--core", type=str, default=None)
     parser.add_argument("-nc", "--no_check", action="store_true", help="Don't perform the environment variables check")
     parser.add_argument("-x", "--growing_steps", type=int, default=const.GROWING_STEPS,
@@ -81,7 +84,7 @@ def _add_standard_arguments(parser):   # Todo: Not tested
                         help="If set, it runs all growings of folders already prepared.")
 
 
-def _add_plop_arguments(parser):  # Todo: Not tested
+def _add_plop_arguments(parser):
     parser.add_argument("-pl", "--plop_path", default=const.PLOP_PATH,
                         help="Absolute path to PlopRotTemp.py. By default = {}".format(const.PLOP_PATH))
     parser.add_argument("-sp", "--sch_python", default=const.SCHRODINGER_PY_PATH,
