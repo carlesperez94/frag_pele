@@ -7,7 +7,7 @@ import argparse
 import frag_pele.constants as const
 
 
-def _create_parser():  # Todo: Not tested
+def _create_parser():
     # All the docstrings are very provisional and some of them are old, they would be changed in further steps!!
     parser = argparse.ArgumentParser(description="""Description: FrAG is a Fragment-based ligand growing software which
     performs automatically the addition of several fragments to a core structure of the ligand in a protein-ligand
@@ -29,12 +29,9 @@ def _add_all_arguments(parser):
     _add_others_arguments(parser)
 
 
-def _add_required_named_arguments(parser):   # Todo: Not tested
+def _add_required_named_arguments(parser):
     required_named = parser.add_argument_group('required named arguments')
-    _add_arguments_to_required_named(required_named)
 
-
-def _add_arguments_to_required_named(required_named):
     # FrAG related arguments
     required_named.add_argument("-cp", "--complex_pdb", required=True,
                                 help="""Path to the PDB file which must contain a protein-ligand complex. Its ligand 
@@ -229,7 +226,7 @@ def _check_test_in_args(args):
         args.temp = 1000000
 
 
-def parse_arguments():  # Todo: Not tested
+def parse_arguments():
     """
         Parse user arguments
         Output: list with all the user arguments

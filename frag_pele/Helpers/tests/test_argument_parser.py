@@ -1,4 +1,5 @@
 # Python Imports
+import sys
 import argparse
 import unittest
 from unittest.mock import Mock, patch
@@ -7,6 +8,7 @@ from unittest.mock import Mock, patch
 
 # Project Imports
 from frag_pele.Helpers import argument_parser as ap
+import frag_pele.constants as const
 
 
 class TestArgumentParser(unittest.TestCase):
@@ -15,8 +17,12 @@ class TestArgumentParser(unittest.TestCase):
     def setUpClass(cls):
         cls.class_parser = argparse.ArgumentParser()
 
-    def test_create_parser(self):
-        pass
+    @patch.object(ap, '_add_all_arguments')
+    def test_create_parser(self, mock_a):
+        parser = ap._create_parser()
+
+        self.assertIs(argparse.ArgumentParser, type(parser))
+        mock_a.assert_called_once_with(parser)
 
     @patch.object(ap, "_add_required_named_arguments")
     @patch.object(ap, "_add_standard_arguments")
@@ -30,125 +36,103 @@ class TestArgumentParser(unittest.TestCase):
         parser = argparse.ArgumentParser()
 
         ap._add_all_arguments(parser)
-        mock_a.assert_called_with(parser)
-        mock_b.assert_called_with(parser)
-        mock_c.assert_called_with(parser)
-        mock_d.assert_called_with(parser)
-        mock_e.assert_called_with(parser)
-        mock_f.assert_called_with(parser)
-        mock_g.assert_called_with(parser)
-        mock_h.assert_called_with(parser)
+        mock_a.assert_called_once_with(parser)
+        mock_b.assert_called_once_with(parser)
+        mock_c.assert_called_once_with(parser)
+        mock_d.assert_called_once_with(parser)
+        mock_e.assert_called_once_with(parser)
+        mock_f.assert_called_once_with(parser)
+        mock_g.assert_called_once_with(parser)
+        mock_h.assert_called_once_with(parser)
 
     def test_add_required_named_arguments(self):
-        pass
+        flags_to_check = ['-cp', '--complex_pdb', '-sef', '--serie_file']
 
-    def test_add_arguments_to_required_named(self):
-        mock = Mock()
+        parser = argparse.ArgumentParser()
+        ap._add_required_named_arguments(parser)
+        actions = parser._option_string_actions
 
-        ap._add_arguments_to_required_named(mock)
-
-        self.assertEqual(len(mock.add_argument.call_args_list), 2)
-        self.assertEqual(mock.add_argument.call_args_list[0][0], ('-cp', '--complex_pdb'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[1][0], ('-sef', '--serie_file'))  # todo: check a better way
+        self.assertEqual(6, len(actions))  # 6 and not 4 as in flag_to_check, because automatically adds -h --help
+        self._loop_assert_in(flags_to_check, actions)
 
     def test_standard_arguments(self):
-        mock = Mock()
+        flags_to_check = ['--core', '-nc', '--no_check', '-x', '--growing_steps', '-cr', '--criteria', '-rst',
+                          '--restart', '-cc', '--c_chain', '-fc', '--f_chain', '-tc', '--clash_thr', '-sc',
+                          '--sampling_control', '-op', '--only_prepare', '-og', '--only_grow']
 
-        ap._add_standard_arguments(mock)
+        parser = argparse.ArgumentParser()
+        ap._add_standard_arguments(parser)
+        actions = parser._option_string_actions
 
-        self.assertEqual(len(mock.add_argument.call_args_list), 11)
-        self.assertEqual(mock.add_argument.call_args_list[0][0], ('--core',))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[1][0], ('-nc', '--no_check'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[2][0], ('-x', '--growing_steps'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[3][0], ('-cr', '--criteria'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[4][0], ('-rst', '--restart'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[5][0], ('-cc', '--c_chain'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[6][0], ('-fc', '--f_chain'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[7][0], ('-tc', '--clash_thr'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[8][0], ('-sc', '--sampling_control'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[9][0], ('-op', '--only_prepare'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[10][0], ('-og', '--only_grow'))  # todo: check a better way
+        self.assertEqual(23, len(actions))  # 23 and not 21 as in flags_to_check, because automatically adds -h --help
+        self._loop_assert_in(flags_to_check, actions)
 
     def test_add_plop_arguments(self):
-        mock = Mock()
+        flags_to_check = ['-pl', '--plop_path', '-sp', '--sch_python', '-rot', '--rotamers']
 
-        ap._add_plop_arguments(mock)
+        parser = argparse.ArgumentParser()
+        ap._add_plop_arguments(parser)
+        actions = parser._option_string_actions
 
-        self.assertEqual(len(mock.add_argument.call_args_list), 3)
-        self.assertEqual(mock.add_argument.call_args_list[0][0], ('-pl', '--plop_path'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[1][0], ('-sp', '--sch_python'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[2][0], ('-rot', '--rotamers'))  # todo: check a better way
+        self.assertEqual(8, len(actions))  # 8 and not 6 as in flags_to_check, because automatically adds -h --help
+        self._loop_assert_in(flags_to_check, actions)
 
     def test_add_pele_conf_arguments(self):
-        mock = Mock()
+        flags_to_check = ['-d', '--pele_dir', '-c', '--contrl', '-l', '--license', '-r', '--resfold', '-rp', '--report',
+                         '-tj', '--traject', '-cs', '--cpus', '-stp', '--steps', '-es', '--pele_eq_steps', '-miov',
+                         '--min_overlap', '-maov', '--max_overlap', '-tmp', '--temperature', '-sd', '--seed', '-st',
+                         '--steering', '-trh', '--translation_high', '-roth', '--rotation_high', '-trl',
+                         '--translation_low', '-rotl', '--rotation_low', '-rad', '--radius_box', '-dat', '--data',
+                         '-doc', '--documents']
 
-        ap._add_pele_conf_arguments(mock)
-
-        self.assertEqual(len(mock.add_argument.call_args_list), 21)
-        self.assertEqual(mock.add_argument.call_args_list[0][0], ('-d', '--pele_dir'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[1][0], ('-c', '--contrl'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[2][0], ('-l', '--license'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[3][0], ('-r', '--resfold'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[4][0], ('-rp', '--report'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[5][0], ('-tj', '--traject'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[6][0], ('-cs', '--cpus'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[7][0], ('-stp', '--steps'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[8][0], ('-es', '--pele_eq_steps'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[9][0], ('-miov', '--min_overlap'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[10][0], ('-maov', '--max_overlap'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[11][0], ('-tmp', '--temperature'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[12][0], ('-sd', '--seed'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[13][0], ('-st', '--steering'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[14][0], ('-trh', '--translation_high'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[15][0], ('-roth', '--rotation_high'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[16][0], ('-trl', '--translation_low'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[17][0], ('-rotl', '--rotation_low'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[18][0], ('-rad', '--radius_box'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[19][0], ('-dat', '--data'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[20][0], ('-doc', '--documents'))  # todo: check a better way
+        parser = argparse.ArgumentParser()
+        ap._add_pele_conf_arguments(parser)
+        actions = parser._option_string_actions
+        print(len(actions))
+        self.assertEqual(44, len(actions))  # 44 and not 42 as in flags_to_check, because automatically adds -h --help
+        self._loop_assert_in(flags_to_check, actions)
 
     def test_add_clustering_arguments(self):
+        flags_to_check = ['-dis', '--distcont', '-ct', '--threshold', '-e', '--epsilon', '-cn', '--condition', '-mw',
+                          '--metricweights', '-ncl', '--nclusters', '-pdbf', '--pdbout', '-ban', '--banned', '-lim',
+                          '--limit']
+
         parser = argparse.ArgumentParser()
         ap._add_clustering_arguments(parser)
-
         actions = parser._option_string_actions
-        self.assertIn("-dis", actions)
-        self.assertIn("--distcont", actions)
-        self.assertEqual(20, len(actions))  # 20 cause of auto --help flag
 
-        # self.assertEqual(len(mock.add_argument.call_args_list), 9)
-        # self.assertEqual(mock.add_argument.call_args_list[0][0], ('-dis', '--distcont'))  # todo: check a better way
-        # self.assertEqual(mock.add_argument.call_args_list[1][0], ('-ct', '--threshold'))  # todo: check a better way
-        # self.assertEqual(mock.add_argument.call_args_list[2][0], ('-e', '--epsilon'))  # todo: check a better way
-        # self.assertEqual(mock.add_argument.call_args_list[3][0], ('-cn', '--condition'))  # todo: check a better way
-        # self.assertEqual(mock.add_argument.call_args_list[4][0], ('-mw', '--metricweights'))  # todo: check a better way
-        # self.assertEqual(mock.add_argument.call_args_list[5][0], ('-ncl', '--nclusters'))  # todo: check a better way
-        # self.assertEqual(mock.add_argument.call_args_list[6][0], ('-pdbf', '--pdbout'))  # todo: check a better way
-        # self.assertEqual(mock.add_argument.call_args_list[7][0], ('-ban', '--banned'))  # todo: check a better way
-        # self.assertEqual(mock.add_argument.call_args_list[8][0], ('-lim', '--limit'))  # todo: check a better way
+        self.assertEqual(20, len(actions))  # 20 and not 18 as in flags_to_check, because automatically adds -h --help
+        self._loop_assert_in(flags_to_check, actions)
 
     def test_add_protocol_arguments(self):
-        mock = Mock()
+        flags_to_check = ['-HT', '--highthroughput', '-EX', '--explorative', '--test']
 
-        ap._add_protocol_arguments(mock)
+        parser = argparse.ArgumentParser()
+        ap._add_protocol_arguments(parser)
+        actions = parser._option_string_actions
 
-        self.assertEqual(mock.add_argument.call_args_list[0][0], ('-HT', '--highthroughput'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[1][0], ('-EX', '--explorative'))  # todo: check a better way
-        self.assertEqual(mock.add_argument.call_args_list[2][0], ('--test',))  # todo: check a better way
+        self.assertEqual(7, len(actions))  # 7 and not 5 as in flags_to_check, because automatically adds -h --help
+        self._loop_assert_in(flags_to_check, actions)
 
     def test_add_output_format_arguments(self):
-        mock = Mock()
+        flags_to_check = ['--mae']
 
-        ap._add_output_format_arguments(mock)
+        parser = argparse.ArgumentParser()
+        ap._add_output_format_arguments(parser)
+        actions = parser._option_string_actions
 
-        self.assertEqual(mock.add_argument.call_args[0][0], '--mae')  # todo: check a better way
+        self.assertEqual(3, len(actions))  # 3 and not 1 as in flags_to_check, because automatically adds -h --help
+        self._loop_assert_in(flags_to_check, actions)
 
     def test_add_other_arguments(self):
-        mock = Mock()
+        flags_to_check = ['--rename']
 
-        ap._add_others_arguments(mock)
+        parser = argparse.ArgumentParser()
+        ap._add_others_arguments(parser)
+        actions = parser._option_string_actions
 
-        self.assertEqual(mock.add_argument.call_args[0][0], '--rename')  # todo: check a better way
+        self.assertEqual(3, len(actions))  # 3 and not 1 as in flags_to_check, because automatically adds -h --help
+        self._loop_assert_in(flags_to_check, actions)
 
     def test_check_highthroughput_in_args_true(self):
         mock = Mock()
@@ -207,4 +191,27 @@ class TestArgumentParser(unittest.TestCase):
         self.assertEqual(mock.temp, 0)
 
     def test_parse_arguments(self):
-        pass
+        test_args = ['TestFragArgParser', '-cp', 'TEST_CP', '-sef', 'TEST_SEF', '-nc', '-rst', '-op', '-og',
+                     '-EX', '--mae', '--rename']
+
+        expected = ['TEST_CP', const.GROWING_STEPS, const.SELECTION_CRITERIA, const.PLOP_PATH, const.SCHRODINGER_PY_PATH,
+                    const.PATH_TO_PELE, const.CONTROL_TEMPLATE, const.PATH_TO_LICENSE, const.RESULTS_FOLDER,
+                    const.REPORT_NAME, const.TRAJECTORY_NAME, const.PDBS_OUTPUT_FOLDER, const.CPUS,
+                    const.DISTANCE_COUNTER, const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION,
+                    const.METRICS_WEIGHTS, const.NUM_CLUSTERS, const.PELE_EQ_STEPS, True, const.MIN_OVERLAP,
+                    const.MAX_OVERLAP, 'TEST_SEF', 'L', 'L', const.STEPS, const.TEMPERATURE, const.SEED,
+                    const.ROTRES, const.BANNED_DIHEDRALS_ATOMS, const.BANNED_ANGLE_THRESHOLD, True, True,
+                    1.7, const.STEERING, const.TRANSLATION_HIGH, const.ROTATION_HIGH, const.TRANSLATION_LOW,
+                    const.ROTATION_LOW, True, const.RADIUS_BOX, None, const.PATH_TO_PELE_DATA,
+                    const.PATH_TO_PELE_DOCUMENTS, True, True, True]
+
+        with patch.object(sys, 'argv', test_args):
+            result = ap.parse_arguments()
+            print(result)
+            self.assertEqual(len(expected), len(result))
+            for i in range(len(expected)):
+                self.assertEqual(expected[i], result[i])
+
+    def _loop_assert_in(self, flag_list, actions):
+        for flag in flag_list:
+            self.assertIn(flag, actions)
