@@ -11,18 +11,16 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Conda
-      uses: s-weigand/setup-conda@v1.0.2
-
-    - name: Install packages
-      run: |
-        conda create -n frag python=3.7 --yes
-        source activate frag
+      - uses: actions/checkout@v2
+      - name: Set up Conda
+        uses: actions/setup-python@v1
+          with:
+            python-version: 3.7
+      - run: conda --version
+      - run: which python
 
     - name: Install dependencies
       run: |
