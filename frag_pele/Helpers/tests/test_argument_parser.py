@@ -18,11 +18,11 @@ class TestArgumentParser(unittest.TestCase):
         cls.class_parser = argparse.ArgumentParser()
 
     @patch.object(ap, '_add_all_arguments')
-    def test_create_parser(self, mock_a):
+    def test_create_parser(self, mock_argparser_lib):
         parser = ap._create_parser()
 
-        self.assertIs(argparse.ArgumentParser, type(parser))
-        mock_a.assert_called_once_with(parser)
+        mock_argparser_lib.assert_called_once_with(parser)
+        self.assertEqual(type(parser), argparse.ArgumentParser)
 
     @patch.object(ap, "_add_required_named_arguments")
     @patch.object(ap, "_add_standard_arguments")
@@ -173,7 +173,7 @@ class TestArgumentParser(unittest.TestCase):
         self.assertEqual(mock.growing_steps, 1)
         self.assertEqual(mock.steps, 1)
         self.assertEqual(mock.pele_eq_steps, 1)
-        self.assertEqual(mock.temp, 1000000)
+        self.assertEqual(mock.temperature, 1000000)
 
     def test_check_test_in_args_false(self):
         mock = Mock()
@@ -200,6 +200,50 @@ class TestArgumentParser(unittest.TestCase):
                     const.DISTANCE_COUNTER, const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION,
                     const.METRICS_WEIGHTS, const.NUM_CLUSTERS, const.PELE_EQ_STEPS, True, const.MIN_OVERLAP,
                     const.MAX_OVERLAP, 'TEST_SEF', 'L', 'L', const.STEPS, const.TEMPERATURE, const.SEED,
+                    const.ROTRES, const.BANNED_DIHEDRALS_ATOMS, const.BANNED_ANGLE_THRESHOLD, True, True,
+                    1.7, const.STEERING, const.TRANSLATION_HIGH, const.ROTATION_HIGH, const.TRANSLATION_LOW,
+                    const.ROTATION_LOW, True, const.RADIUS_BOX, None, const.PATH_TO_PELE_DATA,
+                    const.PATH_TO_PELE_DOCUMENTS, True, True, True]
+
+        with patch.object(sys, 'argv', test_args):
+            result = ap.parse_arguments()
+            print(result)
+            self.assertEqual(len(expected), len(result))
+            for i in range(len(expected)):
+                self.assertEqual(expected[i], result[i])
+
+    def test_parse_arguments_highthroughput_flag(self):
+        test_args = ['TestFragArgParser', '-cp', 'TEST_CP', '-sef', 'TEST_SEF', '-nc', '-rst', '-op', '-og',
+                     '-EX', '--mae', '--rename', '-HT']
+
+        expected = ['TEST_CP', 1, const.SELECTION_CRITERIA, const.PLOP_PATH, const.SCHRODINGER_PY_PATH,
+                    const.PATH_TO_PELE, const.CONTROL_TEMPLATE, const.PATH_TO_LICENSE, const.RESULTS_FOLDER,
+                    const.REPORT_NAME, const.TRAJECTORY_NAME, const.PDBS_OUTPUT_FOLDER, const.CPUS,
+                    const.DISTANCE_COUNTER, const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION,
+                    const.METRICS_WEIGHTS, const.NUM_CLUSTERS, 10, True, const.MIN_OVERLAP,
+                    const.MAX_OVERLAP, 'TEST_SEF', 'L', 'L', 3, const.TEMPERATURE, const.SEED,
+                    const.ROTRES, const.BANNED_DIHEDRALS_ATOMS, const.BANNED_ANGLE_THRESHOLD, True, True,
+                    1.7, const.STEERING, const.TRANSLATION_HIGH, const.ROTATION_HIGH, const.TRANSLATION_LOW,
+                    const.ROTATION_LOW, True, const.RADIUS_BOX, None, const.PATH_TO_PELE_DATA,
+                    const.PATH_TO_PELE_DOCUMENTS, True, True, True]
+
+        with patch.object(sys, 'argv', test_args):
+            result = ap.parse_arguments()
+            print(result)
+            self.assertEqual(len(expected), len(result))
+            for i in range(len(expected)):
+                self.assertEqual(expected[i], result[i])
+
+    def test_parse_arguments_test_flag(self):
+        test_args = ['TestFragArgParser', '-cp', 'TEST_CP', '-sef', 'TEST_SEF', '-nc', '-rst', '-op', '-og',
+                     '-EX', '--mae', '--rename', '--test']
+
+        expected = ['TEST_CP', 1, const.SELECTION_CRITERIA, const.PLOP_PATH, const.SCHRODINGER_PY_PATH,
+                    const.PATH_TO_PELE, const.CONTROL_TEMPLATE, const.PATH_TO_LICENSE, const.RESULTS_FOLDER,
+                    const.REPORT_NAME, const.TRAJECTORY_NAME, const.PDBS_OUTPUT_FOLDER, const.CPUS,
+                    const.DISTANCE_COUNTER, const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION,
+                    const.METRICS_WEIGHTS, const.NUM_CLUSTERS, 1, True, const.MIN_OVERLAP,
+                    const.MAX_OVERLAP, 'TEST_SEF', 'L', 'L', 1, 1000000, const.SEED,
                     const.ROTRES, const.BANNED_DIHEDRALS_ATOMS, const.BANNED_ANGLE_THRESHOLD, True, True,
                     1.7, const.STEERING, const.TRANSLATION_HIGH, const.ROTATION_HIGH, const.TRANSLATION_LOW,
                     const.ROTATION_LOW, True, const.RADIUS_BOX, None, const.PATH_TO_PELE_DATA,

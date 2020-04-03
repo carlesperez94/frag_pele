@@ -9,9 +9,9 @@ import frag_pele.constants as const
 
 def _create_parser():
     # All the docstrings are very provisional and some of them are old, they would be changed in further steps!!
-    parser = argparse.ArgumentParser(description="""Description: FrAG is a Fragment-based ligand growing software which
-    performs automatically the addition of several fragments to a core structure of the ligand in a protein-ligand
-    complex.""")
+    text_1 = 'Description: FrAG is a Fragment-based ligand growing software which performs automatically '
+    text_2 = 'the addition of several fragments to a core structure of the ligand in a protein-ligand complex.'
+    parser = argparse.ArgumentParser(description=text_1 + text_2)
 
     _add_all_arguments(parser)
 
@@ -194,21 +194,18 @@ def _add_clustering_arguments(parser):
 
 
 def _add_protocol_arguments(parser):
-    parser.add_argument("-HT", "--highthroughput", action="store_true",
-                        help="Run frag pele high-throughput mode")
+    parser.add_argument("-HT", "--highthroughput", action="store_true", help="Run frag pele high-throughput mode")
     parser.add_argument("-EX", "--explorative", action="store_true",
                         help="Run frag pele explorative mode: sampling simulation with high movement of the ligand.")
     parser.add_argument("--test", action="store_true", help="run test config")
 
 
 def _add_output_format_arguments(parser):
-    parser.add_argument("--mae", action="store_true",
-                        help="Retrieve .mae files intead of pdbs")
+    parser.add_argument("--mae", action="store_true", help="Retrieve .mae files intead of pdbs")
 
 
 def _add_others_arguments(parser):
-    parser.add_argument("--rename", action="store_true",
-                        help="Avoid core renaming")
+    parser.add_argument("--rename", action="store_true", help="Avoid core renaming")
 
 
 def _check_highthroughput_in_args(args):
@@ -223,7 +220,7 @@ def _check_test_in_args(args):
         args.growing_steps = 1
         args.steps = 1
         args.pele_eq_steps = 1
-        args.temp = 1000000
+        args.temperature = 1000000
 
 
 def parse_arguments():
