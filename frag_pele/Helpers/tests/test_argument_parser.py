@@ -207,7 +207,6 @@ class TestArgumentParser(unittest.TestCase):
 
         with patch.object(sys, 'argv', test_args):
             result = ap.parse_arguments()
-            print(result)
             self.assertEqual(len(expected), len(result))
             for i in range(len(expected)):
                 self.assertEqual(expected[i], result[i])
@@ -229,7 +228,6 @@ class TestArgumentParser(unittest.TestCase):
 
         with patch.object(sys, 'argv', test_args):
             result = ap.parse_arguments()
-            print(result)
             self.assertEqual(len(expected), len(result))
             for i in range(len(expected)):
                 self.assertEqual(expected[i], result[i])
@@ -251,7 +249,6 @@ class TestArgumentParser(unittest.TestCase):
 
         with patch.object(sys, 'argv', test_args):
             result = ap.parse_arguments()
-            print(result)
             self.assertEqual(len(expected), len(result))
             for i in range(len(expected)):
                 self.assertEqual(expected[i], result[i])
