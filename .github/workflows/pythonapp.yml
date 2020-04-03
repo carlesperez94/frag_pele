@@ -3,6 +3,8 @@
 
 name: Python application
 
+uses: s-weigand/setup-conda@v1.0.2
+
 on:
   push:
     branches: [ FR-ArgParserRefactor ]
@@ -14,14 +16,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.7
+    - name: Set up Conda
+      uses: s-weigand/setup-conda@v1.0.2
+      run: |
+        conda create -n frag python=3.7 --yes
+        source activate frag
+
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
+        conda install -c NostrumBioDiscovery -c conda-forge frag_pele --yes
+
     - name: Lint with flake8
       run: |
         pip install flake8
@@ -31,6 +35,5 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with unittest
       run: |
-        pip install coverage
-        python -m unittest 	
-        coverage report
+        coverage run -m unittest
+
