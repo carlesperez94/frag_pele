@@ -11,29 +11,27 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.6, 3.7]
+    name: Python ${{ matrix.python-version }} example
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Conda
-        uses: actions/setup-python@v1
-          with:
-            python-version: 3.7
+      - name: Setup conda
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: true
+          python-version: ${{ matrix.python-version }}
+          conda-channels: anaconda, conda-forge, NostrumBioDiscovery, frag_pele
       - run: conda --version
       - run: which python
-
-    - name: Install dependencies
-      run: |
-        conda install -c NostrumBioDiscovery -c conda-forge frag_pele --yes
-
-    - name: Lint with flake8
-      run: |
-        pip install flake8
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with unittest
-      run: |
-        coverage run -m unittest
+      - run: |
+          pip install flake8
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      - name: Test with unittest
+        run:
+          coverage run -m unittest
 
