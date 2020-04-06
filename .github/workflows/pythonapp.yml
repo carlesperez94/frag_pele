@@ -26,6 +26,9 @@ jobs:
       - name: Install frag_pele
         run:
           conda install frag_pele --yes
+      - name: Install coverage
+        run:
+          conda install coverage
       - name: Test with unittest
         run:
           python -m unittest && coverage report
