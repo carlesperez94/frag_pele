@@ -27,7 +27,7 @@ jobs:
           pip install flake8
           # stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-      -name: Install frag_pele
+      - name: Install frag_pele
         - run:
           conda install frag_pele --yes
       - name: Test with unittest
