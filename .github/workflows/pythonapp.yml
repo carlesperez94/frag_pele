@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.6, 3.7]
+        python-version: [3.7]
     name: Python ${{ matrix.python-version }} example
     steps:
       - uses: actions/checkout@v2
@@ -28,5 +28,4 @@ jobs:
           conda install frag_pele --yes
       - name: Test with unittest
         run:
-          coverage run -m unittest
-
+          python -m unittest && coverage report
