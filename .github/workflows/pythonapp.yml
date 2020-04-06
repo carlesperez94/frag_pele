@@ -31,4 +31,4 @@ jobs:
           conda install coverage
       - name: Test with unittest
         run: |
-          python -m unittest
+          coverage run -m unittest
