@@ -202,8 +202,6 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
     :return: ProDy molecule with the core_structure and the fragment_structure (with the coordinates modified)
     concatenated.
     """
-    print(core_bond, fragment_bond, core_structure, fragment_structure, pdb_complex,
-                    pdb_fragment, chain_complex, chain_fragment, output_path, only_grow)
     name_to_replace_core = core_bond[1].name
     name_to_replace_fragment = fragment_bond[0].name
     if only_grow:
@@ -400,8 +398,6 @@ def rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, 
     """
     # Obtain the axis that we want to use as reference for the rotation
     vector = bond[1].get_vector() - bond[0].get_vector()
-    print(bond[0], bond[1])
-    print(bond[0].get_coord(), bond[1].get_coord())
     # Obtain the rotation matrix for the vector (axis) and the angle (theta)
     rot_mat = bio.rotaxis(theta, vector)
     for atom in list_of_atoms:
