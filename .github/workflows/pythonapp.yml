@@ -22,7 +22,7 @@ jobs:
         with:
           update-conda: true
           python-version: ${{ matrix.python-version }}
-          conda-channels: anaconda, NostrumBioDiscovery, conda-forge
+          conda-channels: NostrumBioDiscovery, conda-forge
       - name: Install frag_pele
         run:
           conda install frag_pele --yes
