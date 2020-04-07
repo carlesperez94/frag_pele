@@ -582,6 +582,23 @@ class ReduceProperty:
                     result = function(theta_i.eq_angle, theta_g.eq_angle)
                     theta_g.eq_angle = result
 
+    def modify_core_phis(self, function):
+        grw = self.template
+        ini = self.template_core
+        for phi_g in grw.list_of_phis: # This is a list, not a dict
+            # Get PDB atom names of the atoms forming angles
+            atoms_g = [grw.list_of_atoms[phi_g.atom1].pdb_atom_name,
+                       grw.list_of_atoms[phi_g.atom2].pdb_atom_name,
+                       grw.list_of_atoms[phi_g.atom3].pdb_atom_name,
+                       grw.list_of_atoms[phi_g.atom4].pdb_atom_name]
+            for phi_i in ini.list_of_phis:
+                atoms_i = [ini.list_of_atoms[phi_i.atom1].pdb_atom_name,
+                           ini.list_of_atoms[phi_i.atom2].pdb_atom_name,
+                           ini.list_of_atoms[phi_i.atom3].pdb_atom_name,
+                           ini.list_of_atoms[phi_i.atom4].pdb_atom_name]
+                if sorted(atoms_i) == sorted(atoms_g) and phi_i.nterm == phi_g.nterm:
+                    result = function(phi_i.constant, phi_g.constant)
+                    phi_g.constant = result
 
     def modify_core_sgbnpGamma(self, function):
         atoms_grw = self.template.get_list_of_core_atoms()
@@ -738,6 +755,7 @@ def modify_core_parameters_linearly(template_grow, lambda_to_reduce, template_co
     reductor.modify_core_nbond_params(reductor.reduce_value_from_diference)
     reductor.modify_core_bond_eq_dist(reductor.reduce_value_from_diference)
     reductor.modify_core_theta(reductor.reduce_value_from_diference)
+    reductor.modify_core_phis(reductor.reduce_value_from_diference)
 
 
 def main(template_initial_path, template_grown_path, step, total_steps, hydrogen_to_replace, core_atom_linker,
