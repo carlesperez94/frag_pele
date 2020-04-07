@@ -46,7 +46,7 @@ setup(
     project_urls={
     'Documentation': 'https://carlesperez94.github.io/frag_pele/',
     'Source': 'https://carlesperez94.github.io/frag_pele/',
-'Tracker': 'https://github.com/carlesperez94/frag_pele/issues',
+    'Tracker': 'https://github.com/carlesperez94/frag_pele/issues',
 },
 )
 
