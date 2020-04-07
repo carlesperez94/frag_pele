@@ -20,7 +20,7 @@ jobs:
       - name: Setup conda
         uses: s-weigand/setup-conda@v1
         with:
-          update-conda: true
+          update-conda: false
           python-version: ${{ matrix.python-version }}
           conda-channels: NostrumBioDiscovery, conda-forge
       - name: Install frag_pele
