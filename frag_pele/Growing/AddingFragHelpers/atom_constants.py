@@ -53,5 +53,5 @@ BONDING_DISTANCES = {  # Atom1, Atom2, BondType: Distance(A)
     # Triple bonds
     ("N", "N", "triple"): 1.1,
     ("C", "N", "triple"): 1.14,
-    ("N", "C", "triple"): 1.14,
+    ("N", "C", "triple"): 1.14
 }
