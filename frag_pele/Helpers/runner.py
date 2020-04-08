@@ -8,6 +8,7 @@ import shutil
 import logging
 # Local imports
 import frag_pele.constants as c
+from frag_pele import Helpers, Growing
 import frag_pele.Helpers.folder_handler
 import frag_pele.Helpers.clusterizer
 import frag_pele.Growing.add_fragment_from_pdbs
@@ -16,6 +17,7 @@ import frag_pele.Growing.bestStructs
 
 
 # Getting the name of the module for the log system
+
 logger = logging.getLogger(__name__)
 curr_dir = os.path.abspath(os.path.curdir)
 FilePath = os.path.relpath(__file__)

@@ -1,26 +1,21 @@
-# General imports
+# Python Imports
+import os  # Todo: Try to change this to increment portability
 import sys
-import time
-import glob
-import os
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "AdaptivePELE_repo"))
 import logging
-from logging.config import fileConfig
-import shutil
-import subprocess
 import traceback
+from logging.config import fileConfig
 
-# Local imports
-from frag_pele.Helpers import clusterizer, checker, folder_handler, runner, constraints, check_constants
-from frag_pele.Helpers import helpers, correct_fragment_names, center_of_mass
-from frag_pele.Growing import template_fragmenter, simulations_linker
-from frag_pele.Growing import add_fragment_from_pdbs, bestStructs
-from frag_pele.Analysis import analyser
-from frag_pele.Banner import Detector
+# Third-Party Imports
+
+# Project Imports
+from frag_pele.Helpers import correct_fragment_names
 from frag_pele import serie_handler
 import frag_pele.constants as c
 from frag_pele.Helpers.argument_parser import parse_arguments
 from frag_pele.frag.frag_runner import Frag
+from frag_pele.frag.path_handler.path_handler import PathHandler
+
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "AdaptivePELE_repo"))
 
 # Calling configuration file for log system
 FilePath = os.path.abspath(__file__)
@@ -36,6 +31,7 @@ curr_dir = os.path.abspath(os.path.curdir)
 
 
 if __name__ == '__main__':
+    # Create Frag object
     frag_object = Frag()
     #HOT FIX!! Fix it properly
     original_dir = os.path.abspath(os.getcwd())
@@ -96,10 +92,13 @@ if __name__ == '__main__':
                     traceback.print_exc()
                 try:
                     serie_handler.check_instructions(instruction[i], complex_pdb, c_chain, f_chain)
+                    # Object where paths information are saved
+                    path_handler = PathHandler(complex_pdb, fragment_pdb, plop_path, sch_python, pele_dir, license)
+
                     print("PERFORMING SUCCESSIVE GROWING...")
                     print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
-                    atomname_map = frag_object.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
-                         sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
+                    atomname_map = frag_object.main(path_handler, core_atom, fragment_atom, iterations, criteria, contrl, resfold,
+                                                    report, traject, pdbout, cpus, distcont,
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
                          limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
@@ -129,10 +128,13 @@ if __name__ == '__main__':
                 h_core = None
                 h_frag = None
             try:
+                # Object where paths information are saved
+                path_handler = PathHandler(complex_pdb, fragment_pdb, plop_path, sch_python, pele_dir, license)
+
                 print("PERFORMING INDIVIDUAL GROWING...")
                 print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
-                frag_object.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
-                     pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
+                frag_object.main(path_handler, core_atom, fragment_atom, iterations, criteria, contrl, resfold, report,
+                                 traject, pdbout, cpus, distcont, threshold, epsilon,
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
                      threshold_clash, steering, translation_high, rotation_high,
@@ -141,4 +143,3 @@ if __name__ == '__main__':
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
-

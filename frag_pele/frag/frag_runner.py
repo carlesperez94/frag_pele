@@ -16,6 +16,7 @@ from frag_pele.Helpers import helpers, center_of_mass
 from frag_pele.Helpers import clusterizer, checker, folder_handler, runner, constraints, check_constants
 import frag_pele.constants as c
 from frag_pele.Banner import Detector
+from frag_pele.frag.path_handler.path_handler import PathHandler
 
 FilePath = os.path.abspath(__file__)
 PackagePath = os.path.dirname(FilePath)
@@ -32,8 +33,8 @@ class Frag:
     def __init__(self):
         pass
 
-    def main(self, complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
-             pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
+    def main(self, path_handler: PathHandler, core_atom, fragment_atom, iterations, criteria,
+             contrl, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
              epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
              h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
              banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
@@ -43,12 +44,7 @@ class Frag:
         """
         Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
         fragments to a core structure of the ligand in a protein-ligand complex.
-        :param complex_pdb: Path to the PDB file which must contain a protein-ligand complex. Its ligand will be
-        used as the core structure. Remember to rename the ligand chain with a different character in
-        order to detect it.
-        :type complex_pdb: str
-        :param fragment_pdb: Path to the PDB file containing the fragment.
-        :type fragment_pdb: str
+        :param path_handler: Object were paths information are saved.
         :param core_atom: PDB-atom-name of the atom of the core that will be used as starting point to grow the fragment.
         :type core_atom: str (max length: 4)
         :param fragment_atom: PDB-atom-name of the atom of the fragment that will bond the core.
@@ -59,16 +55,8 @@ class Frag:
         next GS. Additionally, this parameter will be the selection criteria to extract the best
         structure after completing the growing.
         :type criteria: str
-        :param plop_path: Absolute path to PlopRotTemp.py.
-        :type plop_path: str
-        :param sch_python: Absolute path to Schrodinger's python.
-        :type sch_python: str
-        :param pele_dir: Absolute path to PELE executables.
-        :type pele_dir: str
         :param contrl: Name of the PELE's control file templatized.
         :type contrl: str
-        :param license: Absolute path to PELE's license file.
-        :type license: str
         :param resfold: Name of the results folder.
         :type resfold: str
         :param report: Prefix name of PELE's output file.
@@ -110,9 +98,9 @@ class Frag:
         :param h_frag: PDB-atom-name of the hydrogen bonded to the selected heavy atom of the fragment that will removed to
         bond the fragment with the core.
         :type h_frag: str (max length: 4)
-        :param c_chain: Chain name for the ligand in the complex_pdb.
+        :param c_chain: Chain name for the ligand in the path_handler.complex_pdb.
         :type c_chain: str (max length: 1)
-        :param f_chain: Chain name for the ligand in the fragment_pdb.
+        :param f_chain: Chain name for the ligand in the path_handler.fragment_pdb.
         :type f_chain: str (max length: 1)
         :param steps: PELE steps to do in each GS.
         :type steps: int
@@ -164,10 +152,10 @@ class Frag:
         simulation_info = []  # todo: not used, delete it
 
         # Path definition
-        plop_relative_path = os.path.join(PackagePath, plop_path)
+        plop_relative_path = os.path.join(PackagePath, path_handler.plop_path)
         current_path = os.path.abspath(".")
 
-        pdb_basename = complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
+        pdb_basename = path_handler.complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
         if "/" in pdb_basename:
             pdb_basename = pdb_basename.split("/")[-1]  # And if it is a path, get only the name
 
@@ -184,7 +172,7 @@ class Frag:
         folder_handler.check_and_create_DataLocal(working_dir=working_dir)
 
         # Creating constraints
-        const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10))
+        const = "\n".join(constraints.retrieve_constraints(path_handler.complex_pdb, {}, {}, 5, 5, 10))
 
         # Creating symbolic links
         helpers.create_symlinks(data, os.path.join(working_dir, 'Data'))
@@ -192,7 +180,7 @@ class Frag:
 
         #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
         fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
-        core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom,
+        core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(path_handler.complex_pdb, path_handler.fragment_pdb, core_atom,
                                                                                  fragment_atom, iterations, h_core=h_core,
                                                                                  h_frag=h_frag, core_chain=c_chain,
                                                                                  fragment_chain=f_chain, rename=rename,
@@ -204,7 +192,7 @@ class Frag:
         template_resnames = []
         for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
             if not only_grow:
-                cmd = "{} {} {} {} {} {}".format(sch_python, plop_relative_path, os.path.join(working_dir,
+                cmd = "{} {} {} {} {} {}".format(path_handler.sch_python, plop_relative_path, os.path.join(working_dir,
                                                                                               add_fragment_from_pdbs.c.PRE_WORKING_DIR,
                                                                                               pdb_to_template), rotamers,
                                                  path_to_templates_generated, path_to_lib)
@@ -213,7 +201,7 @@ class Frag:
                     subprocess.call(cmd.split())
                 except OSError:
                     raise OSError(
-                        "Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(sch_python))
+                        "Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(path_handler.sch_python))
             template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(
                 os.path.join(working_dir, add_fragment_from_pdbs.
                              c.PRE_WORKING_DIR, pdb_to_template),
@@ -295,7 +283,7 @@ class Frag:
                     if pdb not in pdbs_with_overlapping:
                         pdb_input_paths_checked.append(pdb)
                 simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_input_paths_checked, step=i,
-                                                                           license=license,
+                                                                           license=path_handler.pele_license,
                                                                            working_dir=working_dir,
                                                                            overlap=overlapping_factor, results_path=result,
                                                                            steps=steps,
@@ -310,7 +298,7 @@ class Frag:
             else:
                 logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
                 simulation_file = simulations_linker.control_file_modifier(contrl, pdb=[pdb_initialize], step=i,
-                                                                           license=license,
+                                                                           license=path_handler.pele_license,
                                                                            working_dir=working_dir,
                                                                            overlap=overlapping_factor, results_path=result,
                                                                            steps=steps,
@@ -339,7 +327,7 @@ class Frag:
             # ------SIMULATION PART------
             # Change directory to the working one
             os.chdir(working_dir)
-            simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
+            simulations_linker.simulation_runner(path_handler.pele_dir, simulation_file, cpus)
             logger.info(c.LINES_MESSAGE)
             logger.info(c.FINISH_SIM_MESSAGE.format(result))
             # Before selecting a step from a trajectory we will save the input PDB file in a folder
@@ -371,7 +359,7 @@ class Frag:
         # Modify the control file to increase the steps TO THE SAMPLING SIMULATION
         if sampling_control:
             simulation_file = simulations_linker.control_file_modifier(sampling_control, pdb=pdb_inputs, step=iterations,
-                                                                       license=license, working_dir=working_dir,
+                                                                       license=path_handler.pele_license, working_dir=working_dir,
                                                                        overlap=max_overlap,
                                                                        results_path=os.path.join(working_dir,
                                                                                                  "sampling_result"),
@@ -385,7 +373,7 @@ class Frag:
                                                                        rotation_low=rotation_low,
                                                                        radius=radius_box)
         elif explorative and not sampling_control:
-            simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, license=license,
+            simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, license=path_handler.pele_license,
                                                                        working_dir=working_dir, step=iterations,
                                                                        overlap=max_overlap,
                                                                        results_path=os.path.join(working_dir,
@@ -401,7 +389,7 @@ class Frag:
                                                                        radius=25)
         else:
             simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, step=iterations,
-                                                                       license=license, overlap=max_overlap,
+                                                                       license=path_handler.pele_license, overlap=max_overlap,
                                                                        working_dir=working_dir,
                                                                        results_path=os.path.join(working_dir,
                                                                                                  "sampling_result"),
@@ -419,7 +407,7 @@ class Frag:
         if not (restart and os.path.exists("selected_result")):
             shutil.copy(os.path.join(path_to_templates_generated, template_final), path_to_templates)
             logger.info(".....STARTING EQUILIBRATION.....")
-            simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
+            simulations_linker.simulation_runner(path_handler.pele_dir, simulation_file, cpus)
         os.chdir(curr_dir)
         equilibration_path = os.path.join(working_dir, "sampling_result")
         # SELECTION OF BEST STRUCTURES
@@ -437,19 +425,19 @@ class Frag:
 
         # MOVE FROM PDB TO MAE
         if mae:
-            if sch_python.endswith("python"):
-                schrodinger_path = os.path.dirname(os.path.dirname(sch_python))
-            elif sch_python.endswith("run"):
-                schrodinger_path = os.path.dirname(sch_python)
+            if path_handler.sch_python.endswith("python"):
+                schrodinger_path = os.path.dirname(os.path.dirname(path_handler.sch_python))
+            elif path_handler.sch_python.endswith("run"):
+                schrodinger_path = os.path.dirname(path_handler.sch_python)
             python_file = os.path.join(os.path.dirname(FilePath), "Analysis/output_files.py")
             for outputfile in all_output_files:
                 filename = os.path.join(selected_results_path, outputfile)
-                command = "{} {} {} --schr {} {}".format(sch_python, python_file, filename, schrodinger_path, "--remove")
+                command = "{} {} {} --schr {} {}".format(path_handler.sch_python, python_file, filename, schrodinger_path, "--remove")
                 subprocess.call(command.split())
 
         # COMPUTE TIME
         end_time = time.time()
         total_time = (end_time - start_time) / 60
-        logging.info("Growing of {} in {} min".format(fragment_pdb, total_time))
+        logging.info("Growing of {} in {} min".format(path_handler.fragment_pdb, total_time))
 
         return fragment_names_dict
