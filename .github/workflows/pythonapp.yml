@@ -4,6 +4,8 @@
 name: Conda Environment
 
 on:
+  push:
+    branches: [ FragRefactor ]
   pull_request:
     branches: [ FragRefactor ]
 
