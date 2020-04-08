@@ -20,7 +20,7 @@ from frag_pele.Banner import Detector
 from frag_pele import serie_handler
 import frag_pele.constants as c
 from frag_pele.Helpers.argument_parser import parse_arguments
-from frag_pele.frag.frag_runner import main
+from frag_pele.frag.frag_runner import Frag
 
 # Calling configuration file for log system
 FilePath = os.path.abspath(__file__)
@@ -36,6 +36,7 @@ curr_dir = os.path.abspath(os.path.curdir)
 
 
 if __name__ == '__main__':
+    frag_object = Frag()
     #HOT FIX!! Fix it properly
     original_dir = os.path.abspath(os.getcwd())
 
@@ -97,7 +98,7 @@ if __name__ == '__main__':
                     serie_handler.check_instructions(instruction[i], complex_pdb, c_chain, f_chain)
                     print("PERFORMING SUCCESSIVE GROWING...")
                     print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
-                    atomname_map = main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
+                    atomname_map = frag_object.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                          sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
@@ -130,7 +131,7 @@ if __name__ == '__main__':
             try:
                 print("PERFORMING INDIVIDUAL GROWING...")
                 print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
-                main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
+                frag_object.main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                      pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
