@@ -21,7 +21,7 @@ class PathHandler:
         self._pele_license = pele_license
 
     # Properties
-    @propertyc
+    @property
     def complex_pdb(self):
         return self._complex_pdb
 
