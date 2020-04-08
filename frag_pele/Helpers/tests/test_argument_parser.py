@@ -79,11 +79,11 @@ class TestArgumentParser(unittest.TestCase):
 
     def test_add_pele_conf_arguments(self):
         flags_to_check = ['-d', '--pele_dir', '-c', '--contrl', '-l', '--license', '-r', '--resfold', '-rp', '--report',
-                         '-tj', '--traject', '-cs', '--cpus', '-stp', '--steps', '-es', '--pele_eq_steps', '-miov',
-                         '--min_overlap', '-maov', '--max_overlap', '-tmp', '--temperature', '-sd', '--seed', '-st',
-                         '--steering', '-trh', '--translation_high', '-roth', '--rotation_high', '-trl',
-                         '--translation_low', '-rotl', '--rotation_low', '-rad', '--radius_box', '-dat', '--data',
-                         '-doc', '--documents']
+                          '-tj', '--traject', '-cs', '--cpus', '-stp', '--steps', '-es', '--pele_eq_steps', '-miov',
+                          '--min_overlap', '-maov', '--max_overlap', '-tmp', '--temperature', '-sd', '--seed', '-st',
+                          '--steering', '-trh', '--translation_high', '-roth', '--rotation_high', '-trl',
+                          '--translation_low', '-rotl', '--rotation_low', '-rad', '--radius_box', '-dat', '--data',
+                          '-doc', '--documents']
 
         parser = argparse.ArgumentParser()
         ap._add_pele_conf_arguments(parser)
@@ -194,7 +194,8 @@ class TestArgumentParser(unittest.TestCase):
         test_args = ['TestFragArgParser', '-cp', 'TEST_CP', '-sef', 'TEST_SEF', '-nc', '-rst', '-op', '-og',
                      '-EX', '--mae', '--rename']
 
-        expected = ['TEST_CP', const.GROWING_STEPS, const.SELECTION_CRITERIA, const.PLOP_PATH, const.SCHRODINGER_PY_PATH,
+        expected = ['TEST_CP', const.GROWING_STEPS, const.SELECTION_CRITERIA, const.PLOP_PATH,
+                    const.SCHRODINGER_PY_PATH,
                     const.PATH_TO_PELE, const.CONTROL_TEMPLATE, const.PATH_TO_LICENSE, const.RESULTS_FOLDER,
                     const.REPORT_NAME, const.TRAJECTORY_NAME, const.PDBS_OUTPUT_FOLDER, const.CPUS,
                     const.DISTANCE_COUNTER, const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION,

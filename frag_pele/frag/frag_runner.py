@@ -28,7 +28,10 @@ curr_dir = os.path.abspath(os.path.curdir)
 
 
 class Frag:
-    
+
+    def __init__(self):
+        pass
+
     def main(self, complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
              pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
              epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
@@ -149,13 +152,17 @@ class Frag:
         :type sampling_control: str
         :return:
         """
+
         # Check harcoded path in constants.py
         if not no_check:
             check_constants.check()
+
         # Time computations
         start_time = time.time()
+
         # Global variable to keep info
-        simulation_info = []
+        simulation_info = []  # todo: not used, delete it
+
         # Path definition
         plop_relative_path = os.path.join(PackagePath, plop_path)
         current_path = os.path.abspath(".")
@@ -172,13 +179,17 @@ class Frag:
                                                    "DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated")
         path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/HeteroAtoms")
         path_to_lib = os.path.join(working_dir, "DataLocal/LigandRotamerLibs")
+
         # Creation of output folder
         folder_handler.check_and_create_DataLocal(working_dir=working_dir)
+
         # Creating constraints
         const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10))
+
         # Creating symbolic links
         helpers.create_symlinks(data, os.path.join(working_dir, 'Data'))
         helpers.create_symlinks(documents, os.path.join(working_dir, 'Documents'))
+
         #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
         fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
         core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom,
