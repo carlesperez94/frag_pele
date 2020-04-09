@@ -12,8 +12,11 @@ from frag_pele.Helpers import correct_fragment_names
 from frag_pele import serie_handler
 import frag_pele.constants as c
 from frag_pele.Helpers.argument_parser import parse_arguments
+from frag_pele.frag.PeleParameters.pele_parameter_archives import PeleParameterArchives
+from frag_pele.frag.PeleParameters.pele_parameter_paths import PeleParameterPaths
+from frag_pele.frag.PeleParameters.pele_parameter_sim_values import PeleParameterSimulationValues
+from frag_pele.frag.PeleParameters.pele_parameters import PeleParameters
 from frag_pele.frag.frag_runner import Frag
-from frag_pele.frag.path_handler.path_handler import PathHandler
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "AdaptivePELE_repo"))
 
@@ -92,18 +95,22 @@ if __name__ == '__main__':
                     traceback.print_exc()
                 try:
                     serie_handler.check_instructions(instruction[i], complex_pdb, c_chain, f_chain)
-                    # Object where paths information are saved
-                    path_handler = PathHandler(complex_pdb, fragment_pdb, plop_path, sch_python, pele_dir, license)
+                    # Create PELE objects
+                    pele_params_paths = PeleParameterPaths(pele_dir, license, data, documents)
+                    pele_params_archives = PeleParameterArchives(contrl, resfold, report, traject)
+                    pele_params_sim_values = PeleParameterSimulationValues(cpus, steps, pele_eq_steps, min_overlap,
+                                                                           max_overlap, temperature, seed, steering, translation_high,
+                                                                           rotation_high, translation_low, rotation_low, radius_box)
+                    pele_parameters = PeleParameters(pele_params_paths, pele_params_archives, pele_params_sim_values)
 
                     print("PERFORMING SUCCESSIVE GROWING...")
                     print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
-                    atomname_map = frag_object.main(path_handler, core_atom, fragment_atom, iterations, criteria, contrl, resfold,
-                                                    report, traject, pdbout, cpus, distcont,
-                         threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
-                         max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
-                         limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
-                         translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                                        only_prepare, only_grow, no_check)
+                    atomname_map = frag_object.main(pele_parameters, core_atom, fragment_atom, iterations, criteria,
+                                                    pdbout, distcont,
+                         threshold, epsilon, condition, metricweights, nclusters, restart,
+                         ID, h_core, h_frag, c_chain, f_chain, rotamers, banned,
+                         limit, mae, rename, threshold_clash,
+                         explorative, sampling_control, only_prepare, only_grow, no_check)
                     atomname_mappig.append(atomname_map)
 
                 except Exception:
@@ -128,18 +135,23 @@ if __name__ == '__main__':
                 h_core = None
                 h_frag = None
             try:
-                # Object where paths information are saved
-                path_handler = PathHandler(complex_pdb, fragment_pdb, plop_path, sch_python, pele_dir, license)
+                # Create PELE objects
+                pele_params_paths = PeleParameterPaths(pele_dir, license, data, documents)
+                pele_params_archives = PeleParameterArchives(contrl, resfold, report, traject)
+                pele_params_sim_values = PeleParameterSimulationValues(cpus, steps, pele_eq_steps, min_overlap,
+                                                                       max_overlap, temperature, seed, steering,
+                                                                       translation_high,
+                                                                       rotation_high, translation_low, rotation_low,
+                                                                       radius_box)
+                pele_parameters = PeleParameters(pele_params_paths, pele_params_archives, pele_params_sim_values)
 
                 print("PERFORMING INDIVIDUAL GROWING...")
                 print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
-                frag_object.main(path_handler, core_atom, fragment_atom, iterations, criteria, contrl, resfold, report,
-                                 traject, pdbout, cpus, distcont, threshold, epsilon,
-                     condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
-                     h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
-                     threshold_clash, steering, translation_high, rotation_high,
-                     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                     only_prepare, only_grow, no_check)
+                frag_object.main(pele_parameters, core_atom, fragment_atom, iterations, criteria,
+                                 pdbout, distcont, threshold, epsilon,
+                     condition, metricweights, nclusters, restart, ID, h_core,
+                     h_frag, c_chain, f_chain, rotamers, banned, limit, mae, rename,
+                     threshold_clash, explorative, sampling_control, only_prepare, only_grow, no_check)
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
