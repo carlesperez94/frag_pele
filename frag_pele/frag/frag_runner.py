@@ -13,10 +13,10 @@ from frag_pele.Growing import template_fragmenter, simulations_linker
 from frag_pele.Growing import add_fragment_from_pdbs, bestStructs
 from frag_pele.Analysis import analyser
 from frag_pele.Helpers import helpers, center_of_mass
-from frag_pele.Helpers import clusterizer, checker, folder_handler, runner, constraints, check_constants
+from frag_pele.Helpers import clusterizer, folder_handler, constraints, check_constants
 import frag_pele.constants as c
 from frag_pele.Banner import Detector
-from frag_pele.frag.path_handler.path_handler import PathHandler
+from frag_pele.frag.PeleParameters.pele_parameters import PeleParameters
 
 FilePath = os.path.abspath(__file__)
 PackagePath = os.path.dirname(FilePath)
@@ -33,13 +33,12 @@ class Frag:
     def __init__(self):
         pass
 
-    def main(self, path_handler: PathHandler, core_atom, fragment_atom, iterations, criteria,
-             contrl, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
-             epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
-             h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
-             banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
-             translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
-             radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False,
+    def main(self, pele_parameters: PeleParameters, core_atom, fragment_atom, iterations, criteria,
+             pdbout, distance_contact, clusterThreshold,
+             epsilon, condition, metricweights, nclusters, restart, ID,
+             h_core=None, h_frag=None, c_chain="L", f_chain="L", rotamers="30.0",
+             banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, explorative=False,
+             sampling_control=None, only_prepare=False, only_grow=False,
              no_check=False):
         """
         Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
@@ -140,6 +139,10 @@ class Frag:
         :type sampling_control: str
         :return:
         """
+        # Extract pele parameters
+        pele_params_path = pele_parameters.pele_params_path
+        pele_params_archives = pele_parameters.pele_params_archives
+        pele_params_sim_values = pele_parameters.pele_params_sim_values
 
         # Check harcoded path in constants.py
         if not no_check:
@@ -152,10 +155,10 @@ class Frag:
         simulation_info = []  # todo: not used, delete it
 
         # Path definition
-        plop_relative_path = os.path.join(PackagePath, path_handler.plop_path)
+        plop_relative_path = os.path.join(PackagePath, pele_params_path.plop_path)  # todo: extract
         current_path = os.path.abspath(".")
 
-        pdb_basename = path_handler.complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
+        pdb_basename = pele_params_path.complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
         if "/" in pdb_basename:
             pdb_basename = pdb_basename.split("/")[-1]  # And if it is a path, get only the name
 
@@ -172,15 +175,15 @@ class Frag:
         folder_handler.check_and_create_DataLocal(working_dir=working_dir)
 
         # Creating constraints
-        const = "\n".join(constraints.retrieve_constraints(path_handler.complex_pdb, {}, {}, 5, 5, 10))
+        const = "\n".join(constraints.retrieve_constraints(pele_params_archives.path_handler.complex_pdb, {}, {}, 5, 5, 10))
 
         # Creating symbolic links
-        helpers.create_symlinks(data, os.path.join(working_dir, 'Data'))
-        helpers.create_symlinks(documents, os.path.join(working_dir, 'Documents'))
+        helpers.create_symlinks(pele_params_path.data, os.path.join(working_dir, 'Data'))
+        helpers.create_symlinks(pele_params_path.documents, os.path.join(working_dir, 'Documents'))
 
         #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
         fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
-        core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(path_handler.complex_pdb, path_handler.fragment_pdb, core_atom,
+        core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(pele_params_path.complex_pdb, pele_params_path.fragment_pdb, core_atom,
                                                                                  fragment_atom, iterations, h_core=h_core,
                                                                                  h_frag=h_frag, core_chain=c_chain,
                                                                                  fragment_chain=f_chain, rename=rename,
@@ -192,7 +195,7 @@ class Frag:
         template_resnames = []
         for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
             if not only_grow:
-                cmd = "{} {} {} {} {} {}".format(path_handler.sch_python, plop_relative_path, os.path.join(working_dir,
+                cmd = "{} {} {} {} {} {}".format(pele_params_path.sch_python, plop_relative_path, os.path.join(working_dir,
                                                                                               add_fragment_from_pdbs.c.PRE_WORKING_DIR,
                                                                                               pdb_to_template), rotamers,
                                                  path_to_templates_generated, path_to_lib)
@@ -201,7 +204,7 @@ class Frag:
                     subprocess.call(cmd.split())
                 except OSError:
                     raise OSError(
-                        "Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(path_handler.sch_python))
+                        "Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(pele_params_path.sch_python))
             template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(
                 os.path.join(working_dir, add_fragment_from_pdbs.
                              c.PRE_WORKING_DIR, pdb_to_template),
@@ -229,7 +232,7 @@ class Frag:
 
         pdbs = [pdb_initialize if n == 0 else "{}_{}".format(n, pdb_initialize) for n in range(0, iterations + 1)]
 
-        pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, cpus - 1)]
+        pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, pele_params_sim_values.cpus - 1)]
 
         # Generate starting templates
         template_fragmenter.main(template_initial_path=os.path.join(path_to_templates_generated, template_initial),
@@ -268,11 +271,12 @@ class Frag:
                                                                    threshold=limit,
                                                                    dihedrals=banned,
                                                                    lig_chain=c_chain,
-                                                                   processors=cpus)
+                                                                   processors=pele_params_sim_values.cpus)
                 pdb_input_paths = [pdb_file for pdb_file, flag in pdbs_with_banned_dihedrals.items() if flag]
 
             # Control file modification
-            overlapping_factor = float(min_overlap) + (((float(max_overlap) - float(min_overlap)) * i) / iterations)
+            overlapping_factor = float(pele_params_sim_values.min_overlap) + (((float(pele_params_sim_values.max_overlap)
+                                                                                - float(pele_params_sim_values.min_overlap)) * i) / iterations)
             overlapping_factor = "{0:.2f}".format(overlapping_factor)
 
             if i != 0:
@@ -282,34 +286,34 @@ class Frag:
                 for pdb in pdb_input_paths:
                     if pdb not in pdbs_with_overlapping:
                         pdb_input_paths_checked.append(pdb)
-                simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_input_paths_checked, step=i,
-                                                                           license=path_handler.pele_license,
+                simulation_file = simulations_linker.control_file_modifier(pele_params_archives.control_file, pdb=pdb_input_paths_checked, step=i,
+                                                                           license=pele_params_path.pele_license,
                                                                            working_dir=working_dir,
                                                                            overlap=overlapping_factor, results_path=result,
-                                                                           steps=steps,
+                                                                           steps=pele_params_sim_values.steps,
                                                                            chain=c_chain, constraints=const, center=center,
-                                                                           temperature=temperature, seed=seed,
-                                                                           steering=steering,
-                                                                           translation_high=translation_high,
-                                                                           translation_low=translation_low,
-                                                                           rotation_high=rotation_high,
-                                                                           rotation_low=rotation_low,
-                                                                           radius=radius_box)
+                                                                           temperature=pele_params_sim_values.temperature, seed=pele_params_sim_values.seed,
+                                                                           steering=pele_params_sim_values.steering,
+                                                                           translation_high=pele_params_sim_values.translation_high,
+                                                                           translation_low=pele_params_sim_values.translation_low,
+                                                                           rotation_high=pele_params_sim_values.rotation_high,
+                                                                           rotation_low=pele_params_sim_values.rotation_low,
+                                                                           radius=pele_params_sim_values.radius_box)
             else:
-                logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
-                simulation_file = simulations_linker.control_file_modifier(contrl, pdb=[pdb_initialize], step=i,
-                                                                           license=path_handler.pele_license,
+                logger.info(c.SELECTED_MESSAGE.format(pele_params_archives.control_file, pdb_initialize, result, i))
+                simulation_file = simulations_linker.control_file_modifier(pele_params_archives.control_file, pdb=[pdb_initialize], step=i,
+                                                                           license=pele_params_path.pele_license,
                                                                            working_dir=working_dir,
                                                                            overlap=overlapping_factor, results_path=result,
-                                                                           steps=steps,
+                                                                           steps=pele_params_sim_values.steps,
                                                                            chain=c_chain, constraints=const, center=center,
-                                                                           temperature=temperature, seed=seed,
-                                                                           steering=steering,
-                                                                           translation_high=translation_high,
-                                                                           translation_low=translation_low,
-                                                                           rotation_high=rotation_high,
-                                                                           rotation_low=rotation_low,
-                                                                           radius=radius_box)
+                                                                           temperature=pele_params_sim_values.temperature, seed=pele_params_sim_values.seed,
+                                                                           steering=pele_params_sim_values.steering,
+                                                                           translation_high=pele_params_sim_values.translation_high,
+                                                                           translation_low=pele_params_sim_values.translation_low,
+                                                                           rotation_high=pele_params_sim_values.rotation_high,
+                                                                           rotation_low=pele_params_sim_values.rotation_low,
+                                                                           radius=pele_params_sim_values.radius_box)
 
             logger.info(c.LINES_MESSAGE)
             if i != 0:
@@ -327,7 +331,7 @@ class Frag:
             # ------SIMULATION PART------
             # Change directory to the working one
             os.chdir(working_dir)
-            simulations_linker.simulation_runner(path_handler.pele_dir, simulation_file, cpus)
+            simulations_linker.simulation_runner(pele_params_path.pele_dir, simulation_file, pele_params_sim_values.cpus)
             logger.info(c.LINES_MESSAGE)
             logger.info(c.FINISH_SIM_MESSAGE.format(result))
             # Before selecting a step from a trajectory we will save the input PDB file in a folder
@@ -337,12 +341,12 @@ class Frag:
             # Transform column name of the criteria to column number
             result_abs = os.path.abspath(result)
             logger.info("Looking structures to cluster in '{}'".format(result_abs))
-            column_number = clusterizer.get_column_num(result_abs, criteria, report)
+            column_number = clusterizer.get_column_num(result_abs, criteria, pele_params_archives.report)
             # Selection of the trajectory used as new input
-            clusterizer.cluster_traject(str(template_resnames[1]), cpus - 1, column_number, distance_contact,
-                                        clusterThreshold, "{}*".format(os.path.join(result_abs, traject)),
+            clusterizer.cluster_traject(str(template_resnames[1]), pele_params_sim_values.cpus - 1, column_number, distance_contact,
+                                        clusterThreshold, "{}*".format(os.path.join(result_abs, pele_params_archives.traject)),
                                         os.path.join(pdbout_folder, str(i)), os.path.join(result_abs),
-                                        epsilon, report, condition, metricweights, nclusters)
+                                        epsilon, pele_params_archives.report, condition, metricweights, nclusters)
         # ----------------------------------------------------EQUILIBRATION-------------------------------------------------
         # Set input PDBs
         pdb_inputs = ["{}".format(os.path.join(pdbout_folder, str(iterations), pdb_file)) for pdb_file in
@@ -352,35 +356,35 @@ class Frag:
                                                                threshold=limit,
                                                                dihedrals=banned,
                                                                lig_chain=c_chain,
-                                                               processors=cpus)
+                                                               processors=pele_params_sim_values.cpus)
             pdb_inputs = [pdb_file for pdb_file, flag in pdbs_with_banned_dihedrals.items() if flag]
         if not os.path.exists(os.path.join(working_dir, "sampling_result")):  # Create the folder if it does not exist
             os.mkdir(os.path.join(working_dir, "sampling_result"))
         # Modify the control file to increase the steps TO THE SAMPLING SIMULATION
         if sampling_control:
             simulation_file = simulations_linker.control_file_modifier(sampling_control, pdb=pdb_inputs, step=iterations,
-                                                                       license=path_handler.pele_license, working_dir=working_dir,
-                                                                       overlap=max_overlap,
+                                                                       license=pele_params_path.pele_license, working_dir=working_dir,
+                                                                       overlap=pele_params_sim_values.max_overlap,
                                                                        results_path=os.path.join(working_dir,
                                                                                                  "sampling_result"),
-                                                                       steps=pele_eq_steps, chain=c_chain,
+                                                                       steps=pele_params_sim_values.pele_eq_steps, chain=c_chain,
                                                                        constraints=const, center=center,
-                                                                       temperature=temperature, seed=seed,
-                                                                       steering=steering,
-                                                                       translation_high=translation_high,
-                                                                       translation_low=translation_low,
-                                                                       rotation_high=rotation_high,
-                                                                       rotation_low=rotation_low,
-                                                                       radius=radius_box)
+                                                                       temperature=pele_params_sim_values.temperature, seed=pele_params_sim_values.seed,
+                                                                       steering=pele_params_sim_values.steering,
+                                                                       translation_high=pele_params_sim_values.translation_high,
+                                                                       translation_low=pele_params_sim_values.translation_low,
+                                                                       rotation_high=pele_params_sim_values.rotation_high,
+                                                                       rotation_low=pele_params_sim_values.rotation_low,
+                                                                       radius=pele_params_sim_values.radius_box)
         elif explorative and not sampling_control:
-            simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, license=path_handler.pele_license,
+            simulation_file = simulations_linker.control_file_modifier(pele_params_archives.control_file, pdb=pdb_inputs, license=pele_params_path.pele_license,
                                                                        working_dir=working_dir, step=iterations,
-                                                                       overlap=max_overlap,
+                                                                       overlap=pele_params_sim_values.max_overlap,
                                                                        results_path=os.path.join(working_dir,
                                                                                                  "sampling_result"),
-                                                                       steps=pele_eq_steps,
+                                                                       steps=pele_params_sim_values.pele_eq_steps,
                                                                        chain=c_chain, constraints=const, center=center,
-                                                                       temperature=temperature, seed=seed,
+                                                                       temperature=pele_params_sim_values.temperature, seed=pele_params_sim_values.seed,
                                                                        steering=2,
                                                                        translation_high=0.5,
                                                                        translation_low=0.3,
@@ -388,26 +392,26 @@ class Frag:
                                                                        rotation_low=0.15,
                                                                        radius=25)
         else:
-            simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, step=iterations,
-                                                                       license=path_handler.pele_license, overlap=max_overlap,
+            simulation_file = simulations_linker.control_file_modifier(pele_params_archives.control_file, pdb=pdb_inputs, step=iterations,
+                                                                       license=pele_params_path.pele_license, overlap=pele_params_sim_values.max_overlap,
                                                                        working_dir=working_dir,
                                                                        results_path=os.path.join(working_dir,
                                                                                                  "sampling_result"),
-                                                                       steps=pele_eq_steps, chain=c_chain,
+                                                                       steps=pele_params_sim_values.pele_eq_steps, chain=c_chain,
                                                                        constraints=const, center=center,
-                                                                       temperature=temperature, seed=seed,
-                                                                       steering=steering,
-                                                                       translation_high=translation_high,
-                                                                       translation_low=translation_low,
-                                                                       rotation_high=rotation_high,
-                                                                       rotation_low=rotation_low,
-                                                                       radius=radius_box)
+                                                                       temperature=pele_params_sim_values.temperature, seed=pele_params_sim_values.seed,
+                                                                       steering=pele_params_sim_values.steering,
+                                                                       translation_high=pele_params_sim_values.translation_high,
+                                                                       translation_low=pele_params_sim_values.translation_low,
+                                                                       rotation_high=pele_params_sim_values.rotation_high,
+                                                                       rotation_low=pele_params_sim_values.rotation_low,
+                                                                       radius=pele_params_sim_values.radius_box)
 
         # EQUILIBRATION SIMULATION
         if not (restart and os.path.exists("selected_result")):
             shutil.copy(os.path.join(path_to_templates_generated, template_final), path_to_templates)
             logger.info(".....STARTING EQUILIBRATION.....")
-            simulations_linker.simulation_runner(path_handler.pele_dir, simulation_file, cpus)
+            simulations_linker.simulation_runner(pele_params_path.pele_dir, simulation_file, pele_params_sim_values.cpus)
         os.chdir(curr_dir)
         equilibration_path = os.path.join(working_dir, "sampling_result")
         # SELECTION OF BEST STRUCTURES
@@ -420,24 +424,24 @@ class Frag:
         shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(working_dir, c.PRE_WORKING_DIR,
                                                                                            selected_results_path + ".pdb"))
         # COMPUTE AND SAVE THE SCORE
-        analyser.analyse_at_epoch(report_prefix=report, path_to_equilibration=equilibration_path, execution_dir=curr_dir,
+        analyser.analyse_at_epoch(report_prefix=pele_params_archives.report, path_to_equilibration=equilibration_path, execution_dir=curr_dir,
                                   column=criteria, quantile_value=0.25)
 
         # MOVE FROM PDB TO MAE
         if mae:
-            if path_handler.sch_python.endswith("python"):
-                schrodinger_path = os.path.dirname(os.path.dirname(path_handler.sch_python))
-            elif path_handler.sch_python.endswith("run"):
-                schrodinger_path = os.path.dirname(path_handler.sch_python)
+            if pele_params_path.sch_python.endswith("python"):
+                schrodinger_path = os.path.dirname(os.path.dirname(pele_params_path.sch_python))
+            elif pele_params_path.sch_python.endswith("run"):
+                schrodinger_path = os.path.dirname(pele_params_path.sch_python)
             python_file = os.path.join(os.path.dirname(FilePath), "Analysis/output_files.py")
             for outputfile in all_output_files:
                 filename = os.path.join(selected_results_path, outputfile)
-                command = "{} {} {} --schr {} {}".format(path_handler.sch_python, python_file, filename, schrodinger_path, "--remove")
+                command = "{} {} {} --schr {} {}".format(pele_params_path.sch_python, python_file, filename, schrodinger_path, "--remove")
                 subprocess.call(command.split())
 
         # COMPUTE TIME
         end_time = time.time()
         total_time = (end_time - start_time) / 60
-        logging.info("Growing of {} in {} min".format(path_handler.fragment_pdb, total_time))
+        logging.info("Growing of {} in {} min".format(pele_params_path.fragment_pdb, total_time))
 
         return fragment_names_dict
