@@ -88,7 +88,6 @@ class TestArgumentParser(unittest.TestCase):
         parser = argparse.ArgumentParser()
         ap._add_pele_conf_arguments(parser)
         actions = parser._option_string_actions
-        print(len(actions))
         self.assertEqual(44, len(actions))  # 44 and not 42 as in flags_to_check, because automatically adds -h --help
         self._loop_assert_in(flags_to_check, actions)
 
