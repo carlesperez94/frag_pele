@@ -33,7 +33,7 @@ class Frag:
     def __init__(self):
         pass
 
-    def main(self, pele_parameters: PeleParameters, core_atom, fragment_atom, iterations, criteria,
+    def main(self, pele_parameters: PeleParameters, complex_pdb, fragment_pdb, core_atom, fragment_atom, growing_steps, criteria,
              plop_path, sch_python, pdbout, distance_contact, clusterThreshold,
              epsilon, condition, metricweights, nclusters, restart, ID,
              h_core=None, h_frag=None, c_chain="L", f_chain="L", rotamers="30.0",
@@ -48,8 +48,8 @@ class Frag:
         :type core_atom: str (max length: 4)
         :param fragment_atom: PDB-atom-name of the atom of the fragment that will bond the core.
         :type fragment_atom: str (max length: 4)
-        :param iterations: Number of Growing Steps (GS).
-        :type iterations: int
+        :param growing_steps: Number of Growing Steps (GS).
+        :type growing_steps: int
         :param criteria: Name of the column of the report file to select the structures that will spawn in the
         next GS. Additionally, this parameter will be the selection criteria to extract the best
         structure after completing the growing.
@@ -158,7 +158,7 @@ class Frag:
         plop_relative_path = os.path.join(PackagePath, plop_path)  # todo: extract
         current_path = os.path.abspath(".")
 
-        pdb_basename = pele_params_path.complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
+        pdb_basename = complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
         if "/" in pdb_basename:
             pdb_basename = pdb_basename.split("/")[-1]  # And if it is a path, get only the name
 
@@ -175,7 +175,7 @@ class Frag:
         folder_handler.check_and_create_DataLocal(working_dir=working_dir)
 
         # Creating constraints
-        const = "\n".join(constraints.retrieve_constraints(pele_params_archives.path_handler.complex_pdb, {}, {}, 5, 5, 10))
+        const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10))
 
         # Creating symbolic links
         helpers.create_symlinks(pele_params_path.data, os.path.join(working_dir, 'Data'))
@@ -183,8 +183,8 @@ class Frag:
 
         #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
         fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
-        core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(pele_params_path.complex_pdb, pele_params_path.fragment_pdb, core_atom,
-                                                                                 fragment_atom, iterations, h_core=h_core,
+        core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom,
+                                                                                 fragment_atom, growing_steps, h_core=h_core,
                                                                                  h_frag=h_frag, core_chain=c_chain,
                                                                                  fragment_chain=f_chain, rename=rename,
                                                                                  threshold_clash=threshold_clash,
@@ -226,18 +226,18 @@ class Frag:
         # Lists definitions
 
         templates = ["{}_{}".format(os.path.join(path_to_templates_generated, template_final), n) for n in
-                     range(0, iterations + 1)]
+                     range(0, growing_steps + 1)]
 
-        results = [os.path.join(working_dir, c.OUTPUT_FOLDER, str(n)) for n in range(0, iterations + 1)]
+        results = [os.path.join(working_dir, c.OUTPUT_FOLDER, str(n)) for n in range(0, growing_steps + 1)]
 
-        pdbs = [pdb_initialize if n == 0 else "{}_{}".format(n, pdb_initialize) for n in range(0, iterations + 1)]
+        pdbs = [pdb_initialize if n == 0 else "{}_{}".format(n, pdb_initialize) for n in range(0, growing_steps + 1)]
 
         pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, pele_params_sim_values.cpus - 1)]
 
         # Generate starting templates
         template_fragmenter.main(template_initial_path=os.path.join(path_to_templates_generated, template_initial),
                                  template_grown_path=os.path.join(path_to_templates_generated, template_final),
-                                 step=1, total_steps=iterations, hydrogen_to_replace=core_original_atom,
+                                 step=1, total_steps=growing_steps, hydrogen_to_replace=core_original_atom,
                                  core_atom_linker=core_atom,
                                  tmpl_out_path=os.path.join(path_to_templates_generated, "{}_0".format(template_final)))
 
@@ -276,7 +276,7 @@ class Frag:
 
             # Control file modification
             overlapping_factor = float(pele_params_sim_values.min_overlap) + (((float(pele_params_sim_values.max_overlap)
-                                                                                - float(pele_params_sim_values.min_overlap)) * i) / iterations)
+                                                                                - float(pele_params_sim_values.min_overlap)) * i) / growing_steps)
             overlapping_factor = "{0:.2f}".format(overlapping_factor)
 
             if i != 0:
@@ -319,7 +319,7 @@ class Frag:
             if i != 0:
                 template_fragmenter.main(template_initial_path=os.path.join(path_to_templates_generated, template_initial),
                                          template_grown_path=os.path.join(path_to_templates_generated, template_final),
-                                         step=i + 1, total_steps=iterations, hydrogen_to_replace=core_original_atom,
+                                         step=i + 1, total_steps=growing_steps, hydrogen_to_replace=core_original_atom,
                                          core_atom_linker=core_atom,
                                          tmpl_out_path=os.path.join(path_to_templates, template_final))
 
@@ -349,10 +349,10 @@ class Frag:
                                         epsilon, pele_params_archives.report, condition, metricweights, nclusters)
         # ----------------------------------------------------EQUILIBRATION-------------------------------------------------
         # Set input PDBs
-        pdb_inputs = ["{}".format(os.path.join(pdbout_folder, str(iterations), pdb_file)) for pdb_file in
+        pdb_inputs = ["{}".format(os.path.join(pdbout_folder, str(growing_steps), pdb_file)) for pdb_file in
                       pdb_selected_names]
         if banned:
-            pdbs_with_banned_dihedrals = Detector.check_folder(folder=os.path.join(pdbout_folder, str(iterations)),
+            pdbs_with_banned_dihedrals = Detector.check_folder(folder=os.path.join(pdbout_folder, str(growing_steps)),
                                                                threshold=limit,
                                                                dihedrals=banned,
                                                                lig_chain=c_chain,
@@ -362,7 +362,7 @@ class Frag:
             os.mkdir(os.path.join(working_dir, "sampling_result"))
         # Modify the control file to increase the steps TO THE SAMPLING SIMULATION
         if sampling_control:
-            simulation_file = simulations_linker.control_file_modifier(sampling_control, pdb=pdb_inputs, step=iterations,
+            simulation_file = simulations_linker.control_file_modifier(sampling_control, pdb=pdb_inputs, step=growing_steps,
                                                                        license=pele_params_path.pele_license, working_dir=working_dir,
                                                                        overlap=pele_params_sim_values.max_overlap,
                                                                        results_path=os.path.join(working_dir,
@@ -378,7 +378,7 @@ class Frag:
                                                                        radius=pele_params_sim_values.radius_box)
         elif explorative and not sampling_control:
             simulation_file = simulations_linker.control_file_modifier(pele_params_archives.control_file, pdb=pdb_inputs, license=pele_params_path.pele_license,
-                                                                       working_dir=working_dir, step=iterations,
+                                                                       working_dir=working_dir, step=growing_steps,
                                                                        overlap=pele_params_sim_values.max_overlap,
                                                                        results_path=os.path.join(working_dir,
                                                                                                  "sampling_result"),
@@ -392,7 +392,7 @@ class Frag:
                                                                        rotation_low=0.15,
                                                                        radius=25)
         else:
-            simulation_file = simulations_linker.control_file_modifier(pele_params_archives.control_file, pdb=pdb_inputs, step=iterations,
+            simulation_file = simulations_linker.control_file_modifier(pele_params_archives.control_file, pdb=pdb_inputs, step=growing_steps,
                                                                        license=pele_params_path.pele_license, overlap=pele_params_sim_values.max_overlap,
                                                                        working_dir=working_dir,
                                                                        results_path=os.path.join(working_dir,
@@ -442,6 +442,6 @@ class Frag:
         # COMPUTE TIME
         end_time = time.time()
         total_time = (end_time - start_time) / 60
-        logging.info("Growing of {} in {} min".format(pele_params_path.fragment_pdb, total_time))
+        logging.info("Growing of {} in {} min".format(fragment_pdb, total_time))
 
         return fragment_names_dict
