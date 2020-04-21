@@ -106,13 +106,11 @@ if __name__ == '__main__':
                     print("PERFORMING SUCCESSIVE GROWING...")
                     print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
                     atomname_map = frag_object.main(pele_parameters, core_atom, fragment_atom, iterations, criteria,
-                                                    pdbout, distcont,
-                         threshold, epsilon, condition, metricweights, nclusters, restart,
-                         ID, h_core, h_frag, c_chain, f_chain, rotamers, banned,
-                         limit, mae, rename, threshold_clash,
-                         explorative, sampling_control, only_prepare, only_grow, no_check)
+                                                    plop_path, sch_python, pdbout, distcont, threshold, epsilon, condition, metricweights,
+                                                    nclusters, restart, ID, h_core, h_frag, c_chain, f_chain, rotamers,
+                                                    banned, limit, mae, rename, threshold_clash, explorative,
+                                                    sampling_control, only_prepare, only_grow, no_check)
                     atomname_mappig.append(atomname_map)
-
                 except Exception:
                     os.chdir(original_dir)
                     traceback.print_exc()
@@ -148,7 +146,7 @@ if __name__ == '__main__':
                 print("PERFORMING INDIVIDUAL GROWING...")
                 print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
                 frag_object.main(pele_parameters, core_atom, fragment_atom, iterations, criteria,
-                                 pdbout, distcont, threshold, epsilon,
+                                 plop_path, sch_python, pdbout, distcont, threshold, epsilon,
                      condition, metricweights, nclusters, restart, ID, h_core,
                      h_frag, c_chain, f_chain, rotamers, banned, limit, mae, rename,
                      threshold_clash, explorative, sampling_control, only_prepare, only_grow, no_check)

@@ -34,7 +34,7 @@ class Frag:
         pass
 
     def main(self, pele_parameters: PeleParameters, core_atom, fragment_atom, iterations, criteria,
-             pdbout, distance_contact, clusterThreshold,
+             plop_path, sch_python, pdbout, distance_contact, clusterThreshold,
              epsilon, condition, metricweights, nclusters, restart, ID,
              h_core=None, h_frag=None, c_chain="L", f_chain="L", rotamers="30.0",
              banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, explorative=False,
@@ -155,7 +155,7 @@ class Frag:
         simulation_info = []  # todo: not used, delete it
 
         # Path definition
-        plop_relative_path = os.path.join(PackagePath, pele_params_path.plop_path)  # todo: extract
+        plop_relative_path = os.path.join(PackagePath, pa)  # todo: extract
         current_path = os.path.abspath(".")
 
         pdb_basename = pele_params_path.complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
