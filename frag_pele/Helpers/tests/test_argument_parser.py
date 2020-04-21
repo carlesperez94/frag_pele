@@ -49,7 +49,7 @@ class TestArgumentParser(unittest.TestCase):
         flags_to_check = ['-cp', '--complex_pdb', '-sef', '--serie_file']
 
         parser = argparse.ArgumentParser()
-        ap._add_required_named_arguments(parser)
+        ap._add_frag_required_named_arguments(parser)
         actions = parser._option_string_actions
 
         self.assertEqual(6, len(actions))  # 6 and not 4 as in flag_to_check, because automatically adds -h --help
@@ -61,7 +61,7 @@ class TestArgumentParser(unittest.TestCase):
                           '--sampling_control', '-op', '--only_prepare', '-og', '--only_grow']
 
         parser = argparse.ArgumentParser()
-        ap._add_standard_arguments(parser)
+        ap._add_frag_standard_arguments(parser)
         actions = parser._option_string_actions
 
         self.assertEqual(23, len(actions))  # 23 and not 21 as in flags_to_check, because automatically adds -h --help

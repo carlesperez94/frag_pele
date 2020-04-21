@@ -19,8 +19,8 @@ def _create_parser():
 
 
 def _add_all_arguments(parser):
-    _add_required_named_arguments(parser)
-    _add_standard_arguments(parser)
+    _add_frag_required_named_arguments(parser)
+    _add_frag_standard_arguments(parser)
     _add_plop_arguments(parser)
     _add_pele_conf_arguments(parser)
     _add_clustering_arguments(parser)
@@ -29,7 +29,7 @@ def _add_all_arguments(parser):
     _add_others_arguments(parser)
 
 
-def _add_required_named_arguments(parser):
+def _add_frag_required_named_arguments(parser):
     required_named = parser.add_argument_group('required named arguments')
 
     # FrAG related arguments
@@ -57,7 +57,7 @@ def _add_required_named_arguments(parser):
                         """)
 
 
-def _add_standard_arguments(parser):
+def _add_frag_standard_arguments(parser):
     parser.add_argument("--core", type=str, default=None)
     parser.add_argument("-nc", "--no_check", action="store_true", help="Don't perform the environment variables check")
     parser.add_argument("-x", "--growing_steps", type=int, default=const.GROWING_STEPS,
@@ -235,11 +235,12 @@ def parse_arguments():
     _check_highthroughput_in_args(args)
     _check_test_in_args(args)
 
-    return args.complex_pdb, args.growing_steps, args.criteria, args.plop_path, args.sch_python, args.pele_dir, \
-           args.contrl, args.license, args.resfold, args.report, args.traject, args.pdbout, args.cpus, args.distcont, \
-           args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, args.pele_eq_steps, \
-           args.restart, args.min_overlap, args.max_overlap, args.serie_file, args.c_chain, args.f_chain, args.steps, \
-           args.temperature, args.seed, args.rotamers, args.banned, args.limit, args.mae, args.rename, args.clash_thr, \
-           args.steering, args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, \
-           args.explorative, args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, \
-           args.only_grow, args.no_check
+    # todo: change this return to groups.
+    return args.complex_pdb, args.serie_file, args.no_check, args.growing_steps, args.criteria, args.restart, \
+           args.c_chain, args.f_chain, args.clash_thr, args.sampling_control, args.only_prepare, args.only_grow, \
+           args.plop_path, args.sch_python, args.rotamers, args.pele_dir, args.contrl, args.license, args.resfold, \
+           args.report, args.traject, args.cpus, args.steps, args.pele_eq_steps, args.min_overlap, args.max_overlap, \
+           args.temperature, args.seed, args.steering, args.translation_high, args.rotation_high, args.translation_low,\
+           args.rotation_low, args.radius_box, args.data, args.documents, args.distcont, args.threshold, args.epsilon, \
+           args.condition, args.metricweights, args.nclusters, args.pdbout, args.banned, args.limit, args.explorative, \
+           args.mae, args.rename
