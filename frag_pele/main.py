@@ -65,7 +65,6 @@ def parse_arguments():
                         And col3 is a string with the PDB atom name of the heavy atom of the fragment that will be used
                         to perform the bonding with the core.
                         """)
-    parser.add_argument("--core", type=str, default=None)
     parser.add_argument("--debug", action="store_true", help="Run Frag without launching PELE simulation")
     parser.add_argument("-nc", "--no_check", action="store_true", help="Don't perform the environment variables check")
     parser.add_argument("-x", "--growing_steps", type=int, default=c.GROWING_STEPS,
@@ -597,10 +596,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                    radius=radius_box)
 
     # EQUILIBRATION SIMULATION
+    # Change directory to the working one
     os.chdir(working_dir)
+    shutil.copy(os.path.join(path_to_templates_generated, template_final), path_to_templates)
     if not (restart and os.path.exists("top_result")):
-        # Change directory to the working one
-        shutil.copy(os.path.join(path_to_templates_generated, template_final), path_to_templates)
         logger.info(".....STARTING EQUILIBRATION.....")
         simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
     os.chdir(curr_dir)
