@@ -31,31 +31,47 @@ curr_dir = os.path.abspath(os.path.curdir)
 class Frag:
 
     def __init__(self):
-        pass
+        self._initial_time = 0
+        # todo put here peleParameters
 
-    def main(self, pele_parameters: PeleParameters, complex_pdb, fragment_pdb, core_atom, fragment_atom, growing_steps, criteria,
-             plop_path, sch_python, pdbout, distance_contact, clusterThreshold,
-             epsilon, condition, metricweights, nclusters, restart, ID,
-             h_core=None, h_frag=None, c_chain="L", f_chain="L", rotamers="30.0",
-             banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, explorative=False,
-             sampling_control=None, only_prepare=False, only_grow=False,
-             no_check=False):
+    def run_frag(self, pele_parameters: PeleParameters, complex_pdb, fragment_pdb, core_atom, fragment_atom, growing_steps, criteria,
+                 plop_path, sch_python, pdbout, distance_contact, clusterThreshold,
+                 epsilon, condition, metricweights, nclusters, restart, ID,
+                 h_core=None, h_frag=None, c_chain="L", f_chain="L", rotamers="30.0",
+                 banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, explorative=False,
+                 sampling_control=None, only_prepare=False, only_grow=False,
+                 no_check=False):
         """
         Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
         fragments to a core structure of the ligand in a protein-ligand complex.
-        :param path_handler: Object were paths information are saved.
+        # todo parameters:
+
+        :param complex_pdb: Path to the PDB file which must contain a protein-ligand complex. Its ligand will be
+        used as the core structure. Remember to rename the ligand chain with a different character in
+        order to detect it.
+        :type complex_pdb: str
+        :param fragment_pdb: Path to the PDB file containing the fragment.
+        :type fragment_pdb: str
         :param core_atom: PDB-atom-name of the atom of the core that will be used as starting point to grow the fragment.
         :type core_atom: str (max length: 4)
         :param fragment_atom: PDB-atom-name of the atom of the fragment that will bond the core.
         :type fragment_atom: str (max length: 4)
-        :param growing_steps: Number of Growing Steps (GS).
-        :type growing_steps: int
+        :param iterations: Number of Growing Steps (GS).
+        :type iterations: int
         :param criteria: Name of the column of the report file to select the structures that will spawn in the
         next GS. Additionally, this parameter will be the selection criteria to extract the best
         structure after completing the growing.
         :type criteria: str
+        :param plop_path: Absolute path to PlopRotTemp.py.
+        :type plop_path: str
+        :param sch_python: Absolute path to Schrodinger's python.
+        :type sch_python: str
+        :param pele_dir: Absolute path to PELE executables.
+        :type pele_dir: str
         :param contrl: Name of the PELE's control file templatized.
         :type contrl: str
+        :param license: Absolute path to PELE's license file.
+        :type license: str
         :param resfold: Name of the results folder.
         :type resfold: str
         :param report: Prefix name of PELE's output file.
@@ -97,9 +113,9 @@ class Frag:
         :param h_frag: PDB-atom-name of the hydrogen bonded to the selected heavy atom of the fragment that will removed to
         bond the fragment with the core.
         :type h_frag: str (max length: 4)
-        :param c_chain: Chain name for the ligand in the path_handler.complex_pdb.
+        :param c_chain: Chain name for the ligand in the complex_pdb.
         :type c_chain: str (max length: 1)
-        :param f_chain: Chain name for the ligand in the path_handler.fragment_pdb.
+        :param f_chain: Chain name for the ligand in the fragment_pdb.
         :type f_chain: str (max length: 1)
         :param steps: PELE steps to do in each GS.
         :type steps: int
@@ -138,18 +154,16 @@ class Frag:
         :param sampling_control: templatized control file to be used in the sampling simulation.
         :type sampling_control: str
         :return:
+
         """
         # Extract pele parameters
-        pele_params_path = pele_parameters.pele_params_path
-        pele_params_archives = pele_parameters.pele_params_archives
-        pele_params_sim_values = pele_parameters.pele_params_sim_values
+        pele_params_path, pele_params_archives, pele_params_sim_values = pele_parameters.extract_parameters()
 
         # Check harcoded path in constants.py
-        if not no_check:
-            check_constants.check()
+        self._check_hardcoded_path_in_constants(no_check)
 
         # Time computations
-        start_time = time.time()
+        self._start_timer()
 
         # Global variable to keep info
         simulation_info = []  # todo: not used, delete it
@@ -441,7 +455,33 @@ class Frag:
 
         # COMPUTE TIME
         end_time = time.time()
-        total_time = (end_time - start_time) / 60
+        total_time = (end_time - self._initial_time) / 60
         logging.info("Growing of {} in {} min".format(fragment_pdb, total_time))
 
         return fragment_names_dict
+
+    def _check_hardcoded_path_in_constants(self, no_check):
+        if not no_check:
+            check_constants.check()
+
+    def _start_timer(self):
+        self._initial_time = time.time()
+
+    # todo: WIP
+    def _define_paths(self, plop_path, complex_pdb, pdbout, ID):
+        # Path definition
+        plop_relative_path = os.path.join(PackagePath, plop_path)  # todo: extract
+        current_path = os.path.abspath(".")
+
+        pdb_basename = complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
+        if "/" in pdb_basename:
+            pdb_basename = pdb_basename.split("/")[-1]  # And if it is a path, get only the name
+
+        working_dir = os.path.join(current_path, "{}_{}".format(pdb_basename, ID))
+        if not os.path.exists(working_dir):
+            os.mkdir(working_dir)  # Creating a working directory for each PDB-fragment combination
+        pdbout_folder = os.path.join(working_dir, pdbout)
+        path_to_templates_generated = os.path.join(working_dir,
+                                                   "DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated")
+        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/HeteroAtoms")
+        path_to_lib = os.path.join(working_dir, "DataLocal/LigandRotamerLibs")
