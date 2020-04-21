@@ -24,8 +24,8 @@ class TestArgumentParser(unittest.TestCase):
         mock_argparser_lib.assert_called_once_with(parser)
         self.assertEqual(type(parser), argparse.ArgumentParser)
 
-    @patch.object(ap, "_add_required_named_arguments")
-    @patch.object(ap, "_add_standard_arguments")
+    @patch.object(ap, "_add_frag_required_named_arguments")
+    @patch.object(ap, "_add_frag_standard_arguments")
     @patch.object(ap, "_add_plop_arguments")
     @patch.object(ap, "_add_pele_conf_arguments")
     @patch.object(ap, "_add_clustering_arguments")
@@ -193,17 +193,16 @@ class TestArgumentParser(unittest.TestCase):
         test_args = ['TestFragArgParser', '-cp', 'TEST_CP', '-sef', 'TEST_SEF', '-nc', '-rst', '-op', '-og',
                      '-EX', '--mae', '--rename']
 
-        expected = ['TEST_CP', const.GROWING_STEPS, const.SELECTION_CRITERIA, const.PLOP_PATH,
-                    const.SCHRODINGER_PY_PATH,
-                    const.PATH_TO_PELE, const.CONTROL_TEMPLATE, const.PATH_TO_LICENSE, const.RESULTS_FOLDER,
-                    const.REPORT_NAME, const.TRAJECTORY_NAME, const.PDBS_OUTPUT_FOLDER, const.CPUS,
-                    const.DISTANCE_COUNTER, const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION,
-                    const.METRICS_WEIGHTS, const.NUM_CLUSTERS, const.PELE_EQ_STEPS, True, const.MIN_OVERLAP,
-                    const.MAX_OVERLAP, 'TEST_SEF', 'L', 'L', const.STEPS, const.TEMPERATURE, const.SEED,
-                    const.ROTRES, const.BANNED_DIHEDRALS_ATOMS, const.BANNED_ANGLE_THRESHOLD, True, True,
-                    1.7, const.STEERING, const.TRANSLATION_HIGH, const.ROTATION_HIGH, const.TRANSLATION_LOW,
-                    const.ROTATION_LOW, True, const.RADIUS_BOX, None, const.PATH_TO_PELE_DATA,
-                    const.PATH_TO_PELE_DOCUMENTS, True, True, True]
+        expected = ['TEST_CP', 'TEST_SEF', True, 10, const.SELECTION_CRITERIA, True, 'L', 'L', 1.7, None, True, True,
+                    const.PLOP_PATH, const.SCHRODINGER_PY_PATH, const.ROTRES, const.PATH_TO_PELE,
+                    const.CONTROL_TEMPLATE, const.PATH_TO_LICENSE, const.RESULTS_FOLDER, const.REPORT_NAME,
+                    const.TRAJECTORY_NAME, const.CPUS, const.STEPS, const.PELE_EQ_STEPS, const.MIN_OVERLAP,
+                    const.MAX_OVERLAP, const.TEMPERATURE, const.SEED, const.STEERING, const.TRANSLATION_HIGH,
+                    const.ROTATION_HIGH, const.TRANSLATION_LOW, const.ROTATION_LOW, const.RADIUS_BOX,
+                    const.PATH_TO_PELE_DATA, const.PATH_TO_PELE_DOCUMENTS, const.DISTANCE_COUNTER,
+                    const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION, const.METRICS_WEIGHTS, const.NUM_CLUSTERS,
+                    const.PDBS_OUTPUT_FOLDER, const.BANNED_ANGLE_THRESHOLD, const.BANNED_DIHEDRALS_ATOMS,
+                    True, True, True]
 
         with patch.object(sys, 'argv', test_args):
             result = ap.parse_arguments()
@@ -215,16 +214,16 @@ class TestArgumentParser(unittest.TestCase):
         test_args = ['TestFragArgParser', '-cp', 'TEST_CP', '-sef', 'TEST_SEF', '-nc', '-rst', '-op', '-og',
                      '-EX', '--mae', '--rename', '-HT']
 
-        expected = ['TEST_CP', 1, const.SELECTION_CRITERIA, const.PLOP_PATH, const.SCHRODINGER_PY_PATH,
-                    const.PATH_TO_PELE, const.CONTROL_TEMPLATE, const.PATH_TO_LICENSE, const.RESULTS_FOLDER,
-                    const.REPORT_NAME, const.TRAJECTORY_NAME, const.PDBS_OUTPUT_FOLDER, const.CPUS,
-                    const.DISTANCE_COUNTER, const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION,
-                    const.METRICS_WEIGHTS, const.NUM_CLUSTERS, 10, True, const.MIN_OVERLAP,
-                    const.MAX_OVERLAP, 'TEST_SEF', 'L', 'L', 3, const.TEMPERATURE, const.SEED,
-                    const.ROTRES, const.BANNED_DIHEDRALS_ATOMS, const.BANNED_ANGLE_THRESHOLD, True, True,
-                    1.7, const.STEERING, const.TRANSLATION_HIGH, const.ROTATION_HIGH, const.TRANSLATION_LOW,
-                    const.ROTATION_LOW, True, const.RADIUS_BOX, None, const.PATH_TO_PELE_DATA,
-                    const.PATH_TO_PELE_DOCUMENTS, True, True, True]
+        expected = ['TEST_CP', 'TEST_SEF', True, 1, const.SELECTION_CRITERIA, True, 'L', 'L', 1.7, None, True, True,
+                    const.PLOP_PATH, const.SCHRODINGER_PY_PATH, const.ROTRES, const.PATH_TO_PELE,
+                    const.CONTROL_TEMPLATE, const.PATH_TO_LICENSE, const.RESULTS_FOLDER, const.REPORT_NAME,
+                    const.TRAJECTORY_NAME, const.CPUS, 3, 10, const.MIN_OVERLAP,
+                    const.MAX_OVERLAP, const.TEMPERATURE, const.SEED, const.STEERING, const.TRANSLATION_HIGH,
+                    const.ROTATION_HIGH, const.TRANSLATION_LOW, const.ROTATION_LOW, const.RADIUS_BOX,
+                    const.PATH_TO_PELE_DATA, const.PATH_TO_PELE_DOCUMENTS, const.DISTANCE_COUNTER,
+                    const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION, const.METRICS_WEIGHTS, const.NUM_CLUSTERS,
+                    const.PDBS_OUTPUT_FOLDER, const.BANNED_ANGLE_THRESHOLD, const.BANNED_DIHEDRALS_ATOMS,
+                    True, True, True]
 
         with patch.object(sys, 'argv', test_args):
             result = ap.parse_arguments()
@@ -236,16 +235,16 @@ class TestArgumentParser(unittest.TestCase):
         test_args = ['TestFragArgParser', '-cp', 'TEST_CP', '-sef', 'TEST_SEF', '-nc', '-rst', '-op', '-og',
                      '-EX', '--mae', '--rename', '--test']
 
-        expected = ['TEST_CP', 1, const.SELECTION_CRITERIA, const.PLOP_PATH, const.SCHRODINGER_PY_PATH,
-                    const.PATH_TO_PELE, const.CONTROL_TEMPLATE, const.PATH_TO_LICENSE, const.RESULTS_FOLDER,
-                    const.REPORT_NAME, const.TRAJECTORY_NAME, const.PDBS_OUTPUT_FOLDER, const.CPUS,
-                    const.DISTANCE_COUNTER, const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION,
-                    const.METRICS_WEIGHTS, const.NUM_CLUSTERS, 1, True, const.MIN_OVERLAP,
-                    const.MAX_OVERLAP, 'TEST_SEF', 'L', 'L', 1, 1000000, const.SEED,
-                    const.ROTRES, const.BANNED_DIHEDRALS_ATOMS, const.BANNED_ANGLE_THRESHOLD, True, True,
-                    1.7, const.STEERING, const.TRANSLATION_HIGH, const.ROTATION_HIGH, const.TRANSLATION_LOW,
-                    const.ROTATION_LOW, True, const.RADIUS_BOX, None, const.PATH_TO_PELE_DATA,
-                    const.PATH_TO_PELE_DOCUMENTS, True, True, True]
+        expected = ['TEST_CP', 'TEST_SEF', True, 1, const.SELECTION_CRITERIA, True, 'L', 'L', 1.7, None, True, True,
+                    const.PLOP_PATH, const.SCHRODINGER_PY_PATH, const.ROTRES, const.PATH_TO_PELE,
+                    const.CONTROL_TEMPLATE, const.PATH_TO_LICENSE, const.RESULTS_FOLDER, const.REPORT_NAME,
+                    const.TRAJECTORY_NAME, const.CPUS, 1, 1, const.MIN_OVERLAP,
+                    const.MAX_OVERLAP, 1000000, const.SEED, const.STEERING, const.TRANSLATION_HIGH,
+                    const.ROTATION_HIGH, const.TRANSLATION_LOW, const.ROTATION_LOW, const.RADIUS_BOX,
+                    const.PATH_TO_PELE_DATA, const.PATH_TO_PELE_DOCUMENTS, const.DISTANCE_COUNTER,
+                    const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION, const.METRICS_WEIGHTS, const.NUM_CLUSTERS,
+                    const.PDBS_OUTPUT_FOLDER, const.BANNED_ANGLE_THRESHOLD, const.BANNED_DIHEDRALS_ATOMS,
+                    True, True, True]
 
         with patch.object(sys, 'argv', test_args):
             result = ap.parse_arguments()
