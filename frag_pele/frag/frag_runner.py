@@ -155,7 +155,7 @@ class Frag:
         simulation_info = []  # todo: not used, delete it
 
         # Path definition
-        plop_relative_path = os.path.join(PackagePath, pa)  # todo: extract
+        plop_relative_path = os.path.join(PackagePath, plop_path)  # todo: extract
         current_path = os.path.abspath(".")
 
         pdb_basename = pele_params_path.complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
@@ -195,7 +195,7 @@ class Frag:
         template_resnames = []
         for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
             if not only_grow:
-                cmd = "{} {} {} {} {} {}".format(pele_params_path.sch_python, plop_relative_path, os.path.join(working_dir,
+                cmd = "{} {} {} {} {} {}".format(sch_python, plop_relative_path, os.path.join(working_dir,
                                                                                               add_fragment_from_pdbs.c.PRE_WORKING_DIR,
                                                                                               pdb_to_template), rotamers,
                                                  path_to_templates_generated, path_to_lib)
@@ -204,7 +204,7 @@ class Frag:
                     subprocess.call(cmd.split())
                 except OSError:
                     raise OSError(
-                        "Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(pele_params_path.sch_python))
+                        "Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(sch_python))
             template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(
                 os.path.join(working_dir, add_fragment_from_pdbs.
                              c.PRE_WORKING_DIR, pdb_to_template),
@@ -429,14 +429,14 @@ class Frag:
 
         # MOVE FROM PDB TO MAE
         if mae:
-            if pele_params_path.sch_python.endswith("python"):
-                schrodinger_path = os.path.dirname(os.path.dirname(pele_params_path.sch_python))
-            elif pele_params_path.sch_python.endswith("run"):
-                schrodinger_path = os.path.dirname(pele_params_path.sch_python)
+            if sch_python.endswith("python"):
+                schrodinger_path = os.path.dirname(os.path.dirname(sch_python))
+            elif sch_python.endswith("run"):
+                schrodinger_path = os.path.dirname(sch_python)
             python_file = os.path.join(os.path.dirname(FilePath), "Analysis/output_files.py")
             for outputfile in all_output_files:
                 filename = os.path.join(selected_results_path, outputfile)
-                command = "{} {} {} --schr {} {}".format(pele_params_path.sch_python, python_file, filename, schrodinger_path, "--remove")
+                command = "{} {} {} --schr {} {}".format(sch_python, python_file, filename, schrodinger_path, "--remove")
                 subprocess.call(command.split())
 
         # COMPUTE TIME
