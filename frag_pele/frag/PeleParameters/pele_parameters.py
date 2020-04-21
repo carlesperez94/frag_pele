@@ -18,7 +18,7 @@ class PeleParameters:
         :param pele_params_sim_values: Simulation values (control_file) related arguments of PELE.
         """
         self._pele_params_path = pele_params_path
-        self._pele_patams_archives = pele_params_archives
+        self._pele_params_archives = pele_params_archives
         self._pele_params_sim_values = pele_params_sim_values
 
     # Properties
@@ -28,8 +28,12 @@ class PeleParameters:
 
     @property
     def pele_params_archives(self):
-        return self._pele_patams_archives
+        return self._pele_params_archives
 
     @property
     def pele_params_sim_values(self):
         return self._pele_params_sim_values
+
+    # Methods
+    def extract_parameters(self):
+        return self.pele_params_path, self.pele_params_archives, self.pele_params_sim_values
