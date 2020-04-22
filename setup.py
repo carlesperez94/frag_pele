@@ -20,7 +20,7 @@ cmdclass = {}
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 setup(
-    name="FragPELE",
+    name="frag_pele",
     version="2.1.1",
     description='FragPELE, a new tool for in silico hit-to-lead drug design, capable of growing a frag_pelement into a core while exploring the protein-ligand conformational space',
     long_description=long_description,

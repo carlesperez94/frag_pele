@@ -65,7 +65,7 @@ def parse_arguments():
                         And col3 is a string with the PDB atom name of the heavy atom of the fragment that will be used
                         to perform the bonding with the core.
                         """)
-    parser.add_argument("--core", type=str, default=None)
+    parser.add_argument("--debug", action="store_true", help="Run Frag without launching PELE simulation")
     parser.add_argument("-nc", "--no_check", action="store_true", help="Don't perform the environment variables check")
     parser.add_argument("-x", "--growing_steps", type=int, default=c.GROWING_STEPS,
                         help="""Number of Growing Steps (GS). By default = {}.""".format(c.GROWING_STEPS))
@@ -228,7 +228,7 @@ def parse_arguments():
            args.banned, args.limit, args.mae, args.rename, args.clash_thr, args.steering, \
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
            args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow, \
-           args.no_check
+           args.no_check, args.debug
 
 
 def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -238,7 +238,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
          banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
          translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
          radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
-         no_check=False):
+         no_check=False, debug=False):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -524,7 +524,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
         # ------SIMULATION PART------
         # Change directory to the working one
         os.chdir(working_dir)
-        simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
+        if debug:
+            return 
+        else:
+            simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
         logger.info(c.LINES_MESSAGE)
         logger.info(c.FINISH_SIM_MESSAGE.format(result))
         # Before selecting a step from a trajectory we will save the input PDB file in a folder
@@ -593,8 +596,10 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
                                                                    radius=radius_box)
 
     # EQUILIBRATION SIMULATION
-    if not (restart and os.path.exists("selected_result")):
-        shutil.copy(os.path.join(path_to_templates_generated, template_final), path_to_templates)
+    # Change directory to the working one
+    os.chdir(working_dir)
+    shutil.copy(os.path.join(path_to_templates_generated, template_final), path_to_templates)
+    if not (restart and os.path.exists("top_result")):
         logger.info(".....STARTING EQUILIBRATION.....")
         simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
     os.chdir(curr_dir)
@@ -642,13 +647,14 @@ if __name__ == '__main__':
     c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
     rename, threshold_clash, steering, translation_high, rotation_high, \
     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
-    only_prepare, only_grow, no_check = parse_arguments()
+    only_prepare, only_grow, no_check, debug = parse_arguments()
     list_of_instructions = serie_handler.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the "
           "trip :)".format(len(list_of_instructions)))
     dict_traceback = correct_fragment_names.main(complex_pdb)
     for instruction in list_of_instructions:
         # We will iterate trough all individual instructions of file.
+        os.chdir(original_dir)
         # SUCCESSIVE GROWING
         if type(instruction) == list:  #  If in the individual instruction we have more than one command means successive growing.
             growing_counter = len(instruction)  #  Doing so we will determinate how many successive growings the user wants to do.
@@ -674,14 +680,15 @@ if __name__ == '__main__':
                     h_core = None
                     h_frag = None
                 if i == 0:  # In the first iteration we will use the complex_pdb as input.
+                    complex_sequential_pdb = complex_pdb
                     ID = instruction[i][3]
                 else:  # If is not the first we will use as input the output of the previous iteration
                     pdb_basename = complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
                     if "/" in pdb_basename:
                         pdb_basename = pdb_basename.split("/")[-1]  # And if it is a path, get only the name
                     working_dir = "{}_{}".format(pdb_basename, ID)
-                    complex_pdb = os.path.join(working_dir, c.PRE_WORKING_DIR)
-                    dict_traceback = correct_fragment_names.main(complex_pdb)
+                    complex_sequential_pdb = os.path.join(working_dir, "top_result.pdb")
+                    dict_traceback = correct_fragment_names.main(complex_sequential_pdb)
                     ID_completed = []
                     for id in instruction[0:i+1]:
                         ID_completed.append(id[3])
@@ -691,16 +698,16 @@ if __name__ == '__main__':
                 except Exception:
                     traceback.print_exc()
                 try:
-                    serie_handler.check_instructions(instruction[i], complex_pdb, c_chain, f_chain)
+                    serie_handler.check_instructions(instruction[i], complex_sequential_pdb, c_chain, f_chain)
                     print("PERFORMING SUCCESSIVE GROWING...")
                     print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
-                    atomname_map = main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
+                    atomname_map = main(complex_sequential_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
                          sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
                          threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
                          max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
                          limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
                          translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                                        only_prepare, only_grow, no_check)
+                                        only_prepare, only_grow, no_check, debug)
                     atomname_mappig.append(atomname_map)
 
                 except Exception:
@@ -712,6 +719,7 @@ if __name__ == '__main__':
             fragment_pdb, core_atom, fragment_atom, ID = instruction[0], instruction[1], instruction[2], instruction[3]
             atoms_if_bond = serie_handler.extract_hydrogens_from_instructions([fragment_pdb, core_atom, fragment_atom])
             try:
+                complex_pdb = complex_pdb
                 ID = ID.split("/")[-1]
             except Exception:
                 traceback.print_exc()
@@ -733,7 +741,7 @@ if __name__ == '__main__':
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
                      threshold_clash, steering, translation_high, rotation_high,
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                     only_prepare, only_grow, no_check)
+                     only_prepare, only_grow, no_check, debug)
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()

@@ -150,6 +150,33 @@ def bond(hydrogen_atom_names, molecules):
         i += 2
     return bonds
 
+def join_structures_to_rotate(core_bond, fragment_bond, list_of_atoms, core_structure, fragment_structure):
+    """
+    It joins two ProDy structures into a single one, merging both bonds (core bond and fragment bond) creating a unique
+    bond between the molecules. In order to do that this function performs a cross superimposition (in BioPython) of
+    the whole fragment using as reference (fixed part) the atoms of the bond. Then, it transforms this BioPython object
+    into ProDy molecule with the coordinates modified. Once we have all ready, the Hydrogens of the bonds will be
+    deleted and both structures will be concatenated into a single ProDy object.
+    :param core_bond: Bio.PDB.Atom list with two elements: [heavy atom, hydrogen atom]. These two atoms have to be the
+    ones participating in the bond of the core that we would like to use as linking point between core and fragment.
+    :param fragment_bond: Bio.PDB.Atom list with two elements: [hydrogen atom, heavy atom]. These two atoms have to be the
+    ones participating in the bond of the fragment that we would like to use as linking point between fragment and core.
+    :param list_of_atoms: Bio.PDB.Atom list with all the atoms of the fragment. These atoms have to contain
+    coordinates.
+    :param core_structure: ProDy molecule that contain only the core ligand.
+    :param fragment_structure: ProDy molecule that contain only the fragment ligand.
+    :return: ProDy molecule with the core_structure and the fragment_structure (with the coordinates modified)
+    concatenated.
+    """
+    # Superimpose atoms of the fragment to the core bond
+    pdb_joiner.superimpose(core_bond, fragment_bond, list_of_atoms)
+    # Get the new coords and change them in prody
+    transform_coords_from_bio2prody(fragment_structure, list_of_atoms)
+    # Now, we have to remove the hydrogens of the binding
+    h_atom_names = [core_bond[1].name, fragment_bond[0].name]
+    merged_structure = bond(h_atom_names, [core_structure, fragment_structure])
+    return merged_structure
+
 
 def join_structures(core_bond, fragment_bond, core_structure, fragment_structure, pdb_complex,
                     pdb_fragment, chain_complex, chain_fragment, output_path, only_grow=False):
@@ -175,7 +202,6 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
     :return: ProDy molecule with the core_structure and the fragment_structure (with the coordinates modified)
     concatenated.
     """
-
     name_to_replace_core = core_bond[1].name
     name_to_replace_fragment = fragment_bond[0].name
     if only_grow:
@@ -378,15 +404,7 @@ def rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, 
         # Multiply the matrix of coordinates for the transpose of the rotation matrix to get the coordinates rotated
         atom.transform(rot_mat, (0, 0, 0))
         transform_coords_from_bio2prody(fragment_structure, list_of_atoms)
-    rotated_structure, core_original_atom, fragment_original_atom = join_structures(core_bond, fragment_bond,
-                                                                                    core_structure,
-                                                                                    fragment_structure,
-                                                                                    pdb_complex=pdb_complex,
-                                                                                    pdb_fragment=pdb_fragment,
-                                                                                    chain_complex=chain_complex,
-                                                                                    chain_fragment=chain_fragment,
-                                                                                    output_path=output_path,
-                                                                                    only_grow=only_grow)
+    rotated_structure = join_structures_to_rotate(core_bond, fragment_bond, list_of_atoms, core_structure, fragment_structure)
     return rotated_structure
 
 
@@ -438,7 +456,8 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
     # This list only should have the atom of the fragment that will be bonded to the core, so if not we will have to
     # solve it
     if len(check_possible_collision.getNames()) > 1 or check_possible_collision.getNames()[0] != bond[0].name:
-        print("We have a collision between atoms of the fragment and the core! Rotating the fragment to solve it...")
+        print("We have a collision between atoms of the fragment {} and the core {} within {} A!" 
+              " Rotating the fragment to solve it...".format(frag_resname, core_resname, threshold_clash))
         theta = theta + theta_interval
         if theta >= math.pi*2:
             print("Not possible solution, decreasing the angle of rotation...")
@@ -446,6 +465,7 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
             rotated_structure = rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, core_structure,
                                                       fragment_structure, pdb_complex, pdb_fragment, chain_complex, chain_fragment,
                                                       output_path=output_path, only_grow=only_grow)
+            #prody.writePDB("testing_{}.pdb".format(theta), rotated_structure[0])
             recall = check_collision(merged_structure=rotated_structure[0], bond=bond, theta=theta, theta_interval=theta_interval, 
                                      core_bond=core_bond, list_of_atoms=list_of_atoms, fragment_bond=fragment_bond, core_structure=core_structure,
                                      fragment_structure=fragment_structure, pdb_complex=pdb_complex, pdb_fragment=pdb_fragment, 
@@ -722,9 +742,14 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                                                                    pdb_complex_core, pdb_fragment,
                                                                                    core_chain, fragment_chain,
                                                                                    output_path=WORK_PATH, only_grow=only_grow)
+    prody.writePDB("merged.pdb", merged_structure[0])
     if not only_grow:
         # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
         # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
+        # check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/18, core_bond,
+        #                            bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment)
+        # check_collision(merged_structure, bond, theta, theta_interval, core_bond, list_of_atoms, fragment_bond,
+        #            core_structure, fragment_structure)
         check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0,
                                         theta_interval=math.pi/18, core_bond=core_bond, list_of_atoms=bioatoms_core_and_frag[1],
                                         fragment_bond=fragment_bond, core_structure=ligand_core, fragment_structure=fragment,
