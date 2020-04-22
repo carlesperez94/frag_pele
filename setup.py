@@ -3,6 +3,7 @@ from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
+import frag_pele as fp
 
 try:
     from Cython.Build import cythonize
@@ -21,7 +22,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 setup(
     name="frag_pele",
-    version="2.1.1",
+    version=fp.__version__,
     description='FragPELE, a new tool for in silico hit-to-lead drug design, capable of growing a frag_pelement into a core while exploring the protein-ligand conformational space',
     long_description=long_description,
     url="https://github.com/carlesperez94/frag_pele/",
