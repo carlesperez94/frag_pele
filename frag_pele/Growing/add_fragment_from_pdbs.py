@@ -202,8 +202,6 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
     :return: ProDy molecule with the core_structure and the fragment_structure (with the coordinates modified)
     concatenated.
     """
-    print(core_bond, fragment_bond, core_structure, fragment_structure, pdb_complex,
-                    pdb_fragment, chain_complex, chain_fragment, output_path, only_grow)
     name_to_replace_core = core_bond[1].name
     name_to_replace_fragment = fragment_bond[0].name
     if only_grow:
@@ -215,16 +213,14 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
                                                       chain_ligand=chain_fragment)
     else:
         print("WARNING: YOU CAN NOT REPLACE HEAVY ATOMS FOR HYDROGENS WITHOUT RDKIT!")
-
-    bond_fragment = detect_fragment_bond_type(fragment_structure, fragment_bond[0], fragment_bond[1],
-                                              atom_constants.BONDING_DISTANCES)
-    bond_type = bond_fragment[2]
+    fragment_rdkit = rdkit.Chem.MolFromPDBFile(pdb_fragment, removeHs=False)
+    bond_type = detect_bond_type(fragment_rdkit, fragment_bond[0], fragment_bond[1])
     if RDKIT:
         if core_bond[1].element != "H":
             atom_replaced_idx = replace_heavy_by_hydrogen(core_bond[1], core_structure)
-            new_coords = correct_hydrogen_position(hydrogen_atom=core_structure[atom_replaced_idx],
-                                                   atom_to_bond_with=core_bond[0],
-                                                   structure=core_structure[atom_replaced_idx])
+            new_coords, new_dist = correct_hydrogen_position(hydrogen_atom=core_structure[atom_replaced_idx],
+                                                             atom_to_bond_with=core_bond[0],
+                                                             structure=core_structure[atom_replaced_idx])
             core_structure[atom_replaced_idx].setCoords(new_coords)
             names_to_keep = list(
                 set(core_structure.getNames()) ^ set(atoms_to_delete_core))  # Compare two sets and get the common items
@@ -236,9 +232,9 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
             core_bond[1].coord = new_coords
         if fragment_bond[0].element != "H":
             atom_replaced_idx = replace_heavy_by_hydrogen(fragment_bond[0], fragment_structure)
-            new_coords = correct_hydrogen_position(hydrogen_atom=fragment_structure[atom_replaced_idx],
-                                                   atom_to_bond_with=fragment_bond[1],
-                                                   structure=fragment_structure[atom_replaced_idx])
+            new_coords, new_dist = correct_hydrogen_position(hydrogen_atom=fragment_structure[atom_replaced_idx],
+                                                             atom_to_bond_with=fragment_bond[1],
+                                                             structure=fragment_structure[atom_replaced_idx])
             fragment_structure[atom_replaced_idx].setCoords(new_coords)
             names_to_keep = list(
                 set(fragment_structure.getNames()) ^ set(atoms_to_delete_fragment))  # Compare two sets and get the common items
@@ -256,12 +252,15 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
     # Now, we have to remove the hydrogens of the binding
     h_atom_names = [name_to_replace_core, name_to_replace_fragment]
     # Correcting linking distance
-    new_coords = correct_bonding_distance(atom_reference=core_bond[0], atom_to_correct=fragment_bond[1],
-                                          reference_structure=core_structure, movil_structure=fragment_structure,
-                                          bond_type=bond_type)
+    new_coords, new_distance = correct_bonding_distance(atom_reference=core_bond[0], atom_to_correct=fragment_bond[1],
+                                                        reference_structure=core_structure, movil_structure=fragment_structure,
+                                                        bond_type=bond_type)
+    print(new_distance)
     if bond_type == "double":
         hydrogen_to_delete = pdb_joiner.get_H_bonded_to_atom(core_bond[0].name, core_structure,
-                                                             banned_hydrogen=name_to_replace_core)
+                                                             bond_dist=new_distance,
+                                                 	     banned_hydrogen=name_to_replace_core,
+                                                             chain=chain_complex)
         names_to_keep = list(core_structure.getNames())
         names_to_keep.remove(hydrogen_to_delete)
         core_structure = core_structure.select("name {}".format(" ".join(names_to_keep)))
@@ -269,14 +268,17 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
     if bond_type == "triple":
         for n in range(2):
             hydrogen_to_delete = pdb_joiner.get_H_bonded_to_atom(core_bond[0].name, core_structure,
-                                                                 banned_hydrogen=name_to_replace_core)
+                                                                 bond_dist=new_distance,
+                                                                 banned_hydrogen=name_to_replace_core,
+                                                                 chain=chain_complex)
             names_to_keep = list(core_structure.getNames())
             names_to_keep.remove(hydrogen_to_delete)
             core_structure = core_structure.select("name {}".format(" ".join(names_to_keep)))
 
     fragment_structure.setCoords(new_coords)
     merged_structure = bond(h_atom_names, [core_structure, fragment_structure])
-    return merged_structure, name_to_replace_core, name_to_replace_fragment
+    return merged_structure, name_to_replace_core, name_to_replace_fragment, new_distance # new_distance to modify the clash treshold
+    # in check_collisions()
 
 
 def detect_fragment_bond_type(fragment_structure, atom1, atom2, dictionary_of_distances):
@@ -284,17 +286,36 @@ def detect_fragment_bond_type(fragment_structure, atom1, atom2, dictionary_of_di
     coords_atom2 = find_coords_of_atom(atom2.name, fragment_structure)
     distance = compute_distance_between_atoms(coords_atom1, coords_atom2)
     for bond, bond_distance in dictionary_of_distances.items():
-        if bond[0] == atom1.element and bond[1] == atom2.element and bond_distance+0.04 >= distance > bond_distance-0.04:
+        if bond[0] == atom1.element and bond[1] == atom2.element and bond_distance+0.06 >= distance > bond_distance-0.06:
             return bond[0], bond[1], bond[2]
 
+def convert_pdbnames_to_rdkit_idx(molecule):
+   names_relations = {}
+   for atom in molecule.GetAtoms():
+       names_relations[atom.GetPDBResidueInfo().GetName().strip()] = atom.GetIdx()
+   return names_relations
+
+def get_bond_types_from_mol(molecule):
+    bonds = {}
+    for bond in molecule.GetBonds():
+        bonds[(bond.GetBeginAtomIdx(), bond.GetEndAtomIdx())] = str(bond.GetBondType()).lower()
+        bonds[(bond.GetEndAtomIdx(), bond.GetBeginAtomIdx())] = str(bond.GetBondType()).lower()
+    return bonds
+
+def detect_bond_type(molecule, atom1, atom2):
+    names = convert_pdbnames_to_rdkit_idx(molecule)
+    bonds = get_bond_types_from_mol(molecule)
+    bond_names = (names[atom1.name], names[atom2.name])
+    bond_type = bonds[bond_names]
+    return bond_type
 
 def correct_bonding_distance(atom_reference, atom_to_correct, reference_structure, movil_structure, bond_type="single"):
     hvy_core_coords = find_coords_of_atom(atom_reference.name, reference_structure)
     hvy_frag_coords = find_coords_of_atom(atom_to_correct.name, movil_structure)
-    new_distance = atom_constants.BONDING_DISTANCES[atom_reference.element, atom_to_correct.element, bond_type]
+    new_distance = atom_constants.BONDING_DISTANCES[atom_reference.element.upper(), atom_to_correct.element.upper(), bond_type]
     new_coords = modify_distance_between_structures(hvy_core_coords, hvy_frag_coords, movil_structure.getCoords(),
                                                     new_distance)
-    return new_coords
+    return new_coords, new_distance
 
 
 def correct_hydrogen_position(hydrogen_atom, atom_to_bond_with, structure):
@@ -303,7 +324,7 @@ def correct_hydrogen_position(hydrogen_atom, atom_to_bond_with, structure):
     new_distance = atom_constants.BONDING_DISTANCES["H", atom_to_bond_with.element, "single"]
     new_coords = modify_distance_between_structures(coords_atom_to_bond, coords_H_to_move, structure.getCoords(),
                                                     new_distance)
-    return new_coords
+    return new_coords, new_distance
 
 
 def replace_heavy_by_hydrogen(heavy_atom, structure):
@@ -453,6 +474,9 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
     frag_resname = bond[1].get_parent().get_resname()
     if core_resname is frag_resname:
         logger.critical("The resname of the core and the fragment is the same. Please, change one of both")
+    print("resname {} and within {} of resname {}".format(core_resname,
+                                                                                                       threshold_clash,
+                                                                                                        frag_resname))
     check_possible_collision = merged_structure.select("resname {} and within {} of resname {}".format(core_resname,
                                                                                                        threshold_clash,
                                                                                                         frag_resname))
@@ -741,11 +765,11 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                 .format(fragment_bond, core_bond))
     # Using the previous information we will superimpose the whole fragment on the bond of the core in order to place
     # the fragment in the correct position, deleting the H.
-    merged_structure, core_original_atom, fragment_original_atom = join_structures(core_bond, fragment_bond,
-                                                                                   ligand_core, fragment,
-                                                                                   pdb_complex_core, pdb_fragment,
-                                                                                   core_chain, fragment_chain,
-                                                                                   output_path=WORK_PATH, only_grow=only_grow)
+    merged_structure, core_original_atom, fragment_original_atom, new_dist = join_structures(core_bond, fragment_bond,
+                                                                                             ligand_core, fragment,
+                                                                                             pdb_complex_core, pdb_fragment,
+                                                                                             core_chain, fragment_chain,
+                                                                                             output_path=WORK_PATH, only_grow=only_grow)
     prody.writePDB("merged.pdb", merged_structure[0])
     if not only_grow:
         # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
@@ -758,7 +782,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                         theta_interval=math.pi/18, core_bond=core_bond, list_of_atoms=bioatoms_core_and_frag[1],
                                         fragment_bond=fragment_bond, core_structure=ligand_core, fragment_structure=fragment,
                                         pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
-                                        chain_fragment=fragment_chain, output_path=WORK_PATH, threshold_clash=threshold_clash,
+                                        chain_fragment=fragment_chain, output_path=WORK_PATH, threshold_clash=new_dist+0.01,
                                         only_grow=only_grow)
         # If we do not find a solution in the previous step, we will repeat the rotations applying only increments of 1º
         if not check_results:
@@ -767,7 +791,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                             fragment_bond=fragment_bond, core_structure=ligand_core, fragment_structure=fragment,
                                             pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
                                             chain_fragment=fragment_chain, output_path=WORK_PATH,
-                                            threshold_clash=threshold_clash, only_grow=only_grow)
+                                            threshold_clash=new_dist+0.01, only_grow=only_grow)
         # Now, we want to extract this structure in a PDB to create the template file after the growing. We will do a copy
         # of the structure because then we will need to resize the fragment part, so be need to keep it as two different
         # residues.
