@@ -18,6 +18,7 @@ import frag_pele.constants as c
 from frag_pele.Banner import Detector
 from frag_pele.frag.ClusterParameters.cluster_parameters import ClusterParameters
 from frag_pele.frag.PeleParameters.pele_parameters import PeleParameters
+from frag_pele.frag.PlopParameters.plop_parameters import PlopParameters
 
 FilePath = os.path.abspath(__file__)
 PackagePath = os.path.dirname(FilePath)
@@ -35,10 +36,10 @@ class Frag:
         self._initial_time = 0
         # todo put here peleParameters
 
-    def run_frag(self, pele_parameters: PeleParameters, cluster_parameters: ClusterParameters, complex_pdb,
+    def run_frag(self, pele_parameters: PeleParameters, cluster_parameters: ClusterParameters,
+                 plop_parameters: PlopParameters, complex_pdb,
                  fragment_pdb, core_atom, fragment_atom, growing_steps, criteria,
-                 plop_path, sch_python, restart, ID,
-                 h_core=None, h_frag=None, c_chain="L", f_chain="L", rotamers="30.0",
+                 restart, ID, h_core=None, h_frag=None, c_chain="L", f_chain="L",
                  mae=False, rename=False, threshold_clash=1.7, explorative=False,
                  sampling_control=None, only_prepare=False, only_grow=False,
                  no_check=False):
@@ -47,6 +48,7 @@ class Frag:
         fragments to a core structure of the ligand in a protein-ligand complex.
         # todo parameters:
 
+        :param plop_parameters:
         :param growing_steps:
         :param cluster_parameters:
         :param pele_parameters:
@@ -107,7 +109,7 @@ class Frag:
         simulation_info = []  # todo: not used, delete it
 
         # Path definition
-        plop_relative_path = os.path.join(PackagePath, plop_path)  # todo: extract
+        plop_relative_path = os.path.join(PackagePath, plop_parameters.plop_path)  # todo: extract
         current_path = os.path.abspath(".")
 
         pdb_basename = complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
@@ -147,16 +149,16 @@ class Frag:
         template_resnames = []
         for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
             if not only_grow:
-                cmd = "{} {} {} {} {} {}".format(sch_python, plop_relative_path, os.path.join(working_dir,
+                cmd = "{} {} {} {} {} {}".format(plop_parameters.sch_python, plop_relative_path, os.path.join(working_dir,
                                                                                               add_fragment_from_pdbs.c.PRE_WORKING_DIR,
-                                                                                              pdb_to_template), rotamers,
+                                                                                              pdb_to_template), plop_parameters.rotamers,
                                                  path_to_templates_generated, path_to_lib)
 
                 try:
                     subprocess.call(cmd.split())
                 except OSError:
                     raise OSError(
-                        "Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(sch_python))
+                        "Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(plop_parameters.sch_python))
             template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(
                 os.path.join(working_dir, add_fragment_from_pdbs.
                              c.PRE_WORKING_DIR, pdb_to_template),
@@ -381,14 +383,14 @@ class Frag:
 
         # MOVE FROM PDB TO MAE
         if mae:
-            if sch_python.endswith("python"):
-                schrodinger_path = os.path.dirname(os.path.dirname(sch_python))
-            elif sch_python.endswith("run"):
-                schrodinger_path = os.path.dirname(sch_python)
+            if plop_parameters.sch_python.endswith("python"):
+                schrodinger_path = os.path.dirname(os.path.dirname(plop_parameters.sch_python))
+            elif plop_parameters.sch_python.endswith("run"):
+                schrodinger_path = os.path.dirname(plop_parameters.sch_python)
             python_file = os.path.join(os.path.dirname(FilePath), "Analysis/output_files.py")
             for outputfile in all_output_files:
                 filename = os.path.join(selected_results_path, outputfile)
-                command = "{} {} {} --schr {} {}".format(sch_python, python_file, filename, schrodinger_path, "--remove")
+                command = "{} {} {} --schr {} {}".format(plop_parameters.sch_python, python_file, filename, schrodinger_path, "--remove")
                 subprocess.call(command.split())
 
         # COMPUTE TIME

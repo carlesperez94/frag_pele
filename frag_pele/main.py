@@ -17,6 +17,7 @@ from frag_pele.frag.PeleParameters.pele_parameter_archives import PeleParameterA
 from frag_pele.frag.PeleParameters.pele_parameter_paths import PeleParameterPaths
 from frag_pele.frag.PeleParameters.pele_parameter_sim_values import PeleParameterSimulationValues
 from frag_pele.frag.PeleParameters.pele_parameters import PeleParameters
+from frag_pele.frag.PlopParameters.plop_parameters import PlopParameters
 from frag_pele.frag.frag_runner import Frag
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "AdaptivePELE_repo"))
@@ -96,23 +97,25 @@ if __name__ == '__main__':
                     traceback.print_exc()
                 try:
                     serie_handler.check_instructions(instruction[i], complex_pdb, c_chain, f_chain)
-                    # Create PELE objects
+                    # Create PELE parameters objects
                     pele_params_paths = PeleParameterPaths(pele_dir, license, data, documents)
                     pele_params_archives = PeleParameterArchives(contrl, resfold, report, traject)
                     pele_params_sim_values = PeleParameterSimulationValues(cpus, steps, pele_eq_steps, min_overlap,
                                                                            max_overlap, temperature, seed, steering, translation_high,
                                                                            rotation_high, translation_low, rotation_low, radius_box)
                     pele_parameters = PeleParameters(pele_params_paths, pele_params_archives, pele_params_sim_values)
-                    # Create Cluster objects
+                    # Create Cluster parameters object
                     cluster_parameters = ClusterParameters(distcont, cluster_threshold, epsilon, condition,
                                                            metricweights, nclusters, pdbout, banned, limit)
-
+                    # Create Plop parameters object
+                    plop_parameters = PlopParameters(plop_path, sch_python, rotamers)
                     print("PERFORMING SUCCESSIVE GROWING...")
                     print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
-                    atomname_map = frag_object.run_frag(pele_parameters, cluster_parameters, complex_pdb, fragment_pdb,
+                    atomname_map = frag_object.run_frag(pele_parameters, cluster_parameters, plop_parameters,
+                                                        complex_pdb, fragment_pdb,
                                                         core_atom, fragment_atom, growing_steps, criteria,
-                                                        plop_path, sch_python, restart, ID, h_core, h_frag, c_chain,
-                                                        f_chain, rotamers, mae, rename, threshold_clash, explorative,
+                                                        restart, ID, h_core, h_frag, c_chain,
+                                                        f_chain, mae, rename, threshold_clash, explorative,
                                                         sampling_control, only_prepare, only_grow, no_check)
                     atomname_mappig.append(atomname_map)
                 except Exception:
@@ -149,12 +152,14 @@ if __name__ == '__main__':
                 # Create Cluster objects
                 cluster_parameters = ClusterParameters(distcont, cluster_threshold, epsilon, condition,
                                                        metricweights, nclusters, pdbout, banned, limit)
-
+                # Create Plop parameters object
+                plop_parameters = PlopParameters(plop_path, sch_python, rotamers)
                 print("PERFORMING INDIVIDUAL GROWING...")
                 print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
-                frag_object.run_frag(pele_parameters, cluster_parameters, complex_pdb, fragment_pdb, core_atom, fragment_atom, growing_steps, criteria,
-                                     plop_path, sch_python, restart, ID, h_core,
-                                     h_frag, c_chain, f_chain, rotamers, mae, rename,
+                frag_object.run_frag(pele_parameters, cluster_parameters, plop_parameters,
+                                     complex_pdb, fragment_pdb, core_atom, fragment_atom, growing_steps, criteria,
+                                     restart, ID, h_core,
+                                     h_frag, c_chain, f_chain, mae, rename,
                                      threshold_clash, explorative, sampling_control, only_prepare, only_grow, no_check)
             except Exception:
                 os.chdir(original_dir)
