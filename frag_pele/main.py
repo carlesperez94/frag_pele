@@ -394,7 +394,7 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     # Create the templates for the initial and final structures
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
-        if not only_grow:
+        if not only_grow and not restart:
             cmd = "{} {} {} {} {} {}".format(sch_python, plop_relative_path, os.path.join(working_dir,
                                              add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers,
                                              path_to_templates_generated, path_to_lib)
