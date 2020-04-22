@@ -16,7 +16,7 @@ from frag_pele.Helpers import helpers, center_of_mass
 from frag_pele.Helpers import clusterizer, folder_handler, constraints, check_constants
 import frag_pele.constants as c
 from frag_pele.Banner import Detector
-from frag_pele.frag.ClusterParameters.ClusterParameters import ClusterParameters
+from frag_pele.frag.ClusterParameters.cluster_parameters import ClusterParameters
 from frag_pele.frag.PeleParameters.pele_parameters import PeleParameters
 
 FilePath = os.path.abspath(__file__)
@@ -47,7 +47,7 @@ class Frag:
         fragments to a core structure of the ligand in a protein-ligand complex.
         # todo parameters:
 
-        :param growing_steps: 
+        :param growing_steps:
         :param cluster_parameters:
         :param pele_parameters:
         :param complex_pdb: Path to the PDB file which must contain a protein-ligand complex. Its ligand will be

@@ -12,7 +12,7 @@ from frag_pele.Helpers import correct_fragment_names
 from frag_pele import serie_handler
 import frag_pele.constants as c
 from frag_pele.Helpers.argument_parser import parse_arguments
-from frag_pele.frag.ClusterParameters.ClusterParameters import ClusterParameters
+from frag_pele.frag.ClusterParameters.cluster_parameters import ClusterParameters
 from frag_pele.frag.PeleParameters.pele_parameter_archives import PeleParameterArchives
 from frag_pele.frag.PeleParameters.pele_parameter_paths import PeleParameterPaths
 from frag_pele.frag.PeleParameters.pele_parameter_sim_values import PeleParameterSimulationValues
