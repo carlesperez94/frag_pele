@@ -1,4 +1,5 @@
 import prody
+import sys
 import logging
 import numpy as np
 import pickle
@@ -312,7 +313,11 @@ def detect_bond_type(molecule, atom1, atom2):
 def correct_bonding_distance(atom_reference, atom_to_correct, reference_structure, movil_structure, bond_type="single"):
     hvy_core_coords = find_coords_of_atom(atom_reference.name, reference_structure)
     hvy_frag_coords = find_coords_of_atom(atom_to_correct.name, movil_structure)
-    new_distance = atom_constants.BONDING_DISTANCES[atom_reference.element.upper(), atom_to_correct.element.upper(), bond_type]
+    try:
+        new_distance = atom_constants.BONDING_DISTANCES[atom_reference.element.upper(), atom_to_correct.element.upper(), bond_type]
+    except KeyError:
+        raise KeyError(f"Not defined bond {atom_reference.element.upper()}-{ atom_to_correct.element.upper()}. \
+please define the maestro's bond distance into the file: frag_pele/frag_pele/Growing/AddingFragHelpers/atom_constants.py")
     new_coords = modify_distance_between_structures(hvy_core_coords, hvy_frag_coords, movil_structure.getCoords(),
                                                     new_distance)
     return new_coords, new_distance
@@ -797,9 +802,9 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
             structure_to_template = check_results.copy()
         except AttributeError:
             raise AttributeError("Frag cannot superimpose the fragment onto the core's hydrogen.  \
-                                  In order to create space for the fragment \
-                                  manually rotate the hydrogen bond of the core where the fragment will be attached to.   \
-                                  We are currently working to fix this automatically")
+In order to create space for the fragment \
+manually rotate the hydrogen bond of the core where the fragment will be attached to.   \
+We are currently working to fix this automatically")
 
         # Once we have all the atom names unique, we will rename the resname and the resnum of both, core and fragment, to
         # GRW and 1. Doing this, the molecule composed by two parts will be transformed into a single one.
