@@ -5,7 +5,7 @@
 # Project Imports
 
 
-class FragRunningModes:
+class FragRunningModesParameters:
 
     def __init__(self, restart: bool, no_check: bool):
         """
