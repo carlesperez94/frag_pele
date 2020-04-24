@@ -108,7 +108,8 @@ def get_H_bonded_to_atom(PDB_atom_name, prody_complex, banned_hydrogen, bond_dis
         raise TypeError("Check either core or fragment atom to bound when passing parameters")
     hydrogen = random.choice(selected_atom.getNames())
     if number_of_h == 1:
-        raise KeyError("{} can not create the requested bond type. Simulation aborted.".format(PDB_atom_name))
+        raise KeyError("Trying to attach a fragment onto already saturated atom {}."
+                       " Simulation aborted.".format(PDB_atom_name))
     while hydrogen == banned_hydrogen:
         hydrogen = random.choice(selected_atom.getNames())
     return hydrogen
