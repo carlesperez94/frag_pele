@@ -256,7 +256,6 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
     new_coords, new_distance = correct_bonding_distance(atom_reference=core_bond[0], atom_to_correct=fragment_bond[1],
                                                         reference_structure=core_structure, movil_structure=fragment_structure,
                                                         bond_type=bond_type)
-    print(new_distance)
     if bond_type == "double":
         hydrogen_to_delete = pdb_joiner.get_H_bonded_to_atom(core_bond[0].name, core_structure,
                                                              bond_dist=new_distance,

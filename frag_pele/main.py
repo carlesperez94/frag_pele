@@ -231,14 +231,14 @@ def parse_arguments():
            args.no_check, args.debug
 
 
-def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
-         pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
-         epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
-         h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
-         banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
-         translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
-         radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
-         no_check=False, debug=False):
+def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
+                  pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
+                  epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
+                  h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
+                  banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
+                  translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
+                  radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
+                  no_check=False, debug=False):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -636,18 +636,18 @@ def main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criter
     logging.info("Growing of {} in {} min".format(fragment_pdb, total_time))
 
     return fragment_names_dict
+    
 
+def main(complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold, 
+         report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, 
+         nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, 
+         c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae,
+         rename, threshold_clash, steering, translation_high, rotation_high, 
+         translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, 
+         only_prepare, only_grow, no_check, debug):
 
-if __name__ == '__main__':
     #HOT FIX!! Fix it properly
     original_dir = os.path.abspath(os.getcwd())
-    complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
-    contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
-    nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
-    c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
-    rename, threshold_clash, steering, translation_high, rotation_high, \
-    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
-    only_prepare, only_grow, no_check, debug = parse_arguments()
     list_of_instructions = serie_handler.read_instructions_from_file(serie_file)
     print("READING INSTRUCTIONS... You will perform the growing of {} fragments. GOOD LUCK and ENJOY the "
           "trip :)".format(len(list_of_instructions)))
@@ -698,18 +698,23 @@ if __name__ == '__main__':
                 except Exception:
                     traceback.print_exc()
                 try:
+                    ID = ID.split("/")[-1]
+                except Exception:
+                    traceback.print_exc()
+                try:
                     serie_handler.check_instructions(instruction[i], complex_sequential_pdb, c_chain, f_chain)
                     print("PERFORMING SUCCESSIVE GROWING...")
                     print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
-                    atomname_map = main(complex_sequential_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path,
-                         sch_python,pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont,
-                         threshold, epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap,
-                         max_overlap, ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
-                         limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
-                         translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                                        only_prepare, only_grow, no_check, debug)
+                    atomname_map = grow_fragment(complex_sequential_pdb, fragment_pdb, core_atom, fragment_atom, 
+                                   iterations, criteria, plop_path, sch_python,pele_dir, contrl, license, resfold, 
+                                   report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, 
+                                   metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, 
+                                   ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
+                                   limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
+                                   translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
+                                   only_prepare, only_grow, no_check, debug)
                     atomname_mappig.append(atomname_map)
-
+ 
                 except Exception:
                     os.chdir(original_dir)
                     traceback.print_exc()
@@ -723,7 +728,7 @@ if __name__ == '__main__':
                 ID = ID.split("/")[-1]
             except Exception:
                 traceback.print_exc()
-
+ 
             if atoms_if_bond:
                 core_atom = atoms_if_bond[0]
                 h_core = atoms_if_bond[1]
@@ -735,7 +740,7 @@ if __name__ == '__main__':
             try:
                 print("PERFORMING INDIVIDUAL GROWING...")
                 print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
-                main(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
+                grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                      pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
@@ -745,4 +750,21 @@ if __name__ == '__main__':
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
+
+if __name__ == '__main__':
+    complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
+    contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
+    nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
+    c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
+    rename, threshold_clash, steering, translation_high, rotation_high, \
+    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
+    only_prepare, only_grow, no_check, debug = parse_arguments()
+    
+    main(complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold,
+             report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
+             nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file,
+             c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae,
+             rename, threshold_clash, steering, translation_high, rotation_high,
+             translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
+             only_prepare, only_grow, no_check, debug)
 
