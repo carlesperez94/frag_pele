@@ -5,7 +5,7 @@
 # Project Imports
 
 
-class FragStructuralConfiguration:
+class FragStructuralConfigurationParameters:
 
     def __init__(self, core_atom: str, fragment_atom: str, h_core: str, h_frag: str, c_chain: str, f_chain: str,
                  threshold_clash: float):
