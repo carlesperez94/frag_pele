@@ -18,7 +18,7 @@ class FragParameters:
                  identification_params: FragIdentificationParameters,
                  configuration_params: FragConfigurationParameters,
                  protocol_params: FragProtocolParameters,
-                 running_modes_parameters: FragRunningModesParameters
+                 running_modes_params: FragRunningModesParameters
                  ):
         """
         :param structural_files: todo definition
@@ -26,14 +26,14 @@ class FragParameters:
         :param identification_params: todo definition
         :param configuration_params: todo definition
         :param protocol_params: todo definition
-        :param running_modes_parameters: todo definition
+        :param running_modes_params: todo definition
         """
         self._structural_files = structural_files
         self._structural_configuration = structural_config
         self._identification_parameters = identification_params
         self._configuration_parameters = configuration_params
         self._protocol_parameters = protocol_params
-        self._running_modes = running_modes_parameters
+        self._running_modes = running_modes_params
 
     # Properties
     @property
