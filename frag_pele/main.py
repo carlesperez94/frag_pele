@@ -215,7 +215,8 @@ if __name__ == '__main__':
                 h_core = None
                 h_frag = None
             try:
-                serie_handler.check_instructions(instruction[i], complex_pdb, c_chain, f_chain)
+                serie_handler.check_instructions(instruction[i], complex_pdb, frag_standard_arguments_namespace.c_chain,
+                                                 frag_standard_arguments_namespace.f_chain)
                 # Create PELE parameters objects
                 pele_parameters = create_pele_parameter_object(pele_arguments_namespace)
                 # Create Cluster parameters object
