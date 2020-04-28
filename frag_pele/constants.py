@@ -49,6 +49,9 @@ RESTART = False
 STEPS = 6  # PELE steps for growing step
 BANNED_DIHEDRALS_ATOMS = None
 BANNED_ANGLE_THRESHOLD = None
+CLASH_THRESHOLD = 1.7
+C_CHAIN = 'L'
+F_CHAIN = 'L'
 
 # PELE control file configuration
 REPORT_NAME = "report"
