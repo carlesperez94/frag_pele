@@ -58,13 +58,13 @@ class TestArgumentParser(unittest.TestCase):
     def test_standard_arguments(self):
         flags_to_check = ['--core', '-nc', '--no_check', '-x', '--growing_steps', '-cr', '--criteria', '-rst',
                           '--restart', '-cc', '--c_chain', '-fc', '--f_chain', '-tc', '--clash_thr', '-sc',
-                          '--sampling_control', '-op', '--only_prepare', '-og', '--only_grow']
+                          '--sampling_control', '-op', '--only_prepare', '-og', '--only_grow', '-EX', '--explorative']
 
         parser = argparse.ArgumentParser()
         ap._add_frag_standard_arguments(parser)
         actions = parser._option_string_actions
 
-        self.assertEqual(23, len(actions))  # 23 and not 21 as in flags_to_check, because automatically adds -h --help
+        self.assertEqual(25, len(actions))  # 25 and not 23 as in flags_to_check, because automatically adds -h --help
         self._loop_assert_in(flags_to_check, actions)
 
     def test_add_plop_arguments(self):
@@ -104,13 +104,13 @@ class TestArgumentParser(unittest.TestCase):
         self._loop_assert_in(flags_to_check, actions)
 
     def test_add_protocol_arguments(self):
-        flags_to_check = ['-HT', '--highthroughput', '-EX', '--explorative', '--test']
+        flags_to_check = ['-HT', '--highthroughput', '--test']
 
         parser = argparse.ArgumentParser()
         ap._add_protocol_arguments(parser)
         actions = parser._option_string_actions
 
-        self.assertEqual(7, len(actions))  # 7 and not 5 as in flags_to_check, because automatically adds -h --help
+        self.assertEqual(5, len(actions))  # 5 and not 3 as in flags_to_check, because automatically adds -h --help
         self._loop_assert_in(flags_to_check, actions)
 
     def test_add_output_format_arguments(self):
@@ -193,64 +193,171 @@ class TestArgumentParser(unittest.TestCase):
         test_args = ['TestFragArgParser', '-cp', 'TEST_CP', '-sef', 'TEST_SEF', '-nc', '-rst', '-op', '-og',
                      '-EX', '--mae', '--rename']
 
-        expected = ['TEST_CP', 'TEST_SEF', True, 10, const.SELECTION_CRITERIA, True, 'L', 'L', 1.7, None, True, True,
-                    const.PLOP_PATH, const.SCHRODINGER_PY_PATH, const.ROTRES, const.PATH_TO_PELE,
-                    const.CONTROL_TEMPLATE, const.PATH_TO_LICENSE, const.RESULTS_FOLDER, const.REPORT_NAME,
-                    const.TRAJECTORY_NAME, const.CPUS, const.STEPS, const.PELE_EQ_STEPS, const.MIN_OVERLAP,
-                    const.MAX_OVERLAP, const.TEMPERATURE, const.SEED, const.STEERING, const.TRANSLATION_HIGH,
-                    const.ROTATION_HIGH, const.TRANSLATION_LOW, const.ROTATION_LOW, const.RADIUS_BOX,
-                    const.PATH_TO_PELE_DATA, const.PATH_TO_PELE_DOCUMENTS, const.DISTANCE_COUNTER,
-                    const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION, const.METRICS_WEIGHTS, const.NUM_CLUSTERS,
-                    const.PDBS_OUTPUT_FOLDER, const.BANNED_ANGLE_THRESHOLD, const.BANNED_DIHEDRALS_ATOMS,
-                    True, True, True]
+        groups = ['positional arguments', 'optional arguments', 'required named arguments', 'Frag Standard Arguments',
+                  'Plop Related Arguments', 'PELE Related Arguments', 'Clustering Related Arguments']
+
+        dict_expected = {'positional arguments': argparse.Namespace(),
+                         'optional arguments': argparse.Namespace(help=None, highthroughput=False, mae=True,
+                                                                  rename=True, test=False),
+                         'required named arguments': argparse.Namespace(complex_pdb='TEST_CP', serie_file='TEST_SEF'),
+                         'Frag Standard Arguments': argparse.Namespace(c_chain=const.C_CHAIN,
+                                                                       clash_thr=const.CLASH_THRESHOLD, core=None,
+                                                                       criteria=const.SELECTION_CRITERIA,
+                                                                       explorative=True,
+                                                                       f_chain=const.F_CHAIN,
+                                                                       growing_steps=const.GROWING_STEPS, no_check=True,
+                                                                       only_grow=True, only_prepare=True, restart=True,
+                                                                       sampling_control=None),
+                         'Plop Related Arguments': argparse.Namespace(plop_path=const.PLOP_PATH,
+                                                                      rotamers=const.ROTRES,
+                                                                      sch_python=const.SCHRODINGER_PY_PATH),
+                         'PELE Related Arguments': argparse.Namespace(contrl=const.CONTROL_TEMPLATE,
+                                                                      cpus=const.CPUS, data=const.PATH_TO_PELE_DATA
+                                                                      , documents=const.PATH_TO_PELE_DOCUMENTS,
+                                                                      license=const.PATH_TO_LICENSE,
+                                                                      max_overlap=const.MAX_OVERLAP,
+                                                                      min_overlap=const.MIN_OVERLAP,
+                                                                      pele_dir=const.PATH_TO_PELE,
+                                                                      pele_eq_steps=const.PELE_EQ_STEPS,
+                                                                      radius_box=const.RADIUS_BOX,
+                                                                      report=const.REPORT_NAME,
+                                                                      resfold=const.RESULTS_FOLDER,
+                                                                      rotation_high=const.ROTATION_HIGH,
+                                                                      rotation_low=const.ROTATION_LOW,
+                                                                      seed=const.SEED, steering=const.STEERING,
+                                                                      steps=const.STEPS,
+                                                                      temperature=const.TEMPERATURE,
+                                                                      traject=const.TRAJECTORY_NAME,
+                                                                      translation_high=const.TRANSLATION_HIGH,
+                                                                      translation_low=const.TRANSLATION_LOW),
+                         'Clustering Related Arguments': argparse.Namespace(banned=const.BANNED_ANGLE_THRESHOLD,
+                                                                            condition=const.CONDITION,
+                                                                            distcont=const.DISTANCE_COUNTER,
+                                                                            epsilon=const.EPSILON,
+                                                                            limit=const.BANNED_ANGLE_THRESHOLD,
+                                                                            metricweights=const.METRICS_WEIGHTS,
+                                                                            nclusters=const.NUM_CLUSTERS,
+                                                                            pdbout=const.PDBS_OUTPUT_FOLDER,
+                                                                            threshold=const.CONTACT_THRESHOLD)}
 
         with patch.object(sys, 'argv', test_args):
             result = ap.parse_arguments()
-            self.assertEqual(len(expected), len(result))
-            for i in range(len(expected)):
-                self.assertEqual(expected[i], result[i])
+            self.assertEqual(len(result.keys()), 7)
+            for group in groups:
+                self.assertEqual(dict_expected[group], result[group])
 
     def test_parse_arguments_highthroughput_flag(self):
         test_args = ['TestFragArgParser', '-cp', 'TEST_CP', '-sef', 'TEST_SEF', '-nc', '-rst', '-op', '-og',
                      '-EX', '--mae', '--rename', '-HT']
 
-        expected = ['TEST_CP', 'TEST_SEF', True, 1, const.SELECTION_CRITERIA, True, 'L', 'L', 1.7, None, True, True,
-                    const.PLOP_PATH, const.SCHRODINGER_PY_PATH, const.ROTRES, const.PATH_TO_PELE,
-                    const.CONTROL_TEMPLATE, const.PATH_TO_LICENSE, const.RESULTS_FOLDER, const.REPORT_NAME,
-                    const.TRAJECTORY_NAME, const.CPUS, 3, 10, const.MIN_OVERLAP,
-                    const.MAX_OVERLAP, const.TEMPERATURE, const.SEED, const.STEERING, const.TRANSLATION_HIGH,
-                    const.ROTATION_HIGH, const.TRANSLATION_LOW, const.ROTATION_LOW, const.RADIUS_BOX,
-                    const.PATH_TO_PELE_DATA, const.PATH_TO_PELE_DOCUMENTS, const.DISTANCE_COUNTER,
-                    const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION, const.METRICS_WEIGHTS, const.NUM_CLUSTERS,
-                    const.PDBS_OUTPUT_FOLDER, const.BANNED_ANGLE_THRESHOLD, const.BANNED_DIHEDRALS_ATOMS,
-                    True, True, True]
+        groups = ['positional arguments', 'optional arguments', 'required named arguments', 'Frag Standard Arguments',
+                  'Plop Related Arguments', 'PELE Related Arguments', 'Clustering Related Arguments']
+
+        dict_expected = {'positional arguments': argparse.Namespace(),
+                         'optional arguments': argparse.Namespace(help=None, highthroughput=True, mae=True,
+                                                                  rename=True, test=False),
+                         'required named arguments': argparse.Namespace(complex_pdb='TEST_CP', serie_file='TEST_SEF'),
+                         'Frag Standard Arguments': argparse.Namespace(c_chain=const.C_CHAIN,
+                                                                       clash_thr=const.CLASH_THRESHOLD, core=None,
+                                                                       criteria=const.SELECTION_CRITERIA,
+                                                                       explorative=True,
+                                                                       f_chain=const.F_CHAIN,
+                                                                       growing_steps=1, no_check=True,
+                                                                       only_grow=True, only_prepare=True, restart=True,
+                                                                       sampling_control=None),
+                         'Plop Related Arguments': argparse.Namespace(plop_path=const.PLOP_PATH,
+                                                                      rotamers=const.ROTRES,
+                                                                      sch_python=const.SCHRODINGER_PY_PATH),
+                         'PELE Related Arguments': argparse.Namespace(contrl=const.CONTROL_TEMPLATE,
+                                                                      cpus=const.CPUS, data=const.PATH_TO_PELE_DATA
+                                                                      , documents=const.PATH_TO_PELE_DOCUMENTS,
+                                                                      license=const.PATH_TO_LICENSE,
+                                                                      max_overlap=const.MAX_OVERLAP,
+                                                                      min_overlap=const.MIN_OVERLAP,
+                                                                      pele_dir=const.PATH_TO_PELE,
+                                                                      pele_eq_steps=10,
+                                                                      radius_box=const.RADIUS_BOX,
+                                                                      report=const.REPORT_NAME,
+                                                                      resfold=const.RESULTS_FOLDER,
+                                                                      rotation_high=const.ROTATION_HIGH,
+                                                                      rotation_low=const.ROTATION_LOW,
+                                                                      seed=const.SEED, steering=const.STEERING,
+                                                                      steps=3,
+                                                                      temperature=const.TEMPERATURE,
+                                                                      traject=const.TRAJECTORY_NAME,
+                                                                      translation_high=const.TRANSLATION_HIGH,
+                                                                      translation_low=const.TRANSLATION_LOW),
+                         'Clustering Related Arguments': argparse.Namespace(banned=const.BANNED_ANGLE_THRESHOLD,
+                                                                            condition=const.CONDITION,
+                                                                            distcont=const.DISTANCE_COUNTER,
+                                                                            epsilon=const.EPSILON,
+                                                                            limit=const.BANNED_ANGLE_THRESHOLD,
+                                                                            metricweights=const.METRICS_WEIGHTS,
+                                                                            nclusters=const.NUM_CLUSTERS,
+                                                                            pdbout=const.PDBS_OUTPUT_FOLDER,
+                                                                            threshold=const.CONTACT_THRESHOLD)}
 
         with patch.object(sys, 'argv', test_args):
             result = ap.parse_arguments()
-            self.assertEqual(len(expected), len(result))
-            for i in range(len(expected)):
-                self.assertEqual(expected[i], result[i])
+            self.assertEqual(len(result.keys()), 7)
+            for group in groups:
+                self.assertEqual(dict_expected[group], result[group])
 
     def test_parse_arguments_test_flag(self):
         test_args = ['TestFragArgParser', '-cp', 'TEST_CP', '-sef', 'TEST_SEF', '-nc', '-rst', '-op', '-og',
                      '-EX', '--mae', '--rename', '--test']
 
-        expected = ['TEST_CP', 'TEST_SEF', True, 1, const.SELECTION_CRITERIA, True, 'L', 'L', 1.7, None, True, True,
-                    const.PLOP_PATH, const.SCHRODINGER_PY_PATH, const.ROTRES, const.PATH_TO_PELE,
-                    const.CONTROL_TEMPLATE, const.PATH_TO_LICENSE, const.RESULTS_FOLDER, const.REPORT_NAME,
-                    const.TRAJECTORY_NAME, const.CPUS, 1, 1, const.MIN_OVERLAP,
-                    const.MAX_OVERLAP, 1000000, const.SEED, const.STEERING, const.TRANSLATION_HIGH,
-                    const.ROTATION_HIGH, const.TRANSLATION_LOW, const.ROTATION_LOW, const.RADIUS_BOX,
-                    const.PATH_TO_PELE_DATA, const.PATH_TO_PELE_DOCUMENTS, const.DISTANCE_COUNTER,
-                    const.CONTACT_THRESHOLD, const.EPSILON, const.CONDITION, const.METRICS_WEIGHTS, const.NUM_CLUSTERS,
-                    const.PDBS_OUTPUT_FOLDER, const.BANNED_ANGLE_THRESHOLD, const.BANNED_DIHEDRALS_ATOMS,
-                    True, True, True]
+        groups = ['positional arguments', 'optional arguments', 'required named arguments', 'Frag Standard Arguments',
+                  'Plop Related Arguments', 'PELE Related Arguments', 'Clustering Related Arguments']
+
+        dict_expected = {'positional arguments': argparse.Namespace(),
+                         'optional arguments': argparse.Namespace(help=None, highthroughput=False, mae=True,
+                                                                  rename=True, test=True),
+                         'required named arguments': argparse.Namespace(complex_pdb='TEST_CP', serie_file='TEST_SEF'),
+                         'Frag Standard Arguments': argparse.Namespace(c_chain=const.C_CHAIN,
+                                                                       clash_thr=const.CLASH_THRESHOLD, core=None,
+                                                                       criteria=const.SELECTION_CRITERIA,
+                                                                       explorative=True,
+                                                                       f_chain=const.F_CHAIN,
+                                                                       growing_steps=1, no_check=True,
+                                                                       only_grow=True, only_prepare=True, restart=True,
+                                                                       sampling_control=None),
+                         'Plop Related Arguments': argparse.Namespace(plop_path=const.PLOP_PATH,
+                                                                      rotamers=const.ROTRES,
+                                                                      sch_python=const.SCHRODINGER_PY_PATH),
+                         'PELE Related Arguments': argparse.Namespace(contrl=const.CONTROL_TEMPLATE,
+                                                                      cpus=const.CPUS, data=const.PATH_TO_PELE_DATA
+                                                                      , documents=const.PATH_TO_PELE_DOCUMENTS,
+                                                                      license=const.PATH_TO_LICENSE,
+                                                                      max_overlap=const.MAX_OVERLAP,
+                                                                      min_overlap=const.MIN_OVERLAP,
+                                                                      pele_dir=const.PATH_TO_PELE,
+                                                                      pele_eq_steps=1,
+                                                                      radius_box=const.RADIUS_BOX,
+                                                                      report=const.REPORT_NAME,
+                                                                      resfold=const.RESULTS_FOLDER,
+                                                                      rotation_high=const.ROTATION_HIGH,
+                                                                      rotation_low=const.ROTATION_LOW,
+                                                                      seed=const.SEED, steering=const.STEERING,
+                                                                      steps=1, temperature=1000000,
+                                                                      traject=const.TRAJECTORY_NAME,
+                                                                      translation_high=const.TRANSLATION_HIGH,
+                                                                      translation_low=const.TRANSLATION_LOW),
+                         'Clustering Related Arguments': argparse.Namespace(banned=const.BANNED_ANGLE_THRESHOLD,
+                                                                            condition=const.CONDITION,
+                                                                            distcont=const.DISTANCE_COUNTER,
+                                                                            epsilon=const.EPSILON,
+                                                                            limit=const.BANNED_ANGLE_THRESHOLD,
+                                                                            metricweights=const.METRICS_WEIGHTS,
+                                                                            nclusters=const.NUM_CLUSTERS,
+                                                                            pdbout=const.PDBS_OUTPUT_FOLDER,
+                                                                            threshold=const.CONTACT_THRESHOLD)}
 
         with patch.object(sys, 'argv', test_args):
             result = ap.parse_arguments()
-            self.assertEqual(len(expected), len(result))
-            for i in range(len(expected)):
-                self.assertEqual(expected[i], result[i])
+            self.assertEqual(len(result.keys()), 7)
+            for group in groups:
+                self.assertEqual(dict_expected[group], result[group])
 
     def _loop_assert_in(self, flag_list, actions):
         for flag in flag_list:
