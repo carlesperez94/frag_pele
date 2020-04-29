@@ -4,7 +4,7 @@ import unittest
 # Third-Party Imports
 
 # Project Imports
-from frag_pele.frag.FragParameters.frag_running_modes_parameters import FragRunningModesParameters
+from frag_pele.frag.Parameters.FragParameters.frag_running_modes_parameters import FragRunningModesParameters
 
 
 class TestFragRunningModesParameters(unittest.TestCase):

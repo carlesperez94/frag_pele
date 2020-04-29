@@ -4,7 +4,7 @@ import unittest
 # Third-Party Imports
 
 # Project Imports
-from frag_pele.frag.FragParameters.frag_structural_files_parameters import FragStructuralFilesParameters
+from frag_pele.frag.Parameters.FragParameters import FragStructuralFilesParameters
 
 
 class TestFragStructuralFilesParameters(unittest.TestCase):

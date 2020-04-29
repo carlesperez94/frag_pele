@@ -6,7 +6,7 @@ from unittest.mock import Mock
 
 # Project Imports
 
-from frag_pele.frag.FragParameters.frag_parameters import FragParameters
+from frag_pele.frag.Parameters.FragParameters import FragParameters
 
 
 class TestFragParameters(unittest.TestCase):

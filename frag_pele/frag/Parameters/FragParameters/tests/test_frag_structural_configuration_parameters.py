@@ -4,7 +4,7 @@ import unittest
 # Third-Party Imports
 
 # Project Imports
-from frag_pele.frag.FragParameters.frag_structural_configuration_parameters import FragStructuralConfigurationParameters
+from frag_pele.frag.Parameters.FragParameters import FragStructuralConfigurationParameters
 
 
 class TestFragStructuralConfigurationParameters(unittest.TestCase):

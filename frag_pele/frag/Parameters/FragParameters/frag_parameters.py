@@ -3,12 +3,12 @@
 # Third-Party Imports
 
 # Project Imports
-from frag_pele.frag.FragParameters.frag_configuration_parameters import FragConfigurationParameters
-from frag_pele.frag.FragParameters.frag_identification_parameters import FragIdentificationParameters
-from frag_pele.frag.FragParameters.frag_protocol_parameters import FragProtocolParameters
-from frag_pele.frag.FragParameters.frag_running_modes_parameters import FragRunningModesParameters
-from frag_pele.frag.FragParameters.frag_structural_configuration_parameters import FragStructuralConfigurationParameters
-from frag_pele.frag.FragParameters.frag_structural_files_parameters import FragStructuralFilesParameters
+from frag_pele.frag.Parameters.FragParameters import FragConfigurationParameters
+from frag_pele.frag.Parameters.FragParameters import FragIdentificationParameters
+from frag_pele.frag.Parameters.FragParameters import FragProtocolParameters
+from frag_pele.frag.Parameters.FragParameters.frag_running_modes_parameters import FragRunningModesParameters
+from frag_pele.frag.Parameters.FragParameters import FragStructuralConfigurationParameters
+from frag_pele.frag.Parameters.FragParameters import FragStructuralFilesParameters
 
 
 class FragParameters:

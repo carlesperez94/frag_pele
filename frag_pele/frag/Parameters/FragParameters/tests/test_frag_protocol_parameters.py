@@ -4,7 +4,7 @@ import unittest
 # Third-Party Imports
 
 # Project Imports
-from frag_pele.frag.FragParameters.frag_protocol_parameters import FragProtocolParameters
+from frag_pele.frag.Parameters.FragParameters import FragProtocolParameters
 
 
 class TestFragProtocolParameters(unittest.TestCase):

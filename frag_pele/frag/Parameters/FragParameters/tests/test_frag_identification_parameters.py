@@ -4,7 +4,7 @@ import unittest
 # Third-Party Imports
 
 # Project Imports
-from frag_pele.frag.FragParameters.frag_identification_parameters import FragIdentificationParameters
+from frag_pele.frag.Parameters.FragParameters import FragIdentificationParameters
 
 
 class TestFragIdentificationParameters(unittest.TestCase):
