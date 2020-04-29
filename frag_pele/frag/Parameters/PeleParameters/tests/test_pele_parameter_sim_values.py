@@ -4,7 +4,7 @@ import unittest
 # Third-Party Imports
 
 # Project Imports
-from frag_pele.frag.PeleParameters.pele_parameter_sim_values import PeleParameterSimulationValues
+from frag_pele.frag.Parameters.PeleParameters import PeleParameterSimulationValues
 
 
 class TestPeleParameterSimValues(unittest.TestCase):

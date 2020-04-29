@@ -1,14 +1,14 @@
 # Python Imports
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 # Third-Party Imports
 
 # Project Imports
-from frag_pele.frag.PeleParameters.pele_parameter_archives import PeleParameterArchives
-from frag_pele.frag.PeleParameters.pele_parameter_paths import PeleParameterPaths
-from frag_pele.frag.PeleParameters.pele_parameter_sim_values import PeleParameterSimulationValues
-from frag_pele.frag.PeleParameters.pele_parameters import PeleParameters
+from frag_pele.frag.Parameters.PeleParameters import PeleParameterArchives
+from frag_pele.frag.Parameters.PeleParameters import PeleParameterPaths
+from frag_pele.frag.Parameters.PeleParameters import PeleParameterSimulationValues
+from frag_pele.frag.Parameters.PeleParameters.pele_parameters import PeleParameters
 
 
 class TestPeleParameters(unittest.TestCase):

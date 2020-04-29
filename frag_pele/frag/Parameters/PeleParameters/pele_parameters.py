@@ -3,9 +3,9 @@
 # Third-Party Imports
 
 # Project Imports
-from frag_pele.frag.PeleParameters.pele_parameter_archives import PeleParameterArchives
-from frag_pele.frag.PeleParameters.pele_parameter_paths import PeleParameterPaths
-from frag_pele.frag.PeleParameters.pele_parameter_sim_values import PeleParameterSimulationValues
+from frag_pele.frag.Parameters.PeleParameters import PeleParameterArchives
+from frag_pele.frag.Parameters.PeleParameters import PeleParameterPaths
+from frag_pele.frag.Parameters.PeleParameters import PeleParameterSimulationValues
 
 
 class PeleParameters:

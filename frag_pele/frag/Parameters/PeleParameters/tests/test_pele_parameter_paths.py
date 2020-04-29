@@ -4,7 +4,7 @@ import unittest
 # Third-Party Imports
 
 # Project Imports
-from frag_pele.frag.PeleParameters.pele_parameter_paths import PeleParameterPaths
+from frag_pele.frag.Parameters.PeleParameters import PeleParameterPaths
 
 
 class TestPeleParameterPaths(unittest.TestCase):
