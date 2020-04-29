@@ -89,6 +89,14 @@ TEMPLATES_FOLDER = "growing_templates"
 CONFIG_PATH = "log_configure.ini"
 PLOP_PATH = "PlopRotTemp_S_2017/ligand_prep.py"
 
+# ARGUMENT NAMES
+KEY_REQUIRED_ARGUMENTS = 'required named arguments'
+KEY_FRAG_ARGUMENTS = 'Frag Standard Arguments'
+KEY_PLOP_ARGUMENTS = 'Plop Related Arguments'
+KEY_PELE_ARGUMENTS = 'PELE Related Arguments'
+KEY_CLUSTERING_ARGUMENTS = 'Clustering Related Arguments'
+KEY_OPTIONAL_ARGUMENTS = 'optional arguments'
+
 # Messages constants
 TEMPLATE_MESSAGE = "We are going to transform the template _{}_ into _{}_ in _{}_ steps! Starting..."
 LINES_MESSAGE = "\n•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.••*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•\n"
