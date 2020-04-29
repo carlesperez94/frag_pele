@@ -5,7 +5,7 @@
 # Project Imports
 import unittest
 
-from frag_pele.frag.ClusterParameters.cluster_parameters import ClusterParameters
+from frag_pele.frag.Parameters.ClusterParameters.cluster_parameters import ClusterParameters
 
 
 class TestClusterParameters(unittest.TestCase):
