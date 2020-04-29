@@ -16,10 +16,10 @@ from frag_pele.Helpers import helpers, center_of_mass
 from frag_pele.Helpers import clusterizer, folder_handler, constraints, check_constants
 import frag_pele.constants as c
 from frag_pele.Banner import Detector
-from frag_pele.frag.ClusterParameters.cluster_parameters import ClusterParameters
-from frag_pele.frag.FragParameters.frag_parameters import FragParameters
-from frag_pele.frag.PeleParameters.pele_parameters import PeleParameters
-from frag_pele.frag.PlopParameters.plop_parameters import PlopParameters
+from frag_pele.frag.Parameters.ClusterParameters.cluster_parameters import ClusterParameters
+from frag_pele.frag.Parameters.FragParameters import FragParameters
+from frag_pele.frag.Parameters.PeleParameters.pele_parameters import PeleParameters
+from frag_pele.frag.Parameters.PlopParameters.plop_parameters import PlopParameters
 
 FilePath = os.path.abspath(__file__)
 PackagePath = os.path.dirname(FilePath)
