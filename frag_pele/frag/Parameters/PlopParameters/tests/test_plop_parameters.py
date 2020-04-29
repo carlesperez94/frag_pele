@@ -5,7 +5,7 @@
 # Project Imports
 import unittest
 
-from frag_pele.frag.PlopParameters.plop_parameters import PlopParameters
+from frag_pele.frag.Parameters.PlopParameters.plop_parameters import PlopParameters
 
 
 class TestPlopParameters(unittest.TestCase):
