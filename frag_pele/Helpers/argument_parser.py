@@ -30,7 +30,7 @@ def _add_all_arguments(parser):
 
 
 def _add_frag_required_named_arguments(parser):
-    required_named = parser.add_argument_group('required named arguments')
+    required_named = parser.add_argument_group(const.KEY_REQUIRED_ARGUMENTS)
 
     # FrAG related arguments
     required_named.add_argument("-cp", "--complex_pdb", required=True,
@@ -58,7 +58,7 @@ def _add_frag_required_named_arguments(parser):
 
 
 def _add_frag_standard_arguments(parser):
-    frag_group = parser.add_argument_group('Frag Standard Arguments')
+    frag_group = parser.add_argument_group(const.KEY_FRAG_ARGUMENTS)
 
     frag_group.add_argument("--core", type=str, default=None)
     frag_group.add_argument("-nc", "--no_check", action="store_true",
@@ -73,7 +73,8 @@ def _add_frag_standard_arguments(parser):
                             help="If set FrAG will continue from the last GS detected. If all GS are finished it will"
                                  "restart in the equilibration phase.")
     frag_group.add_argument("-cc", "--c_chain", default=const.C_CHAIN, help="Chain name of the core. By default = 'L'")
-    frag_group.add_argument("-fc", "--f_chain", default=const.F_CHAIN, help="Chain name of the fragment. By default = 'L'")
+    frag_group.add_argument("-fc", "--f_chain", default=const.F_CHAIN,
+                            help="Chain name of the fragment. By default = 'L'")
     frag_group.add_argument("-tc", "--clash_thr", default=const.CLASH_THRESHOLD,
                             help="Threshold distance that would to classify intramolecular clashes.")
     frag_group.add_argument("-sc", "--sampling_control", default=None,
@@ -87,7 +88,7 @@ def _add_frag_standard_arguments(parser):
 
 
 def _add_plop_arguments(parser):
-    plop_group = parser.add_argument_group('Plop Related Arguments')
+    plop_group = parser.add_argument_group(const.KEY_PLOP_ARGUMENTS)
 
     plop_group.add_argument("-pl", "--plop_path", default=const.PLOP_PATH,
                             help="Absolute path to PlopRotTemp.py. By default = {}".format(const.PLOP_PATH))
@@ -100,7 +101,7 @@ def _add_plop_arguments(parser):
 
 
 def _add_pele_conf_arguments(parser):
-    pele_group = parser.add_argument_group('PELE Related Arguments')
+    pele_group = parser.add_argument_group(const.KEY_PELE_ARGUMENTS)
 
     pele_group.add_argument("-d", "--pele_dir", default=const.PATH_TO_PELE,
                             help="Complete path to Pele_serial. "
@@ -167,7 +168,7 @@ def _add_pele_conf_arguments(parser):
 
 
 def _add_clustering_arguments(parser):
-    cluster_group = parser.add_argument_group('Clustering Related Arguments')
+    cluster_group = parser.add_argument_group(const.KEY_CLUSTERING_ARGUMENTS)
 
     cluster_group.add_argument("-dis", "--distcont", default=const.DISTANCE_COUNTER,
                                help="""Distance used to determine which amino acids are in contact with the ligand to generate 
@@ -245,8 +246,8 @@ def _extract_groups(args, parser):
 
 def parse_arguments():
     """
-        Parse user arguments
-        Output: dict with all the user arguments
+    Parse user arguments
+    Output: dict with all the user arguments
     """
     parser = _create_parser()
 
@@ -258,3 +259,17 @@ def parse_arguments():
     arg_groups = _extract_groups(args, parser)
 
     return arg_groups
+
+
+def extract_arguments():
+    arguments_dict = parse_arguments()
+    required_arguments_namespace = arguments_dict[const.KEY_REQUIRED_ARGUMENTS]
+    frag_standard_arguments_namespace = arguments_dict[const.KEY_FRAG_ARGUMENTS]
+    plop_arguments_namespace = arguments_dict[const.KEY_PLOP_ARGUMENTS]
+    pele_arguments_namespace = arguments_dict[const.KEY_PELE_ARGUMENTS]
+    clustering_arguments_namespace = arguments_dict[const.KEY_CLUSTERING_ARGUMENTS]
+    mae = arguments_dict[const.KEY_OPTIONAL_ARGUMENTS].mae
+    rename = arguments_dict[const.KEY_OPTIONAL_ARGUMENTS].rename
+
+    return required_arguments_namespace, frag_standard_arguments_namespace, plop_arguments_namespace, \
+           pele_arguments_namespace, clustering_arguments_namespace, mae, rename
