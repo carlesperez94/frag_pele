@@ -698,11 +698,13 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                 try:
                     ID = ID.split("/")[-1]
                 except Exception:
+                    os.chdir(original_dir)
                     traceback.print_exc()
                     if debug: raise Exception()
                 try:
                     ID = ID.split("/")[-1]
                 except Exception:
+                    os.chdir(original_dir)
                     traceback.print_exc()
                     if debug: raise Exception()
                 try:
