@@ -410,10 +410,11 @@ class TemplateOPLS2005:
 
 
 class ReduceProperty:
-    def __init__(self, template, lambda_to_reduce, template_core=None):
+    def __init__(self, template, lambda_to_reduce, template_core=None, atom_to_replace=None):
         self.template = template
         self.lambda_to_reduce = lambda_to_reduce
         self.template_core = template_core
+        self.atom_to_replace = atom_to_replace
 
     def reduce_epsilons(self, function):
         atoms = self.template.get_list_of_fragment_atoms()
@@ -644,10 +645,33 @@ class ReduceProperty:
                    result = function(atom_c.radnpType, atom_g.radnpType)
                    self.template.list_of_atoms[index_g].radnpType = result
 
+    def modify_linker_bond_eq_dist(self, function):
+        grw = self.template
+        ini = self.template_core
+        atm_to_repl = self.atom_to_replace
+        for bond_grw in grw.list_of_bonds.items():
+            key_grw, bond_g = bond_grw
+            atoms_g = [grw.list_of_atoms[bond_g.atom1].pdb_atom_name,
+                       grw.list_of_atoms[bond_g.atom2].pdb_atom_name]
+            # Check which one is linker
+            if bond_g.is_linker:
+                 # Search the atoms in the initial template
+                for bond_ini in ini.list_of_bonds.items():
+                    key_ini, bond_i = bond_ini
+                    atoms_i = [ini.list_of_atoms[bond_i.atom1].pdb_atom_name,
+                               ini.list_of_atoms[bond_i.atom2].pdb_atom_name]
+                    grow_atomnames = [atm.pdb_atom_name for i, atm in grw.list_of_atoms.items()]
+                    for atom_i in atoms_i:
+                        if atom_i in atoms_g:
+                            atoms_strip = [ai.strip("_") for ai in atoms_i]
+                            if atm_to_repl in atoms_strip:
+                                result = function(bond_i.eq_dist, bond_g.eq_dist)
+                                bond_g.eq_dist = result
+
 
 class ReduceLinearly(ReduceProperty):
-    def __init__(self, template, lambda_to_reduce, template_core=None):
-        ReduceProperty.__init__(self, template, lambda_to_reduce, template_core)
+    def __init__(self, template, lambda_to_reduce, template_core=None, atom_to_replace=None):
+        ReduceProperty.__init__(self, template, lambda_to_reduce, template_core, atom_to_replace)
 
     def reduce_value(self, value):
         result = value * self.lambda_to_reduce
@@ -757,6 +781,10 @@ def modify_core_parameters_linearly(template_grow, lambda_to_reduce, template_co
     reductor.modify_core_theta(reductor.reduce_value_from_diference)
     reductor.modify_core_phis(reductor.reduce_value_from_diference)
 
+def modify_linkers_parameters_linearly(template_grow, lambda_to_reduce, template_core, atom_to_replace):
+    reductor = ReduceLinearly(template_grow, lambda_to_reduce, template_core, atom_to_replace)
+    reductor.modify_linker_bond_eq_dist(reductor.reduce_value_from_diference)
+
 
 def main(template_initial_path, template_grown_path, step, total_steps, hydrogen_to_replace, core_atom_linker,
          tmpl_out_path):
@@ -798,6 +826,7 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     set_linker_bond(templ_grw)
     modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini)
     reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce)
+    modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
     templ_grw.write_template_to_file(template_new_name=tmpl_out_path)
 
 
