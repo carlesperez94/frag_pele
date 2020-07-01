@@ -425,8 +425,6 @@ def rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, 
     """
     # Obtain the axis that we want to use as reference for the rotation
     vector = bond[1].get_vector() - bond[0].get_vector()
-    print(bond[0], bond[1])
-    print(bond[0].get_coord(), bond[1].get_coord())
     # Obtain the rotation matrix for the vector (axis) and the angle (theta)
     rot_mat = bio.rotaxis(theta, vector)
     for atom in list_of_atoms:
