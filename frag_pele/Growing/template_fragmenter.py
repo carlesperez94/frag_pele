@@ -222,7 +222,7 @@ class TemplateOPLS2005:
                 id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=6))
                 id_atom2 = int(get_string_from_line(line=line, index_initial=6, index_final=12))
                 spring = get_string_from_line(line=line, index_initial=13, index_final=21)
-                eq_dist = get_string_from_line(line=line, index_initial=23, index_final=28)
+                eq_dist = get_string_from_line(line=line, index_initial=23, index_final=29)
                 # Create bond instance
                 bond = Bond(atom1=id_atom1, atom2=id_atom2, spring=spring, eq_dist=eq_dist)
                 self.list_of_bonds.setdefault((id_atom1, id_atom2), bond)
@@ -260,7 +260,7 @@ class TemplateOPLS2005:
                 id_atom2 = int(get_string_from_line(line=line, index_initial=6, index_final=11))
                 id_atom3 = int(get_string_from_line(line=line, index_initial=12, index_final=17))
                 id_atom4 = int(get_string_from_line(line=line, index_initial=18, index_final=23))
-                constant = get_string_from_line(line=line, index_initial=26, index_final=32)
+                constant = get_string_from_line(line=line, index_initial=25, index_final=32)
                 preafactor = get_string_from_line(line=line, index_initial=33, index_final=38)
                 nterm = get_string_from_line(line=line, index_initial=39, index_final=42)
                 # Create bond instance
@@ -372,7 +372,14 @@ class TemplateOPLS2005:
             if atom.is_fragment:
                 atoms.append((key, atom))
         return atoms
-
+    
+    def get_list_of_core_atoms(self):
+        atoms = []
+        for key, atom in self.list_of_atoms.items():
+            if not atom.is_fragment:
+                atoms.append((key, atom))
+        return atoms
+ 
     def get_list_of_fragment_bonds(self):
         bonds = []
         for key, bond in self.list_of_bonds.items():
@@ -403,9 +410,11 @@ class TemplateOPLS2005:
 
 
 class ReduceProperty:
-    def __init__(self, template, lambda_to_reduce):
+    def __init__(self, template, lambda_to_reduce, template_core=None, atom_to_replace=None):
         self.template = template
         self.lambda_to_reduce = lambda_to_reduce
+        self.template_core = template_core
+        self.atom_to_replace = atom_to_replace
 
     def reduce_epsilons(self, function):
         atoms = self.template.get_list_of_fragment_atoms()
@@ -456,6 +465,24 @@ class ReduceProperty:
             result = function(radnpType)
             self.template.list_of_atoms[key].radnpType = result
 
+    def reduce_nbon_params(self, function):
+        atoms = self.template.get_list_of_fragment_atoms()
+        for key, atom in atoms:
+            result = function(atom.epsilon)
+            self.template.list_of_atoms[key].epsilon = result
+            result = function(atom.sigma)
+            self.template.list_of_atoms[key].sigma = result
+            result = function(atom.charge)
+            self.template.list_of_atoms[key].charge = result
+            result = function(atom.sgbnpGamma)
+            self.template.list_of_atoms[key].sgbnpGamma = result
+            result = function(atom.sgbnpType)
+            self.template.list_of_atoms[key].sgbnpType = result
+            result = function(atom.radnpSGB)
+            self.template.list_of_atoms[key].radnpSGB = result
+            result = function(atom.radnpType)
+            self.template.list_of_atoms[key].radnpType = result
+
     def reduce_bond_eq_dist(self, function):
         bonds = self.template.get_list_of_fragment_bonds()
         for key, bond in bonds:
@@ -463,15 +490,198 @@ class ReduceProperty:
             result = function(eq_dist)
             self.template.list_of_bonds[key].eq_dist = result
 
+    def modify_core_epsilons(self, function):
+        atoms_grw = self.template.get_list_of_core_atoms()
+        atoms_ini = self.template_core.get_list_of_core_atoms()
+        for atom_grow in atoms_grw:
+            index_g, atom_g = atom_grow
+            for atom_core in atoms_ini:
+               index_c, atom_c = atom_core
+               if atom_g.pdb_atom_name == atom_c.pdb_atom_name:
+                   result = function(atom_c.epsilon, atom_g.epsilon)
+                   self.template.list_of_atoms[index_g].epsilon = result
+
+    def modify_core_sigmas(self, function):
+        atoms_grw = self.template.get_list_of_core_atoms()
+        atoms_ini = self.template_core.get_list_of_core_atoms()
+        for atom_grow in atoms_grw:
+            index_g, atom_g = atom_grow
+            for atom_core in atoms_ini:
+               index_c, atom_c = atom_core
+               if atom_g.pdb_atom_name == atom_c.pdb_atom_name:
+                   result = function(atom_c.sigma, atom_g.sigma)
+                   self.template.list_of_atoms[index_g].sigma = result
+    
+    def modify_core_charges(self, function):
+        atoms_grw = self.template.get_list_of_core_atoms()
+        atoms_ini = self.template_core.get_list_of_core_atoms()
+        for atom_grow in atoms_grw:
+            index_g, atom_g = atom_grow
+            for atom_core in atoms_ini:
+               index_c, atom_c = atom_core
+               if atom_g.pdb_atom_name == atom_c.pdb_atom_name:
+                   result = function(atom_c.charge, atom_g.charge)
+                   self.template.list_of_atoms[index_g].charge = result
+
+    def modify_core_nbond_params(self, function):
+        atoms_grw = self.template.get_list_of_core_atoms()
+        atoms_ini = self.template_core.get_list_of_core_atoms()
+        for atom_grow in atoms_grw:
+            index_g, atom_g = atom_grow
+            for atom_core in atoms_ini:
+               index_c, atom_c = atom_core
+               if atom_g.pdb_atom_name == atom_c.pdb_atom_name and not atom_g.is_fragment:
+                   result = function(atom_c.epsilon, atom_g.epsilon)
+                   self.template.list_of_atoms[index_g].epsilon = result
+                   result = function(atom_c.sigma, atom_g.sigma)
+                   self.template.list_of_atoms[index_g].sigma = result
+                   result = function(atom_c.charge, atom_g.charge)
+                   self.template.list_of_atoms[index_g].charge = result
+                   result = function(atom_c.sgbnpGamma, atom_g.sgbnpGamma)
+                   self.template.list_of_atoms[index_g].sgbnpGamma = result
+                   result = function(atom_c.sgbnpType, atom_g.sgbnpType)
+                   self.template.list_of_atoms[index_g].sgbnpType = result
+                   result = function(atom_c.radnpSGB, atom_g.radnpSGB)
+                   self.template.list_of_atoms[index_g].radnpSGB = result
+                   result = function(atom_c.radnpType, atom_g.radnpType)
+                   self.template.list_of_atoms[index_g].radnpType = result
+                   
+
+    def modify_core_bond_eq_dist(self, function):
+        bonds_grw = self.template
+        bonds_ini = self.template_core
+        for bond_grw in bonds_grw.list_of_bonds.items():
+            key_grw, bond_g = bond_grw
+            # Get PDB atom names of the bonding atoms
+            atoms_g = [bonds_grw.list_of_atoms[bond_g.atom1].pdb_atom_name, 
+                       bonds_grw.list_of_atoms[bond_g.atom2].pdb_atom_name]
+            for bond_ini in bonds_ini.list_of_bonds.items():
+                key_ini, bond_i = bond_ini
+                atoms_i = [bonds_ini.list_of_atoms[bond_i.atom1].pdb_atom_name, 
+                       bonds_ini.list_of_atoms[bond_i.atom2].pdb_atom_name]
+                if sorted(atoms_i) == sorted(atoms_g) and not bond_g.is_linker:
+                    result = function(bond_i.eq_dist, bond_g.eq_dist)
+                    bond_g.eq_dist = result
+    
+    def modify_core_theta(self, function):
+        grw = self.template
+        ini = self.template_core
+        for theta_grw in grw.list_of_thetas.items():
+            key_grw, theta_g = theta_grw
+            # Get PDB atom names of the atoms forming angle
+            atoms_g = [grw.list_of_atoms[theta_g.atom1].pdb_atom_name,
+                       grw.list_of_atoms[theta_g.atom2].pdb_atom_name,
+                       grw.list_of_atoms[theta_g.atom3].pdb_atom_name]
+            for theta_ini in ini.list_of_thetas.items():
+                key_ini, theta_i = theta_ini
+                atoms_i = [ini.list_of_atoms[theta_i.atom1].pdb_atom_name,
+                           ini.list_of_atoms[theta_i.atom2].pdb_atom_name,
+                           ini.list_of_atoms[theta_i.atom3].pdb_atom_name]
+                if sorted(atoms_i) == sorted(atoms_g):
+                    result = function(theta_i.spring, theta_g.spring)
+                    theta_g.spring = result
+                    result = function(theta_i.eq_angle, theta_g.eq_angle)
+                    theta_g.eq_angle = result
+
+    def modify_core_phis(self, function):
+        grw = self.template
+        ini = self.template_core
+        for phi_g in grw.list_of_phis: # This is a list, not a dict
+            # Get PDB atom names of the atoms forming angles
+            atoms_g = [grw.list_of_atoms[phi_g.atom1].pdb_atom_name,
+                       grw.list_of_atoms[phi_g.atom2].pdb_atom_name,
+                       grw.list_of_atoms[phi_g.atom3].pdb_atom_name,
+                       grw.list_of_atoms[phi_g.atom4].pdb_atom_name]
+            for phi_i in ini.list_of_phis:
+                atoms_i = [ini.list_of_atoms[phi_i.atom1].pdb_atom_name,
+                           ini.list_of_atoms[phi_i.atom2].pdb_atom_name,
+                           ini.list_of_atoms[phi_i.atom3].pdb_atom_name,
+                           ini.list_of_atoms[phi_i.atom4].pdb_atom_name]
+                if sorted(atoms_i) == sorted(atoms_g) and phi_i.nterm == phi_g.nterm:
+                    result = function(phi_i.constant, phi_g.constant)
+                    phi_g.constant = result
+
+    def modify_core_sgbnpGamma(self, function):
+        atoms_grw = self.template.get_list_of_core_atoms()
+        atoms_ini = self.template_core.get_list_of_core_atoms()
+        for atom_grow in atoms_grw:
+            index_g, atom_g = atom_grow
+            for atom_core in atoms_ini:
+               index_c, atom_c = atom_core
+               if atom_g.pdb_atom_name == atom_c.pdb_atom_name:
+                   result = function(atom_c.sgbnpGamma, atom_g.sgbnpGamma)
+                   self.template.list_of_atoms[index_g].sgbnpGamma = result   
+
+    def modify_core_sgbnpType(self, function):
+        atoms_grw = self.template.get_list_of_core_atoms()
+        atoms_ini = self.template_core.get_list_of_core_atoms()
+        for atom_grow in atoms_grw:
+            index_g, atom_g = atom_grow
+            for atom_core in atoms_ini:
+               index_c, atom_c = atom_core
+               if atom_g.pdb_atom_name == atom_c.pdb_atom_name:
+                   result = function(atom_c.sgbnpType, atom_g.sgbnpType)
+                   self.template.list_of_atoms[index_g].sgbnpType = result
+
+    def modify_core_radnpSGB(self, function):
+        atoms_grw = self.template.get_list_of_core_atoms()
+        atoms_ini = self.template_core.get_list_of_core_atoms()
+        for atom_grow in atoms_grw:
+            index_g, atom_g = atom_grow
+            for atom_core in atoms_ini:
+               index_c, atom_c = atom_core
+               if atom_g.pdb_atom_name == atom_c.pdb_atom_name:
+                   result = function(atom_c.radnpSGB, atom_g.radnpSGB)
+                   self.template.list_of_atoms[index_g].radnpSGB = result
+
+    def modify_core_radnpType(self, function):
+        atoms_grw = self.template.get_list_of_core_atoms()
+        atoms_ini = self.template_core.get_list_of_core_atoms()
+        for atom_grow in atoms_grw:
+            index_g, atom_g = atom_grow
+            for atom_core in atoms_ini:
+               index_c, atom_c = atom_core
+               if atom_g.pdb_atom_name == atom_c.pdb_atom_name:
+                   result = function(atom_c.radnpType, atom_g.radnpType)
+                   self.template.list_of_atoms[index_g].radnpType = result
+
+    def modify_linker_bond_eq_dist(self, function):
+        grw = self.template
+        ini = self.template_core
+        atm_to_repl = self.atom_to_replace
+        for bond_grw in grw.list_of_bonds.items():
+            key_grw, bond_g = bond_grw
+            atoms_g = [grw.list_of_atoms[bond_g.atom1].pdb_atom_name,
+                       grw.list_of_atoms[bond_g.atom2].pdb_atom_name]
+            # Check which one is linker
+            if bond_g.is_linker:
+                 # Search the atoms in the initial template
+                for bond_ini in ini.list_of_bonds.items():
+                    key_ini, bond_i = bond_ini
+                    atoms_i = [ini.list_of_atoms[bond_i.atom1].pdb_atom_name,
+                               ini.list_of_atoms[bond_i.atom2].pdb_atom_name]
+                    grow_atomnames = [atm.pdb_atom_name for i, atm in grw.list_of_atoms.items()]
+                    for atom_i in atoms_i:
+                        if atom_i in atoms_g:
+                            atoms_strip = [ai.strip("_") for ai in atoms_i]
+                            if atm_to_repl in atoms_strip:
+                                result = function(bond_i.eq_dist, bond_g.eq_dist)
+                                bond_g.eq_dist = result
+
 
 class ReduceLinearly(ReduceProperty):
-    def __init__(self, template, lambda_to_reduce):
-        ReduceProperty.__init__(self, template, lambda_to_reduce)
+    def __init__(self, template, lambda_to_reduce, template_core=None, atom_to_replace=None):
+        ReduceProperty.__init__(self, template, lambda_to_reduce, template_core, atom_to_replace)
 
     def reduce_value(self, value):
         result = value * self.lambda_to_reduce
         return result
-
+    
+    def reduce_value_from_diference(self, value_init, value_grown):
+        diff = value_grown - value_init
+        result = (diff * self.lambda_to_reduce) + value_init
+        return result
+     
 
 class ReduceExponentially(ReduceProperty):
     def __init__(self, template, lambda_to_reduce):
@@ -499,16 +709,27 @@ def find_equal_pdb_atom_names(template1, template2):
     return list(set(pdb_atom_names_tmpl_1).intersection(pdb_atom_names_tmpl_2))
 
 
-def detect_fragment_atoms(template_initial, template_grown, hydrogen_to_replace):
+def detect_atoms(template_initial, template_grown, hydrogen_to_replace):
     fragment_atoms = []
-    core_atoms = find_equal_pdb_atom_names(template_initial, template_grown)
+    core_atoms_in = []
+    core_atoms_grown = []
+    core_atoms_names = find_equal_pdb_atom_names(template_initial, template_grown)
+    # First fill the list of the template grown
     for key, atom in template_grown.list_of_atoms.items():
         pdb_atom_name = atom.pdb_atom_name
-        if pdb_atom_name not in core_atoms:
+        if pdb_atom_name not in core_atoms_names:
             fragment_atoms.append(atom)
         elif hydrogen_to_replace in pdb_atom_name:
             fragment_atoms.append(atom)
-    return fragment_atoms
+        elif pdb_atom_name in core_atoms_names:
+            core_atoms_grown.append(atom)
+    # Then the ones of the initial template
+    for key, atom in template_initial.list_of_atoms.items():
+        pdb_atom_name = atom.pdb_atom_name
+        if pdb_atom_name in core_atoms_names:
+            core_atoms_in.append(atom)
+    
+    return fragment_atoms, core_atoms_in, core_atoms_grown
 
 
 def set_fragment_atoms(list_of_fragment_atoms):
@@ -528,6 +749,14 @@ def detect_fragment_bonds(list_of_fragment_atoms, template_grown):
     return fragment_bonds
 
 
+def set_linker_bond(template):
+    for key, bond in template.list_of_bonds.items():
+        if template.list_of_atoms[bond.atom1].is_linker or template.list_of_atoms[bond.atom2].is_linker: 
+            #Only the core one will be detected, thus we must check if the bond has fragment atoms to select the linker
+            if template.list_of_atoms[bond.atom1].is_fragment or template.list_of_atoms[bond.atom2].is_fragment: 
+                bond.is_linker=True
+
+
 def set_fragment_bonds(list_of_fragment_bonds):
     for bond in list_of_fragment_bonds:
         bond.is_fragment = True
@@ -537,6 +766,24 @@ def set_connecting_atom(template_grown, pdb_atom_name):
     for key, atom in template_grown.list_of_atoms.items():
         if pdb_atom_name in atom.pdb_atom_name:
             atom.is_linker = True
+
+
+def reduce_fragment_parameters_linearly(template_object, lambda_to_reduce):
+    reductor = ReduceLinearly(template_object, lambda_to_reduce)
+    reductor.reduce_nbon_params(reductor.reduce_value)
+    reductor.reduce_bond_eq_dist(reductor.reduce_value)
+
+
+def modify_core_parameters_linearly(template_grow, lambda_to_reduce, template_core):
+    reductor = ReduceLinearly(template_grow, lambda_to_reduce, template_core)
+    reductor.modify_core_nbond_params(reductor.reduce_value_from_diference)
+    reductor.modify_core_bond_eq_dist(reductor.reduce_value_from_diference)
+    reductor.modify_core_theta(reductor.reduce_value_from_diference)
+    reductor.modify_core_phis(reductor.reduce_value_from_diference)
+
+def modify_linkers_parameters_linearly(template_grow, lambda_to_reduce, template_core, atom_to_replace):
+    reductor = ReduceLinearly(template_grow, lambda_to_reduce, template_core, atom_to_replace)
+    reductor.modify_linker_bond_eq_dist(reductor.reduce_value_from_diference)
 
 
 def main(template_initial_path, template_grown_path, step, total_steps, hydrogen_to_replace, core_atom_linker,
@@ -566,23 +813,20 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     """
     lambda_to_reduce = float(step/(total_steps+1))
     templ_ini = TemplateOPLS2005(template_initial_path)
+    for bond in templ_ini.list_of_bonds:
+        key, bond_cont = bond
     templ_grw = TemplateOPLS2005(template_grown_path)
-    fragment_atoms = detect_fragment_atoms(template_initial=templ_ini, template_grown=templ_grw,
-                                           hydrogen_to_replace=hydrogen_to_replace)
+    fragment_atoms, core_atoms_in, core_atoms_grown = detect_atoms(template_initial=templ_ini, 
+                                                                   template_grown=templ_grw,
+                                                                   hydrogen_to_replace=hydrogen_to_replace)
     set_fragment_atoms(list_of_fragment_atoms=fragment_atoms)
-    set_connecting_atom(template_grown=templ_grw, pdb_atom_name=hydrogen_to_replace)
     set_connecting_atom(template_grown=templ_grw, pdb_atom_name=core_atom_linker)
     fragment_bonds = detect_fragment_bonds(list_of_fragment_atoms=fragment_atoms, template_grown=templ_grw)
     set_fragment_bonds(list_of_fragment_bonds=fragment_bonds)
-    reductor = ReduceLinearly(templ_grw, lambda_to_reduce)
-    reductor.reduce_sigmas(reductor.reduce_value)
-    reductor.reduce_epsilons(reductor.reduce_value)
-    reductor.reduce_charges(reductor.reduce_value)
-    reductor.reduce_bond_eq_dist(reductor.reduce_value)
-    reductor.reduce_radnpSGB(reductor.reduce_value)
-    reductor.reduce_radnpType(reductor.reduce_value)
-    reductor.reduce_sgbnpGamma(reductor.reduce_value)
-    reductor.reduce_sgbnpType(reductor.reduce_value)
+    set_linker_bond(templ_grw)
+    modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini)
+    reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce)
+    modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
     templ_grw.write_template_to_file(template_new_name=tmpl_out_path)
 
 

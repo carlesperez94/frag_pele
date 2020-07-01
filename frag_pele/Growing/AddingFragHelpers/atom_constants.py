@@ -20,14 +20,17 @@ BONDING_DISTANCES = {  # Atom1, Atom2, BondType: Distance(A)
     ("C", "F", "single"): 1.35,
     ("C", "CL", "single"): 1.77,
     ("C", "BR", "single"): 1.94,
-    ("C", "I", "single"): 2.14,
+    ("C", "I", "single"): 2.18,
     ("N", "C", "single"): 1.47,
     ("O", "C", "single"): 1.43,
     ("S", "C", "single"): 1.82,
     ("F", "C", "single"): 1.35,
     ("CL", "C", "single"): 1.77,
     ("BR", "C", "single"): 1.94,
-    ("I", "C", "single"): 2.14,
+    ("I", "C", "single"): 2.18,
+    # Other single bonds
+    ("N", "S", "single"): 1.77,
+    ("S", "N", "single"): 1.77,
     # Bonding with H
     ("H", "C", "single"): 1.08,
     ("H", "N", "single"): 1.01,
@@ -54,8 +57,10 @@ BONDING_DISTANCES = {  # Atom1, Atom2, BondType: Distance(A)
     ("O", "S", "double"): 1.48,
     ("C", "N", "double"): 1.28,
     ("N", "C", "double"): 1.28,
+    ("S", "C", "double"): 1.66,
+    ("C", "S", "double"): 1.66,
     # Triple bonds
     ("N", "N", "triple"): 1.1,
     ("C", "N", "triple"): 1.14,
-    ("N", "C", "triple"): 1.14,
+    ("N", "C", "triple"): 1.14
 }

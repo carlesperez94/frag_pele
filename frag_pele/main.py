@@ -208,16 +208,6 @@ def parse_arguments():
 
     args = parser.parse_args()
 
-    if args.highthroughput:
-        args.growing_steps = 1
-        args.steps = 3
-        args.pele_eq_steps = 10
-
-    if args.test:
-        args.growing_steps = 1
-        args.steps = 1
-        args.pele_eq_steps = 1
-        args.temp = 1000000
 
     return args.complex_pdb, args.growing_steps, \
            args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, \
@@ -228,7 +218,7 @@ def parse_arguments():
            args.banned, args.limit, args.mae, args.rename, args.clash_thr, args.steering, \
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
            args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow, \
-           args.no_check, args.debug
+           args.no_check, args.debug, args.highthroughput, args.test
 
 
 def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -638,13 +628,25 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     return fragment_names_dict
     
 
-def main(complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold, 
-         report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, 
-         nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, 
-         c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae,
-         rename, threshold_clash, steering, translation_high, rotation_high, 
-         translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, 
-         only_prepare, only_grow, no_check, debug):
+def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTION_CRITERIA, plop_path=c.PLOP_PATH, sch_python=c.SCHRODINGER_PY_PATH, pele_dir=c.PATH_TO_PELE, contrl=c.CONTROL_TEMPLATE, license=c.PATH_TO_LICENSE, resfold=c.RESULTS_FOLDER, 
+    report=c.REPORT_NAME, traject=c.TRAJECTORY_NAME, pdbout=c.PDBS_OUTPUT_FOLDER, cpus=c.CPUS, distcont=c.DISTANCE_COUNTER, threshold=c.CONTACT_THRESHOLD, epsilon=c.EPSILON, condition=c.CONDITION, metricweights=c.METRICS_WEIGHTS, 
+    nclusters=c.NUM_CLUSTERS, pele_eq_steps=c.PELE_EQ_STEPS, restart=False, min_overlap=c.MIN_OVERLAP, max_overlap=c.MAX_OVERLAP,
+    c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
+    rename=None, threshold_clash=1.7, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, rotation_high=c.ROTATION_HIGH, 
+    translation_low=c.TRANSLATION_LOW, rotation_low=c.ROTATION_LOW, explorative=False, radius_box=c.RADIUS_BOX, sampling_control=None, data=c.PATH_TO_PELE_DATA, documents=c.PATH_TO_PELE_DOCUMENTS, 
+    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False):
+
+    if protocol == "HT":
+        iteration = 1
+        steps = 3
+        pele_eq_steps = 10
+
+    if test:
+        iteration = 1
+        steps = 1
+        steps = 1
+        pele_eq_steps = 1
+        temp = 1000000
 
     #HOT FIX!! Fix it properly
     original_dir = os.path.abspath(os.getcwd())
@@ -696,11 +698,15 @@ def main(complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, con
                 try:
                     ID = ID.split("/")[-1]
                 except Exception:
+                    os.chdir(original_dir)
                     traceback.print_exc()
+                    if debug: raise Exception()
                 try:
                     ID = ID.split("/")[-1]
                 except Exception:
+                    os.chdir(original_dir)
                     traceback.print_exc()
+                    if debug: raise Exception()
                 try:
                     serie_handler.check_instructions(instruction[i], complex_sequential_pdb, c_chain, f_chain)
                     print("PERFORMING SUCCESSIVE GROWING...")
@@ -718,6 +724,7 @@ def main(complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, con
                 except Exception:
                     os.chdir(original_dir)
                     traceback.print_exc()
+                    if debug: raise Exception()
         # INDIVIDUAL GROWING
         else:
             # Initialize the growing for each line in the file
@@ -727,7 +734,9 @@ def main(complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, con
                 complex_pdb = complex_pdb
                 ID = ID.split("/")[-1]
             except Exception:
+                os.chdir(original_dir)
                 traceback.print_exc()
+                if debug: raise Exception()
  
             if atoms_if_bond:
                 core_atom = atoms_if_bond[0]
@@ -750,6 +759,8 @@ def main(complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, con
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
+                if debug: raise Exception()
+        os.chdir(original_dir) 
 
 if __name__ == '__main__':
     complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
@@ -758,13 +769,13 @@ if __name__ == '__main__':
     c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
     rename, threshold_clash, steering, translation_high, rotation_high, \
     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
-    only_prepare, only_grow, no_check, debug = parse_arguments()
+    only_prepare, only_grow, no_check, debug, protocol, test = parse_arguments()
     
-    main(complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold,
+    main(complex_pdb, serie_file, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold,
              report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
-             nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file,
+             nclusters, pele_eq_steps, restart, min_overlap, max_overlap,
              c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae,
              rename, threshold_clash, steering, translation_high, rotation_high,
              translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-             only_prepare, only_grow, no_check, debug)
+             only_prepare, only_grow, no_check, debug, protocol, test)
 
