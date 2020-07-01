@@ -60,7 +60,8 @@ def get_H_bonded_to_grow(PDB_atom_name, prody_complex, PDB_atom_to_replace=None,
     # Select the hydrogens bonded to the heavy atom 'PDB_atom_name'
 
     # When non specific atom is selected we search hydrogens automatically
-    selected_atom = prody_complex.select("chain {} and hydrogen within 1.70 of name {}".format(chain, PDB_atom_name))  # Replace for 1.53 :)
+    selected_atom = prody_complex.select("chain {} and hydrogen within 1.74 of name {}".format(chain, 
+                                                                                             PDB_atom_name))
     # If it is selected, we have to differentiate between hydrogens or heavy atoms
     if PDB_atom_to_replace:
         print("ATOM TO REPLACE: {}".format(PDB_atom_to_replace))
