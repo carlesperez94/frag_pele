@@ -15,9 +15,9 @@ print(machine)
 # Paths definitions (IMPORTANT!)
 if "bsc.mn" in machine:
     # PELE parameters
-    PATH_TO_PELE = "/gpfs/projects/bsc72/PELE++/mniv/rev12536/bin/Pele_mpi"
-    PATH_TO_PELE_DATA = "/gpfs/projects/bsc72/PELE++/data/rev12360/Data"
-    PATH_TO_PELE_DOCUMENTS = "/gpfs/projects/bsc72/PELE++/Documents/rev12360"
+    PATH_TO_PELE = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.1/bin/PELE-1.6.1_mpi"
+    PATH_TO_PELE_DATA = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.1/Data"
+    PATH_TO_PELE_DOCUMENTS = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.1/Documents"
     PATH_TO_LICENSE = "/gpfs/projects/bsc72/PELE++/license"
     # PlopRotTemp parameters
     SCHRODINGER_PY_PATH = "/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC/utilities/python"
