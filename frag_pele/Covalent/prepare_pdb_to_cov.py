@@ -1,21 +1,26 @@
+import os
+import subprocess
+
 class CovalentPDB:
 
     content = None
     ligand = None
+    residue_type_linked = None
+    conect_str = []
     conects = []
 
-    def __init__(self, pdb_file, lig_chain="L", lig_name="LIG", res_num=None, 
+    def __init__(self, pdb_file, lig_chain="L", res_num=None, 
                  res_chain=None, lig_link=None, res_link=None):
         self.pdb_file = pdb_file
         self.lig_chain = lig_chain
-        self.lig_name = lig_name
         self.res_num = res_num
         self.res_chain = res_chain
         self.lig_link = lig_link
         self.res_link = res_link
         self._read_pdb_content()
         if not self._check_if_exists_conects() and (res_num==None or res_chain==None):
-            raise ValueError("PDB file does not contain CONECTs. \nPlease, fill the number and chain of the residue covalently linked to the ligand")
+            raise ValueError("PDB file does not contain CONECTs." 
+                             "Please, fill the number and chain of the residue covalently linked to the ligand")
         self._read_ligand()
         self._read_conects()
         self._get_residue_info_linked()
@@ -34,8 +39,9 @@ class CovalentPDB:
     def _read_ligand(self):
         lig_lines = []
         for l in self.content.split("\n"):
-            if self.lig_name == l[17:20] and l.startswith("HETATM"):
-                lig_lines.append(l)
+            if l.startswith("HETATM"):
+                if self.lig_chain == l[21]:
+                    lig_lines.append(l)
         self.ligand = "\n".join(lig_lines)
 
     def _read_conects(self):
@@ -45,6 +51,13 @@ class CovalentPDB:
                 group = list(map(int, group))
                 self.conects.append(group)
     
+    def _read_conects_str(self):
+        lines = []
+        for l in self.content.split("\n"):
+            if l.startswith("CONECT"):
+                lines.append(l)
+        return "\n".join(lines)
+
     def _get_ligand_residue_connection(self):
         conections = []
         all_indexes = get_indexes(self.content)
@@ -66,6 +79,40 @@ class CovalentPDB:
                 self.res_num = line[23:26].strip()
                 self.res_chain = line[21]
                 self.res_link = line[12:15].strip()
+                self.residue_type_linked = line[17:20].strip()
+
+    def get_residue_attached(self):
+        lines = []
+        for l in self.content.split("\n"):
+            if l.startswith("ATOM"):
+                if l[23:26].strip() == self.res_num and l[21] == self.res_chain:
+                    lines.append(l)
+        return "\n".join(lines)
+  
+    def replace_residue_name(self, new_name):
+        lines = []
+        for l in self.content.split("\n"):
+            if l.startswith("ATOM"):
+                if l[23:26].strip() == self.res_num and l[21] == self.res_chain:
+                    l = list(l)
+                    l[17:20] = new_name
+                    l = "".join(l)
+            lines.append(l)
+        self.content = "\n".join(lines)
+
+    def get_ligand_and_res(self):
+        lines = []
+        mix = self.get_residue_attached() + "\n" + self.ligand
+        for l in mix.split("\n"):
+            l = list(l)
+            l[0:6] = "HETATM"
+            l[17:20] = "MIX"
+            l[21:22] = "L"
+            l = "".join(l)
+            lines.append(l)
+        mix = "\n".join(lines)
+        con = self._read_conects_str()
+        return mix + "\n" + con
 
 def get_indexes(pdb_fragment):
     indexes = []
@@ -74,6 +121,22 @@ def get_indexes(pdb_fragment):
             indexes.append(int(l[7:11].strip()))
     return indexes
 
-#def main(pdb_file, lig_chain="L", lig_name="LIG", res_num=None, res_chain=None):
-pdb = CovalentPDB("/home/bsc72/bsc72292/projects/covid/COVALENT_Frag/covdock_sar26lu7_15.pdb")
-print(pdb.res_num, pdb.res_chain, pdb.res_link, pdb.lig_link)
+def write_string_to_file(string, filename):
+    with open(filename, "w") as outf:
+        outf.write(string)
+
+def prepare_pdb(pdb_in, pdb_out, sch_path):
+    command = [os.path.join(sch_path, "utilities/prepwizard"), pdb_in, pdb_out, "-noepik", "-noprotassign",
+              "-noccd", "-noimpref"]
+    subprocess.call(command)
+
+pdb = CovalentPDB("/home/bsc72/bsc72292/projects/covid/COVALENT_Frag/covdock_sar26lu7_14.pdb")
+pdb.replace_residue_name("CYY")
+#write_string_to_file(pdb.get_residue_attached(), "CYY.pdb")
+#prepare_pdb("CYY.pdb", "CYY_h.pdb", sch_path="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC")
+#write_string_to_file(pdb.ligand, "LIG.pdb")
+#prepare_pdb("LIG.pdb", "LIG_h.pdb", sch_path="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC")
+mix = pdb.get_ligand_and_res()
+write_string_to_file(mix, "MIX.pdb")
+prepare_pdb("MIX.pdb", "MIX_h.pdb", sch_path="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC")
+
