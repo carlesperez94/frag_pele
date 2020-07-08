@@ -1,5 +1,8 @@
 import os
+import time
 import subprocess
+from frag_pele.Helpers import correct_fragment_names
+
 
 class CovalentPDB:
 
@@ -125,18 +128,62 @@ def write_string_to_file(string, filename):
     with open(filename, "w") as outf:
         outf.write(string)
 
+def read_file(filename):
+    with open(filename) as inf:
+        cont = inf.read()
+    return cont
+
 def prepare_pdb(pdb_in, pdb_out, sch_path):
     command = [os.path.join(sch_path, "utilities/prepwizard"), pdb_in, pdb_out, "-noepik", "-noprotassign",
               "-noccd", "-noimpref"]
     subprocess.call(command)
 
+def check_and_solve_duplicate_atomnames(pdb_file, chain="L"):
+    content = read_file(pdb_file)
+    elements = []
+    pdb_out = []
+    names = []
+    new_names = []
+    for line in content.split("\n"):
+        if line[0:6] == "HETATM" and line[21:22] == chain:
+            element = line[76:78]
+            elements.append(element)
+            atom_names = line[12:16]
+            names.append(atom_names)
+            list_of_unique_elements = set(elements)
+            counters = {i: elements.count(i) for i in list_of_unique_elements}
+            counter = counters[line[76:78]]
+            set_to_check = set(names)
+            list_to_check = sorted(list(set_to_check))
+            sorted_list_names = sorted(names)
+            if list_to_check != sorted_list_names:
+                new_name = "{}{}".format(line[76:78].strip().upper(), counter)
+                while True:
+                    new_name = new_name + " "
+                    if len(new_name) == 4:
+                        break
+                line = list(line)
+                line[12:16] = new_name
+                line = "".join(line)
+                if len(new_name) > 4:
+                    raise ValueError("Length of the string {} is too long. Only 4 characters accepted.".format(new_name))
+                new_names.append(new_name)
+        pdb_out.append(line)
+    write_string_to_file("\n".join(pdb_out), pdb_file)
+    return new_names
+
+
 pdb = CovalentPDB("/home/bsc72/bsc72292/projects/covid/COVALENT_Frag/covdock_sar26lu7_14.pdb")
 pdb.replace_residue_name("CYY")
-#write_string_to_file(pdb.get_residue_attached(), "CYY.pdb")
-#prepare_pdb("CYY.pdb", "CYY_h.pdb", sch_path="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC")
-#write_string_to_file(pdb.ligand, "LIG.pdb")
-#prepare_pdb("LIG.pdb", "LIG_h.pdb", sch_path="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC")
+write_string_to_file(pdb.get_residue_attached(), "CYY.pdb")
+prepare_pdb("CYY.pdb", "CYY_h.pdb", sch_path="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC")
+write_string_to_file(pdb.ligand, "LIG.pdb")
+prepare_pdb("LIG.pdb", "LIG_h.pdb", sch_path="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC")
 mix = pdb.get_ligand_and_res()
 write_string_to_file(mix, "MIX.pdb")
 prepare_pdb("MIX.pdb", "MIX_h.pdb", sch_path="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC")
+time.sleep(3)
+check_and_solve_duplicate_atomnames("CYY_h.pdb")
+check_and_solve_duplicate_atomnames("LIG_h.pdb")
+check_and_solve_duplicate_atomnames("MIX_h.pdb")
 
