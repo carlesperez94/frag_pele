@@ -2,6 +2,7 @@ import os
 import time
 import subprocess
 from frag_pele.Helpers import correct_fragment_names
+import frag_pele.constants as c
 
 
 class CovalentPDB:
@@ -83,6 +84,7 @@ class CovalentPDB:
                 self.res_chain = line[21]
                 self.res_link = line[12:15].strip()
                 self.residue_type_linked = line[17:20].strip()
+                print(line[17:20].strip())
 
     def get_residue_attached(self):
         lines = []
@@ -116,6 +118,12 @@ class CovalentPDB:
         mix = "\n".join(lines)
         con = self._read_conects_str()
         return mix + "\n" + con
+
+    def get_pdb_prepared(self):
+        restype = self.residue_type_linked
+        new_resname = restype[0:2] + "Y"
+        self.replace_residue_name(new_resname) 
+        
 
 def get_indexes(pdb_fragment):
     indexes = []
@@ -172,18 +180,56 @@ def check_and_solve_duplicate_atomnames(pdb_file, chain="L"):
     write_string_to_file("\n".join(pdb_out), pdb_file)
     return new_names
 
+def create_template(pdb_file, sch_python=c.SCHRODINGER_PY_PATH, 
+                    plop_script_path="../PlopRotTemp_S_2017/ligand_prep.py", rotamers="10.0", 
+                    out_templates_path=".", path_to_lib="."):
+    cmd = "{} {} {} {} {} {}".format(sch_python, plop_script_path, pdb_file, rotamers,
+                                     out_templates_path, path_to_lib)
+    print(cmd)
+    try:
+        subprocess.call(cmd.split())
+    except OSError:
+        raise OSError("Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(sch_python))
 
-pdb = CovalentPDB("/home/bsc72/bsc72292/projects/covid/COVALENT_Frag/covdock_sar26lu7_14.pdb")
-pdb.replace_residue_name("CYY")
-write_string_to_file(pdb.get_residue_attached(), "CYY.pdb")
-prepare_pdb("CYY.pdb", "CYY_h.pdb", sch_path="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC")
-write_string_to_file(pdb.ligand, "LIG.pdb")
-prepare_pdb("LIG.pdb", "LIG_h.pdb", sch_path="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC")
-mix = pdb.get_ligand_and_res()
-write_string_to_file(mix, "MIX.pdb")
-prepare_pdb("MIX.pdb", "MIX_h.pdb", sch_path="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC")
-time.sleep(3)
-check_and_solve_duplicate_atomnames("CYY_h.pdb")
-check_and_solve_duplicate_atomnames("LIG_h.pdb")
-check_and_solve_duplicate_atomnames("MIX_h.pdb")
+def prepare_complex_and_extract_files_for_covalent(pdb_file, sch_path="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC",
+                                                  lig_chain="L", res_num=None, res_chain=None, lig_link=None, 
+                                                  res_link=None, rotamers="10.0", out_templates_path=".", 
+                                                  path_to_lib="."):
+    pdb = CovalentPDB(pdb_file, lig_chain, res_num, res_chain, lig_link, res_link)
+    # Modifying PDB content
+    pdb.get_pdb_prepared()
+    mix = pdb.get_ligand_and_res()
+    res = pdb.get_residue_attached()
+    # Creating LIGAND, RESIDUE, MIX(COMBINATION) and COMPLEX
+    write_string_to_file(pdb.ligand, "LIG.pdb")
+    write_string_to_file(res, "{}.pdb".format(pdb.residue_type_linked))
+    write_string_to_file(mix, "MIX.pdb")
+    write_string_to_file(pdb.content, pdb_file)
+    # Preparing them with Schrodinger (Correcting free atoms)
+    prepare_pdb("LIG.pdb", "LIG_h.pdb", sch_path=sch_path)
+    prepare_pdb("MIX.pdb", "MIX_h.pdb", sch_path=sch_path)
+    prepare_pdb("{}.pdb".format(pdb.residue_type_linked), 
+                "{}_h.pdb".format(pdb.residue_type_linked), 
+                sch_path=sch_path)
+    time.sleep(3) # Waiting queue system
+    # Solving duplicate names and getting the new H atoms
+    h_to_del = check_and_solve_duplicate_atomnames("LIG_h.pdb", chain=lig_chain)
+    check_and_solve_duplicate_atomnames("MIX_h.pdb", chain=lig_chain)
+    # Creating templates of LIGAND and COMBINATION
+    create_template("LIG_h.pdb", rotamers=rotamers, out_templates_path=out_templates_path, 
+                    path_to_lib=path_to_lib)
+    create_template("MIX_h.pdb", rotamers=rotamers, out_templates_path=out_templates_path, 
+                    path_to_lib=path_to_lib)
+    print("Files prepared successfully!")
+    return pdb.residue_type_linked, pdb.res_link, pdb.lig_link, h_to_del
+
+
+#def prepare_templates_for_covalent():
+
+
+def prepare_covalent_growing(pdb_file, sch_path="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC",
+                             lig_chain="L", res_num=None, res_chain=None, lig_link=None,
+                             res_link=None, rotamers="10.0", out_templates_path=".",
+                             path_to_lib="."):
+    prepare_complex_and_extract_files_for_covalent("covdock_sar26lu7_14.pdb")
 
