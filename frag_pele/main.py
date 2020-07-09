@@ -11,8 +11,9 @@ import shutil
 import subprocess
 import traceback
 # Local imports
+from frag_pele.Growing.AddingFragHelpers import complex_to_prody
 from frag_pele.Helpers import clusterizer, checker, folder_handler, runner, constraints, check_constants
-from frag_pele.Helpers import helpers, correct_fragment_names, center_of_mass
+from frag_pele.Helpers import helpers, correct_fragment_names, center_of_mass, plop_rot_temp
 from frag_pele.Growing import template_fragmenter, simulations_linker
 from frag_pele.Growing import add_fragment_from_pdbs, bestStructs
 from frag_pele.Analysis import analyser
@@ -220,7 +221,7 @@ def parse_arguments():
            args.banned, args.limit, args.mae, args.rename, args.clash_thr, args.steering, \
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
            args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow, \
-           args.no_check, args.debug, args.highthroughput, args.testi, args.cov_res
+           args.no_check, args.debug, args.highthroughput, args.test, args.cov_res
 
 
 def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -374,6 +375,10 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     helpers.create_symlinks(data, os.path.join(working_dir, 'Data'))
     helpers.create_symlinks(documents, os.path.join(working_dir, 'Documents'))
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
+    if cov_res:
+        resnum_core = complex_to_prody.read_residue_string(cov_res)
+    else:
+        resnum_core = None
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
     core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom,
                                                                              fragment_atom, iterations, h_core=h_core,
@@ -381,25 +386,19 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                              fragment_chain=f_chain, rename=rename,
                                                                              threshold_clash=threshold_clash,
                                                                              output_path=working_dir,
-                                                                             only_grow=only_grow)
-
+                                                                             only_grow=only_grow, cov_res=cov_res)
     # Create the templates for the initial and final structures
     template_resnames = []
     for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
         if not only_grow and not restart:
-            cmd = "{} {} {} {} {} {}".format(sch_python, plop_relative_path, os.path.join(working_dir,
-                                             add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers,
-                                             path_to_templates_generated, path_to_lib)
-
-            try:
-                subprocess.call(cmd.split())
-            except OSError:
-                raise OSError("Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(sch_python))
-        template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(working_dir, add_fragment_from_pdbs.
-                                                                           c.PRE_WORKING_DIR, pdb_to_template),
-                                                                           False, c_chain, f_chain)
+            template_resname = plop_rot_temp.create_template(pdb_file=os.path.join(working_dir, 
+                                                  add_fragment_from_pdbs.c.PRE_WORKING_DIR, 
+                                                  pdb_to_template), 
+                                                  sch_python=sch_python, plop_script_path=plop_relative_path, 
+                                                  rotamers=rotamers, out_templates_path=path_to_templates_generated, 
+                                                  path_to_lib=path_to_lib, cov_res=cov_res, work_dir=working_dir)
         template_resnames.append(template_resname)
-
+    import pdb; pdb.set_trace()
     # Set box center from ligand COM
     resname_core = template_resnames[0]
     center = center_of_mass.center_of_mass(os.path.join(working_dir, c.PRE_WORKING_DIR, "{}.pdb".format(resname_core)))
