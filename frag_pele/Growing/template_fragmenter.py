@@ -301,29 +301,29 @@ class TemplateOPLS2005:
 
     def write_xres(self):
         content = []
-        for n in range(1, len(self.list_of_atoms)+1):
-            line = self.list_of_atoms[n].write_resx()
+        for i, atom in self.list_of_atoms.items():
+            line = self.list_of_atoms[i].write_resx()
             content.append(line)
         return "".join(content)
 
     def write_nbon(self):
         content = []
-        for n in range(1, len(self.list_of_atoms)+1):
-            line = self.list_of_atoms[n].write_nbon()
+        for i, atom in self.list_of_atoms.items():
+            line = self.list_of_atoms[i].write_nbon()
             content.append(line)
         return "".join(content)
 
     def write_bond(self):
         content = []
-        for key in self.list_of_bonds.keys():
-            line = self.list_of_bonds[key].write_bond()
+        for i, bond in self.list_of_bonds.items():
+            line = self.list_of_bonds[i].write_bond()
             content.append(line)
         return "".join(content)
 
     def write_theta(self):
         content = []
-        for key in self.list_of_thetas.keys():
-            line = self.list_of_thetas[key].write_theta()
+        for i, theta in self.list_of_thetas.items():
+            line = self.list_of_thetas[i].write_theta()
             content.append(line)
         return "".join(content)
 
@@ -407,6 +407,105 @@ class TemplateOPLS2005:
             if iphi.is_fragment:
                 iphis.append(iphi)
         return iphis
+
+    def find_index_of_atom_name(self, pdb_atom_name):
+        for index, atom in self.list_of_atoms.items():
+            if atom.pdb_atom_name == pdb_atom_name:
+                return index
+
+    def find_bond_from_atom(self, index_atom):
+        indexes = []
+        for index, bond in self.list_of_bonds.items():
+            if bond.atom1 == index_atom or bond.atom2 == index_atom:
+                indexes.append(index)
+        return indexes
+
+    def find_theta_from_atom(self, index_atom):
+        indexes = []
+        for index, theta in self.list_of_thetas.items():
+            if theta.atom1 == index_atom or theta.atom2 == index_atom or theta.atom3 == index_atom:
+                indexes.append(index)
+        return indexes
+
+    def find_phi_from_atom(self, index_atom):
+        phis = []
+        for phi in self.list_of_phis:
+            if phi.atom1 == index_atom or phi.atom2 == index_atom or phi.atom3 == index_atom or phi.atom4 == index_atom:
+                phis.append(phi)
+        return phis
+
+    def find_iphi_from_atom(self, index_atom):
+        iphis = []
+        for iphi in self.list_of_iphis:
+            if iphi.atom1 == index_atom or iphi.atom2 == index_atom or iphi.atom3 == index_atom or iphi.atom4 == index_atom:
+                iphis.append(iphi)
+        return iphis
+    
+    def delete_atom(self, index_to_del):
+        for index, atom in self.list_of_atoms.items():
+            if index == index_to_del:
+                del self.list_of_atoms[index]
+                print("Atom {} with index {} has been deleted".format(atom.pdb_atom_name,
+                                                                      index))
+                break
+
+    def delete_bond(self, indexes_to_del):
+        for ind_to_del in indexes_to_del: 
+            for index, bond in self.list_of_bonds.items():
+                if index == ind_to_del:
+                    del self.list_of_bonds[index]
+                    print("Bond between {} and {} has been deleted".format(bond.atom1,
+                                                                           bond.atom2))
+                    break    
+   
+    def delete_theta(self, indexes_to_del):
+        for ind_to_del in indexes_to_del:
+            for index, theta in self.list_of_thetas.items():
+                if index == ind_to_del:
+                    del self.list_of_thetas[index]
+                    print("Theta between {}, {} and {} has been deleted".format(theta.atom1,
+                                                                                theta.atom2,
+                                                                                theta.atom3))
+                    break
+
+    def delete_phi(self, phis_to_del):
+        for phi_del in phis_to_del:
+            for phi in self.list_of_phis:
+                if phi == phi_del:
+                    self.list_of_phis.remove(phi)
+                    print("Phi between {}, {}, {} and {} has been deleted".format(phi.atom1,
+                                                                                  phi.atom2,
+                                                                                  phi.atom3,
+                                                                                  phi.atom4))
+                    break
+
+    def delete_iphi(self, iphis_to_del):
+        for iphi_del in iphis_to_del:
+            for iphi in self.list_of_iphis:
+                if iphi == iphi_del:
+                    self.list_of_iphis.remove(iphi)
+                    print("IPhi between {}, {}, {} and {} has been deleted".format(iphi.atom1,
+                                                                                   iphi.atom2,
+                                                                                   iphi.atom3,
+                                                                                   iphi.atom4))
+                    break
+ 
+    def erease_atom_from_template(self, pdb_atom_name):
+        print(self.num_nbon_params)
+        index_to_del = self.find_index_of_atom_name(pdb_atom_name)
+        self.delete_atom(index_to_del)
+        self.num_nbon_params -= 1
+        indexes_bond = self.find_bond_from_atom(index_to_del)
+        self.delete_bond(indexes_bond)
+        self.num_bond_params -= 1
+        indexes_thetas = self.find_theta_from_atom(index_to_del)
+        self.delete_theta(indexes_thetas)
+        self.num_angle_params -= 1
+        phis = self.find_phi_from_atom(index_to_del)
+        self.delete_phi(phis)
+        self.num_dihedr_params -= 1
+        iphis = self.find_iphi_from_atom(index_to_del)
+        self.delete_iphi(iphis)
 
 
 class ReduceProperty:
