@@ -16,6 +16,7 @@ from frag_pele.Helpers import clusterizer, checker, folder_handler, runner, cons
 from frag_pele.Helpers import helpers, correct_fragment_names, center_of_mass, plop_rot_temp
 from frag_pele.Growing import template_fragmenter, simulations_linker
 from frag_pele.Growing import add_fragment_from_pdbs, bestStructs
+from frag_pele.Covalent import correct_pdb_to_covalent_res
 from frag_pele.Analysis import analyser
 from frag_pele.Banner import Detector as dt
 from frag_pele import serie_handler
@@ -376,7 +377,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     helpers.create_symlinks(documents, os.path.join(working_dir, 'Documents'))
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
     if cov_res:
-        resnum_core = complex_to_prody.read_residue_string(cov_res)
+        new_chain, resnum_core = complex_to_prody.read_residue_string(cov_res)
     else:
         resnum_core = None
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
@@ -398,6 +399,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                   rotamers=rotamers, out_templates_path=path_to_templates_generated, 
                                                   path_to_lib=path_to_lib, cov_res=cov_res, work_dir=working_dir)
         template_resnames.append(template_resname)
+    if cov_res:
+        correct_pdb_to_covalent_res.correct_pdb(pdb_initialize, new_chain, resnum_core, "GRW")
     import pdb; pdb.set_trace()
     # Set box center from ligand COM
     resname_core = template_resnames[0]

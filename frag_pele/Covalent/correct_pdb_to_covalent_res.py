@@ -16,6 +16,7 @@ class Corrector(pdm.PDB):
         self.add_lines_at_position(self.new_res_lines, 
                                    self.find_index_of_line(self.old_res_lines[0]))
         self.remove_lines(self.old_res_lines)
+        self.content = "".join(self.lines)
 
 
     def correct_atom_section_new_res_lines(self):
@@ -59,10 +60,6 @@ class Corrector(pdm.PDB):
 
 def correct_pdb(pdb_file, reschain, resnum, new_resname):
     correct = Corrector(pdb_file, reschain, resnum, new_resname)
-    with open("test.pdb", "w") as out:
-        out.write("".join(correct.lines))
-
-correct_pdb("/gpfs/projects/bsc72/FragPELE/FragPELE2.3.0_testing/frag_pele/tests/receptor_145_cys_frag_resSGC4/pregrow/initialization_grow.pdb",
-            "A", "145", "GRW")
+    correct.overwrite_pdb()
 
 
