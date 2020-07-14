@@ -16,7 +16,7 @@ from frag_pele.Helpers import clusterizer, checker, folder_handler, runner, cons
 from frag_pele.Helpers import helpers, correct_fragment_names, center_of_mass, plop_rot_temp
 from frag_pele.Growing import template_fragmenter, simulations_linker
 from frag_pele.Growing import add_fragment_from_pdbs, bestStructs
-from frag_pele.Covalent import correct_pdb_to_covalent_res
+from frag_pele.Covalent import correct_pdb_to_covalent_res, correct_template_of_backbone_res
 from frag_pele.Analysis import analyser
 from frag_pele.Banner import Detector as dt
 from frag_pele import serie_handler
@@ -399,15 +399,27 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                   rotamers=rotamers, out_templates_path=path_to_templates_generated, 
                                                   path_to_lib=path_to_lib, cov_res=cov_res, work_dir=working_dir)
         template_resnames.append(template_resname)
-    if cov_res:
-        correct_pdb_to_covalent_res.correct_pdb(pdb_initialize, new_chain, resnum_core, "GRW")
-    import pdb; pdb.set_trace()
+
     # Set box center from ligand COM
     resname_core = template_resnames[0]
-    center = center_of_mass.center_of_mass(os.path.join(working_dir, c.PRE_WORKING_DIR, "{}.pdb".format(resname_core)))
+    center = center_of_mass.center_of_mass(os.path.join(working_dir, c.PRE_WORKING_DIR, "{}.pdb".format(resname_core.upper())))
+
+    if cov_res:
+        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/Protein")
+        path_to_templates_generated = os.path.join(working_dir, 
+                                                   "DataLocal/Templates/OPLS2005/Protein/templates_generated")
+        template_resnames[1] = "GRW"
+        shutil.move(os.path.join(path_to_templates_generated, template_resnames[1].lower()+"z"),
+                    os.path.join(path_to_templates_generated, template_resnames[1].lower()))
+        correct_pdb_to_covalent_res.correct_pdb(pdb_initialize, new_chain, resnum_core, template_resnames[1])
+        correct_template_of_backbone_res.correct_template(os.path.join(path_to_templates_generated, 
+                                                          template_resnames[1].lower()), working_dir)
 
     # Get template filenames
-    template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
+    if cov_res:
+        template_initial, template_final = [resname.lower() for resname in template_resnames]
+    else:
+        template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
 
     if only_prepare:
         print("Files of {} prepared".format(ID))

@@ -11,6 +11,7 @@ PATTERN_OPLS2005_NBON = "{:5d} {: >8.4f} {: >8.4f} {: >10.6f} {: >8.4f} {: >8.4f
 PATTERN_OPLS2005_BOND = "{:5d} {:5d} {:>9.3f} {:>6.3f}\n"
 PATTERN_OPLS2005_THETA = "{:5d} {:5d} {:5d} {:>11.5f} {: >11.5f}\n"
 PATTERN_OPLS2005_PHI = "{:5d} {:5d} {: 5d} {:5d} {:>9.5f} {: >4.1f} {: >3.1f}\n"
+PATTERN_OPLS2005_IPHI = " {:5d} {:5d} {: 5d} {:5d} {:>9.5f} {: >4.1f} {: >3.1f}\n"
 
 
 class Atom:
@@ -139,7 +140,7 @@ class Phi:
 
     def write_iphi(self):
         if self.improper:
-            return PATTERN_OPLS2005_PHI.format(self.atom1, self.atom2, self.atom3, self.atom4, self.constant,
+            return PATTERN_OPLS2005_IPHI.format(self.atom1, self.atom2, self.atom3, self.atom4, self.constant,
                                                self.prefactor, self.nterm)
 
 
@@ -163,16 +164,18 @@ class TemplateOPLS2005:
     def read_template(self):
         template = file_to_list_of_lines(self.path_to_template)
         for line in template[2:3]:
-            self.template_name = get_string_from_line(line=line, index_initial=0, index_final=5)
-            self.num_nbon_params = int(get_string_from_line(line=line, index_initial=6, index_final=11))
-            self.num_bond_params = int(get_string_from_line(line=line, index_initial=13, index_final=17))
-            self.num_angle_params = int(get_string_from_line(line=line, index_initial=18, index_final=24))
-            self.num_dihedr_params = int(get_string_from_line(line=line, index_initial=25, index_final=31))
-            self.num_nonnull = int(get_string_from_line(line=line, index_initial=32, index_final=39))
+            self.template_name = line.split()[0]
+            self.num_nbon_params = int(line.split()[1])
+            self.num_bond_params = int(line.split()[2])
+            self.num_angle_params = int(line.split()[3])
+            self.num_dihedr_params = int(line.split()[4])
+            self.num_nonnull = int(line.split()[5])
         for line in template[3:]:
             if line.startswith("NBON"):
                 index = template.index(line)
                 break
+            if all(x.isdigit() for x in line.split()): #Avoiding conection matrix
+                continue
             try:
                 atom_id = get_string_from_line(line=line, index_initial=0, index_final=6)
                 parent_id = get_string_from_line(line=line, index_initial=6, index_final=11)
@@ -281,7 +284,7 @@ class TemplateOPLS2005:
                 id_atom2 = int(get_string_from_line(line=line, index_initial=7, index_final=12))
                 id_atom3 = int(get_string_from_line(line=line, index_initial=13, index_final=18))
                 id_atom4 = int(get_string_from_line(line=line, index_initial=19, index_final=24))
-                constant = get_string_from_line(line=line, index_initial=26, index_final=34)
+                constant = get_string_from_line(line=line, index_initial=26, index_final=33)
                 preafactor = get_string_from_line(line=line, index_initial=34, index_final=39)
                 nterm = get_string_from_line(line=line, index_initial=40, index_final=43)
                 # Create bond instance
@@ -491,7 +494,6 @@ class TemplateOPLS2005:
                     break
  
     def erease_atom_from_template(self, pdb_atom_name):
-        print(self.num_nbon_params)
         index_to_del = self.find_index_of_atom_name(pdb_atom_name)
         self.delete_atom(index_to_del)
         self.num_nbon_params -= 1
@@ -506,6 +508,20 @@ class TemplateOPLS2005:
         self.num_dihedr_params -= 1
         iphis = self.find_iphi_from_atom(index_to_del)
         self.delete_iphi(iphis)
+
+    def replace_atom(self, atom_index, new_atom):
+        new_atom.atom_id = atom_index
+        self.list_of_atoms[atom_index] = new_atom
+
+    def replace_bond(self, bond_index, new_bond):
+        self.list_of_bonds[bond_index] = new_bond 
+        
+    def replace_theta(self, theta_index, new_theta):
+        self.list_of_thetas[theta_index] = new_theta
+
+    def replace_phi(self, old_phi, new_phi):
+        index = self.list_of_phis.index(old_phi)
+        self.list_of_phis[index] = new_phi
 
 
 class ReduceProperty:
@@ -803,8 +819,9 @@ def get_string_from_line(line, index_initial, index_final):
 
 
 def find_equal_pdb_atom_names(template1, template2):
-    pdb_atom_names_tmpl_1 = [template1.list_of_atoms[n].pdb_atom_name for n in range(1, len(template1.list_of_atoms)+1)]
-    pdb_atom_names_tmpl_2 = [template2.list_of_atoms[n].pdb_atom_name for n in range(1, len(template2.list_of_atoms)+1)]
+    # Change the method, for instead of numbers by len)
+    pdb_atom_names_tmpl_1 = [template1.list_of_atoms[n].pdb_atom_name for n, atom in template1.list_of_atoms.items()]
+    pdb_atom_names_tmpl_2 = [template2.list_of_atoms[n].pdb_atom_name for n, atom in template2.list_of_atoms.items()]
     return list(set(pdb_atom_names_tmpl_1).intersection(pdb_atom_names_tmpl_2))
 
 
@@ -912,9 +929,16 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     """
     lambda_to_reduce = float(step/(total_steps+1))
     templ_ini = TemplateOPLS2005(template_initial_path)
+    
     for bond in templ_ini.list_of_bonds:
         key, bond_cont = bond
     templ_grw = TemplateOPLS2005(template_grown_path)
+    print("INITIAL")
+    for iphi in templ_grw.list_of_iphis:
+        print(iphi.nterm)
+    print("GROWN")
+    for iphi in templ_grw.list_of_iphis:
+        print(iphi.nterm)
     fragment_atoms, core_atoms_in, core_atoms_grown = detect_atoms(template_initial=templ_ini, 
                                                                    template_grown=templ_grw,
                                                                    hydrogen_to_replace=hydrogen_to_replace)
@@ -924,7 +948,13 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     set_fragment_bonds(list_of_fragment_bonds=fragment_bonds)
     set_linker_bond(templ_grw)
     modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini)
+    print("GROWN MOD CORE")
+    for iphi in templ_ini.list_of_iphis:
+        print(iphi.nterm)
     reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce)
+    print("GROWN REDUCT")
+    for iphi in templ_ini.list_of_iphis:
+        print(iphi.nterm)
     modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
     templ_grw.write_template_to_file(template_new_name=tmpl_out_path)
 

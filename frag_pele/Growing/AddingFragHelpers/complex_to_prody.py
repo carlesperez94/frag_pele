@@ -33,8 +33,6 @@ def pdb_parser_residue(pdb_file, res_chain, res_num):
     residue = pdb.select("chain {} and resnum {}".format(res_chain, res_num))
     if residue is None:
         logger.critical("Wrong selection!")
-    elif residue.ishetero:
-        raise TypeError("The selected chain contains heteroatoms!")
     else:
         return residue
 
