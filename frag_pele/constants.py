@@ -92,4 +92,7 @@ LINES_MESSAGE = "\n•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*
 SELECTED_MESSAGE = "\n============ Files selected ============\nControl file: {}\nPDB file: {}\nResults folder name: {}\nStep: {}\n"
 FINISH_SIM_MESSAGE = "SIMULATION {} COMPLETED!!! "
 
+# LISTS
+AA_LIST = ["ALA", "ARG", "ASP", "CYS", "GLN", "GLY", "GLU", "HID", "HIE", "HIP", "HIS", "ILE", "LEU", "LYS", 
+           "MET", "PHE", "PRO", "TRP", "TYR", "THR", "VAL"]
 ##############################################

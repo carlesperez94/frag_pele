@@ -380,6 +380,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         new_chain, resnum_core = complex_to_prody.read_residue_string(cov_res)
     else:
         resnum_core = None
+        new_chain = None
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
     core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom,
                                                                              fragment_atom, iterations, h_core=h_core,
@@ -408,6 +409,11 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/Protein")
         path_to_templates_generated = os.path.join(working_dir, 
                                                    "DataLocal/Templates/OPLS2005/Protein/templates_generated")
+        if template_resnames[0] not in c.AA_LIST:
+            shutil.move(os.path.join(path_to_templates_generated, template_resnames[0].lower()+"z"),
+                    os.path.join(path_to_templates_generated, template_resnames[0].lower()))
+            correct_template_of_backbone_res.correct_template(os.path.join(path_to_templates_generated, 
+                                                          template_resnames[0].lower()), working_dir)
         template_resnames[1] = "GRW"
         shutil.move(os.path.join(path_to_templates_generated, template_resnames[1].lower()+"z"),
                     os.path.join(path_to_templates_generated, template_resnames[1].lower()))
@@ -497,7 +503,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                        translation_low=translation_low,
                                                                        rotation_high=rotation_high,
                                                                        rotation_low=rotation_low,
-                                                                       radius=radius_box)
+                                                                       radius=radius_box, reschain=new_chain,
+                                                                       resnum=resnum_core)
         else:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
             simulation_file = simulations_linker.control_file_modifier(contrl, pdb=[pdb_initialize], step=i,
@@ -512,7 +519,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                        translation_low=translation_low,
                                                                        rotation_high=rotation_high,
                                                                        rotation_low=rotation_low,
-                                                                       radius=radius_box)
+                                                                       radius=radius_box, reschain=new_chain,
+                                                                       resnum=resnum_core)
 
         logger.info(c.LINES_MESSAGE)
         if i != 0:

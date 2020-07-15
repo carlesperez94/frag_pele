@@ -1,12 +1,14 @@
 import lib_prep.pdb_modifier as pdm
 
+LIST_OF_IONS = ["ZN", "MN", "FE", "CO", "NI", "CA", "CD"]
 
 class Corrector(pdm.PDB):
-    def __init__(self, pdb_file, original_reschain, original_resnum, new_resname):
+    def __init__(self, pdb_file, original_reschain, original_resnum, new_resname, ligand_chain=None):
         pdm.PDB.__init__(self, in_pdb=pdb_file)
         self.original_reschain = original_reschain
         self.original_resnum = original_resnum
         self.new_resname = new_resname
+        self.ligand_chain = ligand_chain
         self.old_res_lines = self.get_residue(self.original_reschain,
                                               self.original_resnum)
         self.new_res_lines = self.get_atoms_of_resname(self.new_resname)
@@ -28,6 +30,32 @@ class Corrector(pdm.PDB):
                 line = "".join(line)
             correction.append(line)
         self.new_res_lines = correction
+    
+    def check_and_rename_old_resname(self):
+        correction = []
+        for line in self.lines:
+            resname = pdm.get_resname_from_line(line)
+            reschain = pdm.get_chain_from_line(line)
+            resnum = pdm.get_resnum_from_line(line)
+            if str(reschain).strip() == str(self.original_reschain).strip() and \
+               str(resnum).strip() == str(self.original_resnum).strip() and \
+               str(resname).strip() == str(self.new_resname).strip():
+                line = pdm.set_resname_to_line(line, "RES")
+            correction.append(line)
+        self.lines = correction
+ 
+    def clear_heteroatoms(self):
+        to_keep = []
+        for line in self.lines:
+            if line.startswith("HETATM"):
+                if pdm.get_chain_from_line(line) != self.ligand_chain:
+                    continue
+                if pdm.get_resname_from_line(line) != "HOH":
+                    continue
+                if pdb.get_resname_from_line not in LIST_OF_IONS:
+                    continue
+                to_keep.append(line)
+        self.lines = to_keep
 
     def correct_chain_and_resnum_new_res_lines(self):
         correction = []

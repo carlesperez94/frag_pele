@@ -705,6 +705,21 @@ def check_and_fix_repeated_lignames(pdb1, pdb2, ligand_chain_1="L", ligand_chain
         lignames_replacer(pdb1, name_1, "LIG")
 
 
+def check_and_fix_resname(pdb_file, reschain, resnum):
+    new_pdb = []
+    with open(pdb_file) as pdb:
+        content = pdb.readlines()
+    for line in content:
+        if line[21:22] == reschain and int(line[22:26]) == int(resnum) and  line[17:20].strip() == "GRW":
+            line = list(line)
+            line[17:20] = "RES"
+            line = "".join(line)
+        new_pdb.append(line)
+    pdb_modified = "".join(new_pdb)
+    with open(pdb_file, "w") as overwrite_pdb:
+        overwrite_pdb.write(pdb_modified)
+        
+
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
          fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb",
          h_core=None, h_frag=None, rename=False, threshold_clash=1.70, output_path=None, only_grow=False, cov_res=None):
@@ -751,6 +766,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     if cov_res:
         core_chain, core_res = complex_to_prody.read_residue_string(cov_res)
         check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain, core_res)
+        check_and_fix_resname(pdb_complex_core, core_chain, core_res)
     else:
         check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain)
     for pdb_file in (pdb_complex_core, pdb_fragment):
