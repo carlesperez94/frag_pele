@@ -39,6 +39,25 @@ def test_sequential():
     mn.main("1w7h_preparation_structure_2w.pdb", "sequential.conf", cpus=4, iterations=1, steps=1, pele_eq_steps=1, contrl="test.conf", test=True)
     assert glob.glob("1w7h_preparation_structure_2w_aminoC1N1/top_result/*BindingEnergy*.pdb") and glob.glob("top_result_aminoC1N1phenylC6C1/top_result/*BindingEnergy*.pdb")
 
+def test_cov_aa():
+    outputs = ["receptor_145_cys_frag_resSGC4"]
+    for output in outputs:
+        if os.path.exists(output):
+            shutil.rmtree(output)
+    mn.main("receptor_145_cys.pdb", "serie_res.conf", cpus=4, iterations=1, steps=1, pele_eq_steps=1, test=True, cov_res="A:145",
+            criteria="LocalNonBondingEnergy")
+    assert glob.glob("receptor_145_cys_frag_resSGC4/top_result/*Local*.pdb")
+
+def test_cov_mod():
+    outputs = ["cov_scaffold_10C5C1"]
+    for output in outputs:
+        if os.path.exists(output):
+            shutil.rmtree(output)
+    mn.main("cov_scaffold.pdb", "serie_res_2.conf", cpus=4, iterations=1, steps=1, pele_eq_steps=1, test=True, cov_res="A:145",
+            criteria="LocalNonBondingEnergy")
+    assert glob.glob("cov_scaffold_10C5C1/top_result/*Local*.pdb")
+    
+
 def test_flags():
     output = "1w7h_preparation_structure_2w2_phenyl2C6C1"
     if os.path.exists(output):

@@ -391,7 +391,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                              only_grow=only_grow, cov_res=cov_res)
     # Create the templates for the initial and final structures
     template_resnames = []
-    for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
+    for pdb_to_template, ch, rn in zip([pdb_to_initial_template, pdb_to_final_template], [c_chain, f_chain], [resnum_core, None]):
         if not only_grow and not restart:
             template_resname = plop_rot_temp.create_template(pdb_file=os.path.join(working_dir, 
                                                   add_fragment_from_pdbs.c.PRE_WORKING_DIR, 
@@ -399,22 +399,29 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                   sch_python=sch_python, plop_script_path=plop_relative_path, 
                                                   rotamers=rotamers, out_templates_path=path_to_templates_generated, 
                                                   path_to_lib=path_to_lib, cov_res=cov_res, work_dir=working_dir)
+        if restart:
+            template_resname = add_fragment_from_pdbs.extract_atoms_pdbs(pdb=os.path.join(working_dir, add_fragment_from_pdbs.
+                                                                         c.PRE_WORKING_DIR, pdb_to_template),
+                                                                         create_file=False,
+                                                                         chain=ch, resnum=rn, get_atoms=False)
         template_resnames.append(template_resname)
 
     # Set box center from ligand COM
     resname_core = template_resnames[0]
+    template_resnames[1] = "GRW"
     center = center_of_mass.center_of_mass(os.path.join(working_dir, c.PRE_WORKING_DIR, "{}.pdb".format(resname_core.upper())))
-
+    
     if cov_res:
         path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/Protein")
         path_to_templates_generated = os.path.join(working_dir, 
                                                    "DataLocal/Templates/OPLS2005/Protein/templates_generated")
-        if template_resnames[0] not in c.AA_LIST:
+        if contrl == c.CONTROL_TEMPLATE:
+            contrl = os.path.join(PackagePath, "Templates/control_covalent.conf")
+        if template_resnames[0].upper() not in c.AA_LIST:
             shutil.move(os.path.join(path_to_templates_generated, template_resnames[0].lower()+"z"),
                     os.path.join(path_to_templates_generated, template_resnames[0].lower()))
             correct_template_of_backbone_res.correct_template(os.path.join(path_to_templates_generated, 
                                                           template_resnames[0].lower()), working_dir)
-        template_resnames[1] = "GRW"
         shutil.move(os.path.join(path_to_templates_generated, template_resnames[1].lower()+"z"),
                     os.path.join(path_to_templates_generated, template_resnames[1].lower()))
         correct_pdb_to_covalent_res.correct_pdb(pdb_initialize, new_chain, resnum_core, template_resnames[1])
@@ -426,7 +433,6 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         template_initial, template_final = [resname.lower() for resname in template_resnames]
     else:
         template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
-
     if only_prepare:
         print("Files of {} prepared".format(ID))
         return
@@ -581,7 +587,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                    translation_high=translation_high,
                                                                    translation_low=translation_low,
                                                                    rotation_high=rotation_high, rotation_low=rotation_low,
-                                                                   radius=radius_box)
+                                                                   radius=radius_box, reschain=new_chain,
+                                                                   resnum=resnum_core)
     elif explorative and not sampling_control:
         simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, license=license,
                                                                    working_dir=working_dir, step=iterations,
@@ -595,7 +602,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                    translation_low=0.3,
                                                                    rotation_high=0.4,
                                                                    rotation_low=0.15,
-                                                                   radius=25)
+                                                                   radius=25, reschain=new_chain,
+                                                                   resnum=resnum_core)
     else:
         simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, step=iterations,
                                                                    license=license, overlap=max_overlap,
@@ -607,7 +615,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                    translation_high=translation_high,
                                                                    translation_low=translation_low,
                                                                    rotation_high=rotation_high, rotation_low=rotation_low,
-                                                                   radius=radius_box)
+                                                                   radius=radius_box, reschain=new_chain,
+                                                                   resnum=resnum_core)
 
     # EQUILIBRATION SIMULATION
     # Change directory to the working one

@@ -40,7 +40,7 @@ def extract_atoms_pdbs(pdb, create_file=True, chain="L", resnum=None, get_atoms=
     else:
         selection = complex_to_prody.pdb_parser_residue(pdb, chain, resnum)
     if selection is None:
-        logger.critical("The selection can not be found. Selection for {}: chain {} and resnum {}".format(pdb, chain, resnum))
+        raise TypeError("The selection can not be found. Selection for {}: chain {} and resnum {}".format(pdb, chain, resnum))
     # Check if the ligand has H
     complex_to_prody.check_protonation(selection)
     # Save the ligand in a PDB (the name of the file is the name of the residue)
@@ -769,20 +769,20 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
         check_and_fix_resname(pdb_complex_core, core_chain, core_res)
     else:
         check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain)
+        core_res = None
     for pdb_file in (pdb_complex_core, pdb_fragment):
         logging.info("Checking {} ...".format(pdb_file))
         checker.check_and_fix_pdbatomnames(pdb_file)
     # Get the selected chain from the core and the fragment and convert them into ProDy molecules.
     if cov_res:
         core = complex_to_prody.pdb_parser_residue(pdb_complex_core, core_chain, core_res)
-        core_residue_name = extract_atoms_pdbs(pdb_complex_core, True, core_chain, resnum=core_res, output_folder=WORK_PATH)
     else:
         core = complex_to_prody.pdb_parser_ligand(pdb_complex_core, core_chain)
         # We will check that the structures are protonated. We will also create a new PDB file for each one and we will get
         # the residue name of each ligand.
-        core_residue_name = extract_atoms_pdbs(pdb_complex_core, True, core_chain, output_folder=WORK_PATH)
+    core_residue_name = extract_atoms_pdbs(pdb_complex_core, True, core_chain, resnum=core_res, output_folder=WORK_PATH)
     fragment = complex_to_prody.pdb_parser_ligand(pdb_fragment, fragment_chain)
-    frag_residue_name = extract_atoms_pdbs(pdb_fragment, True, fragment_chain, output_folder=WORK_PATH)
+    frag_residue_name = extract_atoms_pdbs(pdb_fragment, True, fragment_chain, resnum=None, output_folder=WORK_PATH)
     # We will use the PDBs previously generated to get a list of Bio.PDB.Atoms for each structure
     bioatoms_core_and_frag = from_pdb_to_bioatomlist([os.path.join(WORK_PATH, core_residue_name),
                                                      os.path.join(WORK_PATH, frag_residue_name)])
@@ -793,12 +793,8 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     heavy_atoms = extract_heavy_atoms(pdb_atom_names, bioatoms_core_and_frag)
     # Once we have the heavy atoms, for each structure we will obtain the hydrogens bonded to each heavy atom.
     # We will need pdbs because we will use the information of the protein to select the hydrogens properly.
-    if cov_res:
-        hydrogen_atoms = extract_hydrogens(pdb_atom_names, bioatoms_core_and_frag, [pdb_complex_core, pdb_fragment], h_core,
-                                           h_frag, core_chain, fragment_chain, core_res, None)
-    else:
-        hydrogen_atoms = extract_hydrogens(pdb_atom_names, bioatoms_core_and_frag, [pdb_complex_core, pdb_fragment], h_core,
-                                           h_frag, core_chain, fragment_chain)
+    hydrogen_atoms = extract_hydrogens(pdb_atom_names, bioatoms_core_and_frag, [pdb_complex_core, pdb_fragment], h_core,
+                                       h_frag, core_chain, fragment_chain, core_res, None)
     # Create a list with the atoms that form a bond in core and fragment.
     core_bond = [heavy_atoms[0], hydrogen_atoms[0]]
     fragment_bond = [hydrogen_atoms[1], heavy_atoms[1]]  # This has to be in inverted order to do correctly the superimposition

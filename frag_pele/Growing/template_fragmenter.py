@@ -933,12 +933,6 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     for bond in templ_ini.list_of_bonds:
         key, bond_cont = bond
     templ_grw = TemplateOPLS2005(template_grown_path)
-    print("INITIAL")
-    for iphi in templ_grw.list_of_iphis:
-        print(iphi.nterm)
-    print("GROWN")
-    for iphi in templ_grw.list_of_iphis:
-        print(iphi.nterm)
     fragment_atoms, core_atoms_in, core_atoms_grown = detect_atoms(template_initial=templ_ini, 
                                                                    template_grown=templ_grw,
                                                                    hydrogen_to_replace=hydrogen_to_replace)
@@ -948,13 +942,7 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     set_fragment_bonds(list_of_fragment_bonds=fragment_bonds)
     set_linker_bond(templ_grw)
     modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini)
-    print("GROWN MOD CORE")
-    for iphi in templ_ini.list_of_iphis:
-        print(iphi.nterm)
     reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce)
-    print("GROWN REDUCT")
-    for iphi in templ_ini.list_of_iphis:
-        print(iphi.nterm)
     modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
     templ_grw.write_template_to_file(template_new_name=tmpl_out_path)
 
