@@ -77,7 +77,7 @@ def control_file_modifier(control_template, pdb, license, working_dir, overlap=0
     return simulation_file
 
 
-def simulation_runner(path_to_pele, control_in, cpus=4):
+def simulation_runner(path_to_pele, control_in, cpus=4, srun=True):
     """
     Runs a PELE simulation with the parameters described in the input control file.
 
@@ -90,13 +90,18 @@ def simulation_runner(path_to_pele, control_in, cpus=4):
     if cpus:
         cpus = int(cpus)
         if cpus < 2:
-            logger.critical("Sorry, to run mpi PELE you need at least 2 CPUs!")
+            logger.critical("Sorry, to run PELE with paralel processors you need at least 2 cores!")
         else:
-            logger.info("Starting PELE simulation. You will run mpi PELE with {} cores.".format(cpus))
-            cmd = "srun -n {} {} {}".format(cpus, path_to_pele, control_in)
-            print(cmd)
-            logger.info("Running {}".format(cmd))
-            subprocess.call(cmd.split())
+            if srun:
+                logger.info("Starting PELE simulation. You will run srun with {} cores.".format(cpus))
+                cmd = "srun -n {} {} {}".format(cpus, path_to_pele, control_in)
+                logger.info("Running {}".format(cmd))
+                subprocess.call(cmd.split())
+            else:
+                logger.info("Starting PELE simulation. You will run mpirun with {} cores.".format(cpus))
+                cmd = "mpirun -n {} {} {}".format(cpus, path_to_pele, control_in)
+                logger.info("Running {}".format(cmd))
+                subprocess.call(cmd.split())
     else:
         logger.info("Starting PELE simulation. You will run serial PELE.")
         cmd = "{} {}".format(path_to_pele, control_in)
