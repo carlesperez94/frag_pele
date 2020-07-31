@@ -44,6 +44,7 @@ This are the options directly related to Frag itself.
 - **-cc**, **---c_chain**: Chain name of the core. By default: 'L'.
 - **-fc**, **---f_chain**: Chain name of the fragment. By default: 'L'.
 - **-tc**, **---clash_thr**: Threshold distance to detect intramolecular clashes between the fragment and the core.
+- **-cov**, **---cov_res**: Set to do growing onto protein residues. Example of selection: 'A:145' (chain A and resnum 145).
 
 
 PlopRotTemp configuration
@@ -111,9 +112,8 @@ Output configuration
 ``````````````````````
 - **--mae**: Output mae files with binding energy trajectory as property inside the file.
 - **---rename**: To avoid core renaming.
-
-
-
+- **---tes***: Run tests configuration.
+- **-nc**, **--no_check**: Don't perform the environment variables check. 
 
 
 
