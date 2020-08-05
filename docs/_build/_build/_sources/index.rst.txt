@@ -18,11 +18,13 @@ FrAG is build on top of Protein Energy Landscape Exploration (PELE) Software.
 
 Requirements (you can use other versions of all modules, but they have not been tested with the newest version):
 
-- Python >= 3.7.6
+- Python >= 3.5.6
 
 - AdaptivePELE >= 1.6.1
 
 - Schrödinger's Python = 2.7.13
+
+- Schrödinger Preparation Wizard 
 
 - Biopython = 1.70
 
