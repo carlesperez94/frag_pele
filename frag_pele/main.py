@@ -11,10 +11,12 @@ import shutil
 import subprocess
 import traceback
 # Local imports
+from frag_pele.Growing.AddingFragHelpers import complex_to_prody
 from frag_pele.Helpers import clusterizer, checker, folder_handler, runner, constraints, check_constants
-from frag_pele.Helpers import helpers, correct_fragment_names, center_of_mass
+from frag_pele.Helpers import helpers, correct_fragment_names, center_of_mass, plop_rot_temp
 from frag_pele.Growing import template_fragmenter, simulations_linker
 from frag_pele.Growing import add_fragment_from_pdbs, bestStructs
+from frag_pele.Covalent import correct_pdb_to_covalent_res, correct_template_of_backbone_res
 from frag_pele.Analysis import analyser
 from frag_pele.Banner import Detector as dt
 from frag_pele import serie_handler
@@ -86,6 +88,8 @@ def parse_arguments():
                                                                             " prepared, it stops before running PELE.")
     parser.add_argument("-og", "--only_grow", action="store_true", help="If set, it runs all growings of folders "
                                                                         "already prepared.")
+    parser.add_argument("-cov", "--cov_res", default=None, help="Set to do growing onto protein residues. Example of selection: "
+                                                                "'A:145' (chain A and resnum 145).")
 
     # Plop related arguments
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
@@ -218,7 +222,7 @@ def parse_arguments():
            args.banned, args.limit, args.mae, args.rename, args.clash_thr, args.steering, \
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
            args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow, \
-           args.no_check, args.debug, args.highthroughput, args.test
+           args.no_check, args.debug, args.highthroughput, args.test, args.cov_res
 
 
 def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -228,7 +232,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                   banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
                   translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
                   radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
-                  no_check=False, debug=False):
+                  no_check=False, debug=False, cov_res=None):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -372,6 +376,11 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     helpers.create_symlinks(data, os.path.join(working_dir, 'Data'))
     helpers.create_symlinks(documents, os.path.join(working_dir, 'Documents'))
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
+    if cov_res:
+        new_chain, resnum_core = complex_to_prody.read_residue_string(cov_res)
+    else:
+        resnum_core = None
+        new_chain = None
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
     core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom,
                                                                              fragment_atom, iterations, h_core=h_core,
@@ -379,32 +388,51 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                              fragment_chain=f_chain, rename=rename,
                                                                              threshold_clash=threshold_clash,
                                                                              output_path=working_dir,
-                                                                             only_grow=only_grow)
-
+                                                                             only_grow=only_grow, cov_res=cov_res)
     # Create the templates for the initial and final structures
     template_resnames = []
-    for pdb_to_template in [pdb_to_initial_template, pdb_to_final_template]:
+    for pdb_to_template, ch, rn in zip([pdb_to_initial_template, pdb_to_final_template], [c_chain, f_chain], [resnum_core, None]):
         if not only_grow and not restart:
-            cmd = "{} {} {} {} {} {}".format(sch_python, plop_relative_path, os.path.join(working_dir,
-                                             add_fragment_from_pdbs.c.PRE_WORKING_DIR, pdb_to_template), rotamers,
-                                             path_to_templates_generated, path_to_lib)
-
-            try:
-                subprocess.call(cmd.split())
-            except OSError:
-                raise OSError("Path {} not foud. Change schrodinger path under frag_pele/constants.py".format(sch_python))
-        template_resname = add_fragment_from_pdbs.extract_heteroatoms_pdbs(os.path.join(working_dir, add_fragment_from_pdbs.
-                                                                           c.PRE_WORKING_DIR, pdb_to_template),
-                                                                           False, c_chain, f_chain)
+            template_resname = plop_rot_temp.create_template(pdb_file=os.path.join(working_dir, 
+                                                  add_fragment_from_pdbs.c.PRE_WORKING_DIR, 
+                                                  pdb_to_template), 
+                                                  sch_python=sch_python, plop_script_path=plop_relative_path, 
+                                                  rotamers=rotamers, out_templates_path=path_to_templates_generated, 
+                                                  path_to_lib=path_to_lib, cov_res=cov_res, work_dir=working_dir)
+        if restart:
+            template_resname = add_fragment_from_pdbs.extract_atoms_pdbs(pdb=os.path.join(working_dir, add_fragment_from_pdbs.
+                                                                         c.PRE_WORKING_DIR, pdb_to_template),
+                                                                         create_file=False,
+                                                                         chain=ch, resnum=rn, get_atoms=False)
         template_resnames.append(template_resname)
 
     # Set box center from ligand COM
     resname_core = template_resnames[0]
-    center = center_of_mass.center_of_mass(os.path.join(working_dir, c.PRE_WORKING_DIR, "{}.pdb".format(resname_core)))
+    template_resnames[1] = "GRW"
+    center = center_of_mass.center_of_mass(os.path.join(working_dir, c.PRE_WORKING_DIR, "{}.pdb".format(resname_core.upper())))
+    
+    if cov_res:
+        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/Protein")
+        path_to_templates_generated = os.path.join(working_dir, 
+                                                   "DataLocal/Templates/OPLS2005/Protein/templates_generated")
+        if contrl == c.CONTROL_TEMPLATE:
+            contrl = os.path.join(PackagePath, "Templates/control_covalent.conf")
+        if template_resnames[0].upper() not in c.AA_LIST:
+            shutil.move(os.path.join(path_to_templates_generated, template_resnames[0].lower()+"z"),
+                    os.path.join(path_to_templates_generated, template_resnames[0].lower()))
+            correct_template_of_backbone_res.correct_template(os.path.join(path_to_templates_generated, 
+                                                          template_resnames[0].lower()), working_dir)
+        shutil.move(os.path.join(path_to_templates_generated, template_resnames[1].lower()+"z"),
+                    os.path.join(path_to_templates_generated, template_resnames[1].lower()))
+        correct_pdb_to_covalent_res.correct_pdb(pdb_initialize, new_chain, resnum_core, template_resnames[1])
+        correct_template_of_backbone_res.correct_template(os.path.join(path_to_templates_generated, 
+                                                          template_resnames[1].lower()), working_dir)
 
     # Get template filenames
-    template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
-
+    if cov_res:
+        template_initial, template_final = [resname.lower() for resname in template_resnames]
+    else:
+        template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
     if only_prepare:
         print("Files of {} prepared".format(ID))
         return
@@ -481,7 +509,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                        translation_low=translation_low,
                                                                        rotation_high=rotation_high,
                                                                        rotation_low=rotation_low,
-                                                                       radius=radius_box)
+                                                                       radius=radius_box, reschain=new_chain,
+                                                                       resnum=resnum_core)
         else:
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
             simulation_file = simulations_linker.control_file_modifier(contrl, pdb=[pdb_initialize], step=i,
@@ -496,7 +525,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                        translation_low=translation_low,
                                                                        rotation_high=rotation_high,
                                                                        rotation_low=rotation_low,
-                                                                       radius=radius_box)
+                                                                       radius=radius_box, reschain=new_chain,
+                                                                       resnum=resnum_core)
 
         logger.info(c.LINES_MESSAGE)
         if i != 0:
@@ -557,7 +587,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                    translation_high=translation_high,
                                                                    translation_low=translation_low,
                                                                    rotation_high=rotation_high, rotation_low=rotation_low,
-                                                                   radius=radius_box)
+                                                                   radius=radius_box, reschain=new_chain,
+                                                                   resnum=resnum_core)
     elif explorative and not sampling_control:
         simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, license=license,
                                                                    working_dir=working_dir, step=iterations,
@@ -571,7 +602,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                    translation_low=0.3,
                                                                    rotation_high=0.4,
                                                                    rotation_low=0.15,
-                                                                   radius=25)
+                                                                   radius=25, reschain=new_chain,
+                                                                   resnum=resnum_core)
     else:
         simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, step=iterations,
                                                                    license=license, overlap=max_overlap,
@@ -583,7 +615,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                    translation_high=translation_high,
                                                                    translation_low=translation_low,
                                                                    rotation_high=rotation_high, rotation_low=rotation_low,
-                                                                   radius=radius_box)
+                                                                   radius=radius_box, reschain=new_chain,
+                                                                   resnum=resnum_core)
 
     # EQUILIBRATION SIMULATION
     # Change directory to the working one
@@ -634,7 +667,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
     c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
     rename=None, threshold_clash=1.7, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, rotation_high=c.ROTATION_HIGH, 
     translation_low=c.TRANSLATION_LOW, rotation_low=c.ROTATION_LOW, explorative=False, radius_box=c.RADIUS_BOX, sampling_control=None, data=c.PATH_TO_PELE_DATA, documents=c.PATH_TO_PELE_DOCUMENTS, 
-    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False):
+    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None):
 
     if protocol == "HT":
         iteration = 1
@@ -718,7 +751,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                                    ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
                                    limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
                                    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                                   only_prepare, only_grow, no_check, debug)
+                                   only_prepare, only_grow, no_check, debug, cov_res)
                     atomname_mappig.append(atomname_map)
  
                 except Exception:
@@ -755,7 +788,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
                      threshold_clash, steering, translation_high, rotation_high,
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                     only_prepare, only_grow, no_check, debug)
+                     only_prepare, only_grow, no_check, debug, cov_res)
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
@@ -769,7 +802,7 @@ if __name__ == '__main__':
     c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
     rename, threshold_clash, steering, translation_high, rotation_high, \
     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
-    only_prepare, only_grow, no_check, debug, protocol, test = parse_arguments()
+    only_prepare, only_grow, no_check, debug, protocol, test, cov_res = parse_arguments()
     
     main(complex_pdb, serie_file, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold,
              report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
@@ -777,5 +810,5 @@ if __name__ == '__main__':
              c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae,
              rename, threshold_clash, steering, translation_high, rotation_high,
              translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-             only_prepare, only_grow, no_check, debug, protocol, test)
+             only_prepare, only_grow, no_check, debug, protocol, test, cov_res)
 

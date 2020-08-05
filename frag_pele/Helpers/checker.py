@@ -62,7 +62,7 @@ def check_if_atom_exists_in_ligand(pdb_file, atom_name, ligand_chain="L"):
     :return: if the atom is found it prints a text and if not raise an exception.
     """
     try:
-        ligand = addfr.extract_heteroatoms_pdbs(pdb_file, create_file=False, ligand_chain=ligand_chain, get_ligand=True)
+        ligand = addfr.extract_atoms_pdbs(pdb_file, create_file=False, chain=ligand_chain, get_atoms=True)
     except OSError:
         raise OSError("Check filepath {} exists".format(pdb_file))
     atom = ligand.select("name {}".format(atom_name))

@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 LIST_OF_IONS = ["ZN", "MN", "FE", "CO", "NI", "CA", "CD"]
 
 
-def extract_heteroatoms_pdbs(pdb, create_file=True, ligand_chain="L", get_ligand=False, output_folder="."):
+def extract_atoms_pdbs(pdb, create_file=True, chain="L", resnum=None, get_atoms=False, output_folder="."):
     """
     From a pdb file, it extracts the chain L and checks if the structure has hydrogens. After that, the chain L is
     written in a new PDB file which will have the following format: "{residue name}.pdb".
@@ -35,20 +35,23 @@ def extract_heteroatoms_pdbs(pdb, create_file=True, ligand_chain="L", get_ligand
     :return: Writes a new pdb file "{residue name}.pdb" with the chain L isolated an returns the residue name (string).
     """
     # Parse the complex file and isolate the ligand core and the fragment
-    ligand = complex_to_prody.pdb_parser_ligand(pdb, ligand_chain)
-    if ligand is None:
-        logger.critical("The ligand can not be found. Ensure that the ligand of {} is the chain {}".format(pdb, ligand_chain))
-    # Check if the ligand has H
-    complex_to_prody.check_protonation(ligand)
-    # Save the ligand in a PDB (the name of the file is the name of the residue)
-    ligand_name = ligand.getResnames()[0]
-    if create_file:
-        prody.writePDB(os.path.join(output_folder, ligand_name), ligand)
-        print("The ligand of {} has been extracted and saved in '{}.pdb'".format(pdb, os.path.join(output_folder, ligand_name)))
-    if get_ligand is True:
-        return ligand
+    if not resnum:
+        selection = complex_to_prody.pdb_parser_ligand(pdb, chain)
     else:
-        return ligand_name
+        selection = complex_to_prody.pdb_parser_residue(pdb, chain, resnum)
+    if selection is None:
+        raise TypeError("The selection can not be found. Selection for {}: chain {} and resnum {}".format(pdb, chain, resnum))
+    # Check if the ligand has H
+    complex_to_prody.check_protonation(selection)
+    # Save the ligand in a PDB (the name of the file is the name of the residue)
+    name = selection.getResnames()[0]
+    if create_file:
+        prody.writePDB(os.path.join(output_folder, name), selection)
+        print("The selection of {} has been extracted and saved in '{}.pdb'".format(pdb, os.path.join(output_folder, name)))
+    if get_atoms is True:
+        return selection
+    else:
+        return name
 
 
 def from_pdb_to_bioatomlist(list_of_pdb_names):
@@ -84,7 +87,8 @@ def extract_heavy_atoms(pdb_atom_names, lists_of_bioatoms):
     return heavy_atoms
 
 
-def extract_hydrogens(pdb_atom_names, lists_of_bioatoms, list_of_pdbs, h_core=None, h_frag=None, c_chain="L", f_chain="L"):
+def extract_hydrogens(pdb_atom_names, lists_of_bioatoms, list_of_pdbs, h_core=None, h_frag=None, c_chain="L", f_chain="L",
+                      c_resnum=None, f_resnum=None):
     """
     Given a heavy atom name (string), a list of Bio.PDB.Atoms objects and a list of pdb files, it returns the hydrogens
     at bonding distance of the heavy atom. If there is more than one, a checking of contacts with the
@@ -100,10 +104,12 @@ def extract_hydrogens(pdb_atom_names, lists_of_bioatoms, list_of_pdbs, h_core=No
     hydrogens = []
     selected_hydrogens = [h_core, h_frag]
     chains = [c_chain, f_chain]
-    for atom_name, pdb, list_of_bioatoms, sel_h, chain in zip(pdb_atom_names, list_of_pdbs, lists_of_bioatoms, selected_hydrogens, chains):
+    resnums = [c_resnum, f_resnum]
+    for atom_name, pdb, list_of_bioatoms, sel_h, chain, resnum in zip(pdb_atom_names, list_of_pdbs, lists_of_bioatoms, selected_hydrogens, chains,
+                                                              resnums):
         complex = prody.parsePDB(pdb)
         # Select name of the H atoms bonded to this heavy atom (the place where we will grow)
-        atom_name_hydrogens = pdb_joiner.get_H_bonded_to_grow(atom_name, complex, sel_h, chain=chain)
+        atom_name_hydrogens = pdb_joiner.get_H_bonded_to_grow(atom_name, complex, sel_h, chain=chain, resnum=resnum)
         # Select this hydrogen atoms
         atom_hydrogen = pdb_joiner.select_atoms_from_list(atom_name_hydrogens, list_of_bioatoms)
         hydrogens.append(atom_hydrogen)
@@ -180,7 +186,8 @@ def join_structures_to_rotate(core_bond, fragment_bond, list_of_atoms, core_stru
 
 
 def join_structures(core_bond, fragment_bond, core_structure, fragment_structure, pdb_complex,
-                    pdb_fragment, chain_complex, chain_fragment, output_path, only_grow=False):
+                    pdb_fragment, chain_complex, chain_fragment, output_path, only_grow=False,
+                    core_resnum=None):
     """
     It joins two ProDy structures into a single one, merging both bonds (core bond and fragment bond) creating a unique
     bond between the molecules. In order to do that this function performs a cross superimposition (in BioPython) of
@@ -208,10 +215,14 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
     if only_grow:
         return 0, name_to_replace_core, name_to_replace_fragment
     if RDKIT:
-        atoms_to_delete_core = tree_detector.main(pdb_complex, (core_bond[0].name, name_to_replace_core),
-                                                  chain_ligand=chain_complex)
+        if core_resnum:
+            atoms_to_delete_core = tree_detector.main(pdb_complex, (core_bond[0].name, name_to_replace_core),
+                                                      chain=chain_complex, resnum=core_resnum)
+        else:
+            atoms_to_delete_core = tree_detector.main(pdb_complex, (core_bond[0].name, name_to_replace_core),
+                                                      chain=chain_complex)
         atoms_to_delete_fragment = tree_detector.main(pdb_fragment, (fragment_bond[1].name, name_to_replace_fragment),
-                                                      chain_ligand=chain_fragment)
+                                                      chain=chain_fragment)
     else:
         print("WARNING: YOU CAN NOT REPLACE HEAVY ATOMS FOR HYDROGENS WITHOUT RDKIT!")
     fragment_rdkit = rdkit.Chem.MolFromPDBFile(pdb_fragment, removeHs=False)
@@ -679,7 +690,7 @@ def lignames_replacer(pdb_file, original_ligname, new_ligname):
         overwrite_pdb.write(pdb_modified)
 
 
-def check_and_fix_repeated_lignames(pdb1, pdb2, ligand_chain_1="L", ligand_chain_2="L"):
+def check_and_fix_repeated_lignames(pdb1, pdb2, ligand_chain_1="L", ligand_chain_2="L", resnum_1=None, resnum_2=None):
     """
     It checks if two pdbs have the same ligand name or if the pdb file 1 has as ligand name "GRW" and it is replaced
     by "LIG".
@@ -687,16 +698,31 @@ def check_and_fix_repeated_lignames(pdb1, pdb2, ligand_chain_1="L", ligand_chain
     :param pdb2: pdb file 2
     :return:
     """
-    ligname_1 = extract_heteroatoms_pdbs(pdb1, create_file=False, ligand_chain=ligand_chain_1)
-    ligname_2 = extract_heteroatoms_pdbs(pdb2, create_file=False, ligand_chain=ligand_chain_2)
-    if ligname_1 == ligname_2 or ligname_1 == "GRW":
-        logging.warning("REPEATED NAMES IN LIGANDS FOR THE FILES: '{}' and '{}'. {} replaced by LIG ".format(pdb1, pdb2, ligname_1))
-        lignames_replacer(pdb1, ligname_1, "LIG")
+    name_1 = extract_atoms_pdbs(pdb1, create_file=False, chain=ligand_chain_1, resnum=resnum_1)
+    name_2 = extract_atoms_pdbs(pdb2, create_file=False, chain=ligand_chain_2, resnum=resnum_2)
+    if name_1 == name_2 or name_1 == "GRW":
+        logging.warning("REPEATED NAMES IN LIGANDS FOR THE FILES: '{}' and '{}'. {} replaced by LIG ".format(pdb1, pdb2, name_1))
+        lignames_replacer(pdb1, name_1, "LIG")
 
+
+def check_and_fix_resname(pdb_file, reschain, resnum):
+    new_pdb = []
+    with open(pdb_file) as pdb:
+        content = pdb.readlines()
+    for line in content:
+        if line[21:22] == reschain and int(line[22:26]) == int(resnum) and  line[17:20].strip() == "GRW":
+            line = list(line)
+            line[17:20] = "RES"
+            line = "".join(line)
+        new_pdb.append(line)
+    pdb_modified = "".join(new_pdb)
+    with open(pdb_file, "w") as overwrite_pdb:
+        overwrite_pdb.write(pdb_modified)
+        
 
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
          fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb",
-         h_core=None, h_frag=None, rename=False, threshold_clash=1.70, output_path=None, only_grow=False):
+         h_core=None, h_frag=None, rename=False, threshold_clash=1.70, output_path=None, only_grow=False, cov_res=None):
     """
     From a core (protein + ligand core = core_chain) and fragment (fragment_chain) pdb files, given the heavy atoms
     names that we want to connect, this function add the fragment to the core structure. We will get three PDB files:
@@ -737,17 +763,26 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     if not os.path.exists(WORK_PATH):
         os.mkdir(WORK_PATH)
     # Check that ligand names are not repeated
-    check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain)
+    if cov_res:
+        core_chain, core_res = complex_to_prody.read_residue_string(cov_res)
+        check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain, core_res)
+        check_and_fix_resname(pdb_complex_core, core_chain, core_res)
+    else:
+        check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain)
+        core_res = None
     for pdb_file in (pdb_complex_core, pdb_fragment):
         logging.info("Checking {} ...".format(pdb_file))
         checker.check_and_fix_pdbatomnames(pdb_file)
     # Get the selected chain from the core and the fragment and convert them into ProDy molecules.
-    ligand_core = complex_to_prody.pdb_parser_ligand(pdb_complex_core, core_chain)
+    if cov_res:
+        core = complex_to_prody.pdb_parser_residue(pdb_complex_core, core_chain, core_res)
+    else:
+        core = complex_to_prody.pdb_parser_ligand(pdb_complex_core, core_chain)
+        # We will check that the structures are protonated. We will also create a new PDB file for each one and we will get
+        # the residue name of each ligand.
+    core_residue_name = extract_atoms_pdbs(pdb_complex_core, True, core_chain, resnum=core_res, output_folder=WORK_PATH)
     fragment = complex_to_prody.pdb_parser_ligand(pdb_fragment, fragment_chain)
-    # We will check that the structures are protonated. We will also create a new PDB file for each one and we will get
-    # the residue name of each ligand.
-    core_residue_name = extract_heteroatoms_pdbs(pdb_complex_core, True, core_chain, output_folder=WORK_PATH)
-    frag_residue_name = extract_heteroatoms_pdbs(pdb_fragment, True, fragment_chain, output_folder=WORK_PATH)
+    frag_residue_name = extract_atoms_pdbs(pdb_fragment, True, fragment_chain, resnum=None, output_folder=WORK_PATH)
     # We will use the PDBs previously generated to get a list of Bio.PDB.Atoms for each structure
     bioatoms_core_and_frag = from_pdb_to_bioatomlist([os.path.join(WORK_PATH, core_residue_name),
                                                      os.path.join(WORK_PATH, frag_residue_name)])
@@ -759,7 +794,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     # Once we have the heavy atoms, for each structure we will obtain the hydrogens bonded to each heavy atom.
     # We will need pdbs because we will use the information of the protein to select the hydrogens properly.
     hydrogen_atoms = extract_hydrogens(pdb_atom_names, bioatoms_core_and_frag, [pdb_complex_core, pdb_fragment], h_core,
-                                       h_frag, core_chain, fragment_chain)
+                                       h_frag, core_chain, fragment_chain, core_res, None)
     # Create a list with the atoms that form a bond in core and fragment.
     core_bond = [heavy_atoms[0], hydrogen_atoms[0]]
     fragment_bond = [hydrogen_atoms[1], heavy_atoms[1]]  # This has to be in inverted order to do correctly the superimposition
@@ -768,10 +803,11 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     # Using the previous information we will superimpose the whole fragment on the bond of the core in order to place
     # the fragment in the correct position, deleting the H.
     merged_structure, core_original_atom, fragment_original_atom, new_dist = join_structures(core_bond, fragment_bond,
-                                                                                             ligand_core, fragment,
+                                                                                             core, fragment,
                                                                                              pdb_complex_core, pdb_fragment,
                                                                                              core_chain, fragment_chain,
-                                                                                             output_path=WORK_PATH, only_grow=only_grow)
+                                                                                             output_path=WORK_PATH, only_grow=only_grow,
+                                                                                             core_resnum=core_res)
     prody.writePDB("merged.pdb", merged_structure[0])
     if not only_grow:
         # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
@@ -782,7 +818,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
         #            core_structure, fragment_structure)
         check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0,
                                         theta_interval=math.pi/18, core_bond=core_bond, list_of_atoms=bioatoms_core_and_frag[1],
-                                        fragment_bond=fragment_bond, core_structure=ligand_core, fragment_structure=fragment,
+                                        fragment_bond=fragment_bond, core_structure=core, fragment_structure=fragment,
                                         pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
                                         chain_fragment=fragment_chain, output_path=WORK_PATH, threshold_clash=new_dist+0.01,
                                         only_grow=only_grow)
@@ -790,7 +826,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
         if not check_results:
             check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0,
                                             theta_interval=math.pi/180, core_bond=core_bond, list_of_atoms=bioatoms_core_and_frag[1],
-                                            fragment_bond=fragment_bond, core_structure=ligand_core, fragment_structure=fragment,
+                                            fragment_bond=fragment_bond, core_structure=core, fragment_structure=fragment,
                                             pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
                                             chain_fragment=fragment_chain, output_path=WORK_PATH,
                                             threshold_clash=new_dist+0.01, only_grow=only_grow)
@@ -804,7 +840,6 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
 In order to create space for the fragment \
 manually rotate the hydrogen bond of the core where the fragment will be attached to.   \
 We are currently working to fix this automatically")
-
         # Once we have all the atom names unique, we will rename the resname and the resnum of both, core and fragment, to
         # GRW and 1. Doing this, the molecule composed by two parts will be transformed into a single one.
         changing_names = pdb_joiner.extract_and_change_atomnames(structure_to_template, fragment.getResnames()[0],

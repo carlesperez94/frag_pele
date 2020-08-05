@@ -54,6 +54,7 @@ def get_column_num(path, header_column, report_basename="report"):
 
     data = pd.read_csv(reports[0], sep='    ', engine='python')
     header_list = data.columns.values.tolist()
+    print(header_list, header_column)
     column_number = header_list.index(header_column)
     return column_number
 
