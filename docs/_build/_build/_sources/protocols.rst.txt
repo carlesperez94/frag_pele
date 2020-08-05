@@ -13,8 +13,6 @@ and a final exploration of 20 pele steps
     python frag_pele/main.py -cp core.pdb -sef serie_file.conf -HT
 
 
-
-
 Standard Precision
 ---------------------
 
@@ -25,6 +23,16 @@ and a final exploration of 20 pele steps
 
     python frag_pele/main.py -cp core.pdb -sef serie_file.conf
 
+Covalent growing
+----------------
+To run covalent growing you must specify which residue do you want to use. In this example,
+we will grow a fragment onto the residue 145 of the chain A. To evaluate this kind of simulations
+you also need to specify as criteria the "LocalNonBindingEnergy" metric. It is mandatory to use
+PELE 1.6.2 to get results with this argument.
+
+::
+
+    python frag_pele/main.py -cp core.pdb -sef serie_file.conf -cov A:145 -cr LocalNonBindingEnergy
 
 Explorative
 -----------
@@ -64,3 +72,5 @@ will use the configuration specified in the preparation step.
 ::
 
     python frag_pele/main.py -cp core.pdb -sef serie_file.conf -og
+
+
