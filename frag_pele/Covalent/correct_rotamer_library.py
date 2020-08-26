@@ -45,6 +45,3 @@ def delete_atoms_from_rot_lib(input_file, list_of_atom_pairs):
         rot.delete_rotamer(pair[0], pair[1])
     rot.overwrite_file()
 
-
-list_at = [("_CA_", "__C_"), ("__N_", "_CA_")]
-delete_atoms_from_rot_lib("GRW.rot.assign", list_at)
