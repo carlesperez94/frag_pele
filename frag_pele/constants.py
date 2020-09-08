@@ -16,8 +16,8 @@ print(machine)
 if "bsc.mn" in machine:
     # PELE parameters
     PATH_TO_PELE = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.1/bin/PELE-1.6.1_mpi"
-    PATH_TO_PELE_DATA = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.1/Data"
-    PATH_TO_PELE_DOCUMENTS = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.1/Documents"
+    PATH_TO_PELE_DATA = None
+    PATH_TO_PELE_DOCUMENTS = None # Data and documents is added automatically from PELE >= 1.6
     PATH_TO_LICENSE = "/gpfs/projects/bsc72/PELE++/license"
     # PlopRotTemp parameters
     SCHRODINGER_PY_PATH = "/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC/utilities/python"
@@ -32,11 +32,11 @@ elif "bsccv" in machine:
     ENV_PYTHON = "/data2/bsc72/SCHRODINGER_ACADEMIC/internal/lib/python2.7/site-packages/"
 else:
     # PELE parameters
-    PATH_TO_PELE = "/home/carlespl/repos/PELE-repo/build/PELE-1.5_mpi"
-    PATH_TO_PELE_DATA = "/home/carlespl/repos/PELE-repo/Data"
-    PATH_TO_PELE_DOCUMENTS = "/home/carlespl/repos/PELE-repo/Documents"
-    PATH_TO_LICENSE = "/home/carlespl/repos/PELE-repo/licenses"
-    SCHRODINGER_PY_PATH = "/home/carlespl/schrodinger2019-2/run"
+    PATH_TO_PELE = "/home/user/pelepath/PELE_mpi"
+    PATH_TO_PELE_DATA = None
+    PATH_TO_PELE_DOCUMENTS = None
+    PATH_TO_LICENSE = "/home/user/pelepath/licenses"
+    SCHRODINGER_PY_PATH = "/home/user/schrodingerVVVV-VV/run"
     ENV_PYTHON = ""
 
 # FragPELE configuration

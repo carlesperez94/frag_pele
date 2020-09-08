@@ -373,8 +373,10 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     # Creating constraints
     const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10))
     # Creating symbolic links
-    helpers.create_symlinks(data, os.path.join(working_dir, 'Data'))
-    helpers.create_symlinks(documents, os.path.join(working_dir, 'Documents'))
+    if data:
+        helpers.create_symlinks(data, os.path.join(working_dir, 'Data'))
+    if documents:
+        helpers.create_symlinks(documents, os.path.join(working_dir, 'Documents'))
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
     if cov_res:
         new_chain, resnum_core = complex_to_prody.read_residue_string(cov_res)
