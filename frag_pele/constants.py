@@ -15,8 +15,8 @@ print(machine)
 # Paths definitions (IMPORTANT!)
 if "bsc.mn" in machine:
     # PELE parameters
-    PATH_TO_PELE = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.1/bin/PELE-1.6.1_mpi"
-    PATH_TO_PELE_DATA = None
+    PATH_TO_PELE = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.2-SideChainPert/bin/PELE-1.6.2_mpi"
+    PATH_TO_PELE_DATA = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.2-SideChainPert/Data"
     PATH_TO_PELE_DOCUMENTS = None # Data and documents is added automatically from PELE >= 1.6
     PATH_TO_LICENSE = "/gpfs/projects/bsc72/PELE++/license"
     # PlopRotTemp parameters

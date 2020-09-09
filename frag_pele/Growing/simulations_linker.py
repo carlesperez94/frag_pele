@@ -73,7 +73,10 @@ def control_file_modifier(control_template, pdb, license, working_dir, overlap=0
     tp.TemplateBuilder(os.path.join(working_dir, control_template), keywords)
     # Make a copy in the control files folder
     simulation_file = os.path.join(ctrl_fold_name, "{}_{}".format(step, control_template))
-    shutil.copyfile(os.path.join(working_dir, control_template), simulation_file)
+    print(simulation_file)
+    original_control = os.path.join(working_dir, control_template)
+    print(original_control)
+    shutil.copyfile(original_control, simulation_file)
     logger.info("{}_{} has been created successfully!".format(step, control_template))
 
     return simulation_file
