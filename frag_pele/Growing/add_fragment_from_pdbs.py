@@ -209,13 +209,14 @@ def join_structures(core_bond, fragment_bond, core_structure, fragment_structure
         return 0, name_to_replace_core, name_to_replace_fragment
     if RDKIT:
         atoms_to_delete_core = tree_detector.main(pdb_complex, (core_bond[0].name, name_to_replace_core),
-                                                  chain_ligand=chain_complex)
+                                                  chain=chain_complex)
         atoms_to_delete_fragment = tree_detector.main(pdb_fragment, (fragment_bond[1].name, name_to_replace_fragment),
-                                                      chain_ligand=chain_fragment)
+                                                      chain=chain_fragment)
     else:
         print("WARNING: YOU CAN NOT REPLACE HEAVY ATOMS FOR HYDROGENS WITHOUT RDKIT!")
     fragment_rdkit = rdkit.Chem.MolFromPDBFile(pdb_fragment, removeHs=False)
     bond_type = detect_bond_type(fragment_rdkit, fragment_bond[0], fragment_bond[1])
+    print(bond_type)
     if RDKIT:
         if core_bond[1].element != "H":
             atom_replaced_idx = replace_heavy_by_hydrogen(core_bond[1], core_structure)
