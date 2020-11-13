@@ -163,14 +163,14 @@ class TemplateOPLS2005:
 
     def read_template(self):
         template = file_to_list_of_lines(self.path_to_template)
-        for line in template[2:3]:
+        for line in template[0:1]:
             self.template_name = line.split()[0]
             self.num_nbon_params = int(line.split()[1])
             self.num_bond_params = int(line.split()[2])
             self.num_angle_params = int(line.split()[3])
             self.num_dihedr_params = int(line.split()[4])
             self.num_nonnull = int(line.split()[5])
-        for line in template[3:]:
+        for line in template[1:]:
             if line.startswith("NBON"):
                 index = template.index(line)
                 break
@@ -204,8 +204,8 @@ class TemplateOPLS2005:
                 index = template.index(line)
                 break
             try:
-                id = int(get_string_from_line(line=line, index_initial=0, index_final=6))
-                self.list_of_atoms[id].sigma = float(get_string_from_line(line=line, index_initial=7, index_final=14))
+                id = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                self.list_of_atoms[id].sigma = float(get_string_from_line(line=line, index_initial=8, index_final=14))
                 self.list_of_atoms[id].epsilon = float(get_string_from_line(line=line, index_initial=15, index_final=23))
                 self.list_of_atoms[id].charge = float(get_string_from_line(line=line, index_initial=24, index_final=34))
                 self.list_of_atoms[id].radnpSGB = float(get_string_from_line(line=line, index_initial=35, index_final=43))
@@ -222,8 +222,8 @@ class TemplateOPLS2005:
                 index = template.index(line)
                 break
             try:
-                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=6))
-                id_atom2 = int(get_string_from_line(line=line, index_initial=6, index_final=12))
+                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=12))
                 spring = get_string_from_line(line=line, index_initial=13, index_final=21)
                 eq_dist = get_string_from_line(line=line, index_initial=23, index_final=29)
                 # Create bond instance
@@ -240,8 +240,8 @@ class TemplateOPLS2005:
                 index = template.index(line)
                 break
             try:
-                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=6))
-                id_atom2 = int(get_string_from_line(line=line, index_initial=6, index_final=12))
+                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=12))
                 id_atom3 = int(get_string_from_line(line=line, index_initial=13, index_final=18))
                 spring = get_string_from_line(line=line, index_initial=19, index_final=29)
                 eq_angle = get_string_from_line(line=line, index_initial=31, index_final=40)
@@ -259,8 +259,8 @@ class TemplateOPLS2005:
                 index = template.index(line)
                 break
             try:
-                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=5))
-                id_atom2 = int(get_string_from_line(line=line, index_initial=6, index_final=11))
+                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=11))
                 id_atom3 = int(get_string_from_line(line=line, index_initial=12, index_final=17))
                 id_atom4 = int(get_string_from_line(line=line, index_initial=18, index_final=23))
                 constant = get_string_from_line(line=line, index_initial=25, index_final=32)
@@ -280,8 +280,8 @@ class TemplateOPLS2005:
             if line.startswith("END"):
                 break
             try:
-                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=6))
-                id_atom2 = int(get_string_from_line(line=line, index_initial=7, index_final=12))
+                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=12))
                 id_atom3 = int(get_string_from_line(line=line, index_initial=13, index_final=18))
                 id_atom4 = int(get_string_from_line(line=line, index_initial=19, index_final=24))
                 constant = get_string_from_line(line=line, index_initial=26, index_final=33)
@@ -808,8 +808,13 @@ class ReduceExponentially(ReduceProperty):
 
 
 def file_to_list_of_lines(file_path):
+    content = []
     with open(file_path, "r") as template:
-        content = template.readlines()
+        for line in template:
+            if line.startswith('*'):
+                continue
+            else:
+                content.append(line)
     return content
 
 

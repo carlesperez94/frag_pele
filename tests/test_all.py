@@ -53,7 +53,7 @@ def test_cov_mod():
     for output in outputs:
         if os.path.exists(output):
             shutil.rmtree(output)
-    mn.main("cov_scaffold.pdb", "serie_res_2.conf", cpus=4, iterations=1, steps=1, pele_eq_steps=1, test=True, cov_res="A:145",
+    mn.main("cov_scaffold.pdb", "serie_res_2.conf", cpus=4, iterations=1, steps=2, pele_eq_steps=1, test=True, cov_res="A:145",
             criteria="LocalNonBondingEnergy")
     assert glob.glob("cov_scaffold_10C5C1/top_result/*Local*.pdb")
     

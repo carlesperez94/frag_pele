@@ -423,17 +423,18 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
             shutil.move(os.path.join(path_to_templates_generated, template_resnames[0].lower()+"z"),
                     os.path.join(path_to_templates_generated, template_resnames[0].lower()))
             correct_template_of_backbone_res.correct_template(os.path.join(path_to_templates_generated, 
-                                                          template_resnames[0].lower()), working_dir)
+                                                                           template_resnames[0].lower()),
+                                                              os.path.join(data, "Templates/OPLS2005/Protein/leu"))
         # Correcting templates
         shutil.move(os.path.join(path_to_templates_generated, template_resnames[1].lower()+"z"),
                     os.path.join(path_to_templates_generated, template_resnames[1].lower()))
         correct_pdb_to_covalent_res.correct_pdb(pdb_initialize, new_chain, resnum_core, template_resnames[1])
         correct_template_of_backbone_res.correct_template(os.path.join(path_to_templates_generated, 
-                                                          template_resnames[1].lower()), working_dir)
+                                                                       template_resnames[1].lower()),
+                                                          os.path.join(data, "Templates/OPLS2005/Protein/leu"))
         # Correcting rotamer libraries
         backbone_bonds = [("_CA_", "__C_"), ("__N_", "_CA_")]
         rot_lib_filename = os.path.join(working_dir, "DataLocal/LigandRotamerLibs/{}.rot.assign".format(template_resnames[1]))
-        print(rot_lib_filename)
         correct_rotamer_library.delete_atoms_from_rot_lib(rot_lib_filename, backbone_bonds)
 
     # Get template filenames
