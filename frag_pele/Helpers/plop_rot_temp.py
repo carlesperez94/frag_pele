@@ -48,6 +48,6 @@ def create_template(pdb_file, sch_python=c.SCHRODINGER_PY_PATH,
 
 def prepare_pdb(pdb_in, pdb_out, sch_path):
     command = [os.path.join(sch_path, "utilities/prepwizard"), pdb_in, pdb_out, "-noepik", "-noprotassign",
-              "-noccd", "-noimpref"]
+               "-noimpref", "-noccd", "-NOJOBID"]
+    print(command)
     subprocess.call(command)
-    time.sleep(3)

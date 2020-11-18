@@ -270,7 +270,6 @@ class TemplateOPLS2005:
                 phi = Phi(atom1=id_atom1, atom2=id_atom2, atom3=id_atom3, atom4=id_atom4, constant=constant,
                           prefactor=preafactor, nterm=nterm, improper=False)
                 self.list_of_phis.append(phi)
-                self.list_of_atoms[id_atom1].phis.append(phi)
 
             except ValueError:
                 raise ValueError(
@@ -703,15 +702,15 @@ class ReduceProperty:
         ini = self.template_core
         for phi_g in grw.list_of_phis: # This is a list, not a dict
             # Get PDB atom names of the atoms forming angles
-            atoms_g = [grw.list_of_atoms[phi_g.atom1].pdb_atom_name,
-                       grw.list_of_atoms[phi_g.atom2].pdb_atom_name,
-                       grw.list_of_atoms[phi_g.atom3].pdb_atom_name,
-                       grw.list_of_atoms[phi_g.atom4].pdb_atom_name]
+            atoms_g = [grw.list_of_atoms[abs(phi_g.atom1)].pdb_atom_name,
+                       grw.list_of_atoms[abs(phi_g.atom2)].pdb_atom_name,
+                       grw.list_of_atoms[abs(phi_g.atom3)].pdb_atom_name,
+                       grw.list_of_atoms[abs(phi_g.atom4)].pdb_atom_name]
             for phi_i in ini.list_of_phis:
-                atoms_i = [ini.list_of_atoms[phi_i.atom1].pdb_atom_name,
-                           ini.list_of_atoms[phi_i.atom2].pdb_atom_name,
-                           ini.list_of_atoms[phi_i.atom3].pdb_atom_name,
-                           ini.list_of_atoms[phi_i.atom4].pdb_atom_name]
+                atoms_i = [ini.list_of_atoms[abs(phi_i.atom1)].pdb_atom_name,
+                           ini.list_of_atoms[abs(phi_i.atom2)].pdb_atom_name,
+                           ini.list_of_atoms[abs(phi_i.atom3)].pdb_atom_name,
+                           ini.list_of_atoms[abs(phi_i.atom4)].pdb_atom_name]
                 if sorted(atoms_i) == sorted(atoms_g) and phi_i.nterm == phi_g.nterm:
                     result = function(phi_i.constant, phi_g.constant)
                     phi_g.constant = result

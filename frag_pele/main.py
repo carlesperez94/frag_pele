@@ -13,7 +13,7 @@ import traceback
 # Local imports
 from frag_pele.Growing.AddingFragHelpers import complex_to_prody
 from frag_pele.Helpers import clusterizer, checker, folder_handler, runner, constraints, check_constants
-from frag_pele.Helpers import helpers, correct_fragment_names, center_of_mass, plop_rot_temp
+from frag_pele.Helpers import helpers, correct_fragment_names, center_of_mass, plop_rot_temp, create_templates
 from frag_pele.Growing import template_fragmenter, simulations_linker
 from frag_pele.Growing import add_fragment_from_pdbs, bestStructs
 from frag_pele.Covalent import correct_pdb_to_covalent_res, correct_template_of_backbone_res, correct_rotamer_library
@@ -97,7 +97,7 @@ def parse_arguments():
     parser.add_argument("-sp", "--sch_python", default=c.SCHRODINGER_PY_PATH,
                         help="""Absolute path to Schrodinger's python. 
                         By default = {}""".format(c.SCHRODINGER_PY_PATH))
-    parser.add_argument("-rot", "--rotamers", default=c.ROTRES, type=str,
+    parser.add_argument("-rot", "--rotamers", default=c.ROTRES, type=int,
                         help="""Rotamers threshold used in the rotamers' library. 
                             By default = {}""".format(c.ROTRES))
 
@@ -228,7 +228,7 @@ def parse_arguments():
 def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                   pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
                   epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
-                  h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers="30.0",
+                  h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers=30,
                   banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
                   translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
                   radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
@@ -395,24 +395,28 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     template_resnames = []
     for pdb_to_template, ch, rn in zip([pdb_to_initial_template, pdb_to_final_template], [c_chain, f_chain], [resnum_core, None]):
         if not only_grow and not restart:
-            template_resname = plop_rot_temp.create_template(pdb_file=os.path.join(working_dir, 
-                                                  add_fragment_from_pdbs.c.PRE_WORKING_DIR, 
+            if "growing_result.pdb" in pdb_to_template:
+                template_name = "grw"
+            else:
+                template_name = pdb_to_template.split(".pdb")[0].lower()
+            create_templates.get_datalocal(pdb=os.path.join(working_dir,
+                                                  add_fragment_from_pdbs.c.PRE_WORKING_DIR,
                                                   pdb_to_template), 
-                                                  sch_python=sch_python, plop_script_path=plop_relative_path, 
-                                                  rotamers=rotamers, out_templates_path=path_to_templates_generated, 
-                                                  path_to_lib=path_to_lib, cov_res=cov_res, work_dir=working_dir)
+                                           outdir=working_dir, 
+                                           forcefield='OPLS2005', 
+                                           template_name=template_name, 
+                                           aminoacid=cov_res,
+                                           rot_res=rotamers)
         if restart:
-            template_resname = add_fragment_from_pdbs.extract_atoms_pdbs(pdb=os.path.join(working_dir, add_fragment_from_pdbs.
+            template_name = add_fragment_from_pdbs.extract_atoms_pdbs(pdb=os.path.join(working_dir, add_fragment_from_pdbs.
                                                                          c.PRE_WORKING_DIR, pdb_to_template),
                                                                          create_file=False,
                                                                          chain=ch, resnum=rn, get_atoms=False)
-        template_resnames.append(template_resname)
+        template_resnames.append(template_name.upper())
 
     # Set box center from ligand COM
     resname_core = template_resnames[0]
-    template_resnames[1] = "GRW"
     center = center_of_mass.center_of_mass(os.path.join(working_dir, c.PRE_WORKING_DIR, "{}.pdb".format(resname_core.upper())))
-    
     if cov_res:
         path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/Protein")
         path_to_templates_generated = os.path.join(working_dir, 
@@ -420,22 +424,18 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         if contrl == c.CONTROL_TEMPLATE:
             contrl = os.path.join(PackagePath, "Templates/control_covalent.conf")
         if template_resnames[0].upper() not in c.AA_LIST:
-            shutil.move(os.path.join(path_to_templates_generated, template_resnames[0].lower()+"z"),
-                    os.path.join(path_to_templates_generated, template_resnames[0].lower()))
             correct_template_of_backbone_res.correct_template(os.path.join(path_to_templates_generated, 
                                                                            template_resnames[0].lower()),
                                                               os.path.join(data, "Templates/OPLS2005/Protein/leu"))
         # Correcting templates
-        shutil.move(os.path.join(path_to_templates_generated, template_resnames[1].lower()+"z"),
-                    os.path.join(path_to_templates_generated, template_resnames[1].lower()))
         correct_pdb_to_covalent_res.correct_pdb(pdb_initialize, new_chain, resnum_core, template_resnames[1])
         correct_template_of_backbone_res.correct_template(os.path.join(path_to_templates_generated, 
                                                                        template_resnames[1].lower()),
                                                           os.path.join(data, "Templates/OPLS2005/Protein/leu"))
         # Correcting rotamer libraries
-        backbone_bonds = [("_CA_", "__C_"), ("__N_", "_CA_")]
-        rot_lib_filename = os.path.join(working_dir, "DataLocal/LigandRotamerLibs/{}.rot.assign".format(template_resnames[1]))
-        correct_rotamer_library.delete_atoms_from_rot_lib(rot_lib_filename, backbone_bonds)
+        #backbone_bonds = [("_CA_", "__C_"), ("__N_", "_CA_")]
+        #rot_lib_filename = os.path.join(working_dir, "DataLocal/LigandRotamerLibs/{}.rot.assign".format(template_resnames[1]))
+        #correct_rotamer_library.delete_atoms_from_rot_lib(rot_lib_filename, backbone_bonds)
 
     # Get template filenames
     if cov_res:
