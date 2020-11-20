@@ -90,6 +90,8 @@ def parse_arguments():
                                                                         "already prepared.")
     parser.add_argument("-cov", "--cov_res", default=None, help="Set to do growing onto protein residues. Example of selection: "
                                                                 "'A:145' (chain A and resnum 145).")
+    parser.add_argument("-lnk", "--link_res", default=None, help="Set to link the molecule to a residue through distance constraints."
+                                                                "Translations and rotations will be constrained too (provisional).")
 
     # Plop related arguments
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
@@ -222,7 +224,7 @@ def parse_arguments():
            args.banned, args.limit, args.mae, args.rename, args.clash_thr, args.steering, \
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
            args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow, \
-           args.no_check, args.debug, args.highthroughput, args.test, args.cov_res
+           args.no_check, args.debug, args.highthroughput, args.test, args.cov_res, args.link_res
 
 
 def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -232,7 +234,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                   banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
                   translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
                   radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
-                  no_check=False, debug=False, cov_res=None):
+                  no_check=False, debug=False, cov_res=None, link_res=False):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -432,11 +434,10 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         correct_template_of_backbone_res.correct_template(os.path.join(path_to_templates_generated, 
                                                                        template_resnames[1].lower()),
                                                           os.path.join(data, "Templates/OPLS2005/Protein/leu"))
-        # Correcting rotamer libraries
-        #backbone_bonds = [("_CA_", "__C_"), ("__N_", "_CA_")]
-        #rot_lib_filename = os.path.join(working_dir, "DataLocal/LigandRotamerLibs/{}.rot.assign".format(template_resnames[1]))
-        #correct_rotamer_library.delete_atoms_from_rot_lib(rot_lib_filename, backbone_bonds)
-
+    if link_res:
+        # Delete of the core H to connect
+        pass 
+        # Delete H from the template
     # Get template filenames
     if cov_res:
         template_initial, template_final = [resname.lower() for resname in template_resnames]
@@ -553,7 +554,6 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         # ------SIMULATION PART------
         # Change directory to the working one
         os.chdir(working_dir)
-        print(working_dir)
         if debug:
             return 
         else:
@@ -635,7 +635,6 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     if not (restart and os.path.exists("top_result")):
         logger.info(".....STARTING EQUILIBRATION.....")
         simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
-        print(simulation_file)
     os.chdir(curr_dir)
     equilibration_path = os.path.join(working_dir, "sampling_result")
     # SELECTION OF BEST STRUCTURES
@@ -678,7 +677,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
     c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
     rename=None, threshold_clash=1.7, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, rotation_high=c.ROTATION_HIGH, 
     translation_low=c.TRANSLATION_LOW, rotation_low=c.ROTATION_LOW, explorative=False, radius_box=c.RADIUS_BOX, sampling_control=None, data=c.PATH_TO_PELE_DATA, documents=c.PATH_TO_PELE_DOCUMENTS, 
-    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None):
+    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, link_res=False):
 
     if protocol == "HT":
         iteration = 1
@@ -762,7 +761,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                                    ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
                                    limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
                                    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                                   only_prepare, only_grow, no_check, debug, cov_res)
+                                   only_prepare, only_grow, no_check, debug, cov_res, link_res)
                     atomname_mappig.append(atomname_map)
  
                 except Exception:
@@ -799,7 +798,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
                      threshold_clash, steering, translation_high, rotation_high,
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                     only_prepare, only_grow, no_check, debug, cov_res)
+                     only_prepare, only_grow, no_check, debug, cov_res, link_res)
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
@@ -813,7 +812,7 @@ if __name__ == '__main__':
     c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
     rename, threshold_clash, steering, translation_high, rotation_high, \
     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
-    only_prepare, only_grow, no_check, debug, protocol, test, cov_res = parse_arguments()
+    only_prepare, only_grow, no_check, debug, protocol, test, cov_res, link_res = parse_arguments()
     
     main(complex_pdb, serie_file, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold,
              report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
@@ -821,5 +820,5 @@ if __name__ == '__main__':
              c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae,
              rename, threshold_clash, steering, translation_high, rotation_high,
              translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-             only_prepare, only_grow, no_check, debug, protocol, test, cov_res)
+             only_prepare, only_grow, no_check, debug, protocol, test, cov_res, link_res)
 

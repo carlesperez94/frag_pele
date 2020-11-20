@@ -90,4 +90,6 @@ def correct_pdb(pdb_file, reschain, resnum, new_resname):
     correct = Corrector(pdb_file, reschain, resnum, new_resname)
     correct.overwrite_pdb()
 
-
+def delete_atom(pdb_file, chain, atomname):
+    pdb = pdm.PDB(pdb_file)
+    pdm.get_atom_pdb_name_from_line(line) 
