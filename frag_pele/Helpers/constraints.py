@@ -49,7 +49,7 @@ class ConstraintBuilder(object):
                         continue
         return residues
 
-    def build_constraint(self, residues, BACK_CONSTR=BACK_CONSTR, TER_CONSTR=TER_CONSTR):
+    def build_constraint(self, residues, BACK_CONSTR=BACK_CONSTR, TER_CONSTR=TER_CONSTR, atom1=None, atom2=None, eq_dist=None):
 
         init_constr = ['''"constraints":[''', ]
 
@@ -58,12 +58,17 @@ class ConstraintBuilder(object):
         gaps_constr = self.gaps_constraints()
 
         metal_constr = self.metal_constraints()
+        
+        if atom1 and atom2 and eq_dist:
+            dist_constr = self.distance_constraints(atom1, atom2, eq_dist)
+        else:
+            dist_constr = []
 
         terminal_constr = [CONSTR_CALPHA.format(residues["initial"][0], residues["initial"][1], TER_CONSTR), CONSTR_CALPHA.format(residues["terminal"][0], residues["terminal"][1], TER_CONSTR).strip(",")]
 
         final_constr = ["],"]
 
-        constraints = init_constr + back_constr + gaps_constr + metal_constr + terminal_constr + final_constr
+        constraints = init_constr + back_constr + gaps_constr + metal_constr + dist_constr + terminal_constr + final_constr
 
         return constraints
 
@@ -85,11 +90,21 @@ class ConstraintBuilder(object):
                 metal_constr.append(CONSTR_DIST.format(TER_CONSTR, bond_lenght, chain, resnum, ligname, chain, metnum, metal_name))
         return metal_constr
 
+    def distance_constraints(self, atom1, atom2, eq_dist):
+        dist_constr = []
+        print(atom1, atom2, eq_dist)
+        chain1, resnum1, atomname1 = atom1.split(":")
+        chain2, resnum2, atomname2 = atom2.split(":")
+        dist_constr.append(CONSTR_DIST.format(9999, eq_dist, chain1, resnum1, atomname1, 
+                                              chain2, resnum2, atomname2))
+        return dist_constr
 
-def retrieve_constraints(pdb_file, gaps, metal, back_constr=BACK_CONSTR, ter_constr=TER_CONSTR, interval=10):
+
+def retrieve_constraints(pdb_file, gaps, metal, back_constr=BACK_CONSTR, ter_constr=TER_CONSTR, interval=10,
+                         atom1=None, atom2=None, eq_dist=None):
     constr = ConstraintBuilder(pdb_file, gaps, metal)
     residues = constr.parse_atoms(interval=interval)
-    constraints = constr.build_constraint(residues, back_constr, ter_constr)
+    constraints = constr.build_constraint(residues, back_constr, ter_constr, atom1, atom2, eq_dist)
     return constraints
 
 def parseargs():
