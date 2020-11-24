@@ -162,6 +162,8 @@ def parse_arguments():
     parser.add_argument("-dist", "--dist_const", default=None, nargs="+", 
                         help="Atom pairs links id to constraint and equilibrum distance."
                              " p.Ex: 'L:1:_C3_' 'A:145:_C1_' 2.5")
+    parser.add_argument("-core", "--constraint_core", action="store_true",
+                        help="Set true to force the core to stay at the same position along with the simulation.")
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
@@ -225,7 +227,8 @@ def parse_arguments():
            args.banned, args.limit, args.mae, args.rename, args.clash_thr, args.steering, \
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
            args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow, \
-           args.no_check, args.debug, args.highthroughput, args.test, args.cov_res, args.dist_const
+           args.no_check, args.debug, args.highthroughput, args.test, args.cov_res, args.dist_const, \
+           args.constraint_core
 
 
 def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -235,7 +238,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                   banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
                   translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
                   radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
-                  no_check=False, debug=False, cov_res=None, dist_constraint=None):
+                  no_check=False, debug=False, cov_res=None, dist_constraint=None, constraint_core=None):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -375,10 +378,6 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     folder_handler.check_and_create_DataLocal(working_dir=working_dir)
     # Creating constraints
     const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10))
-    if dist_constraint:
-         atom1_info, atom2_info, equil_dist = dist_constraint
-         const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10, 
-                                                            atom1_info, atom2_info, equil_dist))
     # Creating symbolic links
     if data:
         helpers.create_symlinks(data, os.path.join(working_dir, 'Data'))
@@ -465,12 +464,34 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, cpus-1)]
 
     # Generate starting templates
-    template_fragmenter.main(template_initial_path=os.path.join(path_to_templates_generated, template_initial),
-                             template_grown_path=os.path.join(path_to_templates_generated, template_final),
-                             step=1, total_steps=iterations, hydrogen_to_replace=core_original_atom,
-                             core_atom_linker=core_atom,
-                             tmpl_out_path=os.path.join(path_to_templates_generated, "{}_0".format(template_final)))
-
+    fragment_atomnames, core_atomnames = template_fragmenter.main(template_initial_path=os.path.join(
+                                                                    path_to_templates_generated, template_initial),
+                                                                  template_grown_path=os.path.join(
+                                                                    path_to_templates_generated, template_final),
+                                                                  step=1, total_steps=iterations, 
+                                                                  hydrogen_to_replace=core_original_atom,
+                                                                  core_atom_linker=core_atom,
+                                                                  tmpl_out_path=os.path.join(path_to_templates_generated, 
+                                                                                             "{}_0".format(template_final)))
+    if dist_constraint and contraint_core:
+         atom1_info, atom2_info, equil_dist = dist_constraint
+         const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10,
+                                                            atom1_info, atom2_info, equil_dist,
+                                                            core_atomnames, "L", 1))
+    elif dist_constraint and not constraint_core:
+        atom1_info, atom2_info, equil_dist = dist_constraint
+        const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10,
+                                                            atom1_info, atom2_info, equil_dist))
+    elif not dist_constraint and constraint_core:
+        if not cov_res:
+            chain_to_con = "L"
+            resnum_to_con = 1
+        else:
+            chain_to_con = new_chain
+            resnum_to_con = resnum_core 
+        const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10,
+                                                           atoms_to_constrain=core_atomnames,
+                                                           chain_to_con = chain_to_con, resnum_to_con=resnum_to_con))
     # Make a copy in the main folder of Templates in order to use it as template for the simulation
     shutil.copy(os.path.join(path_to_templates_generated, "{}_0".format(template_final)),
                 os.path.join(path_to_templates, template_final))  # Replace the original template in the folder
@@ -560,7 +581,6 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         # ------SIMULATION PART------
         # Change directory to the working one
         os.chdir(working_dir)
-        print(working_dir)
         if debug:
             return 
         else:
@@ -685,7 +705,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
     c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
     rename=None, threshold_clash=1.7, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, rotation_high=c.ROTATION_HIGH, 
     translation_low=c.TRANSLATION_LOW, rotation_low=c.ROTATION_LOW, explorative=False, radius_box=c.RADIUS_BOX, sampling_control=None, data=c.PATH_TO_PELE_DATA, documents=c.PATH_TO_PELE_DOCUMENTS, 
-    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None):
+    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False):
 
     if protocol == "HT":
         iteration = 1
@@ -769,7 +789,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                                    ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
                                    limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
                                    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                                   only_prepare, only_grow, no_check, debug, cov_res, dist_constraint)
+                                   only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core)
                     atomname_mappig.append(atomname_map)
  
                 except Exception:
@@ -806,7 +826,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
                      threshold_clash, steering, translation_high, rotation_high,
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                     only_prepare, only_grow, no_check, debug, cov_res, dist_constraint)
+                     only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core)
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
@@ -820,7 +840,7 @@ if __name__ == '__main__':
     c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
     rename, threshold_clash, steering, translation_high, rotation_high, \
     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
-    only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint = parse_arguments()
+    only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core = parse_arguments()
     
     main(complex_pdb, serie_file, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold,
              report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
@@ -828,5 +848,5 @@ if __name__ == '__main__':
              c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae,
              rename, threshold_clash, steering, translation_high, rotation_high,
              translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-             only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint)
+             only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core)
 

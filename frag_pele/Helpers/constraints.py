@@ -106,6 +106,7 @@ class ConstraintBuilder(object):
 
     def position_constraints(self, atoms_to_constraint, chain="L", resnum="1"):
         pos_constr = []
+        print(atoms_to_constraint, chain, resnum)
         for atom in atoms_to_constraint:
             pos_constr.append(CONSTR_ATOM.format(9999, chain, resnum, atom))
         return pos_constr
@@ -115,7 +116,8 @@ def retrieve_constraints(pdb_file, gaps, metal, back_constr=BACK_CONSTR, ter_con
                          resnum_to_con=1):
     constr = ConstraintBuilder(pdb_file, gaps, metal)
     residues = constr.parse_atoms(interval=interval)
-    constraints = constr.build_constraint(residues, back_constr, ter_constr, atom1, atom2, eq_dist)
+    constraints = constr.build_constraint(residues, back_constr, ter_constr, atom1, atom2, eq_dist,
+                                          atoms_to_constrain, chain_to_con, resnum_to_con)
     return constraints
 
 def parseargs():

@@ -949,6 +949,7 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce)
     modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
     templ_grw.write_template_to_file(template_new_name=tmpl_out_path)
-
+    return [atom.pdb_atom_name for atom in fragment_atoms], \
+            [atom.pdb_atom_name for atom in core_atoms_grown]
 
 
