@@ -1,5 +1,6 @@
 import os
-from peleffy.topology import Molecule, RotamerLibrary
+from peleffy.topology import Molecule, Topology, RotamerLibrary
+from peleffy.forcefield import OpenForceField, OPLS2005ForceField
 from peleffy.template import Impact
 from peleffy.utils import get_data_file_path
 import frag_pele.Covalent.correct_template_of_backbone_res as cov
@@ -51,12 +52,14 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
         print("Heteroatom template")
         m = Molecule(os.path.join(pdb_dir, out),
                      rotamer_resolution=rot_res) 
-    m.parameterize(forcefield)
-    impact = Impact(m)
-    impact.write(template_path)
-#    if aminoacid:
-#        aa_template = create_template_path(outdir, template_name, forcefield, aminoacid, True)
-#        cov.correct_template(template_path, aa_template)
+    if forcefield == 'OPLS2005':
+        ff = OPLS2005ForceField()
+    if forcefield == 'OpenForceField': # Not tested yet
+        ff = OpenForceField('openff_unconstrained-1.2.0.offxml')
+    parameters = ff.parameterize(m)
+    topology = Topology(m, parameters)
+    impact = Impact(topology)
+    impact.to_file(template_path)
     print("Template in {}.".format(template_path))
     rot_path = os.path.join(outdir, 
                             "DataLocal/LigandRotamerLibs/{}.rot.assign".format(template_name.upper()))

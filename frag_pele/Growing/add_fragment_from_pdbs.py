@@ -710,10 +710,11 @@ def check_and_fix_resname(pdb_file, reschain, resnum):
     with open(pdb_file) as pdb:
         content = pdb.readlines()
     for line in content:
-        if line[21:22] == reschain and int(line[22:26]) == int(resnum) and  line[17:20].strip() == "GRW":
-            line = list(line)
-            line[17:20] = "RES"
-            line = "".join(line)
+        if line.startswith("ATOM") or line.startswith("HETATM"):
+            if line[21:22] == reschain and int(line[22:26]) == int(resnum) and  line[17:20].strip() == "GRW":
+                line = list(line)
+                line[17:20] = "RES"
+                line = "".join(line)
         new_pdb.append(line)
     pdb_modified = "".join(new_pdb)
     with open(pdb_file, "w") as overwrite_pdb:
