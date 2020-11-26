@@ -1,5 +1,6 @@
 import os
-from peleffy.topology import Molecule, RotamerLibrary
+from peleffy.topology import Molecule, Topology, RotamerLibrary
+from peleffy.forcefield import OpenForceField, OPLS2005ForceField
 from peleffy.template import Impact
 from peleffy.utils import get_data_file_path
 import frag_pele.Covalent.correct_template_of_backbone_res as cov
@@ -30,7 +31,8 @@ def create_template_path(path, name, forcefield='OPLS2005', protein=False, templ
                             templ_string, name.lower()+"z")
     return path
 
-def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoacid=False, outdir='.', rot_res=30):
+def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoacid=False, outdir='.', rot_res=30,
+                         contrained_atoms=None):
     p, pdb_name = os.path.split(pdb)
     out = pdb_name.split(".pdb")[0] + "_p" + ".pdb"
     currdir = os.getcwd()
@@ -44,19 +46,33 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
     template_path = create_template_path(outdir, template_name, forcefield, aminoacid, True)
     if aminoacid:
         print("Aminoacid template")
-        m = Molecule(os.path.join(pdb_dir, out), 
-                     core_constraints=[' CA ', ' C  ', ' N  '],
-                     rotamer_resolution=rot_res)
+        if not contrained_atoms:
+            m = Molecule(os.path.join(pdb_dir, out), 
+                         core_constraints=[' CA ', ' C  ', ' N  '],
+                         rotamer_resolution=rot_res)
+        else:
+            m = Molecule(os.path.join(pdb_dir, out),
+                         core_constraints=contrained_atoms,
+                         rotamer_resolution=rot_res)
+            print(contrained_atoms)
     else:
         print("Heteroatom template")
-        m = Molecule(os.path.join(pdb_dir, out),
-                     rotamer_resolution=rot_res) 
-    m.parameterize(forcefield)
-    impact = Impact(m)
-    impact.write(template_path)
-#    if aminoacid:
-#        aa_template = create_template_path(outdir, template_name, forcefield, aminoacid, True)
-#        cov.correct_template(template_path, aa_template)
+        if not contrained_atoms:
+            m = Molecule(os.path.join(pdb_dir, out),
+                         rotamer_resolution=rot_res)
+        else:
+            m = Molecule(os.path.join(pdb_dir, out),
+                         core_constraints=contrained_atoms,
+                         rotamer_resolution=rot_res)
+    if forcefield == 'OPLS2005':
+        ff = OPLS2005ForceField()
+    if forcefield == 'OpenForceField': # Not tested yet
+        ff = OpenForceField('openff_unconstrained-1.2.0.offxml')
+    import pdb; pdb.set_trace()
+    parameters = ff.parameterize(m)
+    topology = Topology(m, parameters)
+    impact = Impact(topology)
+    impact.to_file(template_path) 
     print("Template in {}.".format(template_path))
     rot_path = os.path.join(outdir, 
                             "DataLocal/LigandRotamerLibs/{}.rot.assign".format(template_name.upper()))
@@ -64,7 +80,9 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
     rotamer_library.to_file(rot_path)
     print("Rotamer library stored in {}".format(rot_path))
  
-def get_datalocal(pdb, outdir='.', forcefield='OPLS2005', template_name='grw', aminoacid=False, rot_res=30):
+def get_datalocal(pdb, outdir='.', forcefield='OPLS2005', template_name='grw', aminoacid=False, rot_res=30,
+                  constrainted_atoms=None):
     folder_handler.check_and_create_DataLocal(working_dir=outdir)
     get_template_and_rot(pdb, forcefield=forcefield, template_name=template_name, 
-                         aminoacid=aminoacid, outdir=outdir, rot_res=rot_res)
+                         aminoacid=aminoacid, outdir=outdir, rot_res=rot_res,
+                         contrained_atoms=constrainted_atoms)

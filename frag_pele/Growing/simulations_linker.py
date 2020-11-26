@@ -98,7 +98,7 @@ def simulation_runner(path_to_pele, control_in, cpus=4):
             logger.critical("Sorry, to run mpi PELE you need at least 2 CPUs!")
         else:
             logger.info("Starting PELE simulation. You will run mpi PELE with {} cores.".format(cpus))
-            cmd = "srun -n {} {} {}".format(cpus, path_to_pele, control_in)
+            cmd = "mpirun -n {} {} {}".format(cpus, path_to_pele, control_in)
             print(cmd)
             logger.info("Running {}".format(cmd))
             subprocess.call(cmd.split())

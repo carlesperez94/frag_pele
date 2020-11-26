@@ -378,6 +378,10 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     folder_handler.check_and_create_DataLocal(working_dir=working_dir)
     # Creating constraints
     const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10))
+    if dist_constraint:
+        atom1_info, atom2_info, equil_dist = dist_constraint
+        const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10,
+                                                           atom1_info, atom2_info, equil_dist))
     # Creating symbolic links
     if data:
         helpers.create_symlinks(data, os.path.join(working_dir, 'Data'))
@@ -406,8 +410,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
             else:
                 template_name = pdb_to_template.split(".pdb")[0].lower()
             create_templates.get_datalocal(pdb=os.path.join(working_dir,
-                                                  add_fragment_from_pdbs.c.PRE_WORKING_DIR,
-                                                  pdb_to_template), 
+                                                 add_fragment_from_pdbs.c.PRE_WORKING_DIR,
+                                                 pdb_to_template), 
                                            outdir=working_dir, 
                                            forcefield='OPLS2005', 
                                            template_name=template_name, 
@@ -420,13 +424,42 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                          chain=ch, resnum=rn, get_atoms=False)
         template_resnames.append(template_name.upper())
 
+    # Get template filenames
+    if cov_res:
+        template_initial, template_final = [resname.lower() for resname in template_resnames]
+        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/Protein")
+        path_to_templates_generated = os.path.join(working_dir,
+                                                   "DataLocal/Templates/OPLS2005/Protein/templates_generated")
+    else:
+        template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
+    if only_prepare:
+        print("Files of {} prepared".format(ID))
+        return
+
+    if constraint_core:
+        templ_ini = template_fragmenter.TemplateOPLS2005(os.path.join(
+                                                                   path_to_templates_generated,
+                                                                   template_initial))
+        templ_grw = template_fragmenter.TemplateOPLS2005(os.path.join(
+                                                                   path_to_templates_generated,
+                                                                   template_final))
+        fragment_atoms, core_atoms_in, core_atoms_grown = template_fragmenter.detect_atoms(template_initial=templ_ini,
+                                                                                           template_grown=templ_grw,
+                                                                                           hydrogen_to_replace=core_original_atom)
+        create_templates.get_datalocal(pdb=os.path.join(working_dir,
+                                                        add_fragment_from_pdbs.c.PRE_WORKING_DIR,
+                                                        pdb_to_template),
+                                       outdir=working_dir,
+                                       forcefield='OPLS2005',
+                                       template_name=template_name,
+                                       aminoacid=cov_res,
+                                       rot_res=rotamers,
+                                       constrainted_atoms=[atom.pdb_atom_name.replace("_", " ") for atom in core_atoms_grown])
+
     # Set box center from ligand COM
     resname_core = template_resnames[0]
     center = center_of_mass.center_of_mass(os.path.join(working_dir, c.PRE_WORKING_DIR, "{}.pdb".format(resname_core.upper())))
     if cov_res:
-        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/Protein")
-        path_to_templates_generated = os.path.join(working_dir, 
-                                                   "DataLocal/Templates/OPLS2005/Protein/templates_generated")
         if contrl == c.CONTROL_TEMPLATE:
             contrl = os.path.join(PackagePath, "Templates/control_covalent.conf")
         if template_resnames[0].upper() not in c.AA_LIST:
@@ -443,15 +476,6 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         #rot_lib_filename = os.path.join(working_dir, "DataLocal/LigandRotamerLibs/{}.rot.assign".format(template_resnames[1]))
         #correct_rotamer_library.delete_atoms_from_rot_lib(rot_lib_filename, backbone_bonds)
 
-    # Get template filenames
-    if cov_res:
-        template_initial, template_final = [resname.lower() for resname in template_resnames]
-    else:
-        template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
-    if only_prepare:
-        print("Files of {} prepared".format(ID))
-        return
-
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
     # Lists definitions
 
@@ -464,34 +488,18 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, cpus-1)]
 
     # Generate starting templates
-    fragment_atomnames, core_atomnames = template_fragmenter.main(template_initial_path=os.path.join(
-                                                                    path_to_templates_generated, template_initial),
-                                                                  template_grown_path=os.path.join(
-                                                                    path_to_templates_generated, template_final),
-                                                                  step=1, total_steps=iterations, 
-                                                                  hydrogen_to_replace=core_original_atom,
-                                                                  core_atom_linker=core_atom,
-                                                                  tmpl_out_path=os.path.join(path_to_templates_generated, 
-                                                                                             "{}_0".format(template_final)))
-    if dist_constraint and contraint_core:
-         atom1_info, atom2_info, equil_dist = dist_constraint
-         const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10,
-                                                            atom1_info, atom2_info, equil_dist,
-                                                            core_atomnames, "L", 1))
-    elif dist_constraint and not constraint_core:
-        atom1_info, atom2_info, equil_dist = dist_constraint
-        const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10,
-                                                            atom1_info, atom2_info, equil_dist))
-    elif not dist_constraint and constraint_core:
-        if not cov_res:
-            chain_to_con = "L"
-            resnum_to_con = 1
-        else:
-            chain_to_con = new_chain
-            resnum_to_con = resnum_core 
-        const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10,
-                                                           atoms_to_constrain=core_atomnames,
-                                                           chain_to_con = chain_to_con, resnum_to_con=resnum_to_con))
+    template_fragmenter.main(template_initial_path=os.path.join(
+                                                   path_to_templates_generated, template_initial),
+                             template_grown_path=os.path.join(
+                                                   path_to_templates_generated, template_final),
+                             step=1, total_steps=iterations, 
+                             hydrogen_to_replace=core_original_atom,
+                             core_atom_linker=core_atom,
+                             tmpl_out_path=os.path.join(path_to_templates_generated, 
+                                                        "{}_0".format(template_final)))
+
+    rot_lib_filename = os.path.join(working_dir, "DataLocal/LigandRotamerLibs/{}.rot.assign".format(template_resnames[1]))
+
     # Make a copy in the main folder of Templates in order to use it as template for the simulation
     shutil.copy(os.path.join(path_to_templates_generated, "{}_0".format(template_final)),
                 os.path.join(path_to_templates, template_final))  # Replace the original template in the folder
