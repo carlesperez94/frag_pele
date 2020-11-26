@@ -68,7 +68,6 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
         ff = OPLS2005ForceField()
     if forcefield == 'OpenForceField': # Not tested yet
         ff = OpenForceField('openff_unconstrained-1.2.0.offxml')
-    import pdb; pdb.set_trace()
     parameters = ff.parameterize(m)
     topology = Topology(m, parameters)
     impact = Impact(topology)
