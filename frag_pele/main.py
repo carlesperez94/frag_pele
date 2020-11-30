@@ -163,7 +163,9 @@ def parse_arguments():
                         help="Atom pairs links id to constraint and equilibrum distance."
                              " p.Ex: 'L:1:_C3_' 'A:145:_C1_' 2.5")
     parser.add_argument("-core", "--constraint_core", action="store_true",
-                        help="Set true to force the core to stay at the same position along with the simulation.")
+                        help="Set true to apply core constraints at template level."
+                             " These atoms will be skipped from rotamers library"
+                             " (only PELE minimization will be applyed on them).")
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
