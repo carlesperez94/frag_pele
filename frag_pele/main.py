@@ -13,7 +13,7 @@ import traceback
 # Local imports
 from frag_pele.Growing.AddingFragHelpers import complex_to_prody
 from frag_pele.Helpers import clusterizer, checker, folder_handler, runner, constraints, check_constants
-from frag_pele.Helpers import helpers, correct_fragment_names, center_of_mass, plop_rot_temp, create_templates
+from frag_pele.Helpers import helpers, correct_fragment_names, center_of_mass, plop_rot_temp, create_templates, find_dihedrals
 from frag_pele.Growing import template_fragmenter, simulations_linker
 from frag_pele.Growing import add_fragment_from_pdbs, bestStructs
 from frag_pele.Covalent import correct_pdb_to_covalent_res, correct_template_of_backbone_res, correct_rotamer_library
@@ -166,6 +166,9 @@ def parse_arguments():
                         help="Set true to apply core constraints at template level."
                              " These atoms will be skipped from rotamers library"
                              " (only PELE minimization will be applyed on them).")
+    parser.add_argument("-kd", "--keep_dih", action="store_true",
+                        help="Set true to apply dihedrals constraints in PELE conf."
+                             " This constraint will be applyied only until the 1/2 GS.")
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
@@ -230,7 +233,7 @@ def parse_arguments():
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
            args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow, \
            args.no_check, args.debug, args.highthroughput, args.test, args.cov_res, args.dist_const, \
-           args.constraint_core
+           args.constraint_core, args.keep_dih
 
 
 def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -240,7 +243,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                   banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
                   translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
                   radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
-                  no_check=False, debug=False, cov_res=None, dist_constraint=None, constraint_core=None):
+                  no_check=False, debug=False, cov_res=None, dist_constraint=None, constraint_core=None,
+                  keep_dihedrals=False):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -438,16 +442,16 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         print("Files of {} prepared".format(ID))
         return
 
+    templ_ini = template_fragmenter.TemplateOPLS2005(os.path.join(
+                                                               path_to_templates_generated,
+                                                               template_initial))
+    templ_grw = template_fragmenter.TemplateOPLS2005(os.path.join(
+                                                               path_to_templates_generated,
+                                                               template_final))
+    fragment_atoms, core_atoms_in, core_atoms_grown = template_fragmenter.detect_atoms(template_initial=templ_ini,
+                                                                                       template_grown=templ_grw,
+                                                                                       hydrogen_to_replace=core_original_atom)
     if constraint_core:
-        templ_ini = template_fragmenter.TemplateOPLS2005(os.path.join(
-                                                                   path_to_templates_generated,
-                                                                   template_initial))
-        templ_grw = template_fragmenter.TemplateOPLS2005(os.path.join(
-                                                                   path_to_templates_generated,
-                                                                   template_final))
-        fragment_atoms, core_atoms_in, core_atoms_grown = template_fragmenter.detect_atoms(template_initial=templ_ini,
-                                                                                           template_grown=templ_grw,
-                                                                                           hydrogen_to_replace=core_original_atom)
         create_templates.get_datalocal(pdb=os.path.join(working_dir,
                                                         add_fragment_from_pdbs.c.PRE_WORKING_DIR,
                                                         pdb_to_template),
@@ -457,6 +461,19 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                        aminoacid=cov_res,
                                        rot_res=rotamers,
                                        constrainted_atoms=[atom.pdb_atom_name.replace("_", " ") for atom in core_atoms_grown])
+    if keep_dihedrals:
+        frg_atoms = [atom.pdb_atom_name for atom in fragment_atoms]
+        dih = find_dihedrals.ComputeDihedrals(os.path.join(working_dir,
+                                                 add_fragment_from_pdbs.c.PRE_WORKING_DIR,
+                                                 "growing_result_p.pdb"))
+        dih.calculate() 
+        dihedrals_list = dih.dihedral_library[os.path.join(working_dir,
+                                                 add_fragment_from_pdbs.c.PRE_WORKING_DIR,
+                                                 "growing_result_p.pdb")]
+        sel_dih = find_dihedrals.select_dihedrals(dihedrals_list, frg_atoms)
+        constr_dih = "\n".join(constraints.retrieve_constraints(complex_pdb, 
+                               {}, {}, 5, 5, 10, chain_to_con=c_chain,
+                               resnum_to_con=1, dihedrals_to_constraint=sel_dih, spring_dih=5))
 
     # Set box center from ligand COM
     resname_core = template_resnames[0]
@@ -473,10 +490,6 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         correct_template_of_backbone_res.correct_template(os.path.join(path_to_templates_generated, 
                                                                        template_resnames[1].lower()),
                                                           os.path.join(data, "Templates/OPLS2005/Protein/leu"))
-        # Correcting rotamer libraries
-        #backbone_bonds = [("_CA_", "__C_"), ("__N_", "_CA_")]
-        #rot_lib_filename = os.path.join(working_dir, "DataLocal/LigandRotamerLibs/{}.rot.assign".format(template_resnames[1]))
-        #correct_rotamer_library.delete_atoms_from_rot_lib(rot_lib_filename, backbone_bonds)
 
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
     # Lists definitions
@@ -511,7 +524,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         list_of_subfolders = glob.glob("{}*".format(pdbout_folder))
         for subfolder in list_of_subfolders:
             shutil.rmtree(subfolder)
-
+    copy_const_nondih = const
     # Simulation loop - LOOP CORE
     for i, (template, pdb_file, result) in enumerate(zip(templates, pdbs, results)):
 
@@ -536,8 +549,13 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         # Control file modification
         overlapping_factor = float(min_overlap) + (((float(max_overlap) - float(min_overlap))*i) / iterations)
         overlapping_factor = "{0:.2f}".format(overlapping_factor)
-
+        mid_step = round((iterations / 2) + 0.5) - 1
         if i != 0:
+            if keep_dihedrals:
+                if i > mid_step:
+                    const = copy_const_nondih
+                else:
+                    const = constr_dih
             # Check atom overlapping
             pdbs_with_overlapping = clusterizer.check_atom_overlapping(pdb_input_paths)
             pdb_input_paths_checked = []
@@ -559,6 +577,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                        radius=radius_box, reschain=new_chain,
                                                                        resnum=resnum_core)
         else:
+            if keep_dihedrals:
+                const = constr_dih
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
             simulation_file = simulations_linker.control_file_modifier(contrl, pdb=[pdb_initialize], step=i,
                                                                        license=license,
@@ -715,7 +735,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
     c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
     rename=None, threshold_clash=1.7, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, rotation_high=c.ROTATION_HIGH, 
     translation_low=c.TRANSLATION_LOW, rotation_low=c.ROTATION_LOW, explorative=False, radius_box=c.RADIUS_BOX, sampling_control=None, data=c.PATH_TO_PELE_DATA, documents=c.PATH_TO_PELE_DOCUMENTS, 
-    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False):
+    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False, keep_dihedrals=False):
 
     if protocol == "HT":
         iteration = 1
@@ -799,7 +819,8 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                                    ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
                                    limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
                                    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                                   only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core)
+                                   only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core,
+                                   keep_dihedrals)
                     atomname_mappig.append(atomname_map)
  
                 except Exception:
@@ -836,7 +857,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
                      threshold_clash, steering, translation_high, rotation_high,
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                     only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core)
+                     only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core, keep_dihedrals)
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
@@ -850,7 +871,8 @@ if __name__ == '__main__':
     c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
     rename, threshold_clash, steering, translation_high, rotation_high, \
     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
-    only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core = parse_arguments()
+    only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core, \
+    keep_dihedrals = parse_arguments()
     
     main(complex_pdb, serie_file, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold,
              report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
@@ -858,5 +880,6 @@ if __name__ == '__main__':
              c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae,
              rename, threshold_clash, steering, translation_high, rotation_high,
              translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-             only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core)
+             only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core,
+             keep_dihedrals)
 

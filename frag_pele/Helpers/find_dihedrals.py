@@ -3,14 +3,13 @@ import glob
 import numpy as np
 import networkx as nx
 import peleffy
+from frag_pele.constants import SCHRODINGER
 from peleffy.topology import Topology
 from peleffy.forcefield import OpenForceField, OPLS2005ForceField
 from peleffy.topology import Molecule
 from peleffy.utils import Logger
 from peleffy.topology import molecule
 from peleffy.utils.toolkits import RDKitToolkitWrapper
-
-SCHRODINGER = '/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC'
 
 class ComputeDihedrals(object):
     """
@@ -122,3 +121,16 @@ def get_dihedral(mol, atom1, atom2, atom3, atom4, units="radians"):
     else:
         angle = rdMolTransforms.GetDihedralRad(mol.rdkit_molecule.GetConformer(), atom1, atom2, atom3, atom4)
     return angle
+
+
+def select_dihedrals(input_dihedrals_list, atoms_selected_list):
+    if len(atoms_selected_list) > 3:
+        selected_dihedrals = []
+        for dihedrals in input_dihedrals_list:
+            atom1, atom2, atom3, atom4, angle = dihedrals
+            atoms = [atom1, atom2, atom3, atom4]
+            result =  all(atom in atoms_selected_list for atom in atoms)
+            if result:
+                selected_dihedrals.append([*atoms, angle])
+        return selected_dihedrals
+
