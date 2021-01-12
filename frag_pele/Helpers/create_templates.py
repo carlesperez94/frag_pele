@@ -7,6 +7,10 @@ import frag_pele.Covalent.correct_template_of_backbone_res as cov
 import frag_pele.constants as c
 from frag_pele.Helpers import folder_handler
 from frag_pele.Helpers.plop_rot_temp import prepare_pdb
+from peleffy.utils import Logger
+
+logger = Logger()
+logger.set_level('WARNING')
 
 def create_template_path(path, name, forcefield='OPLS2005', protein=False, templates_generated=False):
     if templates_generated:

@@ -488,12 +488,11 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
     if core_resname is frag_resname:
         logger.critical("The resname of the core and the fragment is the same. Please, change one of both")
     print("resname {} and within {} of resname {}".format(core_resname,
-                                                                                                       threshold_clash,
-                                                                                                        frag_resname))
+                                                          threshold_clash,
+                                                          frag_resname))
     check_possible_collision = merged_structure.select("resname {} and within {} of resname {}".format(core_resname,
                                                                                                        threshold_clash,
                                                                                                         frag_resname))
-
     # This list only should have the atom of the fragment that will be bonded to the core, so if not we will have to
     # solve it
     if len(check_possible_collision.getNames()) > 1 or check_possible_collision.getNames()[0] != bond[0].name:

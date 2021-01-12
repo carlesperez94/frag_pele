@@ -473,7 +473,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         sel_dih = find_dihedrals.select_dihedrals(dihedrals_list, frg_atoms)
         constr_dih = "\n".join(constraints.retrieve_constraints(complex_pdb, 
                                {}, {}, 5, 5, 10, chain_to_con=c_chain,
-                               resnum_to_con=1, dihedrals_to_constraint=sel_dih, spring_dih=1000))
+                               resnum_to_con=1, dihedrals_to_constraint=sel_dih, spring_dih=10))
 
     # Set box center from ligand COM
     resname_core = template_resnames[0]
@@ -632,10 +632,14 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         logger.info("Looking structures to cluster in '{}'".format(result_abs))
         column_number = clusterizer.get_column_num(result_abs, criteria, report)
         # Selection of the trajectory used as new input
-        clusterizer.cluster_traject(str(template_resnames[1]), cpus-1, column_number, distance_contact,
-                                        clusterThreshold, "{}*".format(os.path.join(result_abs, traject)),
-                                        os.path.join(pdbout_folder, str(i)), os.path.join(result_abs),
-                                        epsilon, report, condition, metricweights, nclusters)
+        try:
+            clusterizer.cluster_traject(str(template_resnames[1]), cpus-1, column_number, distance_contact,
+                                            clusterThreshold, "{}*".format(os.path.join(result_abs, traject)),
+                                            os.path.join(pdbout_folder, str(i)), os.path.join(result_abs),
+                                            epsilon, report, condition, metricweights, nclusters)
+        except ZeroDivisionError: # If any structure is found in the clustering
+            raise ZeroDivisionError(f"Not accepted steps found in the Growing Step {i}. Try to change the amount of Growing Steps or PELE steps")
+            
     # ----------------------------------------------------EQUILIBRATION-------------------------------------------------
     # Set input PDBs
     pdb_inputs = ["{}".format(os.path.join(pdbout_folder, str(iterations), pdb_file)) for pdb_file in pdb_selected_names]
@@ -887,5 +891,5 @@ if __name__ == '__main__':
              rename, threshold_clash, steering, translation_high, rotation_high,
              translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
              only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core,
-             keep_dihedrals)
+             dont_keep_dih)
 
