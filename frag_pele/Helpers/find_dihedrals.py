@@ -129,8 +129,7 @@ def select_dihedrals(input_dihedrals_list, atoms_selected_list):
             atom1, atom2, atom3, atom4, angle = dihedrals
             atoms = [atom1, atom2, atom3, atom4]
             result =  sum([atom in atoms_selected_list for atom in atoms])
-            if result >= 2:
+            if result > 3:
                 selected_dihedrals.append([*atoms, angle])
-            selected_dihedrals.append([*atoms, angle])
         return selected_dihedrals
 

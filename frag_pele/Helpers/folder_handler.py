@@ -32,8 +32,5 @@ def check_and_create_results_folder(results_folder, workdir):
 
 
 def check_and_create_pdb_clusters_folder(pdbout_folder, iteration):
-    if iteration == 0:
-        check_and_create_folder(pdbout_folder)
-        check_and_create_folder(os.path.join(pdbout_folder, "{}".format(iteration)))
-    else:
-        check_and_create_folder(os.path.join(pdbout_folder, "{}".format(iteration)))
+    check_and_create_folder(pdbout_folder)
+    check_and_create_folder(os.path.join(pdbout_folder, "{}".format(iteration)))

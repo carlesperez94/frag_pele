@@ -4,6 +4,7 @@ import time
 import glob
 import argparse
 import os
+import math
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "AdaptivePELE_repo"))
 import logging
 from logging.config import fileConfig
@@ -95,6 +96,10 @@ def parse_arguments():
                              "SofcoreLike: Charges initially set to 0. They are added in the mid GS. Then, "
                              "they grow exponentially or linearly (depending on your settings). "
                              "SpreadingHcharge: reimplementation of FragPELE1.0.0 methodology.")
+    parser.add_argument("-stf", "--st_from", type=float, default=0.25,
+                        help="Lamnda value to start the growing of a fragment from. F.ex: if you"
+                             " set a 9 GS simulation, setting this value to 0.3 your fragment "
+                             "growing will start from the third step, but second GS. (30% of the size and FFp).")
 
     # Plop related arguments
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
@@ -171,9 +176,10 @@ def parse_arguments():
                         help="Set true to apply core constraints at template level."
                              " These atoms will be skipped from rotamers library"
                              " (only PELE minimization will be applyed on them).")
-    parser.add_argument("-dkd", "--dont_keep_dih", action="store_true",
-                        help="Set true to dont apply dihedrals constraints in PELE conf."
-                             " This constraint will not be applyied only until the 1/2 GS.")
+    parser.add_argument("-dhc", "dih_constr", default=None
+                        help="Spring constant to apply dihedrals constraints in PELE conf."
+                             " This constraint will not be applyied only until the 1/2 GS"
+                             " to the dihedrals formed by 4 atoms of the fragment.")
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
@@ -238,7 +244,7 @@ def parse_arguments():
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
            args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow, \
            args.no_check, args.debug, args.highthroughput, args.test, args.cov_res, args.dist_const, \
-           args.constraint_core, args.dont_keep_dih, args.protocol
+           args.constraint_core, args.dih_constr, args.protocol, args.st_from
 
 
 def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -249,7 +255,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                   translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
                   radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
                   no_check=False, debug=False, cov_res=None, dist_constraint=None, constraint_core=None,
-                  dont_keep_dih=False, growing_protocol="SoftcoreLike"):
+                  dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.25):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -404,9 +410,22 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     else:
         resnum_core = None
         new_chain = None
+    if not start_growing_from:
+        lam_initial = 1 / (iterations+1)
+    else:
+        teoric_initial = 1 / (iterations+1)
+        i = 1
+        while i < iterations:
+            lam_initial = (i) * teoric_initial
+            i = i+1
+            if lam_initial > start_growing_from:
+                break
+    print(lam_initial)
+    inv_lam = 1-lam_initial
+    print(f"Reducing fragment size to the {lam_initial*100} %")
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \
     core_original_atom, fragment_original_atom = add_fragment_from_pdbs.main(complex_pdb, fragment_pdb, core_atom,
-                                                                             fragment_atom, iterations, h_core=h_core,
+                                                                             fragment_atom, inv_lam, h_core=h_core,
                                                                              h_frag=h_frag, core_chain=c_chain,
                                                                              fragment_chain=f_chain, rename=rename,
                                                                              threshold_clash=threshold_clash,
@@ -466,7 +485,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                        aminoacid=cov_res,
                                        rot_res=rotamers,
                                        constrainted_atoms=[atom.pdb_atom_name.replace("_", " ") for atom in core_atoms_grown])
-    if not dont_keep_dih:
+    if dih_constr:
         frg_atoms = [atom.pdb_atom_name for atom in fragment_atoms]
         dih = find_dihedrals.ComputeDihedrals(os.path.join(working_dir,
                                                  add_fragment_from_pdbs.c.PRE_WORKING_DIR,
@@ -478,7 +497,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         sel_dih = find_dihedrals.select_dihedrals(dihedrals_list, frg_atoms)
         constr_dih = "\n".join(constraints.retrieve_constraints(complex_pdb, 
                                {}, {}, 5, 5, 10, chain_to_con=c_chain,
-                               resnum_to_con=1, dihedrals_to_constraint=sel_dih, spring_dih=10))
+                               resnum_to_con=1, dihedrals_to_constraint=sel_dih, spring_dih=dih_constr))
 
     # Set box center from ligand COM
     resname_core = template_resnames[0]
@@ -508,11 +527,15 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     pdb_selected_names = ["initial_0_{}.pdb".format(n) for n in range(0, cpus-1)]
 
     # Generate starting templates
+    if not start_growing_from:
+        initial_step = 1
+    else:
+        initial_step = math.ceil(start_growing_from*(iterations+1))
     template_fragmenter.main(template_initial_path=os.path.join(
                                                    path_to_templates_generated, template_initial),
                              template_grown_path=os.path.join(
                                                    path_to_templates_generated, template_final),
-                             step=1, total_steps=iterations, 
+                             step=initial_step, total_steps=iterations, 
                              hydrogen_to_replace=core_original_atom,
                              core_atom_linker=core_atom,
                              tmpl_out_path=os.path.join(path_to_templates_generated, 
@@ -532,6 +555,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
             shutil.rmtree(subfolder)
     copy_const_nondih = const
     # Simulation loop - LOOP CORE
+    skipped_steps = False
     for i, (template, pdb_file, result) in enumerate(zip(templates, pdbs, results)):
 
         # Only if reset
@@ -541,6 +565,10 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                                                     "initial_0_0.pdb")):
                 print("STEP {} ALREADY DONE, JUMPING TO THE NEXT STEP...".format(i))
                 continue
+        if i < initial_step and start_growing_from != 0.0:
+            print(f'Simulation will start at step {initial_step}. Current step: {i}. Skipping...')
+            skipped_steps = True
+            continue
         # Otherwise start from the beggining
         pdb_input_paths = ["{}".format(os.path.join(pdbout_folder, str(i-1), pdb_file)) for pdb_file in pdb_selected_names]
         # Banned dihedrals will be checked here
@@ -557,17 +585,21 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         overlapping_factor = "{0:.2f}".format(overlapping_factor)
         mid_step = round((iterations / 2) + 0.5) - 1
         if i != 0:
-            if not dont_keep_dih:
+            if dih_constr:
                 if i > mid_step:
                     const = copy_const_nondih
                 else:
                     const = constr_dih
             # Check atom overlapping
-            pdbs_with_overlapping = clusterizer.check_atom_overlapping(pdb_input_paths)
-            pdb_input_paths_checked = []
-            for pdb in pdb_input_paths:
-                if pdb not in pdbs_with_overlapping:
-                    pdb_input_paths_checked.append(pdb)
+            if not skipped_steps:
+                pdbs_with_overlapping = clusterizer.check_atom_overlapping(pdb_input_paths)
+                pdb_input_paths_checked = []
+                for pdb in pdb_input_paths:
+                    if pdb not in pdbs_with_overlapping:
+                        pdb_input_paths_checked.append(pdb)
+            else:
+                pdb_input_paths_checked = [pdb_initialize]
+                skipped_steps = False
             simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_input_paths_checked, step=i,
                                                                        license=license,
                                                                        working_dir=working_dir,
@@ -583,7 +615,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                        radius=radius_box, reschain=new_chain,
                                                                        resnum=resnum_core)
         else:
-            if not dont_keep_dih:
+            if dih_constr:
                 const = constr_dih
             logger.info(c.SELECTED_MESSAGE.format(contrl, pdb_initialize, result, i))
             simulation_file = simulations_linker.control_file_modifier(contrl, pdb=[pdb_initialize], step=i,
@@ -750,7 +782,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
     c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
     rename=None, threshold_clash=1.7, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, rotation_high=c.ROTATION_HIGH, 
     translation_low=c.TRANSLATION_LOW, rotation_low=c.ROTATION_LOW, explorative=False, radius_box=c.RADIUS_BOX, sampling_control=None, data=c.PATH_TO_PELE_DATA, documents=c.PATH_TO_PELE_DOCUMENTS, 
-    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False, dont_keep_dih=False, growing_protocol="SoftcoreLike"):
+    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False, dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.334):
 
     if protocol == "HT":
         iteration = 1
@@ -835,7 +867,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                                    limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
                                    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
                                    only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core,
-                                   dont_keep_dih, growing_protocol)
+                                   dih_constr, growing_protocol, start_growing_from)
                     atomname_mappig.append(atomname_map)
  
                 except Exception:
@@ -872,8 +904,8 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
                      threshold_clash, steering, translation_high, rotation_high,
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-                     only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core, dont_keep_dih,
-                     growing_protocol)
+                     only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core, dih_constr,
+                     growing_protocol, start_growing_from)
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
@@ -888,7 +920,7 @@ if __name__ == '__main__':
     rename, threshold_clash, steering, translation_high, rotation_high, \
     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
     only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core, \
-    dont_keep_dih, protocol = parse_arguments()
+    dih_constr, protocol, start_growing_from = parse_arguments()
     
     main(complex_pdb, serie_file, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold,
              report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
@@ -897,5 +929,5 @@ if __name__ == '__main__':
              rename, threshold_clash, steering, translation_high, rotation_high,
              translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
              only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core,
-             dont_keep_dih, protocol)
+             dih_constr, protocol, start_growing_from)
 

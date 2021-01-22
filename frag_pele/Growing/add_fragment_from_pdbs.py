@@ -568,25 +568,24 @@ def move_atom_along_vector(initial_coord, final_coord, position_proportion):
     return new_coords
 
 
-def reduce_molecule_size(molecule, residue, steps):
+def reduce_molecule_size(molecule, residue, lambda_in):
     """
     This function performs a reduction of the size of a given residue of a ProDy molecule object.
     :param molecule: ProDy molecule object.
     :param residue: Resname of the residue of the molecule that we want to reduce. string
-    :param proportion: proportion of reduction of the size that we want to apply to the selected residue (between 0 and
+    :param lambda_in: proportion of reduction of the size that we want to apply to the selected residue (between 0 and
     1). float
     :return: modify the coordinates of the selected residue for the result of the reduction.
     """
-    proportion = 1-(1/(steps+1))
-    if proportion >= 0 and proportion <= 1:
+    if lambda_in >= 0 and lambda_in <= 1:
         selection = molecule.select("resname {}".format(residue))
         centroid = compute_centroid(selection)
         for atom in selection:
             atom_coords = atom.getCoords()
-            new_coords = move_atom_along_vector(atom_coords, centroid, proportion)
+            new_coords = move_atom_along_vector(atom_coords, centroid, lambda_in)
             atom.setCoords(new_coords)
     else:
-        logger.critical("Sorry, reduce_molecule_size() needs a proportion value between 0 and 1!")
+        logger.critical("Sorry, reduce_molecule_size() needs a lambda value between 0 and 1!")
 
 
 def translate_to_position(initial_pos, final_pos, molecule):
@@ -719,7 +718,7 @@ def check_and_fix_resname(pdb_file, reschain, resnum):
         overwrite_pdb.write(pdb_modified)
         
 
-def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
+def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, lambda_in, core_chain="L",
          fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb",
          h_core=None, h_frag=None, rename=False, threshold_clash=1.70, output_path=None, only_grow=False, cov_res=None):
     """
@@ -858,7 +857,7 @@ We are currently working to fix this automatically")
         logger.info("The result of core + fragment has been saved in '{}'. This will be used to create the template file."
                     .format(os.path.join(WORK_PATH, output_file_to_tmpl)))
         # Now, we will use the original molecule to do the resizing of the fragment.
-        reduce_molecule_size(check_results, frag_residue_name, steps)
+        reduce_molecule_size(check_results, frag_residue_name, lambda_in)
         point_reference = check_results.select("name {} and resname {}".format(pdb_atom_fragment_name, frag_residue_name))
         fragment_segment = check_results.select("resname {}".format(frag_residue_name))
         translate_to_position(hydrogen_atoms[0].get_coord(), point_reference.getCoords(), fragment_segment)
