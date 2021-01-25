@@ -91,11 +91,12 @@ def parse_arguments():
                                                                         "already prepared.")
     parser.add_argument("-cov", "--cov_res", default=None, help="Set to do growing onto protein residues. Example of selection: "
                                                                 "'A:145' (chain A and resnum 145).")
-    parser.add_argument("-pro", "--protocol", default="SoftcoreLike", choices=['SpreadHcharge', 'SoftcoreLike'],
-                        help="Select growing protocol. Choose between: 'SofcoreLike', 'SpreadingHcharge'. "
+    parser.add_argument("-pro", "--protocol", default="SoftcoreLike", choices=['SpreadHcharge', 'SoftcoreLike', 'AllLinear'],
+                        help="Select growing protocol. Choose between: 'SofcoreLike', 'SpreadingHcharge', 'AllLinear'. "
                              "SofcoreLike: Charges initially set to 0. They are added in the mid GS. Then, "
                              "they grow exponentially or linearly (depending on your settings). "
-                             "SpreadingHcharge: reimplementation of FragPELE1.0.0 methodology.")
+                             "SpreadingHcharge: reimplementation of FragPELE1.0.0 methodology. "
+                             "AllLinear: All FF parameters are linearly and equally incremented in each GS. ")
     parser.add_argument("-stf", "--st_from", type=float, default=0.25,
                         help="Lamnda value to start the growing of a fragment from. F.ex: if you"
                              " set a 9 GS simulation, setting this value to 0.3 your fragment "
@@ -426,7 +427,6 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
             i = i+1
             if lam_initial > start_growing_from:
                 break
-    print(lam_initial)
     inv_lam = 1-lam_initial
     print(f"Reducing fragment size to the {lam_initial*100} %")
     fragment_names_dict, hydrogen_atoms, pdb_to_initial_template, pdb_to_final_template, pdb_initialize, \

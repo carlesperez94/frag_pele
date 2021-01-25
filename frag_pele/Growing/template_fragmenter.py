@@ -1032,7 +1032,12 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     if growing_mode == "SoftcoreLike":
         modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, exp_charges=True)
         reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce, exp_charges=True, 
-                                            null_charges=null_charges)
+                                            null_charges=True)
+        modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
+    elif growing_mode == "AllLinear":
+        modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, exp_charges=False)
+        reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce, exp_charges=False,
+                                            null_charges=False)
         modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
     elif growing_mode == "SpreadHcharge":
         if step > 1:
@@ -1043,7 +1048,7 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
             reduce_fragment_parameters_spreading_H(templ_grw, templ_ini, lambda_to_reduce, 
                                                    hydrogen=hydrogen_to_replace, n_GS=total_steps)
     else:
-        raise ValueError("Growing mode Not valid. Choose between: 'SoftcoreLike', 'SpreadHcharge'")
+        raise ValueError("Growing mode Not valid. Choose between: 'SoftcoreLike', 'SpreadHcharge', 'AllLinear'.")
     templ_grw.write_template_to_file(template_new_name=tmpl_out_path)
     return [atom.pdb_atom_name for atom in fragment_atoms], \
             [atom.pdb_atom_name for atom in core_atoms_grown]
