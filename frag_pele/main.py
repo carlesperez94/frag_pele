@@ -176,10 +176,16 @@ def parse_arguments():
                         help="Set true to apply core constraints at template level."
                              " These atoms will be skipped from rotamers library"
                              " (only PELE minimization will be applyed on them).")
-    parser.add_argument("-dhc", "dih_constr", default=None
+    parser.add_argument("-dhc", "--dih_constr", default=None,
                         help="Spring constant to apply dihedrals constraints in PELE conf."
                              " This constraint will not be applyied only until the 1/2 GS"
                              " to the dihedrals formed by 4 atoms of the fragment.")
+    parser.add_argument("-ming", "--min_grow", default=0.01,
+                        help="Minimum RMS for Minimization in PELE conf that will we applied "
+                             "  only until the 1/2 GS. Lowest the value stronger minimization.")
+    parser.add_argument("-mins", "--min_sampling", default=0.1,
+                        help="Minimum RMS for Minimization in PELE conf that will we applied "
+                             "  only after the 1/2 GS. Lowest the value stronger minimization.")
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
@@ -244,7 +250,7 @@ def parse_arguments():
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
            args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow, \
            args.no_check, args.debug, args.highthroughput, args.test, args.cov_res, args.dist_const, \
-           args.constraint_core, args.dih_constr, args.protocol, args.st_from
+           args.constraint_core, args.dih_constr, args.protocol, args.st_from, args.min_grow, args.min_sampling
 
 
 def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -255,7 +261,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                   translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
                   radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
                   no_check=False, debug=False, cov_res=None, dist_constraint=None, constraint_core=None,
-                  dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.25):
+                  dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.25, min_grow=0.01, min_sampling=0.1):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -584,6 +590,10 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         overlapping_factor = float(min_overlap) + (((float(max_overlap) - float(min_overlap))*i) / iterations)
         overlapping_factor = "{0:.2f}".format(overlapping_factor)
         mid_step = round((iterations / 2) + 0.5) - 1
+        if i <= (mid_step+1):
+            min_rms = min_grow
+        else:
+            min_rms = min_sampling
         if i != 0:
             if dih_constr:
                 if i > mid_step:
@@ -613,7 +623,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                        rotation_high=rotation_high,
                                                                        rotation_low=rotation_low,
                                                                        radius=radius_box, reschain=new_chain,
-                                                                       resnum=resnum_core)
+                                                                       resnum=resnum_core, min_rms=min_rms)
         else:
             if dih_constr:
                 const = constr_dih
@@ -631,7 +641,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                        rotation_high=rotation_high,
                                                                        rotation_low=rotation_low,
                                                                        radius=radius_box, reschain=new_chain,
-                                                                       resnum=resnum_core)
+                                                                       resnum=resnum_core, min_rms=min_rms)
 
         logger.info(c.LINES_MESSAGE)
         if i != 0:
@@ -702,7 +712,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                    translation_low=translation_low,
                                                                    rotation_high=rotation_high, rotation_low=rotation_low,
                                                                    radius=radius_box, reschain=new_chain,
-                                                                   resnum=resnum_core)
+                                                                   resnum=resnum_core, min_rms=min_rms)
     elif explorative and not sampling_control:
         simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, license=license,
                                                                    working_dir=working_dir, step=iterations,
@@ -717,7 +727,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                    rotation_high=0.4,
                                                                    rotation_low=0.15,
                                                                    radius=25, reschain=new_chain,
-                                                                   resnum=resnum_core)
+                                                                   resnum=resnum_core, min_rms=min_rms)
     else:
         simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, step=iterations,
                                                                    license=license, overlap=max_overlap,
@@ -730,7 +740,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                    translation_low=translation_low,
                                                                    rotation_high=rotation_high, rotation_low=rotation_low,
                                                                    radius=radius_box, reschain=new_chain,
-                                                                   resnum=resnum_core)
+                                                                   resnum=resnum_core, min_rms=min_rms)
 
     # EQUILIBRATION SIMULATION
     # Change directory to the working one
@@ -782,7 +792,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
     c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
     rename=None, threshold_clash=1.7, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, rotation_high=c.ROTATION_HIGH, 
     translation_low=c.TRANSLATION_LOW, rotation_low=c.ROTATION_LOW, explorative=False, radius_box=c.RADIUS_BOX, sampling_control=None, data=c.PATH_TO_PELE_DATA, documents=c.PATH_TO_PELE_DOCUMENTS, 
-    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False, dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.334):
+    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False, dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.25, min_grow=0.01, min_sampling=0.1):
 
     if protocol == "HT":
         iteration = 1
@@ -867,7 +877,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                                    limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
                                    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
                                    only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core,
-                                   dih_constr, growing_protocol, start_growing_from)
+                                   dih_constr, growing_protocol, start_growing_from, min_grow, min_sampling)
                     atomname_mappig.append(atomname_map)
  
                 except Exception:
@@ -905,7 +915,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                      threshold_clash, steering, translation_high, rotation_high,
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
                      only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core, dih_constr,
-                     growing_protocol, start_growing_from)
+                     growing_protocol, start_growing_from, min_grow, min_sampling)
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
@@ -920,7 +930,7 @@ if __name__ == '__main__':
     rename, threshold_clash, steering, translation_high, rotation_high, \
     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
     only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core, \
-    dih_constr, protocol, start_growing_from = parse_arguments()
+    dih_constr, protocol, start_growing_from, min_grow, min_sampling = parse_arguments()
     
     main(complex_pdb, serie_file, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold,
              report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
@@ -929,5 +939,5 @@ if __name__ == '__main__':
              rename, threshold_clash, steering, translation_high, rotation_high,
              translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
              only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core,
-             dih_constr, protocol, start_growing_from)
+             dih_constr, protocol, start_growing_from, min_grow, min_sampling)
 

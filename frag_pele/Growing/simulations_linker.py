@@ -14,7 +14,8 @@ logger = logging.getLogger(__name__)
 def control_file_modifier(control_template, pdb, license, working_dir, overlap=0.7, step=0,
                           results_path="/growing_output", steps=6, chain="L", constraints=" ", center="",
                           temperature=1000, seed=1279183, steering=0, translation_high=0.05, translation_low=0.02,
-                          rotation_high=0.10, rotation_low=0.05, radius=4, reschain=None, resnum=None):
+                          rotation_high=0.10, rotation_low=0.05, radius=4, reschain=None, resnum=None,
+                          min_rms=0.1):
     """
     This function creates n control files for each intermediate template created in order to change
     the logPath, reportPath and trajectoryPath to have all control files prepared for PELE simulations.
@@ -52,7 +53,8 @@ def control_file_modifier(control_template, pdb, license, working_dir, overlap=0
                 "ROTATION_LOW": rotation_low,
                 "RADIUS": radius,
                 "RESCHAIN": reschain,
-                "RESNUM": resnum
+                "RESNUM": resnum,
+                "MIN_RMS": min_rms
                 }
 
     # Creation of a folder where we are going to contain our control files, just if needed
