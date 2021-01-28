@@ -80,8 +80,9 @@ def parse_arguments():
                              "restart in the equilibration phase.")
     parser.add_argument("-cc", "--c_chain", default="L", help="Chain name of the core. By default = 'L'")
     parser.add_argument("-fc", "--f_chain", default="L", help="Chain name of the fragment. By default = 'L'")
-    parser.add_argument("-tc", "--clash_thr", default=1.7, help="Threshold distance that would to classify intramolecular"
-                                                                "clashes.")
+    parser.add_argument("-tc", "--clash_thr", default=None, help="Threshold distance that would to classify intramolecular"
+                                                                 "clashes. If None value set, it will use the distance of the "
+                                                                 "bond between the fragment and the core." )
     parser.add_argument("-sc",  "--sampling_control", default=None, help="If set, templatized control file to use in the"
                                                                          " sampling simulation.")
     parser.add_argument("-op",  "--only_prepare", action="store_true", help="If set, all files to run growing are"
@@ -229,7 +230,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                   pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
                   epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
                   h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers=30,
-                  banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
+                  banned=None, limit=None, mae=False, rename=False, threshold_clash=None, steering=0,
                   translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
                   radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
                   no_check=False, debug=False, cov_res=None):
@@ -413,7 +414,6 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                          create_file=False,
                                                                          chain=ch, resnum=rn, get_atoms=False)
         template_resnames.append(template_name.upper())
-
     # Set box center from ligand COM
     resname_core = template_resnames[0]
     center = center_of_mass.center_of_mass(os.path.join(working_dir, c.PRE_WORKING_DIR, "{}.pdb".format(resname_core.upper())))
@@ -676,7 +676,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
     report=c.REPORT_NAME, traject=c.TRAJECTORY_NAME, pdbout=c.PDBS_OUTPUT_FOLDER, cpus=c.CPUS, distcont=c.DISTANCE_COUNTER, threshold=c.CONTACT_THRESHOLD, epsilon=c.EPSILON, condition=c.CONDITION, metricweights=c.METRICS_WEIGHTS, 
     nclusters=c.NUM_CLUSTERS, pele_eq_steps=c.PELE_EQ_STEPS, restart=False, min_overlap=c.MIN_OVERLAP, max_overlap=c.MAX_OVERLAP,
     c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
-    rename=None, threshold_clash=1.7, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, rotation_high=c.ROTATION_HIGH, 
+    rename=None, threshold_clash=None, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, rotation_high=c.ROTATION_HIGH, 
     translation_low=c.TRANSLATION_LOW, rotation_low=c.ROTATION_LOW, explorative=False, radius_box=c.RADIUS_BOX, sampling_control=None, data=c.PATH_TO_PELE_DATA, documents=c.PATH_TO_PELE_DOCUMENTS, 
     only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None):
 

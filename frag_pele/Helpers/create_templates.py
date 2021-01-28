@@ -36,11 +36,12 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
     out = pdb_name.split(".pdb")[0] + "_p" + ".pdb"
     currdir = os.getcwd()
     pdb_dir = os.path.dirname(pdb)
-    os.chdir(pdb_dir)
-    prepare_pdb(pdb_in=pdb_name, 
-                pdb_out=out, 
-                sch_path=c.SCHRODINGER)
-    os.chdir(currdir)
+    if not os.path.exists(os.path.join(pdb_dir,out)):
+        os.chdir(pdb_dir)
+        prepare_pdb(pdb_in=pdb_name, 
+                    pdb_out=out, 
+                    sch_path=c.SCHRODINGER)
+        os.chdir(currdir)
     os.environ['SCHRODINGER'] = c.SCHRODINGER
     template_path = create_template_path(outdir, template_name, forcefield, aminoacid, True)
     if aminoacid:
