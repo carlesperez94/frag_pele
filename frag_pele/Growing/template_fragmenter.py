@@ -614,9 +614,7 @@ class ReduceProperty:
             result = function(atom.sigma)
             self.template.list_of_atoms[key].sigma = result
             # Charge must be spreaded
-            print(h_charge, n_GS, len(atoms))
             result = h_charge / ((n_GS + 1) * len(atoms))
-            print(result)
             self.template.list_of_atoms[key].charge = result
 
     def reduce_nbon_params_originaly(self, function, hydrogen, n_GS):
@@ -637,7 +635,6 @@ class ReduceProperty:
     def reduce_bond_eq_dist_spreading_H_link(self, function, hydrogen, n_GS):
         templ_ini = self.template_core
         templ_grw = self.template
-        bonds = self.template.get_list_of_fragment_bonds()
         for key, bond in templ_ini.list_of_bonds.items():
             atom_bonds = [templ_ini.list_of_atoms[bond.atom1].pdb_atom_name,
                           templ_ini.list_of_atoms[bond.atom2].pdb_atom_name]
@@ -647,19 +644,16 @@ class ReduceProperty:
             if atom_bonds[1].strip("_") == hydrogen:
                 h_bond_dist = bond.eq_dist
                 linking_atom = atom_bonds[0]
-        print(linking_atom, h_bond_dist)
-        for key, bond in bonds:
+        for key, bond in templ_grw.list_of_bonds.items():
             atoms = [templ_grw.list_of_atoms[bond.atom1].pdb_atom_name,
                      templ_grw.list_of_atoms[bond.atom2].pdb_atom_name]
-            print(atoms, bond.is_linker)
             if bond.is_linker:
-                print(eq_dist)
-                import pdb; pdb.set_trace()
-                eq_dist = h_bond_dist + ((bond.eq_dist - h_bond_dist) / (n_GS + 1))
+                result = h_bond_dist + ((bond.eq_dist - h_bond_dist) / (n_GS + 1))
+            elif bond.is_fragment:
+                result = function(bond.eq_dist)
             else:
-                eq_dist = bond.eq_dist
-            result = function(eq_dist)
-            self.template.list_of_bonds[key].eq_dist = result
+                result = bond.eq_dist
+            templ_grw.list_of_bonds[key].eq_dist = result
 
     def modify_core_epsilons(self, function):
         atoms_grw = self.template.get_list_of_core_atoms()

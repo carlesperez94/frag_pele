@@ -700,6 +700,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     if not os.path.exists(os.path.join(working_dir, "sampling_result")):  # Create the folder if it does not exist
         os.mkdir(os.path.join(working_dir, "sampling_result"))
     # Modify the control file to increase the steps TO THE SAMPLING SIMULATION
+    min_rms = min_sampling # redefined to avoid non-declaration if the growing part of the code is skipped
     if sampling_control:
         simulation_file = simulations_linker.control_file_modifier(sampling_control, pdb=pdb_inputs, step=iterations,
                                                                    license=license, working_dir=working_dir,
@@ -749,7 +750,6 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     if not (restart and os.path.exists("top_result")):
         logger.info(".....STARTING EQUILIBRATION.....")
         simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
-        print(simulation_file)
     os.chdir(curr_dir)
     equilibration_path = os.path.join(working_dir, "sampling_result")
     # SELECTION OF BEST STRUCTURES
@@ -759,8 +759,9 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     best_structure_file, all_output_files = bestStructs.main(criteria, selected_results_path, path=equilibration_path,
                                                              n_structs=50)
 
-    shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(working_dir, c.PRE_WORKING_DIR,
-                                                                                       selected_results_path + ".pdb"))
+    shutil.copy(os.path.join(selected_results_path, best_structure_file), os.path.join(working_dir,
+                                                                                       '{}_top.pdb'.format(ID)))
+
     # COMPUTE AND SAVE THE SCORE
     analyser.analyse_at_epoch(report_prefix=report, path_to_equilibration=equilibration_path, execution_dir=curr_dir,
                               column=criteria, quantile_value=0.25)
@@ -847,7 +848,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                     if "/" in pdb_basename:
                         pdb_basename = pdb_basename.split("/")[-1]  # And if it is a path, get only the name
                     working_dir = "{}_{}".format(pdb_basename, ID)
-                    complex_sequential_pdb = os.path.join(working_dir, "top_result.pdb")
+                    complex_sequential_pdb = os.path.join(working_dir, '{}_top.pdb'.format(ID))
                     dict_traceback = correct_fragment_names.main(complex_sequential_pdb)
                     ID_completed = []
                     for id in instruction[0:i+1]:
