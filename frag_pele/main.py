@@ -97,7 +97,7 @@ def parse_arguments():
                              "they grow exponentially or linearly (depending on your settings). "
                              "SpreadingHcharge: reimplementation of FragPELE1.0.0 methodology. "
                              "AllLinear: All FF parameters are linearly and equally incremented in each GS. ")
-    parser.add_argument("-stf", "--st_from", type=float, default=0.25,
+    parser.add_argument("-stf", "--st_from", type=float, default=0.0,
                         help="Lamnda value to start the growing of a fragment from. F.ex: if you"
                              " set a 9 GS simulation, setting this value to 0.3 your fragment "
                              "growing will start from the third step, but second GS. (30% of the size and FFp).")
@@ -268,10 +268,10 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                   epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
                   h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers=30,
                   banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
-                  translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
+                  translation_high=0.10, rotation_high=0.05, translation_low=0.05, rotation_low=0.02, explorative=False,
                   radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
                   no_check=False, debug=False, cov_res=None, dist_constraint=None, constraint_core=None,
-                  dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.25, min_grow=0.01, min_sampling=0.1,
+                  dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.0, min_grow=0.01, min_sampling=0.1,
                   force_field='OPLS2005', dih_to_constraint=None):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
