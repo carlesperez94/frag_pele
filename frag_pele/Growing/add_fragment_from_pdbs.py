@@ -463,7 +463,7 @@ def rotate_throught_bond(bond, angle, rotated_atoms, atoms_fixed):
 
 def check_collision(merged_structure, bond, theta, theta_interval, core_bond, list_of_atoms, fragment_bond,
                     core_structure, fragment_structure, pdb_complex, pdb_fragment, chain_complex, chain_fragment,
-                    output_path, threshold_clash=1.70, only_grow=False):
+                    output_path, threshold_clash=None, only_grow=False, debug=False):
     """
     Given a structure composed by a core and a fragment, it checks that there is not collisions between the atoms of
     both. If it finds a collision, the molecule will be rotated "theta_interval" radians and the checking will be
@@ -505,12 +505,14 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
             rotated_structure = rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, core_structure,
                                                       fragment_structure, pdb_complex, pdb_fragment, chain_complex, chain_fragment,
                                                       output_path=output_path, only_grow=only_grow)
-            #prody.writePDB("testing_{}.pdb".format(theta), rotated_structure[0])
+            if debug:
+                print(theta)
+                prody.writePDB("testing_{}.pdb".format(theta), rotated_structure[0])
             recall = check_collision(merged_structure=rotated_structure[0], bond=bond, theta=theta, theta_interval=theta_interval, 
                                      core_bond=core_bond, list_of_atoms=list_of_atoms, fragment_bond=fragment_bond, core_structure=core_structure,
                                      fragment_structure=fragment_structure, pdb_complex=pdb_complex, pdb_fragment=pdb_fragment, 
                                      chain_complex=chain_complex, chain_fragment=chain_fragment,
-                                     output_path=output_path, threshold_clash=threshold_clash, only_grow=only_grow)
+                                     output_path=output_path, threshold_clash=threshold_clash, only_grow=only_grow, debug=debug)
             return recall
     else:
         return merged_structure
@@ -720,7 +722,7 @@ def check_and_fix_resname(pdb_file, reschain, resnum):
 
 def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, lambda_in, core_chain="L",
          fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb",
-         h_core=None, h_frag=None, rename=False, threshold_clash=1.70, output_path=None, only_grow=False, cov_res=None):
+         h_core=None, h_frag=None, rename=False, threshold_clash=None, output_path=None, only_grow=False, cov_res=None):
     """
     From a core (protein + ligand core = core_chain) and fragment (fragment_chain) pdb files, given the heavy atoms
     names that we want to connect, this function add the fragment to the core structure. We will get three PDB files:
@@ -807,19 +809,19 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                                                                              output_path=WORK_PATH, only_grow=only_grow,
                                                                                              core_resnum=core_res)
     prody.writePDB("merged.pdb", merged_structure[0])
+    if not threshold_clash:
+        clash_threshold = new_dist+0.01
+    else:
+        clash_threshold = threshold_clash
     if not only_grow:
         # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
         # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
-        # check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/18, core_bond,
-        #                            bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment)
-        # check_collision(merged_structure, bond, theta, theta_interval, core_bond, list_of_atoms, fragment_bond,
-        #            core_structure, fragment_structure)
         check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0,
                                         theta_interval=math.pi/18, core_bond=core_bond, list_of_atoms=bioatoms_core_and_frag[1],
                                         fragment_bond=fragment_bond, core_structure=core, fragment_structure=fragment,
                                         pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
-                                        chain_fragment=fragment_chain, output_path=WORK_PATH, threshold_clash=new_dist+0.01,
-                                        only_grow=only_grow)
+                                        chain_fragment=fragment_chain, output_path=WORK_PATH, threshold_clash=clash_threshold,
+                                        only_grow=only_grow, debug=True)
         # If we do not find a solution in the previous step, we will repeat the rotations applying only increments of 1º
         if not check_results:
             check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0,
@@ -827,7 +829,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                             fragment_bond=fragment_bond, core_structure=core, fragment_structure=fragment,
                                             pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
                                             chain_fragment=fragment_chain, output_path=WORK_PATH,
-                                            threshold_clash=new_dist+0.01, only_grow=only_grow)
+                                            threshold_clash=clash_threshold, only_grow=only_grow, debug=False)
         # Now, we want to extract this structure in a PDB to create the template file after the growing. We will do a copy
         # of the structure because then we will need to resize the fragment part, so be need to keep it as two different
         # residues.

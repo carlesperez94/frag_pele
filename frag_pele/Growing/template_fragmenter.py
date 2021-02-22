@@ -144,7 +144,7 @@ class Phi:
                                                self.prefactor, self.nterm)
 
 
-class TemplateOPLS2005:
+class TemplateImpact:
     def __init__(self, path_to_template):
         self.path_to_template = path_to_template
         self.template_name = ""
@@ -508,9 +508,20 @@ class TemplateOPLS2005:
         iphis = self.find_iphi_from_atom(index_to_del)
         self.delete_iphi(iphis)
 
-    def replace_atom(self, atom_index, new_atom):
+    def replace_atom(self, atom_index, new_atom, keep_head=True):
         new_atom.atom_id = atom_index
-        self.list_of_atoms[atom_index] = new_atom
+        if keep_head:
+            old_parent_id = self.list_of_atoms[atom_index].parent_id
+            old_x_zmatrix = self.list_of_atoms[atom_index].x_zmatrix
+            old_y_zmatrix = self.list_of_atoms[atom_index].y_zmatrix
+            old_z_zmatrix = self.list_of_atoms[atom_index].z_zmatrix
+            self.list_of_atoms[atom_index] = new_atom
+            self.list_of_atoms[atom_index].parent_id = old_parent_id
+            self.list_of_atoms[atom_index].x_zmatrix = old_x_zmatrix
+            self.list_of_atoms[atom_index].y_zmatrix = old_y_zmatrix
+            self.list_of_atoms[atom_index].z_zmatrix = old_z_zmatrix
+        else:
+            self.list_of_atoms[atom_index] = new_atom
 
     def replace_bond(self, bond_index, new_bond):
         self.list_of_bonds[bond_index] = new_bond 
@@ -1010,11 +1021,11 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     :return: None
     """
     lambda_to_reduce = float(step/(total_steps+1))
-    templ_ini = TemplateOPLS2005(template_initial_path)
+    templ_ini = TemplateImpact(template_initial_path)
     
     for bond in templ_ini.list_of_bonds:
         key, bond_cont = bond
-    templ_grw = TemplateOPLS2005(template_grown_path)
+    templ_grw = TemplateImpact(template_grown_path)
     fragment_atoms, core_atoms_in, core_atoms_grown = detect_atoms(template_initial=templ_ini, 
                                                                    template_grown=templ_grw,
                                                                    hydrogen_to_replace=hydrogen_to_replace)

@@ -21,17 +21,17 @@ def create_template_path(path, name, forcefield='OPLS2005', protein=False, templ
         path = os.path.join(path, 
                             'DataLocal/Templates/OPLS2005/Protein',
                             templ_string, name.lower())
-    if forcefield == 'OpenFF' and protein:
+    if forcefield == 'OFF' and protein:
         path = os.path.join(path, 
-                            'DataLocal/Templates/OPLS2005/Protein',
+                            'DataLocal/Templates/OFF/Protein',
                             templ_string, aminoacid.lower())
     if forcefield == 'OPLS2005' and not protein:
         path = os.path.join(path,         
                             'DataLocal/Templates/OPLS2005/HeteroAtoms',
                             templ_string, name.lower()+"z")
-    if forcefield == 'OpenFF' and not protein:
+    if forcefield == 'OFF' and not protein:
         path = os.path.join(path,
-                            'DataLocal/Templates/OPLS2005/HeteroAtoms',
+                            'DataLocal/Templates/OFF/HeteroAtoms',
                             templ_string, name.lower()+"z")
     return path
 
@@ -41,11 +41,12 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
     out = pdb_name.split(".pdb")[0] + "_p" + ".pdb"
     currdir = os.getcwd()
     pdb_dir = os.path.dirname(pdb)
-    os.chdir(pdb_dir)
-    prepare_pdb(pdb_in=pdb_name, 
-                pdb_out=out, 
-                sch_path=c.SCHRODINGER)
-    os.chdir(currdir)
+    if not os.path.exists(os.path.join(pdb_dir,out)):
+        os.chdir(pdb_dir)
+        prepare_pdb(pdb_in=pdb_name, 
+                    pdb_out=out, 
+                    sch_path=c.SCHRODINGER)
+        os.chdir(currdir)
     os.environ['SCHRODINGER'] = c.SCHRODINGER
     template_path = create_template_path(outdir, template_name, forcefield, aminoacid, True)
     if aminoacid:
@@ -58,7 +59,6 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
             m = Molecule(os.path.join(pdb_dir, out),
                          core_constraints=contrained_atoms,
                          rotamer_resolution=rot_res)
-            print(contrained_atoms)
     else:
         print("Heteroatom template")
         if not contrained_atoms:
@@ -70,7 +70,7 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
                          rotamer_resolution=rot_res)
     if forcefield == 'OPLS2005':
         ff = OPLS2005ForceField()
-    if forcefield == 'OpenForceField': # Not tested yet
+    if forcefield == 'OFF': # Not tested yet
         ff = OpenForceField('openff_unconstrained-1.2.0.offxml')
     parameters = ff.parameterize(m)
     topology = Topology(m, parameters)

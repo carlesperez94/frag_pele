@@ -81,7 +81,7 @@ def parse_arguments():
                              "restart in the equilibration phase.")
     parser.add_argument("-cc", "--c_chain", default="L", help="Chain name of the core. By default = 'L'")
     parser.add_argument("-fc", "--f_chain", default="L", help="Chain name of the fragment. By default = 'L'")
-    parser.add_argument("-tc", "--clash_thr", default=1.7, help="Threshold distance that would to classify intramolecular"
+    parser.add_argument("-tc", "--clash_thr", default=None, help="Threshold distance that would to classify intramolecular"
                                                                 "clashes.")
     parser.add_argument("-sc",  "--sampling_control", default=None, help="If set, templatized control file to use in the"
                                                                          " sampling simulation.")
@@ -181,12 +181,20 @@ def parse_arguments():
                         help="Spring constant to apply dihedrals constraints in PELE conf."
                              " This constraint will not be applyied only until the 1/2 GS"
                              " to the dihedrals formed by 4 atoms of the fragment.")
+    parser.add_argument("-dhl", "--dihedrals_list", default=[], type=str, nargs='+', action='append',
+                        help="List of lists of atom names (in PELE format) to constraint dihedrals between them ."
+                             "F.ex: '_C16 _C17 _C18 _C19'")
     parser.add_argument("-ming", "--min_grow", default=0.01,
                         help="Minimum RMS for Minimization in PELE conf that will we applied "
                              "  only until the 1/2 GS. Lowest the value stronger minimization.")
     parser.add_argument("-mins", "--min_sampling", default=0.1,
                         help="Minimum RMS for Minimization in PELE conf that will we applied "
                              "  only after the 1/2 GS. Lowest the value stronger minimization.")
+    parser.add_argument("-ff", "--force_field", default="OPLS2005", choices=['OPLS2005', 'OFF'],
+                        help="Atomic ForceField that will be used in PELE simulation. Choose between: "
+                              "'OPLS2005', " 
+                              "'OFF': OpenForceField "
+                              " By default: OPLS2005")
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
@@ -251,7 +259,8 @@ def parse_arguments():
            args.translation_high, args.rotation_high, args.translation_low, args.rotation_low, args.explorative, \
            args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow, \
            args.no_check, args.debug, args.highthroughput, args.test, args.cov_res, args.dist_const, \
-           args.constraint_core, args.dih_constr, args.protocol, args.st_from, args.min_grow, args.min_sampling
+           args.constraint_core, args.dih_constr, args.protocol, args.st_from, args.min_grow, args.min_sampling, \
+           args.force_field, args.dihedrals_list
 
 
 def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
@@ -262,7 +271,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                   translation_high=0.05, rotation_high=0.10, translation_low=0.02, rotation_low=0.05, explorative=False,
                   radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
                   no_check=False, debug=False, cov_res=None, dist_constraint=None, constraint_core=None,
-                  dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.25, min_grow=0.01, min_sampling=0.1):
+                  dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.25, min_grow=0.01, min_sampling=0.1,
+                  force_field='OPLS2005', dih_to_constraint=None):
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -395,8 +405,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         os.mkdir(working_dir)  # Creating a working directory for each PDB-fragment combination
     pdbout_folder = os.path.join(working_dir, pdbout)
     path_to_templates_generated = os.path.join(working_dir,
-                                               "DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated")
-    path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/HeteroAtoms")
+                                               "DataLocal/Templates/{}/HeteroAtoms/templates_generated".format(force_field))
+    path_to_templates = os.path.join(working_dir, "DataLocal/Templates/{}/HeteroAtoms".format(force_field))
     path_to_lib = os.path.join(working_dir, "DataLocal/LigandRotamerLibs")
     # Creation of output folder
     folder_handler.check_and_create_DataLocal(working_dir=working_dir)
@@ -414,6 +424,10 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     #  ---------------------------------------Pre-growing part - PREPARATION -------------------------------------------
     if cov_res:
         new_chain, resnum_core = complex_to_prody.read_residue_string(cov_res)
+        # Temporary solution since OFF cannot support residues.
+        if force_field == 'OFF':
+            print("Warning: OpenForceField does not support residues. We will use OPLS2005 instead!")
+            force_field = 'OPLS2005'
     else:
         resnum_core = None
         new_chain = None
@@ -449,7 +463,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                  add_fragment_from_pdbs.c.PRE_WORKING_DIR,
                                                  pdb_to_template), 
                                            outdir=working_dir, 
-                                           forcefield='OPLS2005', 
+                                           forcefield=force_field, 
                                            template_name=template_name, 
                                            aminoacid=cov_res,
                                            rot_res=rotamers)
@@ -463,19 +477,19 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     # Get template filenames
     if cov_res:
         template_initial, template_final = [resname.lower() for resname in template_resnames]
-        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/Protein")
+        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/{}/Protein".format(force_field))
         path_to_templates_generated = os.path.join(working_dir,
-                                                   "DataLocal/Templates/OPLS2005/Protein/templates_generated")
+                                                   "DataLocal/Templates/{}/Protein/templates_generated".format(force_field))
     else:
         template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
     if only_prepare:
         print("Files of {} prepared".format(ID))
         return
 
-    templ_ini = template_fragmenter.TemplateOPLS2005(os.path.join(
+    templ_ini = template_fragmenter.TemplateImpact(os.path.join(
                                                                path_to_templates_generated,
                                                                template_initial))
-    templ_grw = template_fragmenter.TemplateOPLS2005(os.path.join(
+    templ_grw = template_fragmenter.TemplateImpact(os.path.join(
                                                                path_to_templates_generated,
                                                                template_final))
     fragment_atoms, core_atoms_in, core_atoms_grown = template_fragmenter.detect_atoms(template_initial=templ_ini,
@@ -486,7 +500,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                         add_fragment_from_pdbs.c.PRE_WORKING_DIR,
                                                         pdb_to_template),
                                        outdir=working_dir,
-                                       forcefield='OPLS2005',
+                                       forcefield=force_field,
                                        template_name=template_name,
                                        aminoacid=cov_res,
                                        rot_res=rotamers,
@@ -500,7 +514,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         dihedrals_list = dih.dihedral_library[os.path.join(working_dir,
                                                  add_fragment_from_pdbs.c.PRE_WORKING_DIR,
                                                  "growing_result_p.pdb")]
-        sel_dih = find_dihedrals.select_dihedrals(dihedrals_list, frg_atoms)
+        sel_dih = find_dihedrals.select_dihedrals(dihedrals_list, dih_to_constraint)
         constr_dih = "\n".join(constraints.retrieve_constraints(complex_pdb, 
                                {}, {}, 5, 5, 10, chain_to_con=c_chain,
                                resnum_to_con=1, dihedrals_to_constraint=sel_dih, spring_dih=dih_constr))
@@ -623,7 +637,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                        rotation_high=rotation_high,
                                                                        rotation_low=rotation_low,
                                                                        radius=radius_box, reschain=new_chain,
-                                                                       resnum=resnum_core, min_rms=min_rms)
+                                                                       resnum=resnum_core, min_rms=min_rms, 
+                                                                       force_field=force_field)
         else:
             if dih_constr:
                 const = constr_dih
@@ -641,7 +656,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                        rotation_high=rotation_high,
                                                                        rotation_low=rotation_low,
                                                                        radius=radius_box, reschain=new_chain,
-                                                                       resnum=resnum_core, min_rms=min_rms)
+                                                                       resnum=resnum_core, min_rms=min_rms,
+                                                                       force_field=force_field)
 
         logger.info(c.LINES_MESSAGE)
         if i != 0:
@@ -713,7 +729,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                    translation_low=translation_low,
                                                                    rotation_high=rotation_high, rotation_low=rotation_low,
                                                                    radius=radius_box, reschain=new_chain,
-                                                                   resnum=resnum_core, min_rms=min_rms)
+                                                                   resnum=resnum_core, min_rms=min_rms,
+                                                                   force_field=force_field)
     elif explorative and not sampling_control:
         simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, license=license,
                                                                    working_dir=working_dir, step=iterations,
@@ -728,7 +745,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                    rotation_high=0.4,
                                                                    rotation_low=0.15,
                                                                    radius=25, reschain=new_chain,
-                                                                   resnum=resnum_core, min_rms=min_rms)
+                                                                   resnum=resnum_core, min_rms=min_rms,
+                                                                   force_field=force_field)
     else:
         simulation_file = simulations_linker.control_file_modifier(contrl, pdb=pdb_inputs, step=iterations,
                                                                    license=license, overlap=max_overlap,
@@ -741,7 +759,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                    translation_low=translation_low,
                                                                    rotation_high=rotation_high, rotation_low=rotation_low,
                                                                    radius=radius_box, reschain=new_chain,
-                                                                   resnum=resnum_core, min_rms=min_rms)
+                                                                   resnum=resnum_core, min_rms=min_rms,
+                                                                   force_field=force_field)
 
     # EQUILIBRATION SIMULATION
     # Change directory to the working one
@@ -793,7 +812,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
     c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
     rename=None, threshold_clash=1.7, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, rotation_high=c.ROTATION_HIGH, 
     translation_low=c.TRANSLATION_LOW, rotation_low=c.ROTATION_LOW, explorative=False, radius_box=c.RADIUS_BOX, sampling_control=None, data=c.PATH_TO_PELE_DATA, documents=c.PATH_TO_PELE_DOCUMENTS, 
-    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False, dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.25, min_grow=0.01, min_sampling=0.1):
+    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False, dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.25, min_grow=0.01, min_sampling=0.1, force_field='OPLS2005', dih_to_constraint=None):
 
     if protocol == "HT":
         iteration = 1
@@ -843,10 +862,16 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                 if i == 0:  # In the first iteration we will use the complex_pdb as input.
                     complex_sequential_pdb = complex_pdb
                     ID = instruction[i][3]
-                else:  # If is not the first we will use as input the output of the previous iteration
-                    pdb_basename = complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
-                    if "/" in pdb_basename:
-                        pdb_basename = pdb_basename.split("/")[-1]  # And if it is a path, get only the name
+                else:
+                    if i == 1:  # If is not the first we will use as input the output of the previous iteration
+                        pdb_basename = complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
+                        if "/" in pdb_basename:
+                            pdb_basename = pdb_basename.split("/")[-1]  # And if it is a path, get only the name
+                    if i > 1:
+                        previous_ID = instruction[i-2][-1] + "_top"
+                        pdb_basename = "{}_{}".format(previous_ID, ID)
+                        if "/" in pdb_basename:
+                            pdb_basename = pdb_basename.split("/")[-1]
                     working_dir = "{}_{}".format(pdb_basename, ID)
                     complex_sequential_pdb = os.path.join(working_dir, '{}_top.pdb'.format(ID))
                     dict_traceback = correct_fragment_names.main(complex_sequential_pdb)
@@ -878,7 +903,8 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                                    limit, mae, rename, threshold_clash, steering, translation_high, rotation_high,
                                    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
                                    only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core,
-                                   dih_constr, growing_protocol, start_growing_from, min_grow, min_sampling)
+                                   dih_constr, growing_protocol, start_growing_from, min_grow, min_sampling, force_field,
+                                   dih_to_constraint)
                     atomname_mappig.append(atomname_map)
  
                 except Exception:
@@ -916,7 +942,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                      threshold_clash, steering, translation_high, rotation_high,
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
                      only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core, dih_constr,
-                     growing_protocol, start_growing_from, min_grow, min_sampling)
+                     growing_protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint)
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
@@ -931,7 +957,7 @@ if __name__ == '__main__':
     rename, threshold_clash, steering, translation_high, rotation_high, \
     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
     only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core, \
-    dih_constr, protocol, start_growing_from, min_grow, min_sampling = parse_arguments()
+    dih_constr, protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint = parse_arguments()
     
     main(complex_pdb, serie_file, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold,
              report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
@@ -940,5 +966,5 @@ if __name__ == '__main__':
              rename, threshold_clash, steering, translation_high, rotation_high,
              translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
              only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core,
-             dih_constr, protocol, start_growing_from, min_grow, min_sampling)
+             dih_constr, protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint)
 
