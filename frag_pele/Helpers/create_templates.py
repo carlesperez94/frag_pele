@@ -1,4 +1,6 @@
 import os
+import shutil
+import frag_pele
 from peleffy.topology import Molecule, Topology, RotamerLibrary
 from peleffy.forcefield import OpenForceField, OPLS2005ForceField
 from peleffy.template import Impact
@@ -36,12 +38,20 @@ def create_template_path(path, name, forcefield='OPLS2005', protein=False, templ
     return path
 
 def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoacid=False, outdir='.', rot_res=30,
-                         contrained_atoms=None):
+                         contrained_atoms=None, aminoacid_type=None):
     p, pdb_name = os.path.split(pdb)
     out = pdb_name.split(".pdb")[0] + "_p" + ".pdb"
     currdir = os.getcwd()
     pdb_dir = os.path.dirname(pdb)
-    if not os.path.exists(os.path.join(pdb_dir,out)):
+    # Check if the residue is an amino-acid from the library
+    path = os.path.dirname(frag_pele.__file__)
+    aa_pdb = os.path.join(path, f"Templates/Aminoacids/{aminoacid_type}.pdb")
+    if not os.path.exists(aa_pdb):
+        output_pdb = os.path.join(pdb_dir,out)
+    else:
+        output_pdb = aa_pdb
+    # Check if the output path exist to dont repeat calculations
+    if not os.path.exists(output_pdb):
         os.chdir(pdb_dir)
         prepare_pdb(pdb_in=pdb_name, 
                     pdb_out=out, 
@@ -52,20 +62,20 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
     if aminoacid:
         print("Aminoacid template")
         if not contrained_atoms:
-            m = Molecule(os.path.join(pdb_dir, out), 
-                         core_constraints=[' CA ', ' C  ', ' N  '],
-                         rotamer_resolution=rot_res)
+            contraints = [' CA ', ' C  ', ' N  ']
         else:
-            m = Molecule(os.path.join(pdb_dir, out),
-                         core_constraints=contrained_atoms,
-                         rotamer_resolution=rot_res)
+            contraints = contrained_atoms
+        m = Molecule(output_pdb, 
+                     core_constraints=contraints,
+                     rotamer_resolution=rot_res)
+        print(f"Using PDB from {aa_pdb} to generate the template!")
     else:
         print("Heteroatom template")
         if not contrained_atoms:
-            m = Molecule(os.path.join(pdb_dir, out),
+            m = Molecule(output_pdb,
                          rotamer_resolution=rot_res)
         else:
-            m = Molecule(os.path.join(pdb_dir, out),
+            m = Molecule(output_pdb,
                          core_constraints=contrained_atoms,
                          rotamer_resolution=rot_res)
     if forcefield == 'OPLS2005':
@@ -82,10 +92,17 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
     rotamer_library = RotamerLibrary(m)
     rotamer_library.to_file(rot_path)
     print("Rotamer library stored in {}".format(rot_path))
+
+def add_off_waters_to_datalocal(outdir):
+    path = os.path.dirname(frag_pele.__file__)
+    shutil.copy(os.path.join(path, "Templates/OFF/hohz"),
+                os.path.join(outdir, "DataLocal/Templates/OFF/Parsley/hohz"))
  
 def get_datalocal(pdb, outdir='.', forcefield='OPLS2005', template_name='grw', aminoacid=False, rot_res=30,
-                  constrainted_atoms=None):
+                  constrainted_atoms=None, aminoacid_type=None):
     folder_handler.check_and_create_DataLocal(working_dir=outdir)
     get_template_and_rot(pdb, forcefield=forcefield, template_name=template_name, 
                          aminoacid=aminoacid, outdir=outdir, rot_res=rot_res,
-                         contrained_atoms=constrainted_atoms)
+                         contrained_atoms=constrainted_atoms, aminoacid_type=aminoacid_type)
+    if forcefield == 'OFF':
+        add_off_waters_to_datalocal(outdir)

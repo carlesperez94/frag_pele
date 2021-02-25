@@ -459,6 +459,10 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                 template_name = "grw"
             else:
                 template_name = pdb_to_template.split(".pdb")[0].lower()
+            if cov_res:
+                aa_type = template_name
+            else:
+                aa_type = None
             create_templates.get_datalocal(pdb=os.path.join(working_dir,
                                                  add_fragment_from_pdbs.c.PRE_WORKING_DIR,
                                                  pdb_to_template), 
@@ -466,7 +470,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                            forcefield=force_field, 
                                            template_name=template_name, 
                                            aminoacid=cov_res,
-                                           rot_res=rotamers)
+                                           rot_res=rotamers,
+                                           aminoacid_type=aa_type)
         if restart:
             template_name = add_fragment_from_pdbs.extract_atoms_pdbs(pdb=os.path.join(working_dir, add_fragment_from_pdbs.
                                                                          c.PRE_WORKING_DIR, pdb_to_template),
@@ -691,6 +696,9 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
 
         # ---------------------------------------------------CLUSTERING-------------------------------------------------
         # Transform column name of the criteria to column number
+        if cov_res and criteria == "Binding Energy":
+            print("WARNING: You have selected 'Binding Energy' in a covalent ligand. Swaping to 'LocalNonBondingEnergy'.")
+            criteria = 'LocalNonBondingEnergy'
         result_abs = os.path.abspath(result)
         logger.info("Looking structures to cluster in '{}'".format(result_abs))
         column_number = clusterizer.get_column_num(result_abs, criteria, report)

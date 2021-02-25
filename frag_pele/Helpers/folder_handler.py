@@ -28,6 +28,7 @@ def check_and_create_DataLocal(working_dir):
     check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OFF/HeteroAtoms", "templates_generated")))
     check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OFF/Protein")))
     check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OFF/Protein", "templates_generated")))
+    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OFF/Parsley")))
 
 
 
