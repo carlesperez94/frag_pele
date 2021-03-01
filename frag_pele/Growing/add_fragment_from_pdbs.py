@@ -765,8 +765,8 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     # Check that ligand names are not repeated
     if cov_res:
         core_chain, core_res = complex_to_prody.read_residue_string(cov_res)
-        check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain, core_res)
         check_and_fix_resname(pdb_complex_core, core_chain, core_res)
+        check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain, core_res)
     else:
         check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain)
         core_res = None
