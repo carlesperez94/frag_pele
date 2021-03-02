@@ -485,6 +485,7 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
     """
     core_resname = bond[0].get_parent().get_resname()
     frag_resname = bond[1].get_parent().get_resname()
+    print(core_resname, frag_resname)
     if core_resname is frag_resname:
         logger.critical("The resname of the core and the fragment is the same. Please, change one of both")
     print("resname {} and within {} of resname {}".format(core_resname,
