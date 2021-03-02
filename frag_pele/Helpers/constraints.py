@@ -18,6 +18,9 @@ CONSTR_DIST = '''{{ "type": "constrainAtomsDistance", "springConstant": {}, "equ
 
 CONSTR_CALPHA = '''{{ "type": "constrainAtomToPosition", "springConstant": {2}, "equilibriumDistance": 0.0, "constrainThisAtom": "{0}:{1}:_CA_" }},'''
 
+CONSTR_DIHEDRALS = '''{{ "type": "constrainAtomsToDihedral", "springConstant": {7}, "equilibriumAngle": {6}, "firstAtom": "{0}:{1}:{2}", "secondAtom": "{0}:{1}:{3}", "thirdAtom": "{0}:{1}:{4}", "fourthAtom": "{0}:{1}:{5}"}},'''
+
+
 class ConstraintBuilder(object):
 
     def __init__(self, pdb, gaps, metals):
@@ -49,7 +52,9 @@ class ConstraintBuilder(object):
                         continue
         return residues
 
-    def build_constraint(self, residues, BACK_CONSTR=BACK_CONSTR, TER_CONSTR=TER_CONSTR, atom1=None, atom2=None, eq_dist=None):
+
+    def build_constraint(self, residues, BACK_CONSTR=BACK_CONSTR, TER_CONSTR=TER_CONSTR, atom1=None, atom2=None, eq_dist=None,
+                         atoms_to_constraint=None, chain_to_con="L", resnum_to_con=1, dihedrals_to_constraint=None, spring_dih=0):
 
         init_constr = ['''"constraints":[''', ]
 
@@ -64,11 +69,21 @@ class ConstraintBuilder(object):
         else:
             dist_constr = []
 
+        if atoms_to_constraint:
+            pos_constr = self.position_constraints(atoms_to_constraint, chain_to_con, resnum_to_con)
+        else:
+            pos_constr = []
+
+        if dihedrals_to_constraint:
+            dih_constr = self.dihedrals_constraints(dihedrals_to_constraint, chain=chain_to_con, resnum=resnum_to_con, spring=spring_dih)
+        else:
+            dih_constr = []
+
         terminal_constr = [CONSTR_CALPHA.format(residues["initial"][0], residues["initial"][1], TER_CONSTR), CONSTR_CALPHA.format(residues["terminal"][0], residues["terminal"][1], TER_CONSTR).strip(",")]
 
         final_constr = ["],"]
 
-        constraints = init_constr + back_constr + gaps_constr + metal_constr + dist_constr + terminal_constr + final_constr
+        constraints = init_constr + back_constr + gaps_constr + metal_constr + dist_constr + pos_constr + dih_constr + terminal_constr + final_constr
 
         return constraints
 
@@ -92,7 +107,7 @@ class ConstraintBuilder(object):
 
     def distance_constraints(self, atom1, atom2, eq_dist):
         dist_constr = []
-        print(atom1, atom2, eq_dist)
+
         chain1, resnum1, atomname1 = atom1.split(":")
         chain2, resnum2, atomname2 = atom2.split(":")
         dist_constr.append(CONSTR_DIST.format(9999, eq_dist, chain1, resnum1, atomname1, 
@@ -100,11 +115,27 @@ class ConstraintBuilder(object):
         return dist_constr
 
 
+    def position_constraints(self, atoms_to_constraint, chain="L", resnum="1"):
+        pos_constr = []
+        for atom in atoms_to_constraint:
+            pos_constr.append(CONSTR_ATOM.format(9999, chain, resnum, atom))
+        return pos_constr
+
+    def dihedrals_constraints(self, dihedrals_to_constraint, chain="L", resnum="1", spring=0):
+        dih_constr = []
+        for dihedral in dihedrals_to_constraint:
+            atom1, atom2, atom3, atom4, angle = dihedral
+            dih_constr.append(CONSTR_DIHEDRALS.format(chain, resnum, atom1, atom2, atom3, atom4, angle, spring))
+        return dih_constr
+
 def retrieve_constraints(pdb_file, gaps, metal, back_constr=BACK_CONSTR, ter_constr=TER_CONSTR, interval=10,
-                         atom1=None, atom2=None, eq_dist=None):
+                         atom1=None, atom2=None, eq_dist=None, atoms_to_constraint=None, chain_to_con="L", 
+                         resnum_to_con=1, dihedrals_to_constraint=None, spring_dih=0):
     constr = ConstraintBuilder(pdb_file, gaps, metal)
     residues = constr.parse_atoms(interval=interval)
-    constraints = constr.build_constraint(residues, back_constr, ter_constr, atom1, atom2, eq_dist)
+    constraints = constr.build_constraint(residues, back_constr, ter_constr, atom1, atom2, eq_dist,
+                                          atoms_to_constraint, chain_to_con, resnum_to_con, dihedrals_to_constraint,
+                                          spring_dih)
     return constraints
 
 def parseargs():

@@ -463,7 +463,7 @@ def rotate_throught_bond(bond, angle, rotated_atoms, atoms_fixed):
 
 def check_collision(merged_structure, bond, theta, theta_interval, core_bond, list_of_atoms, fragment_bond,
                     core_structure, fragment_structure, pdb_complex, pdb_fragment, chain_complex, chain_fragment,
-                    output_path, threshold_clash=1.70, only_grow=False):
+                    output_path, threshold_clash=None, only_grow=False, debug=False):
     """
     Given a structure composed by a core and a fragment, it checks that there is not collisions between the atoms of
     both. If it finds a collision, the molecule will be rotated "theta_interval" radians and the checking will be
@@ -485,15 +485,15 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
     """
     core_resname = bond[0].get_parent().get_resname()
     frag_resname = bond[1].get_parent().get_resname()
+    print(core_resname, frag_resname)
     if core_resname is frag_resname:
         logger.critical("The resname of the core and the fragment is the same. Please, change one of both")
     print("resname {} and within {} of resname {}".format(core_resname,
-                                                                                                       threshold_clash,
-                                                                                                        frag_resname))
+                                                          threshold_clash,
+                                                          frag_resname))
     check_possible_collision = merged_structure.select("resname {} and within {} of resname {}".format(core_resname,
                                                                                                        threshold_clash,
                                                                                                         frag_resname))
-
     # This list only should have the atom of the fragment that will be bonded to the core, so if not we will have to
     # solve it
     if len(check_possible_collision.getNames()) > 1 or check_possible_collision.getNames()[0] != bond[0].name:
@@ -506,12 +506,14 @@ def check_collision(merged_structure, bond, theta, theta_interval, core_bond, li
             rotated_structure = rotation_thought_axis(bond, theta, core_bond, list_of_atoms, fragment_bond, core_structure,
                                                       fragment_structure, pdb_complex, pdb_fragment, chain_complex, chain_fragment,
                                                       output_path=output_path, only_grow=only_grow)
-            #prody.writePDB("testing_{}.pdb".format(theta), rotated_structure[0])
+            if debug:
+                print(theta)
+                prody.writePDB("testing_{}.pdb".format(theta), rotated_structure[0])
             recall = check_collision(merged_structure=rotated_structure[0], bond=bond, theta=theta, theta_interval=theta_interval, 
                                      core_bond=core_bond, list_of_atoms=list_of_atoms, fragment_bond=fragment_bond, core_structure=core_structure,
                                      fragment_structure=fragment_structure, pdb_complex=pdb_complex, pdb_fragment=pdb_fragment, 
                                      chain_complex=chain_complex, chain_fragment=chain_fragment,
-                                     output_path=output_path, threshold_clash=threshold_clash, only_grow=only_grow)
+                                     output_path=output_path, threshold_clash=threshold_clash, only_grow=only_grow, debug=debug)
             return recall
     else:
         return merged_structure
@@ -569,25 +571,24 @@ def move_atom_along_vector(initial_coord, final_coord, position_proportion):
     return new_coords
 
 
-def reduce_molecule_size(molecule, residue, steps):
+def reduce_molecule_size(molecule, residue, lambda_in):
     """
     This function performs a reduction of the size of a given residue of a ProDy molecule object.
     :param molecule: ProDy molecule object.
     :param residue: Resname of the residue of the molecule that we want to reduce. string
-    :param proportion: proportion of reduction of the size that we want to apply to the selected residue (between 0 and
+    :param lambda_in: proportion of reduction of the size that we want to apply to the selected residue (between 0 and
     1). float
     :return: modify the coordinates of the selected residue for the result of the reduction.
     """
-    proportion = 1-(1/(steps+1))
-    if proportion >= 0 and proportion <= 1:
+    if lambda_in >= 0 and lambda_in <= 1:
         selection = molecule.select("resname {}".format(residue))
         centroid = compute_centroid(selection)
         for atom in selection:
             atom_coords = atom.getCoords()
-            new_coords = move_atom_along_vector(atom_coords, centroid, proportion)
+            new_coords = move_atom_along_vector(atom_coords, centroid, lambda_in)
             atom.setCoords(new_coords)
     else:
-        logger.critical("Sorry, reduce_molecule_size() needs a proportion value between 0 and 1!")
+        logger.critical("Sorry, reduce_molecule_size() needs a lambda value between 0 and 1!")
 
 
 def translate_to_position(initial_pos, final_pos, molecule):
@@ -720,9 +721,9 @@ def check_and_fix_resname(pdb_file, reschain, resnum):
         overwrite_pdb.write(pdb_modified)
         
 
-def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, steps, core_chain="L",
+def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_name, lambda_in, core_chain="L",
          fragment_chain="L", output_file_to_tmpl="growing_result.pdb", output_file_to_grow="initialization_grow.pdb",
-         h_core=None, h_frag=None, rename=False, threshold_clash=1.70, output_path=None, only_grow=False, cov_res=None):
+         h_core=None, h_frag=None, rename=False, threshold_clash=None, output_path=None, only_grow=False, cov_res=None):
     """
     From a core (protein + ligand core = core_chain) and fragment (fragment_chain) pdb files, given the heavy atoms
     names that we want to connect, this function add the fragment to the core structure. We will get three PDB files:
@@ -765,8 +766,8 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
     # Check that ligand names are not repeated
     if cov_res:
         core_chain, core_res = complex_to_prody.read_residue_string(cov_res)
-        check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain, core_res)
         check_and_fix_resname(pdb_complex_core, core_chain, core_res)
+        check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain, core_res)
     else:
         check_and_fix_repeated_lignames(pdb_complex_core, pdb_fragment, core_chain, fragment_chain)
         core_res = None
@@ -809,19 +810,19 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                                                                              output_path=WORK_PATH, only_grow=only_grow,
                                                                                              core_resnum=core_res)
     prody.writePDB("merged.pdb", merged_structure[0])
+    if not threshold_clash:
+        clash_threshold = new_dist+0.01
+    else:
+        clash_threshold = threshold_clash
     if not only_grow:
         # It is possible to create intramolecular clashes after placing the fragment on the bond of the core, so we will
         # check if this is happening, and if it is, we will perform rotations of 10º until avoid the clash.
-        # check_results = check_collision(merged_structure[0], heavy_atoms, 0, math.pi/18, core_bond,
-        #                            bioatoms_core_and_frag[1], fragment_bond, ligand_core, fragment)
-        # check_collision(merged_structure, bond, theta, theta_interval, core_bond, list_of_atoms, fragment_bond,
-        #            core_structure, fragment_structure)
         check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0,
                                         theta_interval=math.pi/18, core_bond=core_bond, list_of_atoms=bioatoms_core_and_frag[1],
                                         fragment_bond=fragment_bond, core_structure=core, fragment_structure=fragment,
                                         pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
-                                        chain_fragment=fragment_chain, output_path=WORK_PATH, threshold_clash=new_dist+0.01,
-                                        only_grow=only_grow)
+                                        chain_fragment=fragment_chain, output_path=WORK_PATH, threshold_clash=clash_threshold,
+                                        only_grow=only_grow, debug=True)
         # If we do not find a solution in the previous step, we will repeat the rotations applying only increments of 1º
         if not check_results:
             check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0,
@@ -829,7 +830,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                             fragment_bond=fragment_bond, core_structure=core, fragment_structure=fragment,
                                             pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
                                             chain_fragment=fragment_chain, output_path=WORK_PATH,
-                                            threshold_clash=new_dist+0.01, only_grow=only_grow)
+                                            threshold_clash=clash_threshold, only_grow=only_grow, debug=False)
         # Now, we want to extract this structure in a PDB to create the template file after the growing. We will do a copy
         # of the structure because then we will need to resize the fragment part, so be need to keep it as two different
         # residues.
@@ -859,7 +860,7 @@ We are currently working to fix this automatically")
         logger.info("The result of core + fragment has been saved in '{}'. This will be used to create the template file."
                     .format(os.path.join(WORK_PATH, output_file_to_tmpl)))
         # Now, we will use the original molecule to do the resizing of the fragment.
-        reduce_molecule_size(check_results, frag_residue_name, steps)
+        reduce_molecule_size(check_results, frag_residue_name, lambda_in)
         point_reference = check_results.select("name {} and resname {}".format(pdb_atom_fragment_name, frag_residue_name))
         fragment_segment = check_results.select("resname {}".format(frag_residue_name))
         translate_to_position(hydrogen_atoms[0].get_coord(), point_reference.getCoords(), fragment_segment)

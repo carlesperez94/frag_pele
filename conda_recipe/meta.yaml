@@ -1,7 +1,7 @@
 # must do: conda-build -c conda-forge -c nostrumbiodiscovery -c rdkit -c carlesperez94 . 
 package:
   name: frag_pele
-  version: "2.3.0-beta"
+  version: "3.0.0"
 
 about:
   home: https://github.com/carlesperez94/frag_pele
@@ -32,10 +32,11 @@ requirements:
     - six
     - pandas
     - rdkit
-    - lib_prep
+    - lib_prep>=1.1.1
     - mdtraj
-    - adaptive_pele
+    - adaptive_pele>=1.6.0
     - pytest
+    - peleffy>=1.1
 
 test:
   imports:
