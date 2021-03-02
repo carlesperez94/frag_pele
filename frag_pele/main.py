@@ -82,7 +82,8 @@ def parse_arguments():
     parser.add_argument("-cc", "--c_chain", default="L", help="Chain name of the core. By default = 'L'")
     parser.add_argument("-fc", "--f_chain", default="L", help="Chain name of the fragment. By default = 'L'")
     parser.add_argument("-tc", "--clash_thr", default=None, help="Threshold distance that would to classify intramolecular"
-                                                                "clashes.")
+                                                                 "clashes. If None value set, it will use the distance of the "
+                                                                 "bond between the fragment and the core." )
     parser.add_argument("-sc",  "--sampling_control", default=None, help="If set, templatized control file to use in the"
                                                                          " sampling simulation.")
     parser.add_argument("-op",  "--only_prepare", action="store_true", help="If set, all files to run growing are"
@@ -271,7 +272,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                   pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
                   epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
                   h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers=30,
-                  banned=None, limit=None, mae=False, rename=False, threshold_clash=1.7, steering=0,
+                  banned=None, limit=None, mae=False, rename=False, threshold_clash=None, steering=0,
                   translation_high=0.10, rotation_high=0.05, translation_low=0.05, rotation_low=0.02, explorative=False,
                   radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
                   no_check=False, debug=False, cov_res=None, dist_constraint=None, constraint_core=None,
@@ -484,7 +485,6 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                                                          create_file=False,
                                                                          chain=ch, resnum=rn, get_atoms=False)
         template_resnames.append(template_name.upper())
-
     # Get template filenames
     if cov_res:
         template_initial, template_final = [resname.lower() for resname in template_resnames]

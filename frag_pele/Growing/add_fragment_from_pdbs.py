@@ -711,10 +711,11 @@ def check_and_fix_resname(pdb_file, reschain, resnum):
     with open(pdb_file) as pdb:
         content = pdb.readlines()
     for line in content:
-        if line[21:22] == reschain and int(line[22:26]) == int(resnum) and  line[17:20].strip() == "GRW":
-            line = list(line)
-            line[17:20] = "RES"
-            line = "".join(line)
+        if line.startswith("ATOM") or line.startswith("HETATM"):
+            if line[21:22] == reschain and int(line[22:26]) == int(resnum) and  line[17:20].strip() == "GRW":
+                line = list(line)
+                line[17:20] = "RES"
+                line = "".join(line)
         new_pdb.append(line)
     pdb_modified = "".join(new_pdb)
     with open(pdb_file, "w") as overwrite_pdb:
@@ -831,6 +832,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                             pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
                                             chain_fragment=fragment_chain, output_path=WORK_PATH,
                                             threshold_clash=clash_threshold, only_grow=only_grow, debug=False)
+
         # Now, we want to extract this structure in a PDB to create the template file after the growing. We will do a copy
         # of the structure because then we will need to resize the fragment part, so be need to keep it as two different
         # residues.
