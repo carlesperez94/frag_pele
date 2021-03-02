@@ -1,0 +1,35 @@
+REMARK   4      COMPLIES WITH FORMAT V. 3.0, 1-DEC-2006
+REMARK 888
+REMARK 888 WRITTEN BY MAESTRO (A PRODUCT OF SCHRODINGER, LLC)
+TITLE     growing_result_p
+MODEL        1
+HETATM    1  N   GRW A   1      10.041 -23.947 105.154  1.00 31.83           N  
+HETATM    2  CA  GRW A   1       9.723 -24.542 106.453  1.00 29.71           C  
+HETATM    3  C   GRW A   1      10.149 -26.010 106.516  1.00 30.11           C  
+HETATM    4  O   GRW A   1       9.734 -26.858 105.727  1.00 29.28           O  
+HETATM    5  CB  GRW A   1       8.211 -24.430 106.735  1.00 31.75           C  
+HETATM    6  SG  GRW A   1       7.707 -22.682 106.727  1.00 39.68           S  
+HETATM    7  H   GRW A   1       9.717 -24.554 104.412  1.00  0.00           H  
+HETATM    8  HA  GRW A   1      10.263 -23.992 107.224  1.00  0.00           H  
+HETATM    9  HB3 GRW A   1       7.969 -24.862 107.708  1.00  0.00           H  
+HETATM   10  HB2 GRW A   1       7.630 -24.976 105.990  1.00  0.00           H  
+HETATM   11  HN  GRW A   1       9.540 -23.076 105.043  1.00  0.00           H  
+HETATM   12  HXT GRW A   1      10.862 -26.221 107.314  1.00  0.00           H  
+HETATM   13  HG  GRW A   1       6.417 -22.896 107.006  1.00  0.00           H  
+CONECT    1    2    7   11
+CONECT    2    1    3    5    8
+CONECT    3    2    4   12
+CONECT    3    4
+CONECT    4    3
+CONECT    4    3
+CONECT    5    2    6    9   10
+CONECT    6    5   13
+CONECT    7    1
+CONECT    8    2
+CONECT    9    5
+CONECT   10    5
+CONECT   11    1
+CONECT   12    3
+CONECT   13    6
+ENDMDL
+END   

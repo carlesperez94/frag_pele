@@ -90,4 +90,18 @@ def correct_pdb(pdb_file, reschain, resnum, new_resname):
     correct = Corrector(pdb_file, reschain, resnum, new_resname)
     correct.overwrite_pdb()
 
-
+def delete_atom_ligand(pdb_file, ligchain, atomname):
+    if len(atomname) != 4:
+        raise ValueError("The atom name of the linking atom must be a string of length 4! Current length: {}".format(len(atomname)))
+    pdb = pdm.PDB(pdb_file)
+    atomlines = pdb.atom_section.split("\n\n")
+    for l in atomlines:
+        at_name = l[12:16]
+        at_chain = l[21:22]
+        if at_name == atomname and at_chain == ligchain:
+            print("Deleting {} from {}".format(atomname, ligchain))
+            for n, line in enumerate(pdb.lines):
+                if l in line:
+                    del pdb.lines[n]
+            pdb.content = "".join(pdb.lines)
+            pdb.overwrite_pdb()

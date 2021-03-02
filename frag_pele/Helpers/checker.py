@@ -18,7 +18,7 @@ def check_duplicated_pdbatomnames(pdb_content):
     pdb_atom_names_list = []
     for line in pdb_content:
         if line.startswith("HETATM") and line[17:30] != "HOH" and line[21:22] == "L":
-            pdb_atom_name = line[12:16]
+            pdb_atom_name = line[12:17]
             pdb_atom_names_list.append(pdb_atom_name)
     set_to_check = set(pdb_atom_names_list)
     list_to_check = sorted(list(set_to_check))
@@ -26,7 +26,7 @@ def check_duplicated_pdbatomnames(pdb_content):
     if list_to_check != sorted_list_names:
         print(list_to_check)
         print(sorted_list_names)
-        sys.exit("SOME REPEATED PDB ATOM NAMES of the ligand IN PDB FILES!!")
+        raise ValueError("SOME REPEATED PDB ATOM NAMES of the ligand IN PDB FILES!!")
 
 
 def check_and_fix_pdbatomnames(pdb_file):
