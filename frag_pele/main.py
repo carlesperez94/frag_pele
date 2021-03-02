@@ -91,6 +91,10 @@ def parse_arguments():
                                                                         "already prepared.")
     parser.add_argument("-cov", "--cov_res", default=None, help="Set to do growing onto protein residues. Example of selection: "
                                                                 "'A:145' (chain A and resnum 145).")
+
+    parser.add_argument("-dist", "--dist_const", default=None, nargs="+", help="Atom pairs links id to constraint and equilibrum distance."
+                                                                               " p.Ex: 'L:1:_C3_' 'A:145:_C1_' 2.5")
+
     parser.add_argument("-pro", "--protocol", default="SoftcoreLike", choices=['SpreadHcharge', 'SoftcoreLike', 'AllLinear'],
                         help="Select growing protocol. Choose between: 'SofcoreLike', 'SpreadingHcharge', 'AllLinear'. "
                              "SofcoreLike: Charges initially set to 0. They are added in the mid GS. Then, "
@@ -170,6 +174,7 @@ def parse_arguments():
                         help="Path to PELE Data folder.")
     parser.add_argument("-doc", "--documents", default=c.PATH_TO_PELE_DOCUMENTS,
                         help="Path to PELE Documents folder.")
+
     parser.add_argument("-dist", "--dist_const", default=None, nargs="+", 
                         help="Atom pairs links id to constraint and equilibrum distance."
                              " p.Ex: 'L:1:_C3_' 'A:145:_C1_' 2.5")
@@ -262,7 +267,6 @@ def parse_arguments():
            args.constraint_core, args.dih_constr, args.protocol, args.st_from, args.min_grow, args.min_sampling, \
            args.force_field, args.dihedrals_list
 
-
 def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                   pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
                   epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
@@ -273,6 +277,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                   no_check=False, debug=False, cov_res=None, dist_constraint=None, constraint_core=None,
                   dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.0, min_grow=0.01, min_sampling=0.1,
                   force_field='OPLS2005', dih_to_constraint=None):
+
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
     fragments to a core structure of the ligand in a protein-ligand complex.
@@ -413,6 +418,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     # Creating constraints
     const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10))
     if dist_constraint:
+
         atom1_info, atom2_info, equil_dist = dist_constraint
         const = "\n".join(constraints.retrieve_constraints(complex_pdb, {}, {}, 5, 5, 10,
                                                            atom1_info, atom2_info, equil_dist))
@@ -539,6 +545,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         correct_template_of_backbone_res.correct_template(os.path.join(path_to_templates_generated, 
                                                                        template_resnames[1].lower()),
                                                           os.path.join(data, "Templates/OPLS2005/Protein/leu"))
+
 
     # --------------------------------------------GROWING SECTION-------------------------------------------------------
     # Lists definitions
@@ -913,6 +920,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                                    only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core,
                                    dih_constr, growing_protocol, start_growing_from, min_grow, min_sampling, force_field,
                                    dih_to_constraint)
+                    
                     atomname_mappig.append(atomname_map)
  
                 except Exception:
@@ -951,6 +959,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
                      only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core, dih_constr,
                      growing_protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint)
+
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
@@ -966,6 +975,7 @@ if __name__ == '__main__':
     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
     only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core, \
     dih_constr, protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint = parse_arguments()
+
     
     main(complex_pdb, serie_file, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold,
              report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
@@ -975,4 +985,5 @@ if __name__ == '__main__':
              translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
              only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core,
              dih_constr, protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint)
+
 

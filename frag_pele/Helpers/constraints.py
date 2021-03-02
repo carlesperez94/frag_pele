@@ -52,6 +52,7 @@ class ConstraintBuilder(object):
                         continue
         return residues
 
+
     def build_constraint(self, residues, BACK_CONSTR=BACK_CONSTR, TER_CONSTR=TER_CONSTR, atom1=None, atom2=None, eq_dist=None,
                          atoms_to_constraint=None, chain_to_con="L", resnum_to_con=1, dihedrals_to_constraint=None, spring_dih=0):
 
@@ -106,11 +107,13 @@ class ConstraintBuilder(object):
 
     def distance_constraints(self, atom1, atom2, eq_dist):
         dist_constr = []
+
         chain1, resnum1, atomname1 = atom1.split(":")
         chain2, resnum2, atomname2 = atom2.split(":")
         dist_constr.append(CONSTR_DIST.format(9999, eq_dist, chain1, resnum1, atomname1, 
                                               chain2, resnum2, atomname2))
         return dist_constr
+
 
     def position_constraints(self, atoms_to_constraint, chain="L", resnum="1"):
         pos_constr = []

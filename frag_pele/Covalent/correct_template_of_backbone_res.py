@@ -62,3 +62,9 @@ def correct_template(template, aminoacid_path="Data/Templates/OPLS2005/Protein/g
         replace_theta_template(templ_to_copy, templ, name)
         templ.write_template_to_file(template)
 
+def delete_atom_from_template(template, atomname):
+    templ = tf.TemplateOPLS2005(template)
+    if " " in atomname:
+        atomname = atomname.replace(" ", "_")
+    templ.erease_atom_from_template(atomname)
+    templ.write_template_to_file(template)
