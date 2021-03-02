@@ -52,10 +52,10 @@ def replace_theta_template(original, to_replace, atomname):
 
 
 def correct_template(template, aminoacid_path="Data/Templates/OPLS2005/Protein/gly", work_dir="."):
-    templ = tf.TemplateOPLS2005(template)
+    templ = tf.TemplateImpact(template)
     templ.erease_atom_from_template('_HN_')
     templ.erease_atom_from_template('_HXT')
-    templ_to_copy = tf.TemplateOPLS2005(os.path.join(work_dir, aminoacid_path))
+    templ_to_copy = tf.TemplateImpact(os.path.join(work_dir, aminoacid_path))
     for name in BACKBONE_ATOMS:
         replace_atom_template(templ_to_copy, templ, name)
         replace_bond_template(templ_to_copy, templ, name)

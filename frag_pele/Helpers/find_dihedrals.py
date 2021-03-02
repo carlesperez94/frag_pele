@@ -76,7 +76,6 @@ class ComputeDihedrals(object):
         # clusters pdb and the input ligand are the same
         for dihedral in dihedral_list:
             names = [self._topology.atoms[atom].PDB_name for atom in dihedral]
-            print(*dihedral)
             angle = get_dihedral(mol, *dihedral, units="degrees")
         
             pdb_dihedrals.append(names+[angle])
@@ -123,14 +122,16 @@ def get_dihedral(mol, atom1, atom2, atom3, atom4, units="radians"):
     return angle
 
 
-def select_dihedrals(input_dihedrals_list, atoms_selected_list):
-    if len(atoms_selected_list) > 3:
-        selected_dihedrals = []
-        for dihedrals in input_dihedrals_list:
-            atom1, atom2, atom3, atom4, angle = dihedrals
-            atoms = [atom1, atom2, atom3, atom4]
-            result =  all(atom in atoms_selected_list for atom in atoms)
-            if result:
+def select_dihedrals(input_dihedrals_list, selected_dihedrals_atoms):
+    selected_dihedrals = []
+    for dihedrals in input_dihedrals_list:
+        atom1, atom2, atom3, atom4, angle = dihedrals
+        atoms = [atom1, atom2, atom3, atom4]
+        for atoms_of_dih in selected_dihedrals_atoms:
+            if atoms_of_dih == atoms or atoms_of_dih[::-1] == atoms: # Try in both reading senses
+                print(f"Constraining dihedral: {atoms}")
                 selected_dihedrals.append([*atoms, angle])
-        return selected_dihedrals
+    if len(selected_dihedrals) == 0:
+        raise ValueError(f"The dihedral formed by {selected_dihedrals_atoms} were not found in ligand dihedrals.")
+    return selected_dihedrals
 

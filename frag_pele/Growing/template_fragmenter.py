@@ -144,7 +144,7 @@ class Phi:
                                                self.prefactor, self.nterm)
 
 
-class TemplateOPLS2005:
+class TemplateImpact:
     def __init__(self, path_to_template):
         self.path_to_template = path_to_template
         self.template_name = ""
@@ -508,9 +508,20 @@ class TemplateOPLS2005:
         iphis = self.find_iphi_from_atom(index_to_del)
         self.delete_iphi(iphis)
 
-    def replace_atom(self, atom_index, new_atom):
+    def replace_atom(self, atom_index, new_atom, keep_head=True):
         new_atom.atom_id = atom_index
-        self.list_of_atoms[atom_index] = new_atom
+        if keep_head:
+            old_parent_id = self.list_of_atoms[atom_index].parent_id
+            old_x_zmatrix = self.list_of_atoms[atom_index].x_zmatrix
+            old_y_zmatrix = self.list_of_atoms[atom_index].y_zmatrix
+            old_z_zmatrix = self.list_of_atoms[atom_index].z_zmatrix
+            self.list_of_atoms[atom_index] = new_atom
+            self.list_of_atoms[atom_index].parent_id = old_parent_id
+            self.list_of_atoms[atom_index].x_zmatrix = old_x_zmatrix
+            self.list_of_atoms[atom_index].y_zmatrix = old_y_zmatrix
+            self.list_of_atoms[atom_index].z_zmatrix = old_z_zmatrix
+        else:
+            self.list_of_atoms[atom_index] = new_atom
 
     def replace_bond(self, bond_index, new_bond):
         self.list_of_bonds[bond_index] = new_bond 
@@ -579,15 +590,21 @@ class ReduceProperty:
             result = function(radnpType)
             self.template.list_of_atoms[key].radnpType = result
 
-    def reduce_nbon_params(self, function):
+    def reduce_nbon_params(self, function, exp_function, null_charges=False):
         atoms = self.template.get_list_of_fragment_atoms()
         for key, atom in atoms:
             result = function(atom.epsilon)
             self.template.list_of_atoms[key].epsilon = result
             result = function(atom.sigma)
             self.template.list_of_atoms[key].sigma = result
-            result = function(atom.charge)
-            self.template.list_of_atoms[key].charge = result
+            if exp_function:
+                result = exp_function(atom.charge)
+            else:
+                result = function(atom.charge)
+            if not null_charges:
+                self.template.list_of_atoms[key].charge = result
+            else:
+                self.template.list_of_atoms[key].charge = 0.000
             result = function(atom.sgbnpGamma)
             self.template.list_of_atoms[key].sgbnpGamma = result
             result = function(atom.sgbnpType)
@@ -597,12 +614,57 @@ class ReduceProperty:
             result = function(atom.radnpType)
             self.template.list_of_atoms[key].radnpType = result
 
+    def reduce_nbon_params_spreading_H(self, function, hydrogen, n_GS):
+        atoms_ini = self.template_core.get_list_of_core_atoms()
+        atoms = self.template.get_list_of_fragment_atoms()
+        for key, atom in atoms_ini:
+            name = atom.pdb_atom_name.strip("_")
+            if name == hydrogen:
+                h_charge = atom.charge
+        for key, atom in atoms:
+            result = function(atom.sigma)
+            self.template.list_of_atoms[key].sigma = result
+            # Charge must be spreaded
+            result = h_charge / ((n_GS + 1) * len(atoms))
+            self.template.list_of_atoms[key].charge = result
+
+    def reduce_nbon_params_originaly(self, function, hydrogen, n_GS):
+        atoms = self.template.get_list_of_fragment_atoms()
+        for key, atom in atoms:
+            result = function(atom.sigma)
+            self.template.list_of_atoms[key].sigma = result
+            result = function(atom.charge)
+            self.template.list_of_atoms[key].charge = result
+
     def reduce_bond_eq_dist(self, function):
         bonds = self.template.get_list_of_fragment_bonds()
         for key, bond in bonds:
             eq_dist = bond.eq_dist
             result = function(eq_dist)
             self.template.list_of_bonds[key].eq_dist = result
+
+    def reduce_bond_eq_dist_spreading_H_link(self, function, hydrogen, n_GS):
+        templ_ini = self.template_core
+        templ_grw = self.template
+        for key, bond in templ_ini.list_of_bonds.items():
+            atom_bonds = [templ_ini.list_of_atoms[bond.atom1].pdb_atom_name,
+                          templ_ini.list_of_atoms[bond.atom2].pdb_atom_name]
+            if atom_bonds[0].strip("_") == hydrogen:
+                h_bond_dist = bond.eq_dist
+                linking_atom = atom_bonds[1]
+            if atom_bonds[1].strip("_") == hydrogen:
+                h_bond_dist = bond.eq_dist
+                linking_atom = atom_bonds[0]
+        for key, bond in templ_grw.list_of_bonds.items():
+            atoms = [templ_grw.list_of_atoms[bond.atom1].pdb_atom_name,
+                     templ_grw.list_of_atoms[bond.atom2].pdb_atom_name]
+            if bond.is_linker:
+                result = h_bond_dist + ((bond.eq_dist - h_bond_dist) / (n_GS + 1))
+            elif bond.is_fragment:
+                result = function(bond.eq_dist)
+            else:
+                result = bond.eq_dist
+            templ_grw.list_of_bonds[key].eq_dist = result
 
     def modify_core_epsilons(self, function):
         atoms_grw = self.template.get_list_of_core_atoms()
@@ -637,7 +699,7 @@ class ReduceProperty:
                    result = function(atom_c.charge, atom_g.charge)
                    self.template.list_of_atoms[index_g].charge = result
 
-    def modify_core_nbond_params(self, function):
+    def modify_core_nbond_params(self, function, exp_function=None):
         atoms_grw = self.template.get_list_of_core_atoms()
         atoms_ini = self.template_core.get_list_of_core_atoms()
         for atom_grow in atoms_grw:
@@ -649,7 +711,10 @@ class ReduceProperty:
                    self.template.list_of_atoms[index_g].epsilon = result
                    result = function(atom_c.sigma, atom_g.sigma)
                    self.template.list_of_atoms[index_g].sigma = result
-                   result = function(atom_c.charge, atom_g.charge)
+                   if exp_function:
+                       result = exp_function(atom_c.charge, atom_g.charge)
+                   else:
+                       result = function(atom_c.charge, atom_g.charge)
                    self.template.list_of_atoms[index_g].charge = result
                    result = function(atom_c.sgbnpGamma, atom_g.sgbnpGamma)
                    self.template.list_of_atoms[index_g].sgbnpGamma = result
@@ -798,11 +863,16 @@ class ReduceLinearly(ReduceProperty):
      
 
 class ReduceExponentially(ReduceProperty):
-    def __init__(self, template, lambda_to_reduce):
+    def __init__(self, template, lambda_to_reduce, template_core=None, atom_to_replace=None):
         ReduceProperty.__init__(self, template, lambda_to_reduce)
 
     def reduce_value(self, value):
-        result = value * self.lambda_to_reduce ** 2
+        result = value * (self.lambda_to_reduce ** 2)
+        return result
+
+    def reduce_value_from_diference(self, value_init, value_grown):
+        diff = value_grown - value_init
+        result = diff * (self.lambda_to_reduce ** 2) + value_init
         return result
 
 
@@ -888,15 +958,35 @@ def set_connecting_atom(template_grown, pdb_atom_name):
             atom.is_linker = True
 
 
-def reduce_fragment_parameters_linearly(template_object, lambda_to_reduce):
+def reduce_fragment_parameters_linearly(template_object, lambda_to_reduce, exp_charges=False, null_charges=False):
     reductor = ReduceLinearly(template_object, lambda_to_reduce)
-    reductor.reduce_nbon_params(reductor.reduce_value)
+    if exp_charges:
+        reductor_exp = ReduceExponentially(template_object, lambda_to_reduce)
+        reductor.reduce_nbon_params(reductor.reduce_value, reductor_exp.reduce_value, 
+                                    null_charges=null_charges)
+    else:
+        reductor.reduce_nbon_params(reductor.reduce_value, None, null_charges=null_charges)
     reductor.reduce_bond_eq_dist(reductor.reduce_value)
 
+def reduce_fragment_parameters_spreading_H(template_grow, template_core, lambda_to_reduce, hydrogen, n_GS):
+    reductor = ReduceLinearly(template_grow, lambda_to_reduce, template_core, hydrogen)
+    reductor.reduce_nbon_params_spreading_H(reductor.reduce_value, hydrogen, n_GS)
+    reductor.reduce_bond_eq_dist_spreading_H_link(reductor.reduce_value, hydrogen, n_GS)
 
-def modify_core_parameters_linearly(template_grow, lambda_to_reduce, template_core):
+def reduce_fragment_parameters_originaly(template_grow, template_core, lambda_to_reduce, hydrogen, n_GS):
+    reductor = ReduceLinearly(template_grow, lambda_to_reduce, template_core, hydrogen)
+    reductor.reduce_nbon_params_originaly(reductor.reduce_value, hydrogen, n_GS)
+    reductor.reduce_bond_eq_dist(reductor.reduce_value)
+
+def modify_core_parameters_linearly(template_grow, lambda_to_reduce, template_core, exp_charges=False, 
+                                    null_charges=False):
     reductor = ReduceLinearly(template_grow, lambda_to_reduce, template_core)
-    reductor.modify_core_nbond_params(reductor.reduce_value_from_diference)
+    if exp_charges:
+        reductor_exp = ReduceExponentially(template_grow, lambda_to_reduce, template_core)
+        reductor.modify_core_nbond_params(reductor.reduce_value_from_diference, 
+                                          reductor_exp.reduce_value_from_diference)
+    else:
+        reductor.modify_core_nbond_params(reductor.reduce_value_from_diference, None)
     reductor.modify_core_bond_eq_dist(reductor.reduce_value_from_diference)
     reductor.modify_core_theta(reductor.reduce_value_from_diference)
     reductor.modify_core_phis(reductor.reduce_value_from_diference)
@@ -905,9 +995,8 @@ def modify_linkers_parameters_linearly(template_grow, lambda_to_reduce, template
     reductor = ReduceLinearly(template_grow, lambda_to_reduce, template_core, atom_to_replace)
     reductor.modify_linker_bond_eq_dist(reductor.reduce_value_from_diference)
 
-
 def main(template_initial_path, template_grown_path, step, total_steps, hydrogen_to_replace, core_atom_linker,
-         tmpl_out_path):
+         tmpl_out_path, null_charges=False, growing_mode="SoftcoreLike"):
     """
     Module to modify templates, currently working in OPLS2005. This main function basically compares two templates;
     an initial and a grown one, extracting the atoms of the fragment (that have been grown). Then, it uses this data
@@ -932,11 +1021,11 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     :return: None
     """
     lambda_to_reduce = float(step/(total_steps+1))
-    templ_ini = TemplateOPLS2005(template_initial_path)
+    templ_ini = TemplateImpact(template_initial_path)
     
     for bond in templ_ini.list_of_bonds:
         key, bond_cont = bond
-    templ_grw = TemplateOPLS2005(template_grown_path)
+    templ_grw = TemplateImpact(template_grown_path)
     fragment_atoms, core_atoms_in, core_atoms_grown = detect_atoms(template_initial=templ_ini, 
                                                                    template_grown=templ_grw,
                                                                    hydrogen_to_replace=hydrogen_to_replace)
@@ -945,9 +1034,26 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     fragment_bonds = detect_fragment_bonds(list_of_fragment_atoms=fragment_atoms, template_grown=templ_grw)
     set_fragment_bonds(list_of_fragment_bonds=fragment_bonds)
     set_linker_bond(templ_grw)
-    modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini)
-    reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce)
-    modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
+    if growing_mode == "SoftcoreLike":
+        modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, exp_charges=True)
+        reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce, exp_charges=True, 
+                                            null_charges=True)
+        modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
+    elif growing_mode == "AllLinear":
+        modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, exp_charges=False)
+        reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce, exp_charges=False,
+                                            null_charges=False)
+        modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
+    elif growing_mode == "SpreadHcharge":
+        if step > 1:
+            reduce_fragment_parameters_originaly(templ_grw, templ_ini, lambda_to_reduce, 
+                                                  hydrogen=hydrogen_to_replace, n_GS=total_steps)
+            modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
+        else:
+            reduce_fragment_parameters_spreading_H(templ_grw, templ_ini, lambda_to_reduce, 
+                                                   hydrogen=hydrogen_to_replace, n_GS=total_steps)
+    else:
+        raise ValueError("Growing mode Not valid. Choose between: 'SoftcoreLike', 'SpreadHcharge', 'AllLinear'.")
     templ_grw.write_template_to_file(template_new_name=tmpl_out_path)
     return [atom.pdb_atom_name for atom in fragment_atoms], \
             [atom.pdb_atom_name for atom in core_atoms_grown]
