@@ -177,15 +177,17 @@ class TemplateImpact:
             if all(x.isdigit() for x in line.split()): #Avoiding conection matrix
                 continue
             try:
-                atom_id = get_string_from_line(line=line, index_initial=0, index_final=6)
-                parent_id = get_string_from_line(line=line, index_initial=6, index_final=11)
-                location = get_string_from_line(line=line, index_initial=12, index_final=13)
-                atom_type = get_string_from_line(line=line, index_initial=15, index_final=20)
-                pdb_atom_name = get_string_from_line(line=line, index_initial=21, index_final=25)
-                unknown = get_string_from_line(line=line, index_initial=26, index_final=31)
-                x_zmatrix = get_string_from_line(line=line, index_initial=32, index_final=43)
-                y_zmatrix = get_string_from_line(line=line, index_initial=44, index_final=55)
-                z_zmatrix = get_string_from_line(line=line, index_initial=56, index_final=67)
+                atom_id, parent_id, location, atom_type, pdb_atom_name, unknown, \
+                x_zmatrix, y_zmatrix , z_zmatrix = line.split()
+               # atom_id = get_string_from_line(line=line, index_initial=0, index_final=6)
+               # parent_id = get_string_from_line(line=line, index_initial=6, index_final=11)
+               # location = get_string_from_line(line=line, index_initial=12, index_final=13)
+               # atom_type = get_string_from_line(line=line, index_initial=15, index_final=20)
+               # pdb_atom_name = get_string_from_line(line=line, index_initial=21, index_final=25)
+               # unknown = get_string_from_line(line=line, index_initial=26, index_final=31)
+               # x_zmatrix = get_string_from_line(line=line, index_initial=32, index_final=43)
+               # y_zmatrix = get_string_from_line(line=line, index_initial=44, index_final=55)
+               # z_zmatrix = get_string_from_line(line=line, index_initial=56, index_final=67)
                 atom = Atom(atom_id=atom_id, parent_id=parent_id, location=location, atom_type=atom_type,
                             pdb_atom_name=pdb_atom_name, unknown=unknown, x_zmatrix=x_zmatrix, y_zmatrix=y_zmatrix,
                             z_zmatrix=z_zmatrix)
@@ -204,15 +206,23 @@ class TemplateImpact:
                 index = template.index(line)
                 break
             try:
-                id = int(get_string_from_line(line=line, index_initial=0, index_final=7))
-                self.list_of_atoms[id].sigma = float(get_string_from_line(line=line, index_initial=8, index_final=14))
-                self.list_of_atoms[id].epsilon = float(get_string_from_line(line=line, index_initial=15, index_final=23))
-                self.list_of_atoms[id].charge = float(get_string_from_line(line=line, index_initial=24, index_final=34))
-                self.list_of_atoms[id].radnpSGB = float(get_string_from_line(line=line, index_initial=35, index_final=43))
-                self.list_of_atoms[id].radnpType = float(get_string_from_line(line=line, index_initial=44, index_final=52))
-                self.list_of_atoms[id].sgbnpGamma = float(get_string_from_line(line=line, index_initial=53,
-                                                                               index_final=66))
-                self.list_of_atoms[id].sgbnpType = float(get_string_from_line(line=line, index_initial=67, index_final=80))
+                id, sigma, epsilon, charge, radnpSGB, radnpType, sgbnpGamma, sgbnpType = line.split()
+                self.list_of_atoms[int(id)].sigma = float(sigma)
+                self.list_of_atoms[int(id)].epsilon = float(epsilon)
+                self.list_of_atoms[int(id)].charge = float(charge)
+                self.list_of_atoms[int(id)].radnpSGB = float(radnpSGB)
+                self.list_of_atoms[int(id)].radnpType = float(radnpType)
+                self.list_of_atoms[int(id)].sgbnpGamma = float(sgbnpGamma)
+                self.list_of_atoms[int(id)].sgbnpType = float(sgbnpType)
+                #id = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                #self.list_of_atoms[id].sigma = float(get_string_from_line(line=line, index_initial=8, index_final=14))
+                #self.list_of_atoms[id].epsilon = float(get_string_from_line(line=line, index_initial=15, index_final=23))
+                #self.list_of_atoms[id].charge = float(get_string_from_line(line=line, index_initial=24, index_final=34))
+                #self.list_of_atoms[id].radnpSGB = float(get_string_from_line(line=line, index_initial=35, index_final=43))
+                #self.list_of_atoms[id].radnpType = float(get_string_from_line(line=line, index_initial=44, index_final=52))
+                #self.list_of_atoms[id].sgbnpGamma = float(get_string_from_line(line=line, index_initial=53,
+                #                                                               index_final=66))
+                #self.list_of_atoms[id].sgbnpType = float(get_string_from_line(line=line, index_initial=67, index_final=80))
             except ValueError:
                 raise ValueError(
                     "Unexpected type in line {} of {}\n{}".format(template.index(line), self.path_to_template, line))
@@ -222,15 +232,16 @@ class TemplateImpact:
                 index = template.index(line)
                 break
             try:
-                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
-                id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=12))
-                spring = get_string_from_line(line=line, index_initial=13, index_final=21)
-                eq_dist = get_string_from_line(line=line, index_initial=23, index_final=29)
+                id_atom1, id_atom2, spring, eq_dist = line.split()
+                #id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                #id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=12))
+                #spring = get_string_from_line(line=line, index_initial=13, index_final=21)
+                #eq_dist = get_string_from_line(line=line, index_initial=23, index_final=29)
                 # Create bond instance
-                bond = Bond(atom1=id_atom1, atom2=id_atom2, spring=spring, eq_dist=eq_dist)
-                self.list_of_bonds.setdefault((id_atom1, id_atom2), bond)
+                bond = Bond(atom1=int(id_atom1), atom2=int(id_atom2), spring=float(spring), eq_dist=float(eq_dist))
+                self.list_of_bonds.setdefault((int(id_atom1), int(id_atom2)), bond)
                 # Set which atom is bonded with
-                self.list_of_atoms[id_atom1].bonds.append(bond)
+                self.list_of_atoms[int(id_atom1)].bonds.append(bond)
 
             except ValueError:
                 raise ValueError(
@@ -240,15 +251,17 @@ class TemplateImpact:
                 index = template.index(line)
                 break
             try:
-                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
-                id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=12))
-                id_atom3 = int(get_string_from_line(line=line, index_initial=13, index_final=18))
-                spring = get_string_from_line(line=line, index_initial=19, index_final=29)
-                eq_angle = get_string_from_line(line=line, index_initial=31, index_final=40)
+                id_atom1, id_atom2, id_atom3, spring, eq_angle = line.split()
+                #id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                #id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=12))
+                #id_atom3 = int(get_string_from_line(line=line, index_initial=13, index_final=18))
+                #spring = get_string_from_line(line=line, index_initial=19, index_final=29)
+                #eq_angle = get_string_from_line(line=line, index_initial=31, index_final=40)
                 # Create bond instance
-                theta = Theta(atom1=id_atom1, atom2=id_atom2, atom3=id_atom3, spring=spring, eq_angle=eq_angle)
-                self.list_of_thetas.setdefault((id_atom1, id_atom2, id_atom3), theta)
-                self.list_of_atoms[id_atom1].thetas.append(theta)
+                theta = Theta(atom1=int(id_atom1), atom2=int(id_atom2), atom3=int(id_atom3), 
+                              spring=float(spring), eq_angle=float(eq_angle))
+                self.list_of_thetas.setdefault((int(id_atom1), int(id_atom2), int(id_atom3)), theta)
+                self.list_of_atoms[int(id_atom1)].thetas.append(theta)
 
             except ValueError:
                 raise ValueError(
@@ -259,16 +272,17 @@ class TemplateImpact:
                 index = template.index(line)
                 break
             try:
-                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
-                id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=11))
-                id_atom3 = int(get_string_from_line(line=line, index_initial=12, index_final=17))
-                id_atom4 = int(get_string_from_line(line=line, index_initial=18, index_final=23))
-                constant = get_string_from_line(line=line, index_initial=25, index_final=32)
-                preafactor = get_string_from_line(line=line, index_initial=33, index_final=38)
-                nterm = get_string_from_line(line=line, index_initial=39, index_final=42)
+                id_atom1, id_atom2, id_atom3, id_atom4, constant, preafactor, nterm = line.split()
+                #id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                #id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=11))
+                #id_atom3 = int(get_string_from_line(line=line, index_initial=12, index_final=17))
+                #id_atom4 = int(get_string_from_line(line=line, index_initial=18, index_final=23))
+                #constant = get_string_from_line(line=line, index_initial=25, index_final=32)
+                #preafactor = get_string_from_line(line=line, index_initial=33, index_final=38)
+                #nterm = get_string_from_line(line=line, index_initial=39, index_final=42)
                 # Create bond instance
-                phi = Phi(atom1=id_atom1, atom2=id_atom2, atom3=id_atom3, atom4=id_atom4, constant=constant,
-                          prefactor=preafactor, nterm=nterm, improper=False)
+                phi = Phi(atom1=int(id_atom1), atom2=int(id_atom2), atom3=int(id_atom3), atom4=int(id_atom4), 
+                          constant=constant, prefactor=preafactor, nterm=nterm, improper=False)
                 self.list_of_phis.append(phi)
 
             except ValueError:
@@ -279,16 +293,17 @@ class TemplateImpact:
             if line.startswith("END"):
                 break
             try:
-                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
-                id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=12))
-                id_atom3 = int(get_string_from_line(line=line, index_initial=13, index_final=18))
-                id_atom4 = int(get_string_from_line(line=line, index_initial=19, index_final=24))
-                constant = get_string_from_line(line=line, index_initial=26, index_final=33)
-                preafactor = get_string_from_line(line=line, index_initial=34, index_final=39)
-                nterm = get_string_from_line(line=line, index_initial=40, index_final=43)
+                id_atom1, id_atom2, id_atom3, id_atom4, constant, preafactor, nterm = line.split()
+                #id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                #id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=12))
+                #id_atom3 = int(get_string_from_line(line=line, index_initial=13, index_final=18))
+                #id_atom4 = int(get_string_from_line(line=line, index_initial=19, index_final=24))
+                #constant = get_string_from_line(line=line, index_initial=26, index_final=33)
+                #preafactor = get_string_from_line(line=line, index_initial=34, index_final=39)
+                #nterm = get_string_from_line(line=line, index_initial=40, index_final=43)
                 # Create bond instance
-                phi = Phi(atom1=id_atom1, atom2=id_atom2, atom3=id_atom3, atom4=id_atom4, constant=constant,
-                          prefactor=preafactor, nterm=nterm, improper=True)
+                phi = Phi(atom1=int(id_atom1), atom2=int(id_atom2), atom3=int(id_atom3), atom4=int(id_atom4), 
+                          constant=constant, prefactor=preafactor, nterm=nterm, improper=True)
                 self.list_of_iphis.append(phi)
 
             except ValueError:
