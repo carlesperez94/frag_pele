@@ -823,7 +823,7 @@ def main(pdb_complex_core, pdb_fragment, pdb_atom_core_name, pdb_atom_fragment_n
                                         fragment_bond=fragment_bond, core_structure=core, fragment_structure=fragment,
                                         pdb_complex=pdb_complex_core, pdb_fragment=pdb_fragment, chain_complex=core_chain,
                                         chain_fragment=fragment_chain, output_path=WORK_PATH, threshold_clash=clash_threshold,
-                                        only_grow=only_grow, debug=True)
+                                        only_grow=only_grow, debug=False)
         # If we do not find a solution in the previous step, we will repeat the rotations applying only increments of 1º
         if not check_results:
             check_results = check_collision(merged_structure=merged_structure[0], bond=heavy_atoms, theta=0,
