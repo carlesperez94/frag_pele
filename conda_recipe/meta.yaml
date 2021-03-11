@@ -15,7 +15,6 @@ source:
 build:
   script: python -m pip install . --no-deps -vv
   number: 0
-  noarch: python
 
 requirements:
   host:
@@ -30,7 +29,7 @@ requirements:
     - cython
     - pytest
     - scipy
-    - prody
+    - prody=1.10.*
     - six
     - pandas
     - rdkit
