@@ -480,10 +480,13 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                            rot_res=rotamers,
                                            aminoacid_type=aa_type)
         if restart:
-            template_name = add_fragment_from_pdbs.extract_atoms_pdbs(pdb=os.path.join(working_dir, add_fragment_from_pdbs.
-                                                                         c.PRE_WORKING_DIR, pdb_to_template),
-                                                                         create_file=False,
-                                                                         chain=ch, resnum=rn, get_atoms=False)
+            if cov_res:
+                template_name = 'grw'
+            else:
+                template_name = add_fragment_from_pdbs.extract_atoms_pdbs(pdb=os.path.join(working_dir, add_fragment_from_pdbs.
+                                                                          c.PRE_WORKING_DIR, pdb_to_template),
+                                                                          create_file=False,
+                                                                          chain=ch, resnum=rn, get_atoms=False)
         template_resnames.append(template_name.upper())
     # Get template filenames
     if cov_res:

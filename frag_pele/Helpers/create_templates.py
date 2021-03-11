@@ -46,8 +46,9 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
     # Check if the residue is an amino-acid from the library
     path = os.path.dirname(frag_pele.__file__)
     aa_pdb = os.path.join(path, f"Templates/Aminoacids/{aminoacid_type}.pdb")
-    if not os.path.exists(aa_pdb):
+    if not os.path.exists(aa_pdb) or aminoacid_type == None:
         output_pdb = os.path.join(pdb_dir,out)
+        print(f"{aa_pdb} does not exist, using {output_pdb} instead")
     else:
         output_pdb = aa_pdb
     # Check if the output path exist to dont repeat calculations
@@ -68,7 +69,7 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
         m = Molecule(output_pdb, 
                      core_constraints=contraints,
                      rotamer_resolution=rot_res)
-        print(f"Using PDB from {aa_pdb} to generate the template!")
+        print(f"Using PDB from {output_pdb} to generate the template!")
     else:
         print("Heteroatom template")
         if not contrained_atoms:
