@@ -1,2 +1,3 @@
-__version__ = "2.2.1"
-name = "FragPELE"
+__version__ = "3.0.0"
+name = "frag_pele"
+

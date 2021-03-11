@@ -15,12 +15,13 @@ print(machine)
 # Paths definitions (IMPORTANT!)
 if "bsc.mn" in machine:
     # PELE parameters
-    PATH_TO_PELE = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.1/bin/PELE-1.6.1_mpi"
-    PATH_TO_PELE_DATA = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.1/Data"
-    PATH_TO_PELE_DOCUMENTS = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.1/Documents"
+    PATH_TO_PELE = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.2-SideChainPert_4/bin/PELE-1.6.2_mpi"
+    PATH_TO_PELE_DATA = "/gpfs/projects/bsc72/PELE++/mniv/V1.6.2-SideChainPert_4/Data"
+    PATH_TO_PELE_DOCUMENTS = None # Data and documents is added automatically from PELE >= 1.6
     PATH_TO_LICENSE = "/gpfs/projects/bsc72/PELE++/license"
     # PlopRotTemp parameters
     SCHRODINGER_PY_PATH = "/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC/utilities/python"
+    SCHRODINGER = "/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC"
     ENV_PYTHON = "/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC/internal/lib/python2.7/site-packages/"
 elif "bsccv" in machine:
     # PELE parameters
@@ -29,14 +30,15 @@ elif "bsccv" in machine:
     PATH_TO_PELE_DOCUMENTS = "/data/EAPM/PELE/PELE++/Documents/rev12360"
     PATH_TO_LICENSE = "/data/EAPM/PELE/PELE++/license"
     SCHRODINGER_PY_PATH = "/data2/bsc72/SCHRODINGER_ACADEMIC/utilities/python"
+    SCHRODINGER = "/data2/bsc72/SCHRODINGER_ACADEMIC"
     ENV_PYTHON = "/data2/bsc72/SCHRODINGER_ACADEMIC/internal/lib/python2.7/site-packages/"
 else:
     # PELE parameters
-    PATH_TO_PELE = "/home/carlespl/repos/PELE-repo/build/PELE-1.5_mpi"
-    PATH_TO_PELE_DATA = "/home/carlespl/repos/PELE-repo/Data"
-    PATH_TO_PELE_DOCUMENTS = "/home/carlespl/repos/PELE-repo/Documents"
-    PATH_TO_LICENSE = "/home/carlespl/repos/PELE-repo/licenses"
-    SCHRODINGER_PY_PATH = "/home/carlespl/schrodinger2019-2/run"
+    PATH_TO_PELE = "/home/user/pelepath/PELE_mpi"
+    PATH_TO_PELE_DATA = None
+    PATH_TO_PELE_DOCUMENTS = None
+    PATH_TO_LICENSE = "/home/user/pelepath/licenses"
+    SCHRODINGER_PY_PATH = "/home/user/schrodingerVVVV-VV/run"
     ENV_PYTHON = ""
 
 # FragPELE configuration
@@ -65,7 +67,7 @@ TRANSLATION_LOW = 0.02
 ROTATION_LOW = 0.05 
 RADIUS_BOX = 4  # Amstrongs
 # PlopRotTemp configuration
-ROTRES = "10.0"
+ROTRES = 30
 
 # Clustering parameters
 DISTANCE_COUNTER = 4
@@ -92,4 +94,7 @@ LINES_MESSAGE = "\n•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*´¨`*•.¸¸.•*
 SELECTED_MESSAGE = "\n============ Files selected ============\nControl file: {}\nPDB file: {}\nResults folder name: {}\nStep: {}\n"
 FINISH_SIM_MESSAGE = "SIMULATION {} COMPLETED!!! "
 
+# LISTS
+AA_LIST = ["ALA", "ARG", "ASP", "CYS", "GLN", "GLY", "GLU", "HID", "HIE", "HIP", "HIS", "ILE", "LEU", "LYS", 
+           "MET", "PHE", "PRO", "TRP", "TYR", "THR", "VAL"]
 ##############################################

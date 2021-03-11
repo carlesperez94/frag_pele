@@ -122,7 +122,8 @@ def extract_hydrogens_from_instructions(instruction):
             hydrogen_fragment = instruction[2].split("-")[1]
             return heavy_core, hydrogen_core, heavy_fragment, hydrogen_fragment
         except IndexError:
-            raise IndexError("To use steriochemistry the hydrogen from the core AND fragmet must be specified via controlfile")
+            raise IndexError(f"Wrong growing direction in {instruction}. Both, fragment and core atoms must include one or two atoms." 
+                              "Ex: frag.pdb  C1  C2 |or| frag.pdb  C1-H1  C2-H2")
     else:
         return False
 

@@ -22,13 +22,13 @@ sys.path.insert(0,"../frag_pele/")
 # -- Project information -----------------------------------------------------
 
 project = 'FragPELE'
-copyright = '2019, Carles Perez Lopez and Dani Soler'
-author = 'Carles Perez Lopez and Dani Soler'
+copyright = '2019, Carles Perez Lopez and Daniel Soler'
+author = 'Carles Perez Lopez and Daniel Soler'
 
 # The short X.Y version
-version = '2.1'
+version = '2.3'
 # The full version, including alpha/beta/rc tags
-release = '2.1.0'
+release = '2.3.0'
 
 
 # -- General configuration ---------------------------------------------------

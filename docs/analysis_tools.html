@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Analysis Tools &mdash; FragPELE 2.1.0 documentation</title>
+  <title>Analysis Tools &mdash; FragPELE 2.3.0 documentation</title>
   
 
   
@@ -20,11 +20,20 @@
   <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'2.3.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -60,7 +69,7 @@
             
             
               <div class="version">
-                2.1
+                2.3
               </div>
             
           
@@ -181,7 +190,7 @@
 <h1>Analysis Tools<a class="headerlink" href="#analysis-tools" title="Permalink to this headline">¶</a></h1>
 <p>You have at your disposal several tools to analyse FragPELE simulations. Go into the following path to have access to all
 of them:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">Analysis</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">Analysis</span>
 </pre></div>
 </div>
 <p>WARNING: In the new version all analysis tools except the automatic SCORE computed inside FragPELE run will be inoperative due to path modification.
@@ -193,24 +202,24 @@ growing step. Therefore, the traceback between snapshots is lost along with the 
 we have modified an AdaptivePELE’s tool to do the backtracking of snapshots, to get all of them from the selected
 final structure to the initial one.</p>
 <p>usage:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">backtrackFragTrajectory</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">P</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">O</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span> <span class="n">file_to_backtrack</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">backtrackFragTrajectory</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">P</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">O</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span> <span class="n">file_to_backtrack</span>
 </pre></div>
 </div>
 <div class="section" id="positional-arguments">
 <h3>Positional arguments:<a class="headerlink" href="#positional-arguments" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>file_to_backtrack: File of the selected_results folder that one’s wants to backtrack.</p></li>
+<li>file_to_backtrack: File of the selected_results folder that one’s wants to backtrack.</li>
 </ul>
 </div>
 <div class="section" id="optional-arguments">
 <h3>Optional arguments:<a class="headerlink" href="#optional-arguments" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p><strong>-p</strong>: Path to the folder that contains the growing results (all growing simulations). By default: “growing_results”.</p></li>
-<li><p><strong>-o</strong>: Output path where the traceback trajectory will be written. By default it writes the file in the current directory.</p></li>
-<li><p><strong>—name*</strong>: Name of the output pdb file. By default “pathway.pdb”.</p></li>
+<li><strong>-p</strong>: Path to the folder that contains the growing results (all growing simulations). By default: “growing_results”.</li>
+<li><strong>-o</strong>: Output path where the traceback trajectory will be written. By default it writes the file in the current directory.</li>
+<li><strong>—name*</strong>: Name of the output pdb file. By default “pathway.pdb”.</li>
 </ul>
 <p>i.e:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">Analysis</span><span class="o">/</span><span class="n">backtrackFragFrajectory</span><span class="o">.</span><span class="n">py</span> <span class="n">selected_result_aminoC1N1</span><span class="o">/</span><span class="n">epochsampling_result_aminoC1N1_trajectory_1</span><span class="o">.</span><span class="mi">1</span><span class="n">_BindingEnergy</span><span class="o">-</span><span class="mf">47.6974</span><span class="o">.</span><span class="n">pdb</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">Analysis</span><span class="o">/</span><span class="n">backtrackFragFrajectory</span><span class="o">.</span><span class="n">py</span> <span class="n">selected_result_aminoC1N1</span><span class="o">/</span><span class="n">epochsampling_result_aminoC1N1_trajectory_1</span><span class="o">.</span><span class="mi">1</span><span class="n">_BindingEnergy</span><span class="o">-</span><span class="mf">47.6974</span><span class="o">.</span><span class="n">pdb</span>
 </pre></div>
 </div>
 <p>** It is important to do not change the name of the files inside the selected_results folder, because it is used to do the traceback. **</p>
@@ -223,24 +232,24 @@ final structure to the initial one.</p>
 all bonds will be interpreted as single type. Prepare with Maestro one of the selected results’ structure and use this script to recover
 the connectivity in the rest of the trajectory</p>
 <p>usage:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">backtrackConnectivity</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ligand_chain</span> <span class="n">LIGAND_CHAIN</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">O</span><span class="p">]</span> <span class="n">pathway</span> <span class="n">pdb_with_connects</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">backtrackConnectivity</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ligand_chain</span> <span class="n">LIGAND_CHAIN</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">O</span><span class="p">]</span> <span class="n">pathway</span> <span class="n">pdb_with_connects</span>
 </pre></div>
 </div>
 <div class="section" id="id1">
 <h3>Positional arguments:<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>pathway: Trajectory file with the backtracked pathway. It expects the output of backtrackFragTrajectory.py</p></li>
-<li><p>pdb_with_connects: PDB of the final structure prepared. Must contain CONNECTS section. Remember to not delete water molecules!</p></li>
+<li>pathway: Trajectory file with the backtracked pathway. It expects the output of backtrackFragTrajectory.py</li>
+<li>pdb_with_connects: PDB of the final structure prepared. Must contain CONNECTS section. Remember to not delete water molecules!</li>
 </ul>
 </div>
 <div class="section" id="id2">
 <h3>Optional arguments:<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p><strong>-o</strong>: Output file of the new trajectory. By default it has the input pathway name with “_connected.pdb” added.</p></li>
-<li><p><strong>—ligand_chain*</strong>: Name of the ligand chain. By default “L”.</p></li>
+<li><strong>-o</strong>: Output file of the new trajectory. By default it has the input pathway name with “_connected.pdb” added.</li>
+<li><strong>—ligand_chain*</strong>: Name of the ligand chain. By default “L”.</li>
 </ul>
 <p>i.e:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">AnalysisbacktrackConnectivity</span><span class="o">.</span><span class="n">py</span> <span class="n">pathway</span><span class="o">.</span><span class="n">pdb</span> <span class="n">epochsampling_result_aminoC1N1_trajectory_1</span><span class="o">.</span><span class="mi">1</span><span class="n">_BindingEnergy</span><span class="o">-</span><span class="mf">47.6974</span><span class="n">_with_connects</span><span class="o">.</span><span class="n">pdb</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">AnalysisbacktrackConnectivity</span><span class="o">.</span><span class="n">py</span> <span class="n">pathway</span><span class="o">.</span><span class="n">pdb</span> <span class="n">epochsampling_result_aminoC1N1_trajectory_1</span><span class="o">.</span><span class="mi">1</span><span class="n">_BindingEnergy</span><span class="o">-</span><span class="mf">47.6974</span><span class="n">_with_connects</span><span class="o">.</span><span class="n">pdb</span>
 </pre></div>
 </div>
 </div>
@@ -249,26 +258,26 @@ the connectivity in the rest of the trajectory</p>
 <h2>Analyser<a class="headerlink" href="#analyser" title="Permalink to this headline">¶</a></h2>
 <p>Computes the mean of the 25% lowest values of the sampling simulation for each fragment grown: <strong>FragPELE SCORE</strong>.</p>
 <p>usage:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">analyser</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="n">REP_PREF</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">STEPS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="n">FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">e</span> <span class="n">EQUIL_FOLDER</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">COL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span> <span class="n">QUART</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">csv</span> <span class="n">EXPORT_CSV</span><span class="p">]</span> <span class="n">path_to_analyze</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">analyser</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="n">REP_PREF</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">STEPS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="n">FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">e</span> <span class="n">EQUIL_FOLDER</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">COL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span> <span class="n">QUART</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">csv</span> <span class="n">EXPORT_CSV</span><span class="p">]</span> <span class="n">path_to_analyze</span>
 </pre></div>
 </div>
 <div class="section" id="id3">
 <h3>Positional arguments:<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>path_to_analyze: Path of the folder to be analyzed, where all simulations are stored. Is the directory where you have run FragPELE.</p></li>
+<li>path_to_analyze: Path of the folder to be analyzed, where all simulations are stored. Is the directory where you have run FragPELE.</li>
 </ul>
 </div>
 <div class="section" id="id4">
 <h3>Optional arguments:<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p><strong>-r</strong>, <strong>—rep_pref</strong>: Prefix to the report files. By default “report*”.</p></li>
-<li><p><strong>-s</strong>, <strong>—steps</strong>: Used to compute the score only with the first N steps of the sampling simulation.</p></li>
-<li><p><strong>-f</strong>, <strong>—file</strong>: Flag to export to files. By default “False”.</p></li>
-<li><p><strong>-o</strong>, <strong>—out</strong> : Name of the output file. By default “None”.</p></li>
-<li><p><strong>-e</strong>, <strong>—equil_folder</strong>: Prefix of the sampling folder (where the results are stored). By default: “sampling_results*”.</p></li>
-<li><p><strong>-c</strong>, <strong>—col</strong>: Name of the column that we will use to find the minimum value of the PELE report. By default “Binding Energy”.</p></li>
-<li><p><strong>-q</strong>, <strong>—quart</strong>: Quartile that will be used to subset the whole sample to compute the mean then. By default 0.25.</p></li>
-<li><p><strong>-csv</strong>, <strong>—export_csv</strong>: Flag to export all results to a csv file. Set this flag to “False” if you do not want to store them. By default “True”.</p></li>
+<li><strong>-r</strong>, <strong>—rep_pref</strong>: Prefix to the report files. By default “report*”.</li>
+<li><strong>-s</strong>, <strong>—steps</strong>: Used to compute the score only with the first N steps of the sampling simulation.</li>
+<li><strong>-f</strong>, <strong>—file</strong>: Flag to export to files. By default “False”.</li>
+<li><strong>-o</strong>, <strong>—out</strong> : Name of the output file. By default “None”.</li>
+<li><strong>-e</strong>, <strong>—equil_folder</strong>: Prefix of the sampling folder (where the results are stored). By default: “sampling_results*”.</li>
+<li><strong>-c</strong>, <strong>—col</strong>: Name of the column that we will use to find the minimum value of the PELE report. By default “Binding Energy”.</li>
+<li><strong>-q</strong>, <strong>—quart</strong>: Quartile that will be used to subset the whole sample to compute the mean then. By default 0.25.</li>
+<li><strong>-csv</strong>, <strong>—export_csv</strong>: Flag to export all results to a csv file. Set this flag to “False” if you do not want to store them. By default “True”.</li>
 </ul>
 </div>
 </div>
@@ -294,7 +303,7 @@ the connectivity in the rest of the trajectory</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Carles Perez Lopez and Dani Soler
+        &copy; Copyright 2019, Carles Perez Lopez and Daniel Soler
 
     </p>
   </div>

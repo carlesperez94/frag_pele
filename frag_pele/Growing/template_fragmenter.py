@@ -11,6 +11,7 @@ PATTERN_OPLS2005_NBON = "{:5d} {: >8.4f} {: >8.4f} {: >10.6f} {: >8.4f} {: >8.4f
 PATTERN_OPLS2005_BOND = "{:5d} {:5d} {:>9.3f} {:>6.3f}\n"
 PATTERN_OPLS2005_THETA = "{:5d} {:5d} {:5d} {:>11.5f} {: >11.5f}\n"
 PATTERN_OPLS2005_PHI = "{:5d} {:5d} {: 5d} {:5d} {:>9.5f} {: >4.1f} {: >3.1f}\n"
+PATTERN_OPLS2005_IPHI = " {:5d} {:5d} {: 5d} {:5d} {:>9.5f} {: >4.1f} {: >3.1f}\n"
 
 
 class Atom:
@@ -139,11 +140,11 @@ class Phi:
 
     def write_iphi(self):
         if self.improper:
-            return PATTERN_OPLS2005_PHI.format(self.atom1, self.atom2, self.atom3, self.atom4, self.constant,
+            return PATTERN_OPLS2005_IPHI.format(self.atom1, self.atom2, self.atom3, self.atom4, self.constant,
                                                self.prefactor, self.nterm)
 
 
-class TemplateOPLS2005:
+class TemplateImpact:
     def __init__(self, path_to_template):
         self.path_to_template = path_to_template
         self.template_name = ""
@@ -162,27 +163,31 @@ class TemplateOPLS2005:
 
     def read_template(self):
         template = file_to_list_of_lines(self.path_to_template)
-        for line in template[2:3]:
-            self.template_name = get_string_from_line(line=line, index_initial=0, index_final=5)
-            self.num_nbon_params = int(get_string_from_line(line=line, index_initial=6, index_final=11))
-            self.num_bond_params = int(get_string_from_line(line=line, index_initial=13, index_final=17))
-            self.num_angle_params = int(get_string_from_line(line=line, index_initial=18, index_final=24))
-            self.num_dihedr_params = int(get_string_from_line(line=line, index_initial=25, index_final=31))
-            self.num_nonnull = int(get_string_from_line(line=line, index_initial=32, index_final=39))
-        for line in template[3:]:
+        for line in template[0:1]:
+            self.template_name = line.split()[0]
+            self.num_nbon_params = int(line.split()[1])
+            self.num_bond_params = int(line.split()[2])
+            self.num_angle_params = int(line.split()[3])
+            self.num_dihedr_params = int(line.split()[4])
+            self.num_nonnull = int(line.split()[5])
+        for line in template[1:]:
             if line.startswith("NBON"):
                 index = template.index(line)
                 break
+            if all(x.isdigit() for x in line.split()): #Avoiding conection matrix
+                continue
             try:
-                atom_id = get_string_from_line(line=line, index_initial=0, index_final=6)
-                parent_id = get_string_from_line(line=line, index_initial=6, index_final=11)
-                location = get_string_from_line(line=line, index_initial=12, index_final=13)
-                atom_type = get_string_from_line(line=line, index_initial=15, index_final=20)
-                pdb_atom_name = get_string_from_line(line=line, index_initial=21, index_final=25)
-                unknown = get_string_from_line(line=line, index_initial=26, index_final=31)
-                x_zmatrix = get_string_from_line(line=line, index_initial=32, index_final=43)
-                y_zmatrix = get_string_from_line(line=line, index_initial=44, index_final=55)
-                z_zmatrix = get_string_from_line(line=line, index_initial=56, index_final=67)
+                atom_id, parent_id, location, atom_type, pdb_atom_name, unknown, \
+                x_zmatrix, y_zmatrix , z_zmatrix = line.split()
+               # atom_id = get_string_from_line(line=line, index_initial=0, index_final=6)
+               # parent_id = get_string_from_line(line=line, index_initial=6, index_final=11)
+               # location = get_string_from_line(line=line, index_initial=12, index_final=13)
+               # atom_type = get_string_from_line(line=line, index_initial=15, index_final=20)
+               # pdb_atom_name = get_string_from_line(line=line, index_initial=21, index_final=25)
+               # unknown = get_string_from_line(line=line, index_initial=26, index_final=31)
+               # x_zmatrix = get_string_from_line(line=line, index_initial=32, index_final=43)
+               # y_zmatrix = get_string_from_line(line=line, index_initial=44, index_final=55)
+               # z_zmatrix = get_string_from_line(line=line, index_initial=56, index_final=67)
                 atom = Atom(atom_id=atom_id, parent_id=parent_id, location=location, atom_type=atom_type,
                             pdb_atom_name=pdb_atom_name, unknown=unknown, x_zmatrix=x_zmatrix, y_zmatrix=y_zmatrix,
                             z_zmatrix=z_zmatrix)
@@ -201,15 +206,23 @@ class TemplateOPLS2005:
                 index = template.index(line)
                 break
             try:
-                id = int(get_string_from_line(line=line, index_initial=0, index_final=6))
-                self.list_of_atoms[id].sigma = float(get_string_from_line(line=line, index_initial=7, index_final=14))
-                self.list_of_atoms[id].epsilon = float(get_string_from_line(line=line, index_initial=15, index_final=23))
-                self.list_of_atoms[id].charge = float(get_string_from_line(line=line, index_initial=24, index_final=34))
-                self.list_of_atoms[id].radnpSGB = float(get_string_from_line(line=line, index_initial=35, index_final=43))
-                self.list_of_atoms[id].radnpType = float(get_string_from_line(line=line, index_initial=44, index_final=52))
-                self.list_of_atoms[id].sgbnpGamma = float(get_string_from_line(line=line, index_initial=53,
-                                                                               index_final=66))
-                self.list_of_atoms[id].sgbnpType = float(get_string_from_line(line=line, index_initial=67, index_final=80))
+                id, sigma, epsilon, charge, radnpSGB, radnpType, sgbnpGamma, sgbnpType = line.split()
+                self.list_of_atoms[int(id)].sigma = float(sigma)
+                self.list_of_atoms[int(id)].epsilon = float(epsilon)
+                self.list_of_atoms[int(id)].charge = float(charge)
+                self.list_of_atoms[int(id)].radnpSGB = float(radnpSGB)
+                self.list_of_atoms[int(id)].radnpType = float(radnpType)
+                self.list_of_atoms[int(id)].sgbnpGamma = float(sgbnpGamma)
+                self.list_of_atoms[int(id)].sgbnpType = float(sgbnpType)
+                #id = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                #self.list_of_atoms[id].sigma = float(get_string_from_line(line=line, index_initial=8, index_final=14))
+                #self.list_of_atoms[id].epsilon = float(get_string_from_line(line=line, index_initial=15, index_final=23))
+                #self.list_of_atoms[id].charge = float(get_string_from_line(line=line, index_initial=24, index_final=34))
+                #self.list_of_atoms[id].radnpSGB = float(get_string_from_line(line=line, index_initial=35, index_final=43))
+                #self.list_of_atoms[id].radnpType = float(get_string_from_line(line=line, index_initial=44, index_final=52))
+                #self.list_of_atoms[id].sgbnpGamma = float(get_string_from_line(line=line, index_initial=53,
+                #                                                               index_final=66))
+                #self.list_of_atoms[id].sgbnpType = float(get_string_from_line(line=line, index_initial=67, index_final=80))
             except ValueError:
                 raise ValueError(
                     "Unexpected type in line {} of {}\n{}".format(template.index(line), self.path_to_template, line))
@@ -219,15 +232,16 @@ class TemplateOPLS2005:
                 index = template.index(line)
                 break
             try:
-                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=6))
-                id_atom2 = int(get_string_from_line(line=line, index_initial=6, index_final=12))
-                spring = get_string_from_line(line=line, index_initial=13, index_final=21)
-                eq_dist = get_string_from_line(line=line, index_initial=23, index_final=29)
+                id_atom1, id_atom2, spring, eq_dist = line.split()
+                #id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                #id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=12))
+                #spring = get_string_from_line(line=line, index_initial=13, index_final=21)
+                #eq_dist = get_string_from_line(line=line, index_initial=23, index_final=29)
                 # Create bond instance
-                bond = Bond(atom1=id_atom1, atom2=id_atom2, spring=spring, eq_dist=eq_dist)
-                self.list_of_bonds.setdefault((id_atom1, id_atom2), bond)
+                bond = Bond(atom1=int(id_atom1), atom2=int(id_atom2), spring=float(spring), eq_dist=float(eq_dist))
+                self.list_of_bonds.setdefault((int(id_atom1), int(id_atom2)), bond)
                 # Set which atom is bonded with
-                self.list_of_atoms[id_atom1].bonds.append(bond)
+                self.list_of_atoms[int(id_atom1)].bonds.append(bond)
 
             except ValueError:
                 raise ValueError(
@@ -237,15 +251,17 @@ class TemplateOPLS2005:
                 index = template.index(line)
                 break
             try:
-                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=6))
-                id_atom2 = int(get_string_from_line(line=line, index_initial=6, index_final=12))
-                id_atom3 = int(get_string_from_line(line=line, index_initial=13, index_final=18))
-                spring = get_string_from_line(line=line, index_initial=19, index_final=29)
-                eq_angle = get_string_from_line(line=line, index_initial=31, index_final=40)
+                id_atom1, id_atom2, id_atom3, spring, eq_angle = line.split()
+                #id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                #id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=12))
+                #id_atom3 = int(get_string_from_line(line=line, index_initial=13, index_final=18))
+                #spring = get_string_from_line(line=line, index_initial=19, index_final=29)
+                #eq_angle = get_string_from_line(line=line, index_initial=31, index_final=40)
                 # Create bond instance
-                theta = Theta(atom1=id_atom1, atom2=id_atom2, atom3=id_atom3, spring=spring, eq_angle=eq_angle)
-                self.list_of_thetas.setdefault((id_atom1, id_atom2, id_atom3), theta)
-                self.list_of_atoms[id_atom1].thetas.append(theta)
+                theta = Theta(atom1=int(id_atom1), atom2=int(id_atom2), atom3=int(id_atom3), 
+                              spring=float(spring), eq_angle=float(eq_angle))
+                self.list_of_thetas.setdefault((int(id_atom1), int(id_atom2), int(id_atom3)), theta)
+                self.list_of_atoms[int(id_atom1)].thetas.append(theta)
 
             except ValueError:
                 raise ValueError(
@@ -256,18 +272,18 @@ class TemplateOPLS2005:
                 index = template.index(line)
                 break
             try:
-                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=5))
-                id_atom2 = int(get_string_from_line(line=line, index_initial=6, index_final=11))
-                id_atom3 = int(get_string_from_line(line=line, index_initial=12, index_final=17))
-                id_atom4 = int(get_string_from_line(line=line, index_initial=18, index_final=23))
-                constant = get_string_from_line(line=line, index_initial=25, index_final=32)
-                preafactor = get_string_from_line(line=line, index_initial=33, index_final=38)
-                nterm = get_string_from_line(line=line, index_initial=39, index_final=42)
+                id_atom1, id_atom2, id_atom3, id_atom4, constant, preafactor, nterm = line.split()
+                #id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                #id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=11))
+                #id_atom3 = int(get_string_from_line(line=line, index_initial=12, index_final=17))
+                #id_atom4 = int(get_string_from_line(line=line, index_initial=18, index_final=23))
+                #constant = get_string_from_line(line=line, index_initial=25, index_final=32)
+                #preafactor = get_string_from_line(line=line, index_initial=33, index_final=38)
+                #nterm = get_string_from_line(line=line, index_initial=39, index_final=42)
                 # Create bond instance
-                phi = Phi(atom1=id_atom1, atom2=id_atom2, atom3=id_atom3, atom4=id_atom4, constant=constant,
-                          prefactor=preafactor, nterm=nterm, improper=False)
+                phi = Phi(atom1=int(id_atom1), atom2=int(id_atom2), atom3=int(id_atom3), atom4=int(id_atom4), 
+                          constant=constant, prefactor=preafactor, nterm=nterm, improper=False)
                 self.list_of_phis.append(phi)
-                self.list_of_atoms[id_atom1].phis.append(phi)
 
             except ValueError:
                 raise ValueError(
@@ -277,16 +293,17 @@ class TemplateOPLS2005:
             if line.startswith("END"):
                 break
             try:
-                id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=6))
-                id_atom2 = int(get_string_from_line(line=line, index_initial=7, index_final=12))
-                id_atom3 = int(get_string_from_line(line=line, index_initial=13, index_final=18))
-                id_atom4 = int(get_string_from_line(line=line, index_initial=19, index_final=24))
-                constant = get_string_from_line(line=line, index_initial=26, index_final=34)
-                preafactor = get_string_from_line(line=line, index_initial=34, index_final=39)
-                nterm = get_string_from_line(line=line, index_initial=40, index_final=43)
+                id_atom1, id_atom2, id_atom3, id_atom4, constant, preafactor, nterm = line.split()
+                #id_atom1 = int(get_string_from_line(line=line, index_initial=0, index_final=7))
+                #id_atom2 = int(get_string_from_line(line=line, index_initial=8, index_final=12))
+                #id_atom3 = int(get_string_from_line(line=line, index_initial=13, index_final=18))
+                #id_atom4 = int(get_string_from_line(line=line, index_initial=19, index_final=24))
+                #constant = get_string_from_line(line=line, index_initial=26, index_final=33)
+                #preafactor = get_string_from_line(line=line, index_initial=34, index_final=39)
+                #nterm = get_string_from_line(line=line, index_initial=40, index_final=43)
                 # Create bond instance
-                phi = Phi(atom1=id_atom1, atom2=id_atom2, atom3=id_atom3, atom4=id_atom4, constant=constant,
-                          prefactor=preafactor, nterm=nterm, improper=True)
+                phi = Phi(atom1=int(id_atom1), atom2=int(id_atom2), atom3=int(id_atom3), atom4=int(id_atom4), 
+                          constant=constant, prefactor=preafactor, nterm=nterm, improper=True)
                 self.list_of_iphis.append(phi)
 
             except ValueError:
@@ -301,29 +318,29 @@ class TemplateOPLS2005:
 
     def write_xres(self):
         content = []
-        for n in range(1, len(self.list_of_atoms)+1):
-            line = self.list_of_atoms[n].write_resx()
+        for i, atom in self.list_of_atoms.items():
+            line = self.list_of_atoms[i].write_resx()
             content.append(line)
         return "".join(content)
 
     def write_nbon(self):
         content = []
-        for n in range(1, len(self.list_of_atoms)+1):
-            line = self.list_of_atoms[n].write_nbon()
+        for i, atom in self.list_of_atoms.items():
+            line = self.list_of_atoms[i].write_nbon()
             content.append(line)
         return "".join(content)
 
     def write_bond(self):
         content = []
-        for key in self.list_of_bonds.keys():
-            line = self.list_of_bonds[key].write_bond()
+        for i, bond in self.list_of_bonds.items():
+            line = self.list_of_bonds[i].write_bond()
             content.append(line)
         return "".join(content)
 
     def write_theta(self):
         content = []
-        for key in self.list_of_thetas.keys():
-            line = self.list_of_thetas[key].write_theta()
+        for i, theta in self.list_of_thetas.items():
+            line = self.list_of_thetas[i].write_theta()
             content.append(line)
         return "".join(content)
 
@@ -408,6 +425,129 @@ class TemplateOPLS2005:
                 iphis.append(iphi)
         return iphis
 
+    def find_index_of_atom_name(self, pdb_atom_name):
+        for index, atom in self.list_of_atoms.items():
+            if atom.pdb_atom_name == pdb_atom_name:
+                return index
+
+    def find_bond_from_atom(self, index_atom):
+        indexes = []
+        for index, bond in self.list_of_bonds.items():
+            if bond.atom1 == index_atom or bond.atom2 == index_atom:
+                indexes.append(index)
+        return indexes
+
+    def find_theta_from_atom(self, index_atom):
+        indexes = []
+        for index, theta in self.list_of_thetas.items():
+            if theta.atom1 == index_atom or theta.atom2 == index_atom or theta.atom3 == index_atom:
+                indexes.append(index)
+        return indexes
+
+    def find_phi_from_atom(self, index_atom):
+        phis = []
+        for phi in self.list_of_phis:
+            if phi.atom1 == index_atom or phi.atom2 == index_atom or phi.atom3 == index_atom or phi.atom4 == index_atom:
+                phis.append(phi)
+        return phis
+
+    def find_iphi_from_atom(self, index_atom):
+        iphis = []
+        for iphi in self.list_of_iphis:
+            if iphi.atom1 == index_atom or iphi.atom2 == index_atom or iphi.atom3 == index_atom or iphi.atom4 == index_atom:
+                iphis.append(iphi)
+        return iphis
+    
+    def delete_atom(self, index_to_del):
+        for index, atom in self.list_of_atoms.items():
+            if index == index_to_del:
+                del self.list_of_atoms[index]
+                print("Atom {} with index {} has been deleted".format(atom.pdb_atom_name,
+                                                                      index))
+                break
+
+    def delete_bond(self, indexes_to_del):
+        for ind_to_del in indexes_to_del: 
+            for index, bond in self.list_of_bonds.items():
+                if index == ind_to_del:
+                    del self.list_of_bonds[index]
+                    print("Bond between {} and {} has been deleted".format(bond.atom1,
+                                                                           bond.atom2))
+                    break    
+   
+    def delete_theta(self, indexes_to_del):
+        for ind_to_del in indexes_to_del:
+            for index, theta in self.list_of_thetas.items():
+                if index == ind_to_del:
+                    del self.list_of_thetas[index]
+                    print("Theta between {}, {} and {} has been deleted".format(theta.atom1,
+                                                                                theta.atom2,
+                                                                                theta.atom3))
+                    break
+
+    def delete_phi(self, phis_to_del):
+        for phi_del in phis_to_del:
+            for phi in self.list_of_phis:
+                if phi == phi_del:
+                    self.list_of_phis.remove(phi)
+                    print("Phi between {}, {}, {} and {} has been deleted".format(phi.atom1,
+                                                                                  phi.atom2,
+                                                                                  phi.atom3,
+                                                                                  phi.atom4))
+                    break
+
+    def delete_iphi(self, iphis_to_del):
+        for iphi_del in iphis_to_del:
+            for iphi in self.list_of_iphis:
+                if iphi == iphi_del:
+                    self.list_of_iphis.remove(iphi)
+                    print("IPhi between {}, {}, {} and {} has been deleted".format(iphi.atom1,
+                                                                                   iphi.atom2,
+                                                                                   iphi.atom3,
+                                                                                   iphi.atom4))
+                    break
+ 
+    def erease_atom_from_template(self, pdb_atom_name):
+        index_to_del = self.find_index_of_atom_name(pdb_atom_name)
+        self.delete_atom(index_to_del)
+        self.num_nbon_params -= 1
+        indexes_bond = self.find_bond_from_atom(index_to_del)
+        self.delete_bond(indexes_bond)
+        self.num_bond_params -= 1
+        indexes_thetas = self.find_theta_from_atom(index_to_del)
+        self.delete_theta(indexes_thetas)
+        self.num_angle_params -= 1
+        phis = self.find_phi_from_atom(index_to_del)
+        self.delete_phi(phis)
+        self.num_dihedr_params -= 1
+        iphis = self.find_iphi_from_atom(index_to_del)
+        self.delete_iphi(iphis)
+
+    def replace_atom(self, atom_index, new_atom, keep_head=True):
+        new_atom.atom_id = atom_index
+        if keep_head:
+            old_parent_id = self.list_of_atoms[atom_index].parent_id
+            old_x_zmatrix = self.list_of_atoms[atom_index].x_zmatrix
+            old_y_zmatrix = self.list_of_atoms[atom_index].y_zmatrix
+            old_z_zmatrix = self.list_of_atoms[atom_index].z_zmatrix
+            self.list_of_atoms[atom_index] = new_atom
+            self.list_of_atoms[atom_index].parent_id = old_parent_id
+            self.list_of_atoms[atom_index].x_zmatrix = old_x_zmatrix
+            self.list_of_atoms[atom_index].y_zmatrix = old_y_zmatrix
+            self.list_of_atoms[atom_index].z_zmatrix = old_z_zmatrix
+        else:
+            self.list_of_atoms[atom_index] = new_atom
+
+    def replace_bond(self, bond_index, new_bond):
+        self.list_of_bonds[bond_index] = new_bond 
+        
+    def replace_theta(self, theta_index, new_theta):
+        self.list_of_thetas[theta_index] = new_theta
+
+    def replace_phi(self, old_phi, new_phi):
+        index = self.list_of_phis.index(old_phi)
+        self.list_of_phis[index] = new_phi
+
 
 class ReduceProperty:
     def __init__(self, template, lambda_to_reduce, template_core=None, atom_to_replace=None):
@@ -465,15 +605,21 @@ class ReduceProperty:
             result = function(radnpType)
             self.template.list_of_atoms[key].radnpType = result
 
-    def reduce_nbon_params(self, function):
+    def reduce_nbon_params(self, function, exp_function, null_charges=False):
         atoms = self.template.get_list_of_fragment_atoms()
         for key, atom in atoms:
             result = function(atom.epsilon)
             self.template.list_of_atoms[key].epsilon = result
             result = function(atom.sigma)
             self.template.list_of_atoms[key].sigma = result
-            result = function(atom.charge)
-            self.template.list_of_atoms[key].charge = result
+            if exp_function:
+                result = exp_function(atom.charge)
+            else:
+                result = function(atom.charge)
+            if not null_charges:
+                self.template.list_of_atoms[key].charge = result
+            else:
+                self.template.list_of_atoms[key].charge = 0.000
             result = function(atom.sgbnpGamma)
             self.template.list_of_atoms[key].sgbnpGamma = result
             result = function(atom.sgbnpType)
@@ -483,12 +629,57 @@ class ReduceProperty:
             result = function(atom.radnpType)
             self.template.list_of_atoms[key].radnpType = result
 
+    def reduce_nbon_params_spreading_H(self, function, hydrogen, n_GS):
+        atoms_ini = self.template_core.get_list_of_core_atoms()
+        atoms = self.template.get_list_of_fragment_atoms()
+        for key, atom in atoms_ini:
+            name = atom.pdb_atom_name.strip("_")
+            if name == hydrogen:
+                h_charge = atom.charge
+        for key, atom in atoms:
+            result = function(atom.sigma)
+            self.template.list_of_atoms[key].sigma = result
+            # Charge must be spreaded
+            result = h_charge / ((n_GS + 1) * len(atoms))
+            self.template.list_of_atoms[key].charge = result
+
+    def reduce_nbon_params_originaly(self, function, hydrogen, n_GS):
+        atoms = self.template.get_list_of_fragment_atoms()
+        for key, atom in atoms:
+            result = function(atom.sigma)
+            self.template.list_of_atoms[key].sigma = result
+            result = function(atom.charge)
+            self.template.list_of_atoms[key].charge = result
+
     def reduce_bond_eq_dist(self, function):
         bonds = self.template.get_list_of_fragment_bonds()
         for key, bond in bonds:
             eq_dist = bond.eq_dist
             result = function(eq_dist)
             self.template.list_of_bonds[key].eq_dist = result
+
+    def reduce_bond_eq_dist_spreading_H_link(self, function, hydrogen, n_GS):
+        templ_ini = self.template_core
+        templ_grw = self.template
+        for key, bond in templ_ini.list_of_bonds.items():
+            atom_bonds = [templ_ini.list_of_atoms[bond.atom1].pdb_atom_name,
+                          templ_ini.list_of_atoms[bond.atom2].pdb_atom_name]
+            if atom_bonds[0].strip("_") == hydrogen:
+                h_bond_dist = bond.eq_dist
+                linking_atom = atom_bonds[1]
+            if atom_bonds[1].strip("_") == hydrogen:
+                h_bond_dist = bond.eq_dist
+                linking_atom = atom_bonds[0]
+        for key, bond in templ_grw.list_of_bonds.items():
+            atoms = [templ_grw.list_of_atoms[bond.atom1].pdb_atom_name,
+                     templ_grw.list_of_atoms[bond.atom2].pdb_atom_name]
+            if bond.is_linker:
+                result = h_bond_dist + ((bond.eq_dist - h_bond_dist) / (n_GS + 1))
+            elif bond.is_fragment:
+                result = function(bond.eq_dist)
+            else:
+                result = bond.eq_dist
+            templ_grw.list_of_bonds[key].eq_dist = result
 
     def modify_core_epsilons(self, function):
         atoms_grw = self.template.get_list_of_core_atoms()
@@ -523,7 +714,7 @@ class ReduceProperty:
                    result = function(atom_c.charge, atom_g.charge)
                    self.template.list_of_atoms[index_g].charge = result
 
-    def modify_core_nbond_params(self, function):
+    def modify_core_nbond_params(self, function, exp_function=None):
         atoms_grw = self.template.get_list_of_core_atoms()
         atoms_ini = self.template_core.get_list_of_core_atoms()
         for atom_grow in atoms_grw:
@@ -535,7 +726,10 @@ class ReduceProperty:
                    self.template.list_of_atoms[index_g].epsilon = result
                    result = function(atom_c.sigma, atom_g.sigma)
                    self.template.list_of_atoms[index_g].sigma = result
-                   result = function(atom_c.charge, atom_g.charge)
+                   if exp_function:
+                       result = exp_function(atom_c.charge, atom_g.charge)
+                   else:
+                       result = function(atom_c.charge, atom_g.charge)
                    self.template.list_of_atoms[index_g].charge = result
                    result = function(atom_c.sgbnpGamma, atom_g.sgbnpGamma)
                    self.template.list_of_atoms[index_g].sgbnpGamma = result
@@ -588,15 +782,15 @@ class ReduceProperty:
         ini = self.template_core
         for phi_g in grw.list_of_phis: # This is a list, not a dict
             # Get PDB atom names of the atoms forming angles
-            atoms_g = [grw.list_of_atoms[phi_g.atom1].pdb_atom_name,
-                       grw.list_of_atoms[phi_g.atom2].pdb_atom_name,
-                       grw.list_of_atoms[phi_g.atom3].pdb_atom_name,
-                       grw.list_of_atoms[phi_g.atom4].pdb_atom_name]
+            atoms_g = [grw.list_of_atoms[abs(phi_g.atom1)].pdb_atom_name,
+                       grw.list_of_atoms[abs(phi_g.atom2)].pdb_atom_name,
+                       grw.list_of_atoms[abs(phi_g.atom3)].pdb_atom_name,
+                       grw.list_of_atoms[abs(phi_g.atom4)].pdb_atom_name]
             for phi_i in ini.list_of_phis:
-                atoms_i = [ini.list_of_atoms[phi_i.atom1].pdb_atom_name,
-                           ini.list_of_atoms[phi_i.atom2].pdb_atom_name,
-                           ini.list_of_atoms[phi_i.atom3].pdb_atom_name,
-                           ini.list_of_atoms[phi_i.atom4].pdb_atom_name]
+                atoms_i = [ini.list_of_atoms[abs(phi_i.atom1)].pdb_atom_name,
+                           ini.list_of_atoms[abs(phi_i.atom2)].pdb_atom_name,
+                           ini.list_of_atoms[abs(phi_i.atom3)].pdb_atom_name,
+                           ini.list_of_atoms[abs(phi_i.atom4)].pdb_atom_name]
                 if sorted(atoms_i) == sorted(atoms_g) and phi_i.nterm == phi_g.nterm:
                     result = function(phi_i.constant, phi_g.constant)
                     phi_g.constant = result
@@ -684,17 +878,27 @@ class ReduceLinearly(ReduceProperty):
      
 
 class ReduceExponentially(ReduceProperty):
-    def __init__(self, template, lambda_to_reduce):
+    def __init__(self, template, lambda_to_reduce, template_core=None, atom_to_replace=None):
         ReduceProperty.__init__(self, template, lambda_to_reduce)
 
     def reduce_value(self, value):
-        result = value * self.lambda_to_reduce ** 2
+        result = value * (self.lambda_to_reduce ** 2)
+        return result
+
+    def reduce_value_from_diference(self, value_init, value_grown):
+        diff = value_grown - value_init
+        result = diff * (self.lambda_to_reduce ** 2) + value_init
         return result
 
 
 def file_to_list_of_lines(file_path):
+    content = []
     with open(file_path, "r") as template:
-        content = template.readlines()
+        for line in template:
+            if line.startswith('*'):
+                continue
+            else:
+                content.append(line)
     return content
 
 
@@ -704,8 +908,9 @@ def get_string_from_line(line, index_initial, index_final):
 
 
 def find_equal_pdb_atom_names(template1, template2):
-    pdb_atom_names_tmpl_1 = [template1.list_of_atoms[n].pdb_atom_name for n in range(1, len(template1.list_of_atoms)+1)]
-    pdb_atom_names_tmpl_2 = [template2.list_of_atoms[n].pdb_atom_name for n in range(1, len(template2.list_of_atoms)+1)]
+    # Change the method, for instead of numbers by len)
+    pdb_atom_names_tmpl_1 = [template1.list_of_atoms[n].pdb_atom_name for n, atom in template1.list_of_atoms.items()]
+    pdb_atom_names_tmpl_2 = [template2.list_of_atoms[n].pdb_atom_name for n, atom in template2.list_of_atoms.items()]
     return list(set(pdb_atom_names_tmpl_1).intersection(pdb_atom_names_tmpl_2))
 
 
@@ -768,15 +973,35 @@ def set_connecting_atom(template_grown, pdb_atom_name):
             atom.is_linker = True
 
 
-def reduce_fragment_parameters_linearly(template_object, lambda_to_reduce):
+def reduce_fragment_parameters_linearly(template_object, lambda_to_reduce, exp_charges=False, null_charges=False):
     reductor = ReduceLinearly(template_object, lambda_to_reduce)
-    reductor.reduce_nbon_params(reductor.reduce_value)
+    if exp_charges:
+        reductor_exp = ReduceExponentially(template_object, lambda_to_reduce)
+        reductor.reduce_nbon_params(reductor.reduce_value, reductor_exp.reduce_value, 
+                                    null_charges=null_charges)
+    else:
+        reductor.reduce_nbon_params(reductor.reduce_value, None, null_charges=null_charges)
     reductor.reduce_bond_eq_dist(reductor.reduce_value)
 
+def reduce_fragment_parameters_spreading_H(template_grow, template_core, lambda_to_reduce, hydrogen, n_GS):
+    reductor = ReduceLinearly(template_grow, lambda_to_reduce, template_core, hydrogen)
+    reductor.reduce_nbon_params_spreading_H(reductor.reduce_value, hydrogen, n_GS)
+    reductor.reduce_bond_eq_dist_spreading_H_link(reductor.reduce_value, hydrogen, n_GS)
 
-def modify_core_parameters_linearly(template_grow, lambda_to_reduce, template_core):
+def reduce_fragment_parameters_originaly(template_grow, template_core, lambda_to_reduce, hydrogen, n_GS):
+    reductor = ReduceLinearly(template_grow, lambda_to_reduce, template_core, hydrogen)
+    reductor.reduce_nbon_params_originaly(reductor.reduce_value, hydrogen, n_GS)
+    reductor.reduce_bond_eq_dist(reductor.reduce_value)
+
+def modify_core_parameters_linearly(template_grow, lambda_to_reduce, template_core, exp_charges=False, 
+                                    null_charges=False):
     reductor = ReduceLinearly(template_grow, lambda_to_reduce, template_core)
-    reductor.modify_core_nbond_params(reductor.reduce_value_from_diference)
+    if exp_charges:
+        reductor_exp = ReduceExponentially(template_grow, lambda_to_reduce, template_core)
+        reductor.modify_core_nbond_params(reductor.reduce_value_from_diference, 
+                                          reductor_exp.reduce_value_from_diference)
+    else:
+        reductor.modify_core_nbond_params(reductor.reduce_value_from_diference, None)
     reductor.modify_core_bond_eq_dist(reductor.reduce_value_from_diference)
     reductor.modify_core_theta(reductor.reduce_value_from_diference)
     reductor.modify_core_phis(reductor.reduce_value_from_diference)
@@ -785,9 +1010,8 @@ def modify_linkers_parameters_linearly(template_grow, lambda_to_reduce, template
     reductor = ReduceLinearly(template_grow, lambda_to_reduce, template_core, atom_to_replace)
     reductor.modify_linker_bond_eq_dist(reductor.reduce_value_from_diference)
 
-
 def main(template_initial_path, template_grown_path, step, total_steps, hydrogen_to_replace, core_atom_linker,
-         tmpl_out_path):
+         tmpl_out_path, null_charges=False, growing_mode="SoftcoreLike"):
     """
     Module to modify templates, currently working in OPLS2005. This main function basically compares two templates;
     an initial and a grown one, extracting the atoms of the fragment (that have been grown). Then, it uses this data
@@ -812,10 +1036,11 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     :return: None
     """
     lambda_to_reduce = float(step/(total_steps+1))
-    templ_ini = TemplateOPLS2005(template_initial_path)
+    templ_ini = TemplateImpact(template_initial_path)
+    
     for bond in templ_ini.list_of_bonds:
         key, bond_cont = bond
-    templ_grw = TemplateOPLS2005(template_grown_path)
+    templ_grw = TemplateImpact(template_grown_path)
     fragment_atoms, core_atoms_in, core_atoms_grown = detect_atoms(template_initial=templ_ini, 
                                                                    template_grown=templ_grw,
                                                                    hydrogen_to_replace=hydrogen_to_replace)
@@ -824,10 +1049,28 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     fragment_bonds = detect_fragment_bonds(list_of_fragment_atoms=fragment_atoms, template_grown=templ_grw)
     set_fragment_bonds(list_of_fragment_bonds=fragment_bonds)
     set_linker_bond(templ_grw)
-    modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini)
-    reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce)
-    modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
+    if growing_mode == "SoftcoreLike":
+        modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, exp_charges=True)
+        reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce, exp_charges=True, 
+                                            null_charges=True)
+        modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
+    elif growing_mode == "AllLinear":
+        modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, exp_charges=False)
+        reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce, exp_charges=False,
+                                            null_charges=False)
+        modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
+    elif growing_mode == "SpreadHcharge":
+        if step > 1:
+            reduce_fragment_parameters_originaly(templ_grw, templ_ini, lambda_to_reduce, 
+                                                  hydrogen=hydrogen_to_replace, n_GS=total_steps)
+            modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
+        else:
+            reduce_fragment_parameters_spreading_H(templ_grw, templ_ini, lambda_to_reduce, 
+                                                   hydrogen=hydrogen_to_replace, n_GS=total_steps)
+    else:
+        raise ValueError("Growing mode Not valid. Choose between: 'SoftcoreLike', 'SpreadHcharge', 'AllLinear'.")
     templ_grw.write_template_to_file(template_new_name=tmpl_out_path)
-
+    return [atom.pdb_atom_name for atom in fragment_atoms], \
+            [atom.pdb_atom_name for atom in core_atoms_grown]
 
 
