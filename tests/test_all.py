@@ -51,7 +51,7 @@ def test_cov_aa():
         if os.path.exists(output):
             shutil.rmtree(output)
     mn.main("receptor_145_cys.pdb", "serie_res.conf", cpus=4, iterations=1, steps=2, pele_eq_steps=2, test=True, cov_res="A:145",
-            criteria="LocalNonBondingEnergy", start_growing_from=0)
+            criteria="LocalNonBondingEnergy", start_growing_from=0, contrl="control_cov_test.conf")
     assert glob.glob("receptor_145_cys_carbonylSGC1/top_result/*Local*.pdb")
 
 def test_cov_mod():
@@ -60,7 +60,7 @@ def test_cov_mod():
         if os.path.exists(output):
             shutil.rmtree(output)
     mn.main("cov_scaffold.pdb", "serie_res_2.conf", cpus=4, iterations=1, steps=4, pele_eq_steps=2, test=False, cov_res="A:145",
-            criteria="LocalNonBondingEnergy", start_growing_from=0, rotamers=10)
+            criteria="LocalNonBondingEnergy", start_growing_from=0, rotamers=10, contrl="control_cov_test.conf")
     assert glob.glob("cov_scaffold_10C5C1/top_result/*Local*.pdb")
     
 
