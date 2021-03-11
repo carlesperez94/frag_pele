@@ -175,6 +175,8 @@ def parse_arguments():
                         help="Path to PELE Data folder.")
     parser.add_argument("-doc", "--documents", default=c.PATH_TO_PELE_DOCUMENTS,
                         help="Path to PELE Documents folder.")
+    parser.add_argument("-sr", "--srun", default=True,
+                        help="If true it runs PELE with srun command, else it will run it with mpirun.")
 
     parser.add_argument("-dist", "--dist_const", default=None, nargs="+", 
                         help="Atom pairs links id to constraint and equilibrum distance."
@@ -266,7 +268,8 @@ def parse_arguments():
            args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow, \
            args.no_check, args.debug, args.highthroughput, args.test, args.cov_res, args.dist_const, \
            args.constraint_core, args.dih_constr, args.protocol, args.st_from, args.min_grow, args.min_sampling, \
-           args.force_field, args.dihedrals_list
+           args.force_field, args.dihedrals_list, args.srun
+
 
 def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
                   pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
@@ -277,7 +280,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                   radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
                   no_check=False, debug=False, cov_res=None, dist_constraint=None, constraint_core=None,
                   dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.0, min_grow=0.01, min_sampling=0.1,
-                  force_field='OPLS2005', dih_to_constraint=None):
+                  force_field='OPLS2005', dih_to_constraint=None, srun=True):
+
 
     """
     Description: FrAG is a Fragment-based ligand growing software which performs automatically the addition of several
@@ -698,7 +702,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
         if debug:
             return 
         else:
-            simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
+            simulations_linker.simulation_runner(pele_dir, simulation_file, cpus, srun)
         logger.info(c.LINES_MESSAGE)
         logger.info(c.FINISH_SIM_MESSAGE.format(result))
         # Before selecting a step from a trajectory we will save the input PDB file in a folder
@@ -786,7 +790,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     shutil.copy(os.path.join(path_to_templates_generated, template_final), path_to_templates)
     if not (restart and os.path.exists("top_result")):
         logger.info(".....STARTING EQUILIBRATION.....")
-        simulations_linker.simulation_runner(pele_dir, simulation_file, cpus)
+        simulations_linker.simulation_runner(pele_dir, simulation_file, cpus, srun)
     os.chdir(curr_dir)
     equilibration_path = os.path.join(working_dir, "sampling_result")
     # SELECTION OF BEST STRUCTURES
@@ -830,7 +834,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
     c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
     rename=None, threshold_clash=None, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, rotation_high=c.ROTATION_HIGH, 
     translation_low=c.TRANSLATION_LOW, rotation_low=c.ROTATION_LOW, explorative=False, radius_box=c.RADIUS_BOX, sampling_control=None, data=c.PATH_TO_PELE_DATA, documents=c.PATH_TO_PELE_DOCUMENTS, 
-    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False, dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.25, min_grow=0.01, min_sampling=0.1, force_field='OPLS2005', dih_to_constraint=None):
+    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False, dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.25, min_grow=0.01, min_sampling=0.1, force_field='OPLS2005', dih_to_constraint=None, srun=True):
 
     if protocol == "HT":
         iteration = 1
@@ -922,8 +926,8 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                                    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
                                    only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core,
                                    dih_constr, growing_protocol, start_growing_from, min_grow, min_sampling, force_field,
-                                   dih_to_constraint)
-                    
+                                   dih_to_constraint, srun)
+
                     atomname_mappig.append(atomname_map)
  
                 except Exception:
@@ -961,8 +965,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                      threshold_clash, steering, translation_high, rotation_high,
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
                      only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core, dih_constr,
-                     growing_protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint)
-
+                     growing_protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint, srun)
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
@@ -977,8 +980,7 @@ if __name__ == '__main__':
     rename, threshold_clash, steering, translation_high, rotation_high, \
     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
     only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core, \
-    dih_constr, protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint = parse_arguments()
-
+    dih_constr, protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint, srun = parse_arguments()
     
     main(complex_pdb, serie_file, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold,
              report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
@@ -987,6 +989,5 @@ if __name__ == '__main__':
              rename, threshold_clash, steering, translation_high, rotation_high,
              translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
              only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core,
-             dih_constr, protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint)
-
+             dih_constr, protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint, srun)
 
