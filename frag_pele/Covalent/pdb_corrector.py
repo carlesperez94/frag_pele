@@ -1,5 +1,5 @@
+import os
 from lib_prep.pdb_modifier import PDB
-
 
 class CovCorrector:
     def __init__(self, input_pdb, residue_chain, residue_number, ligand_resname='UNK', ligand_chain=' ',
@@ -145,7 +145,7 @@ class CovCorrector:
         self._pdb.lines = new_pdb_lines
         self._pdb.content = ''.join(new_pdb_lines)
 
-    def write_file(self, output_file):
+    def write_file(self, output_file, extract_ligand=True):
         """
         It writes the content into an output PDB file.
 
@@ -153,13 +153,22 @@ class CovCorrector:
         ----------
         output_file : str
             path of the output PDB file
+        extract_ligand : bool
+            if true it extracts the ligand in a separated PDB file
         """
         with open(output_file, "w") as out_pdb:
             out_pdb.write(self._pdb.content)
             print("PDB saved in {}.".format(output_file))
+        if extract_ligand:
+            lig_lines = self._pdb.get_atoms_of_resname("LIG")
+            ligand_block = "".join(lig_lines)
+            out_path = os.path.dirname(output_file)
+            with open(os.path.join(out_path, "LIG.pdb"), "w") as out_lig:
+                out_lig.write(ligand_block)
+                print("Ligand PDB saved in {}.".format(os.path.join(out_path, "LIG.pdb")))
 
-
-def run(input_pdb, residue_chain, residue_number, out_pdb, ligand_resname='UNK', ligand_chain=' ', verbose=False):
+def run(input_pdb, residue_chain, residue_number, out_pdb, ligand_resname='UNK', ligand_chain=' ', 
+        verbose=False, extract_ligand=True):
     """
     It process PDB files putting the ligand part of a covalent ligand into the residue that it is attached with.
 

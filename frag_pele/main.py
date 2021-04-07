@@ -177,10 +177,6 @@ def parse_arguments():
                         help="Path to PELE Documents folder.")
     parser.add_argument("-sr", "--srun", default=True,
                         help="If true it runs PELE with srun command, else it will run it with mpirun.")
-
-    parser.add_argument("-dist", "--dist_const", default=None, nargs="+", 
-                        help="Atom pairs links id to constraint and equilibrum distance."
-                             " p.Ex: 'L:1:_C3_' 'A:145:_C1_' 2.5")
     parser.add_argument("-core", "--constraint_core", action="store_true",
                         help="Set true to apply core constraints at template level."
                              " These atoms will be skipped from rotamers library"
