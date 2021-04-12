@@ -1,6 +1,4 @@
 #!/bin/bash
 conda create -n frag python=3.7
-source activate frag
-conda install -c NostrumBioDiscovery -c conda-forge -c rdkit frag_pele
-cd tests/
-python -m pytest test_all.py
+conda activate frag
+conda install -c carlesperez94 -c conda-forge -c nostrumbiodiscovery -c rdkit -c omnia -c martimunicoy frag_pele
