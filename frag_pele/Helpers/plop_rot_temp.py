@@ -6,7 +6,7 @@ import frag_pele.constants as c
 
 DATA_PATH = "Data/Templates/OPLS2005/Protein"
 
-def create_template(pdb_file, sch_python=c.SCHRODINGER_PY_PATH,
+def create_template(pdb_file, sch_path=c.SCHRODINGER,
                     plop_script_path="../PlopRotTemp_S_2017/ligand_prep.py", rotamers="10.0",
                     out_templates_path=".", path_to_lib=".", cov_res=None, work_dir="."):
     if "/" in pdb_file:
@@ -22,7 +22,8 @@ def create_template(pdb_file, sch_python=c.SCHRODINGER_PY_PATH,
                        os.path.join(work_dir, "DataLocal/Templates/OPLS2005/Protein/templates_generated"))
            return filename
        else:
-           schrodinger_path = os.path.join(os.path.dirname(sch_python), "..")
+           schrodinger_path = sch_path
+           sch_python = os.path.join(sch_path, "utilities/python")
            prepare_pdb(pdb_file, "GRW.pdb", schrodinger_path)
            cmd = "{} {} {} {} {} {}".format(sch_python, plop_script_path, "GRW.pdb", rotamers,
                                             os.path.join(work_dir, 

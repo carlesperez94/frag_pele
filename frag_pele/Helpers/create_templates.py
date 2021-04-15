@@ -38,7 +38,7 @@ def create_template_path(path, name, forcefield='OPLS2005', protein=False, templ
     return path
 
 def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoacid=False, outdir='.', rot_res=30,
-                         contrained_atoms=None, aminoacid_type=None):
+                         contrained_atoms=None, aminoacid_type=None, sch_path=c.SCHRODINGER):
     p, pdb_name = os.path.split(pdb)
     out = pdb_name.split(".pdb")[0] + "_p" + ".pdb"
     currdir = os.getcwd()
@@ -56,9 +56,9 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
         os.chdir(pdb_dir)
         prepare_pdb(pdb_in=pdb_name, 
                     pdb_out=out, 
-                    sch_path=c.SCHRODINGER)
+                    sch_path=sch_path)
         os.chdir(currdir)
-    os.environ['SCHRODINGER'] = c.SCHRODINGER
+    os.environ['SCHRODINGER'] = sch_path
     template_path = create_template_path(outdir, template_name, forcefield, aminoacid, True)
     if aminoacid:
         print("Aminoacid template")
@@ -100,10 +100,11 @@ def add_off_waters_to_datalocal(outdir):
                 os.path.join(outdir, "DataLocal/Templates/OFF/Parsley/hohz"))
  
 def get_datalocal(pdb, outdir='.', forcefield='OPLS2005', template_name='grw', aminoacid=False, rot_res=30,
-                  constrainted_atoms=None, aminoacid_type=None):
+                  constrainted_atoms=None, aminoacid_type=None, sch_path=c.SCHRODINGER):
     folder_handler.check_and_create_DataLocal(working_dir=outdir)
     get_template_and_rot(pdb, forcefield=forcefield, template_name=template_name, 
                          aminoacid=aminoacid, outdir=outdir, rot_res=rot_res,
-                         contrained_atoms=constrainted_atoms, aminoacid_type=aminoacid_type)
+                         contrained_atoms=constrainted_atoms, aminoacid_type=aminoacid_type,
+                         sch_path=sch_path)
     if forcefield == 'OFF':
         add_off_waters_to_datalocal(outdir)
