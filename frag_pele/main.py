@@ -110,9 +110,9 @@ def parse_arguments():
     # Plop related arguments
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
                         help="Absolute path to PlopRotTemp.py. By default = {}".format(c.PLOP_PATH))
-    parser.add_argument("-sp", "--sch_python", default=c.SCHRODINGER_PY_PATH,
-                        help="""Absolute path to Schrodinger's python. 
-                        By default = {}""".format(c.SCHRODINGER_PY_PATH))
+    parser.add_argument("-sp", "--sch_path", default=c.SCHRODINGER,
+                        help="""Absolute path to Schrodinger's directory. 
+                        By default = {}""".format(c.SCHRODINGER))
     parser.add_argument("-rot", "--rotamers", default=c.ROTRES, type=int,
                         help="""Rotamers threshold used in the rotamers' library. 
                             By default = {}""".format(c.ROTRES))
@@ -254,7 +254,7 @@ def parse_arguments():
 
 
     return args.complex_pdb, args.growing_steps, \
-           args.criteria, args.plop_path, args.sch_python, args.pele_dir, args.contrl, args.license, \
+           args.criteria, args.plop_path, args.sch_path, args.pele_dir, args.contrl, args.license, \
            args.resfold, args.report, args.traject, args.pdbout, args.cpus, \
            args.distcont, args.threshold, args.epsilon, args.condition, args.metricweights, args.nclusters, \
            args.pele_eq_steps, args.restart, args.min_overlap, args.max_overlap, args.serie_file, \
@@ -267,7 +267,7 @@ def parse_arguments():
            args.force_field, args.dihedrals_list, args.srun
 
 
-def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
+def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_path,
                   pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distance_contact, clusterThreshold,
                   epsilon, condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID,
                   h_core=None, h_frag=None, c_chain="L", f_chain="L", steps=6, temperature=1000, seed=1279183, rotamers=30,
@@ -401,7 +401,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     # Path definition
     plop_relative_path = os.path.join(PackagePath, plop_path)
     current_path = os.path.abspath(".")
-
+    sch_python = os.path.join(sch_path, "utilities/python")
     pdb_basename = complex_pdb.split(".pdb")[0]  # Get the name of the pdb without extension
     if "/" in pdb_basename:
         pdb_basename = pdb_basename.split("/")[-1]  # And if it is a path, get only the name
@@ -483,7 +483,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                                            template_name=template_name, 
                                            aminoacid=cov_res,
                                            rot_res=rotamers,
-                                           aminoacid_type=aa_type)
+                                           aminoacid_type=aa_type,
+                                           sch_path = sch_path)
         if restart:
             if cov_res:
                 template_name = 'grw'
@@ -829,7 +830,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     return fragment_names_dict
     
 
-def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTION_CRITERIA, plop_path=c.PLOP_PATH, sch_python=c.SCHRODINGER_PY_PATH, pele_dir=c.PATH_TO_PELE, contrl=c.CONTROL_TEMPLATE, license=c.PATH_TO_LICENSE, resfold=c.RESULTS_FOLDER, 
+def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTION_CRITERIA, plop_path=c.PLOP_PATH, sch_path=c.SCHRODINGER, pele_dir=c.PATH_TO_PELE, contrl=c.CONTROL_TEMPLATE, license=c.PATH_TO_LICENSE, resfold=c.RESULTS_FOLDER, 
     report=c.REPORT_NAME, traject=c.TRAJECTORY_NAME, pdbout=c.PDBS_OUTPUT_FOLDER, cpus=c.CPUS, distcont=c.DISTANCE_COUNTER, threshold=c.CONTACT_THRESHOLD, epsilon=c.EPSILON, condition=c.CONDITION, metricweights=c.METRICS_WEIGHTS, 
     nclusters=c.NUM_CLUSTERS, pele_eq_steps=c.PELE_EQ_STEPS, restart=False, min_overlap=c.MIN_OVERLAP, max_overlap=c.MAX_OVERLAP,
     c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
@@ -919,7 +920,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                     print("PERFORMING SUCCESSIVE GROWING...")
                     print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
                     atomname_map = grow_fragment(complex_sequential_pdb, fragment_pdb, core_atom, fragment_atom, 
-                                   iterations, criteria, plop_path, sch_python,pele_dir, contrl, license, resfold, 
+                                   iterations, criteria, plop_path, sch_path, pele_dir, contrl, license, resfold, 
                                    report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, 
                                    metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, 
                                    ID, h_core, h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned,
@@ -959,7 +960,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
             try:
                 print("PERFORMING INDIVIDUAL GROWING...")
                 print("HYDROGEN ATOMS IN INSTRUCTIONS:  {}    {}".format(h_core, h_frag))
-                grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_python,
+                grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_path,
                      pele_dir, contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon,
                      condition, metricweights, nclusters, pele_eq_steps, restart, min_overlap, max_overlap, ID, h_core,
                      h_frag, c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, rename,
@@ -974,7 +975,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
         os.chdir(original_dir) 
 
 if __name__ == '__main__':
-    complex_pdb, iterations, criteria, plop_path, sch_python, pele_dir, \
+    complex_pdb, iterations, criteria, plop_path, sch_path, pele_dir, \
     contrl, license, resfold, report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights, \
     nclusters, pele_eq_steps, restart, min_overlap, max_overlap, serie_file, \
     c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae, \
@@ -983,7 +984,7 @@ if __name__ == '__main__':
     only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core, \
     dih_constr, protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint, srun = parse_arguments()
     
-    main(complex_pdb, serie_file, iterations, criteria, plop_path, sch_python, pele_dir, contrl, license, resfold,
+    main(complex_pdb, serie_file, iterations, criteria, plop_path, sch_path, pele_dir, contrl, license, resfold,
              report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
              nclusters, pele_eq_steps, restart, min_overlap, max_overlap,
              c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae,
