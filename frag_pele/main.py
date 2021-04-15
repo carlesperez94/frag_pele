@@ -410,9 +410,14 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     if not os.path.exists(working_dir):
         os.mkdir(working_dir)  # Creating a working directory for each PDB-fragment combination
     pdbout_folder = os.path.join(working_dir, pdbout)
-    path_to_templates_generated = os.path.join(working_dir,
-                                               "DataLocal/Templates/{}/HeteroAtoms/templates_generated".format(force_field))
-    path_to_templates = os.path.join(working_dir, "DataLocal/Templates/{}/HeteroAtoms".format(force_field))
+    if force_field == 'OFF':
+        path_to_templates_generated = os.path.join(working_dir,
+                                                   "DataLocal/Templates/OFF/Parsley/templates_generated".format(force_field))
+        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OFF/Parsley".format(force_field))
+    elif force_field == 'OPLS2005':
+        path_to_templates_generated = os.path.join(working_dir,
+                                                   "DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated".format(force_field))
+        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/HeteroAtoms".format(force_field))
     path_to_lib = os.path.join(working_dir, "DataLocal/LigandRotamerLibs")
     # Creation of output folder
     folder_handler.check_and_create_DataLocal(working_dir=working_dir)
@@ -443,7 +448,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     else:
         teoric_initial = 1 / (iterations+1)
         i = 1
-        while i < iterations:
+        while i <= iterations:
             lam_initial = (i) * teoric_initial
             i = i+1
             if lam_initial > start_growing_from:
@@ -830,7 +835,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
     c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
     rename=None, threshold_clash=None, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, rotation_high=c.ROTATION_HIGH, 
     translation_low=c.TRANSLATION_LOW, rotation_low=c.ROTATION_LOW, explorative=False, radius_box=c.RADIUS_BOX, sampling_control=None, data=c.PATH_TO_PELE_DATA, documents=c.PATH_TO_PELE_DOCUMENTS, 
-    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False, dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.25, min_grow=0.01, min_sampling=0.1, force_field='OPLS2005', dih_to_constraint=None, srun=True):
+    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False, dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.0, min_grow=0.01, min_sampling=0.1, force_field='OPLS2005', dih_to_constraint=None, srun=True):
 
     if protocol == "HT":
         iteration = 1
