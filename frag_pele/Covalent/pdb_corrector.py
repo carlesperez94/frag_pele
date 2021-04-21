@@ -1,5 +1,35 @@
-import os
+import os, argparse
 from lib_prep.pdb_modifier import PDB
+
+
+def parseArguments():
+    """
+        Parse the command-line options
+    """
+    desc = "It process PDB files putting the ligand part of a covalent ligand into the residue that it is attached with."
+    parser = argparse.ArgumentParser(description=desc)
+    required_named = parser.add_argument_group('required named arguments')
+    required_named.add_argument("-i", "--input_pdb", type=str,  
+                                help="Path to the input PDB complex.")
+    required_named.add_argument("-rc", "--residue_chain", type=str,   
+                                help="Chain of the residue that has the ligand covalently attached")
+    required_named.add_argument("-rn", "--residue_number", type=str,
+                                help="Residue number of the residue that has the ligand covalently attached")
+    required_named.add_argument("-o", "--output_pdb", type=str,
+                                help="Output PDB path.")
+    parser.add_argument("-lr", "--ligand_resname", default="UNK",
+                        help="Residue name of the ligand that is covalently attached to the previous residue")
+    parser.add_argument("-lc", "--ligand_chain", default=" ",
+                        help="Chain of the ligand that is covalently attached to the previous residue")
+    parser.add_argument("-v", "--verbose", default=False, action='store_true',
+                        help="Set true to activate all unneded prints.")
+    parser.add_argument("-e", "--extract_ligand", default=True, action='store_false',
+                        help="Set true to inactivate the extraction of a ligand in a PDB file.")
+    args = parser.parse_args()
+
+    return args.input_pdb, args.residue_chain, args.residue_number, args.output_pdb, \
+           args.ligand_resname, args.ligand_chain, args.verbose, args.extract_ligand
+
 
 class CovCorrector:
     def __init__(self, input_pdb, residue_chain, residue_number, ligand_resname='UNK', ligand_chain=' ',
@@ -188,11 +218,20 @@ def run(input_pdb, residue_chain, residue_number, out_pdb, ligand_resname='UNK',
             chain of the ligand that is covalently attached to the previous residue
         verbose : bool
             if true it will activate all the prints
+        extract_ligand : bool
+            if true it extracts the ligand in a separated PDB file
     """
     corrector = CovCorrector(input_pdb=input_pdb, residue_chain=residue_chain, residue_number=residue_number,
                              ligand_resname=ligand_resname, ligand_chain=ligand_chain, verbose=verbose)
     corrector.correct()
-    corrector.write_file(output_file=out_pdb)
+    corrector.write_file(output_file=out_pdb, extract_ligand=extract_ligand)
+
+
+if __name__ == '__main__':
+    input_pdb, residue_chain, residue_number, out, ligand_resname, ligand_chain, \
+    verbose, extract_ligand = parseArguments()
+    run(input_pdb, residue_chain, residue_number, out, ligand_resname, ligand_chain,
+        verbose, extract_ligand)
 
 
 

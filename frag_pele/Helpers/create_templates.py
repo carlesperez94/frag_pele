@@ -33,7 +33,7 @@ def create_template_path(path, name, forcefield='OPLS2005', protein=False, templ
                             templ_string, name.lower()+"z")
     if forcefield == 'OFF' and not protein:
         path = os.path.join(path,
-                            'DataLocal/Templates/OFF/HeteroAtoms',
+                            'DataLocal/Templates/OFF/Parsley',
                             templ_string, name.lower()+"z")
     return path
 

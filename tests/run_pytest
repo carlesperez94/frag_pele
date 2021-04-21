@@ -9,7 +9,7 @@
 module purge
 unset PYTHONPATH
 export SCHRODINGER="/gpfs/projects/bsc72/SCHRODINGER_ACADEMIC"
-export PATH=/home/bsc72/bsc72292/.conda/envs/frag3.0.0/bin:$PATH
+export PATH=/gpfs/projects/bsc72/conda_envs/FragPELE/v3.0.0/bin:$PATH
 export PYTHONPATH="/home/bsc72/bsc72292/projects/software/FragPELE/v3.0.0_beta/frag_pele"
 
 module load intel mkl impi gcc # 2> /dev/null
