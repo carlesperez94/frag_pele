@@ -57,6 +57,8 @@ class CovCorrector:
         self._input_pdb = input_pdb
         self._residue_chain = residue_chain
         self._residue_number = residue_number
+        if isinstance(self._residue_number, str):
+            self._residue_number = int(self._residue_number)
         self._ligand_resname = ligand_resname
         self._ligand_chain = ligand_chain
         self._verbose = verbose
