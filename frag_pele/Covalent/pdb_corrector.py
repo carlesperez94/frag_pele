@@ -131,7 +131,7 @@ class CovCorrector:
                 res_line = list(res_line)
                 res_line[6:11] = "{:>5}".format(counter)
                 counter = counter + 1
-            res_line[17:20] = "LIG"
+            res_line[17:20] = self._ligand_resname
             res_line = ''.join(res_line)
             joining_result.append(res_line+'\n')
         for lig_line in self._ligand_lines:
@@ -140,7 +140,7 @@ class CovCorrector:
                 lig_line = list(lig_line)
                 lig_line[6:11] = "{:>5}".format(counter)
                 counter = counter + 1
-            lig_line[17:20] = "LIG"
+            lig_line[17:20] = self._ligand_resname
             lig_line = ''.join(lig_line)
             joining_result.append(lig_line)
         return joining_result
