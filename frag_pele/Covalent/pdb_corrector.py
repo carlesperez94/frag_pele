@@ -192,12 +192,13 @@ class CovCorrector:
             out_pdb.write(self._pdb.content)
             print("PDB saved in {}.".format(output_file))
         if extract_ligand:
-            lig_lines = self._pdb.get_atoms_of_resname("LIG")
+            lig_lines = self._pdb.get_atoms_of_resname(f"{self._ligand_resname}")
             ligand_block = "".join(lig_lines)
             out_path = os.path.dirname(output_file)
-            with open(os.path.join(out_path, "LIG.pdb"), "w") as out_lig:
+            with open(os.path.join(out_path, f"{self._ligand_resname}.pdb"), "w") as out_lig:
                 out_lig.write(ligand_block)
-                print("Ligand PDB saved in {}.".format(os.path.join(out_path, "LIG.pdb")))
+                print("Ligand PDB saved in {}.".format(os.path.join(out_path, 
+                                                       f"{self._ligand_resname}.pdb")))
 
 def run(input_pdb, residue_chain, residue_number, out_pdb, ligand_resname='UNK', ligand_chain=' ', 
         verbose=False, extract_ligand=True):
