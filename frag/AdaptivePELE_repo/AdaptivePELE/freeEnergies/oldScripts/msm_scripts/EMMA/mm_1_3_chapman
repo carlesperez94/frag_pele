@@ -1,9 +1,0 @@
-#!/bin/bash
-/home/ryoji/software/Emma-1.3.1/bin/mm_chapman \
--i ./discretized/MD_1.disctraj ./discretized/MD_2.disctraj ./discretized/MD_3.disctraj ./discretized/MD_4.disctraj ./discretized/MD_5.disctraj ./discretized/MD_6.disctraj ./discretized/MD_7.disctraj \
--inputtransitionmatrix ./matrix/transitionmatrixOf_Traj1_Traj2.dat \
--sets ./pcca/sets.dat \
--dtTraj 1.0 \
--dtT 100.0 \
--kmax 10 \
--o ./chapman/result.dat

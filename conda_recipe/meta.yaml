@@ -1,0 +1,46 @@
+# must do: conda-build -c carlesperez94 -c conda-forge -c nostrumbiodiscovery -c rdkit -c omnia -c martimunicoy --python=3.8 . 
+package:
+  name: frag_pele
+  version: "3.0.0"
+
+about:
+  home: https://github.com/carlesperez94/frag_pele
+  license: Apache
+  license_file: LICENSE
+  summary: FragPELE, a new tool for in silico hit-to-lead drug design, capable of growing a fragment into a core while exploring the protein-ligand conformational space.
+
+source:
+  path: ../
+
+build:
+  script: python -m pip install . --no-deps -vv
+  number: 0
+
+requirements:
+  host:
+    - python
+    - numpy
+    - cython
+    - six
+  run:
+    # Base dependencies
+    - python
+    - numpy
+    - cython
+    - pytest
+    - scipy
+    - prody=1.10.*
+    - six
+    - pandas
+    - rdkit
+    - mdtraj
+    - adaptive_pele
+    - lib_prep==1.1.1
+    - peleffy==1.2.0
+
+test:
+  imports:
+    - frag_pele
+  command:
+    - python -m frag_pele.main -h
+

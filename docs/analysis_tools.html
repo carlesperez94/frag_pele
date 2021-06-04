@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Analysis Tools &mdash; FragPELE 2.3.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'2.3.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Documentation" href="documentation.html" />
+    <link rel="prev" title="Protocols" href="protocols.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> FragPELE
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="first_steps.html">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="protocols.html">Protocols</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Analysis Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#backtracking-trajectories">Backtracking trajectories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#positional-arguments">Positional arguments:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-arguments">Optional arguments:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#backtracking-connectivity">Backtracking connectivity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Positional arguments:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Optional arguments:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#analyser">Analyser</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Positional arguments:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Optional arguments:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">FragPELE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Analysis Tools</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/analysis_tools.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="analysis-tools">
+<h1>Analysis Tools<a class="headerlink" href="#analysis-tools" title="Permalink to this headline">¶</a></h1>
+<p>You have at your disposal several tools to analyse FragPELE simulations. Go into the following path to have access to all
+of them:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">Analysis</span>
+</pre></div>
+</div>
+<p>WARNING: In the new version all analysis tools except the automatic SCORE computed inside FragPELE run will be inoperative due to path modification.
+It will be solved in further versions.</p>
+<div class="section" id="backtracking-trajectories">
+<h2>Backtracking trajectories<a class="headerlink" href="#backtracking-trajectories" title="Permalink to this headline">¶</a></h2>
+<p>FragPELE follows a clustering strategy that connects several simulations, redistributing the initial structures at each
+growing step. Therefore, the traceback between snapshots is lost along with the simulation procedure. For this reason,
+we have modified an AdaptivePELE’s tool to do the backtracking of snapshots, to get all of them from the selected
+final structure to the initial one.</p>
+<p>usage:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">backtrackFragTrajectory</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">P</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">O</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">name</span> <span class="n">NAME</span><span class="p">]</span> <span class="n">file_to_backtrack</span>
+</pre></div>
+</div>
+<div class="section" id="positional-arguments">
+<h3>Positional arguments:<a class="headerlink" href="#positional-arguments" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>file_to_backtrack: File of the selected_results folder that one’s wants to backtrack.</li>
+</ul>
+</div>
+<div class="section" id="optional-arguments">
+<h3>Optional arguments:<a class="headerlink" href="#optional-arguments" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>-p</strong>: Path to the folder that contains the growing results (all growing simulations). By default: “growing_results”.</li>
+<li><strong>-o</strong>: Output path where the traceback trajectory will be written. By default it writes the file in the current directory.</li>
+<li><strong>—name*</strong>: Name of the output pdb file. By default “pathway.pdb”.</li>
+</ul>
+<p>i.e:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">Analysis</span><span class="o">/</span><span class="n">backtrackFragFrajectory</span><span class="o">.</span><span class="n">py</span> <span class="n">selected_result_aminoC1N1</span><span class="o">/</span><span class="n">epochsampling_result_aminoC1N1_trajectory_1</span><span class="o">.</span><span class="mi">1</span><span class="n">_BindingEnergy</span><span class="o">-</span><span class="mf">47.6974</span><span class="o">.</span><span class="n">pdb</span>
+</pre></div>
+</div>
+<p>** It is important to do not change the name of the files inside the selected_results folder, because it is used to do the traceback. **</p>
+<a class="reference internal image-reference" href="_images/backtrack.png"><img alt="_images/backtrack.png" class="align-center" src="_images/backtrack.png" style="width: 768.0px; height: 432.0px;" /></a>
+</div>
+</div>
+<div class="section" id="backtracking-connectivity">
+<h2>Backtracking connectivity<a class="headerlink" href="#backtracking-connectivity" title="Permalink to this headline">¶</a></h2>
+<p>As a consequence of the connection between the fragment and the core FragPELE outputs lose the connectivity part of the PDB file. Thus,
+all bonds will be interpreted as single type. Prepare with Maestro one of the selected results’ structure and use this script to recover
+the connectivity in the rest of the trajectory</p>
+<p>usage:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">backtrackConnectivity</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ligand_chain</span> <span class="n">LIGAND_CHAIN</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">O</span><span class="p">]</span> <span class="n">pathway</span> <span class="n">pdb_with_connects</span>
+</pre></div>
+</div>
+<div class="section" id="id1">
+<h3>Positional arguments:<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>pathway: Trajectory file with the backtracked pathway. It expects the output of backtrackFragTrajectory.py</li>
+<li>pdb_with_connects: PDB of the final structure prepared. Must contain CONNECTS section. Remember to not delete water molecules!</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h3>Optional arguments:<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>-o</strong>: Output file of the new trajectory. By default it has the input pathway name with “_connected.pdb” added.</li>
+<li><strong>—ligand_chain*</strong>: Name of the ligand chain. By default “L”.</li>
+</ul>
+<p>i.e:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">frag_pele</span><span class="o">/</span><span class="n">AnalysisbacktrackConnectivity</span><span class="o">.</span><span class="n">py</span> <span class="n">pathway</span><span class="o">.</span><span class="n">pdb</span> <span class="n">epochsampling_result_aminoC1N1_trajectory_1</span><span class="o">.</span><span class="mi">1</span><span class="n">_BindingEnergy</span><span class="o">-</span><span class="mf">47.6974</span><span class="n">_with_connects</span><span class="o">.</span><span class="n">pdb</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="analyser">
+<h2>Analyser<a class="headerlink" href="#analyser" title="Permalink to this headline">¶</a></h2>
+<p>Computes the mean of the 25% lowest values of the sampling simulation for each fragment grown: <strong>FragPELE SCORE</strong>.</p>
+<p>usage:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">analyser</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">r</span> <span class="n">REP_PREF</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">STEPS</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span> <span class="n">FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">OUT</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">e</span> <span class="n">EQUIL_FOLDER</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span> <span class="n">COL</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span> <span class="n">QUART</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">csv</span> <span class="n">EXPORT_CSV</span><span class="p">]</span> <span class="n">path_to_analyze</span>
+</pre></div>
+</div>
+<div class="section" id="id3">
+<h3>Positional arguments:<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>path_to_analyze: Path of the folder to be analyzed, where all simulations are stored. Is the directory where you have run FragPELE.</li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h3>Optional arguments:<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>-r</strong>, <strong>—rep_pref</strong>: Prefix to the report files. By default “report*”.</li>
+<li><strong>-s</strong>, <strong>—steps</strong>: Used to compute the score only with the first N steps of the sampling simulation.</li>
+<li><strong>-f</strong>, <strong>—file</strong>: Flag to export to files. By default “False”.</li>
+<li><strong>-o</strong>, <strong>—out</strong> : Name of the output file. By default “None”.</li>
+<li><strong>-e</strong>, <strong>—equil_folder</strong>: Prefix of the sampling folder (where the results are stored). By default: “sampling_results*”.</li>
+<li><strong>-c</strong>, <strong>—col</strong>: Name of the column that we will use to find the minimum value of the PELE report. By default “Binding Energy”.</li>
+<li><strong>-q</strong>, <strong>—quart</strong>: Quartile that will be used to subset the whole sample to compute the mean then. By default 0.25.</li>
+<li><strong>-csv</strong>, <strong>—export_csv</strong>: Flag to export all results to a csv file. Set this flag to “False” if you do not want to store them. By default “True”.</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="documentation.html" class="btn btn-neutral float-right" title="Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="protocols.html" class="btn btn-neutral float-left" title="Protocols" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Carles Perez Lopez and Daniel Soler
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

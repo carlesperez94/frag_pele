@@ -1,0 +1,39 @@
+Protocols
+===========
+
+
+High Throughput
+---------------
+
+To run in HT mode use the flag **-HT** that will perform: 3 growing steps of 3 pelesteps
+and a final exploration of 20 pele steps
+
+::
+ 
+    python frag/grow_for_pele.py -cp core.pdb -sef serie_file.conf -HT
+
+
+
+
+Standard Precision
+---------------------
+
+To run in SP mode use the dafault values that will perform: 6 growing steps of 6 pelesteps
+and a final exploration of 20 pele steps
+
+::
+
+    python frag/grow_for_pele.py -cp core.pdb -sef serie_file.conf
+
+
+Explorative
+-----------
+
+To run in EX mode use the flag **-EX** that will perform an standar growing simulation with a sampling simulation of:
+ 2 steering, 0.5/0.3 translation, 0.4/0.15 rotation and 25 of box radius. Select the number of steps in this sampling
+ simulation with the flag **-es**.
+
+::
+
+    python frag/grow_for_pele.py -cp core.pdb -sef serie_file.conf -EX -es 200
+

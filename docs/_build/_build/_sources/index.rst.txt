@@ -16,25 +16,39 @@ FrAG is build on top of Protein Energy Landscape Exploration (PELE) Software.
    :scale: 80 %
    :align: center
 
-Requirements:
+Requirements (you can use other versions of all modules, but they have not been tested with the newest version):
 
-- Python (3.6.1)
+- Python >= 3.5.6
 
-- AdaptivePELE (1.4.2)
+- AdaptivePELE >= 1.6.1
 
-- Schrödinger's Python (2.7.13)
+- Schrödinger's Python = 2.7.13
 
-- Biopython (1.70)
+- Schrödinger Preparation Wizard 
 
-- Prody (1.9.4)
+- Biopython = 1.70
 
-- Pandas (0.18.0)
+- Prody >= 1.10.10
+
+- Pandas >= 1.0.1
+
+- rdkit = 2019.09.3
 
 Installation
 ============
 .. toctree::
    installation
    first_steps
+
+Protocols
+==========
+.. toctree::
+   protocols
+
+Analysis
+========
+.. toctree::
+   analysis_tools
 
 Documentation
 =============

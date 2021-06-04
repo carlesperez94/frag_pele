@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>FrAG-PELE. Fragment-based Automatic Growing. &mdash; FrAG-PELE 1.0.0 documentation</title>
+  <title>FrAG-PELE. Fragment-based Automatic Growing. &mdash; FragPELE 2.1.0 documentation</title>
   
 
   
@@ -17,37 +17,39 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="installation.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="#" class="icon icon-home"> FrAG-PELE
+            <a href="#" class="icon icon-home"> FragPELE
           
 
           
@@ -55,6 +57,10 @@
 
           
             
+            
+              <div class="version">
+                2.1
+              </div>
             
           
 
@@ -82,6 +88,12 @@
 <li class="toctree-l1"><a class="reference internal" href="first_steps.html">Getting Started</a></li>
 </ul>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="protocols.html">Protocols</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="analysis_tools.html">Analysis Tools</a></li>
+</ul>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
 </ul>
 
@@ -97,7 +109,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">FrAG-PELE</a>
+          <a href="#">FragPELE</a>
         
       </nav>
 
@@ -153,30 +165,80 @@
 <p>The general workflow starts with the system preparation, where core and fragment are put together, followed by several growing stages, where various parallel Monte Carlo simulations are performed while increasing linearly the fragment characteristics. In each stage a clustering and spawning is done to trigger the next growing stage. Finally, a simulation analysis package scores best poses and  retrieved its PDBs.</p>
 <p>FrAG is build on top of Protein Energy Landscape Exploration (PELE) Software.</p>
 <a class="reference internal image-reference" href="_images/growing.gif"><img alt="_images/growing.gif" class="align-center" src="_images/growing.gif" style="width: 576.0px; height: 384.0px;" /></a>
-<p>Requirements:</p>
+<p>Requirements (you can use other versions of all modules, but they have not been tested with the newest version):</p>
 <ul class="simple">
-<li>Python (3.6.1)</li>
-<li>AdaptivePELE (1.4.2)</li>
-<li>Schrödinger’s Python (2.7.13)</li>
-<li>Biopython (1.70)</li>
-<li>Prody (1.9.4)</li>
-<li>Pandas (0.18.0)</li>
+<li><p>Python &gt;= 3.7.6</p></li>
+<li><p>AdaptivePELE &gt;= 1.6.1</p></li>
+<li><p>Schrödinger’s Python = 2.7.13</p></li>
+<li><p>Biopython = 1.70</p></li>
+<li><p>Prody &gt;= 1.10.10</p></li>
+<li><p>Pandas &gt;= 1.0.1</p></li>
+<li><p>rdkit = 2019.09.3</p></li>
 </ul>
 </div>
 <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul class="simple">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#conda-recommended">Conda (Recommended)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#pypi">Pypi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#source-code">Source code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#test-it-works-fast-test">Test it works (fast test)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="first_steps.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="first_steps.html#how-to-do-it">How to do it?</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="first_steps.html#previous-requisites"><strong>Previous Requisites</strong></a></li>
-<li class="toctree-l3"><a class="reference internal" href="first_steps.html#simple-serie-file"><strong>Simple serie file</strong></a></li>
-<li class="toctree-l3"><a class="reference internal" href="first_steps.html#serie-file-to-successive-growing-to-same-position"><strong>Serie file to successive growing to same position</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="first_steps.html#growing-of-a-fragment-to-a-core"><strong>Growing of a fragment to a core</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="first_steps.html#growing-of-two-fragment-to-the-same-core"><strong>Growing of two fragment to the same core</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="first_steps.html#growing-of-a-fragment-to-a-previously-grown-fragment"><strong>Growing of a fragment to a previously grown fragment</strong></a></li>
 <li class="toctree-l3"><a class="reference internal" href="first_steps.html#all-together"><strong>All together</strong></a></li>
 <li class="toctree-l3"><a class="reference internal" href="first_steps.html#launch-simple-frag-pele-simulation"><strong>Launch simple FrAG-PELE simulation</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="first_steps.html#growing-a-fragment-specifying-direction"><strong>Growing a fragment specifying direction</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="first_steps.html#growing-through-bond-like-selection"><strong>Growing through BOND-LIKE selection</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="first_steps.html#growing-by-double-or-triple-bonding"><strong>Growing by double or triple bonding</strong></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="protocols">
+<h1>Protocols<a class="headerlink" href="#protocols" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="protocols.html">Protocols</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="protocols.html#high-throughput">High Throughput</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocols.html#standard-precision">Standard Precision</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocols.html#explorative">Explorative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocols.html#personalized-sampling-simulation">Personalized Sampling Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocols.html#only-prepare">Only prepare</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocols.html#only-grow">Only grow</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="analysis">
+<h1>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="analysis_tools.html">Analysis Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="analysis_tools.html#backtracking-trajectories">Backtracking trajectories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="analysis_tools.html#positional-arguments">Positional arguments:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysis_tools.html#optional-arguments">Optional arguments:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="analysis_tools.html#backtracking-connectivity">Backtracking connectivity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="analysis_tools.html#id1">Positional arguments:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysis_tools.html#id2">Optional arguments:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="analysis_tools.html#analyser">Analyser</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="analysis_tools.html#id3">Positional arguments:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysis_tools.html#id4">Optional arguments:</a></li>
 </ul>
 </li>
 </ul>
@@ -189,12 +251,14 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="documentation.html#basic-parameters">Basic parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="documentation.html#optional-parameters">Optional parameters</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="documentation.html#frag-configuration">FrAG configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#required-parameters">Required parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#optional-parameters">Optional parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#protocol">Protocol</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#frag-configuration">Frag configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#ploprottemp-configuration">PlopRotTemp configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="documentation.html#pele-configuration">PELE configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="documentation.html#clustering-and-spawning-configuration">Clustering and spawning configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="documentation.html#others">Others</a></li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#output-configuration">Output configuration</a></li>
 </ul>
 </li>
 </ul>
@@ -205,9 +269,9 @@
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
 </div>
 
@@ -246,26 +310,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

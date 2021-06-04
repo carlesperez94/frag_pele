@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Documentation &mdash; FrAG-PELE 1.0.0 documentation</title>
+  <title>Documentation &mdash; FragPELE 2.3.0 documentation</title>
   
 
   
@@ -17,37 +17,48 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'./',
+              VERSION:'2.3.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Getting Started" href="first_steps.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+    <link rel="prev" title="Analysis Tools" href="analysis_tools.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> FrAG-PELE
+            <a href="index.html" class="icon icon-home"> FragPELE
           
 
           
@@ -55,6 +66,10 @@
 
           
             
+            
+              <div class="version">
+                2.3
+              </div>
             
           
 
@@ -81,14 +96,22 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="first_steps.html">Getting Started</a></li>
 </ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="protocols.html">Protocols</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="analysis_tools.html">Analysis Tools</a></li>
+</ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#basic-parameters">Basic parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optional-parameters">Optional parameters</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#frag-configuration">FrAG configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#required-parameters">Required parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-parameters">Optional parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#protocol">Protocol</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#frag-configuration">Frag configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ploprottemp-configuration">PlopRotTemp configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pele-configuration">PELE configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#clustering-and-spawning-configuration">Clustering and spawning configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#others">Others</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output-configuration">Output configuration</a></li>
 </ul>
 </li>
 </ul>
@@ -107,7 +130,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">FrAG-PELE</a>
+          <a href="index.html">FragPELE</a>
         
       </nav>
 
@@ -162,9 +185,9 @@
 <div class="toctree-wrapper compound">
 </div>
 <p>Before starting, take into account that only the Basic parameters are mandatory. Otherwise, Optional parameters have
-predefined default values. You can find and modify them in <code class="docutils literal notranslate"><span class="pre">constants.py</span></code>.</p>
-<div class="section" id="basic-parameters">
-<h2>Basic parameters<a class="headerlink" href="#basic-parameters" title="Permalink to this headline">¶</a></h2>
+predefined default values. You can find and modify them in <code class="docutils literal"><span class="pre">constants.py</span></code>.</p>
+<div class="section" id="required-parameters">
+<h2>Required parameters<a class="headerlink" href="#required-parameters" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><strong>-cp</strong>, <strong>—complex_pdb</strong>: Path to the PDB file which must contain a protein-ligand complex. Its ligand will be used
 as the core structure. Remember to rename the ligand chain with a different character in order to detect it.</li>
@@ -174,19 +197,40 @@ successive growings, using different fragments or different growing positions.</
 </div>
 <div class="section" id="optional-parameters">
 <h2>Optional parameters<a class="headerlink" href="#optional-parameters" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="protocol">
+<h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><strong>-HT</strong>, <strong>—highthroughput</strong>: High throughput protocol.</li>
+<li><strong>-EX</strong>, <strong>—explorative</strong>: Explorative protocol.</li>
+<li><strong>-sc</strong>, <strong>—sampling_control</strong>: Templatized control file that will be used in the sampling simulation instead of the default one.</li>
+<li><strong>-op</strong>,  <strong>—only_prepare</strong>: If set, all PDB and conf files to run growing are prepared, it stops before running PELE.</li>
+<li><strong>-og</strong>,  <strong>—only_grow</strong>: If set, it runs all growings from folders already prepared. .</li>
+<li><strong>default option</strong>: Sp protocol.</li>
+</ul>
+<p>For more information refer to the protocol tab.</p>
 <div class="section" id="frag-configuration">
-<h3>FrAG configuration<a class="headerlink" href="#frag-configuration" title="Permalink to this headline">¶</a></h3>
-<p>This are the options directly related to FrAG itself.</p>
+<h3>Frag configuration<a class="headerlink" href="#frag-configuration" title="Permalink to this headline">¶</a></h3>
+<p>This are the options directly related to Frag itself.</p>
 <ul class="simple">
 <li><strong>-x</strong>, <strong>—growing_steps</strong>: Number of Growing Steps (GS). By default: 10. Set 6 for small ligands and 2 to perform HT mode.</li>
 <li><strong>-cr</strong>, <strong>—criteria</strong>: Name of the column of the report file to select the structures that will spawn in the
 next GS. Additionally, this parameter will be the selection criteria to extract the best structure after completing
 the growing. By default: ‘Binding Energy’.</li>
-<li><strong>-rst</strong>, <strong>—restart</strong>: If set FrAG will continue from the last GS detected. If all GS are finished it will restart
+<li><strong>-rst</strong>, <strong>—restart</strong>: If set it will continue from the last GS detected. If all GS are finished it will restart
 in the equilibration phase.</li>
 <li><strong>-cc</strong>, <strong>—c_chain</strong>: Chain name of the core. By default: ‘L’.</li>
 <li><strong>-fc</strong>, <strong>—f_chain</strong>: Chain name of the fragment. By default: ‘L’.</li>
-<li><strong>-docon</strong>, <strong>—docontrolsim</strong>: When it is set, FrAG runs a negative-control simulation (without growing). By default: None.</li>
+<li><strong>-tc</strong>, <strong>—clash_thr</strong>: Threshold distance to detect intramolecular clashes between the fragment and the core.</li>
+<li><strong>-cov</strong>, <strong>—cov_res</strong>: Set to do growing onto protein residues. Example of selection: ‘A:145’ (chain A and resnum 145).</li>
+</ul>
+</div>
+<div class="section" id="ploprottemp-configuration">
+<h3>PlopRotTemp configuration<a class="headerlink" href="#ploprottemp-configuration" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>-pl</strong>, <strong>–plop_path</strong>: Absolute path to PlopRotTemp.py. Its included in FragPELE’s library. It’s default is defined in the constants.py.</li>
+<li><strong>-sp</strong>, <strong>—sch_python</strong>: Absolute path to Schrodinger’s python. It’s default is defined in the constants.py</li>
+<li><strong>-rot</strong>, <strong>—rotamers</strong>: Degrees of rotation to select the rotamers in the library to do the side-chain prediction. By default: “30.0”.</li>
 </ul>
 </div>
 <div class="section" id="pele-configuration">
@@ -203,11 +247,20 @@ documentation.</p>
 <li><strong>-tj</strong>, <strong>—traject</strong>: Suffix name of the trajectory file from PELE. By default: ‘trajectory’</li>
 <li><strong>-cs</strong>, <strong>—cpus</strong>: Number of cores (computational power) to paralellize PELE’s simulations. By default: 48.</li>
 <li><strong>-stp</strong>, <strong>—steps</strong>: Number of simulation steps inside each GS. By default: 6.</li>
-<li><strong>-es</strong>, <strong>—pele_eq_steps</strong>: Number of PELE steps in equilibration. By default: 20.</li>
-<li><strong>-miov</strong>, <strong>—min_overlap</strong>: Minimum value of overlapping factor used in the control_file of PELE. By default: 0‘5.</li>
-<li><strong>-maov</strong>, <strong>—max_overlap</strong>: Maximum value of overlapping factor used in the control_file of PELE. By default: 0‘7.</li>
+<li><strong>-es</strong>, <strong>—pele_eq_steps</strong>: Number of PELE steps in sampling simulation. By default: 20.</li>
+<li><strong>-miov</strong>, <strong>—min_overlap</strong>: Minimum value of overlapping factor used in the control_file of PELE. By default: 0.5.</li>
+<li><strong>-maov</strong>, <strong>—max_overlap</strong>: Maximum value of overlapping factor used in the control_file of PELE. By default: 0.7.</li>
 <li><strong>-tmp</strong>, <strong>—temperature</strong>: Temperature value to add in the control file. If the temperature is high more steps of
 PELE will be accepted when applying the Metropolis Criteria. By default: 1000.</li>
+<li><strong>-sd</strong>, <strong>—seed</strong>: Seed to get the random numbers of the PELE’s simulation.</li>
+<li><strong>-st</strong>, <strong>—steering</strong>: Steering to use in the PELE’s simulation. By default 0.</li>
+<li><strong>-trh</strong>, <strong>—translation_high</strong>: Translation to use in the PELE’s simulation to displace the ligand. High value. By default: 0.05.</li>
+<li><strong>-trl</strong>, <strong>—translation_low</strong>: Translation to use in the PELE’s simulation to displace the ligand. Low value. By default: 0.02.</li>
+<li><strong>-roth</strong>, <strong>—rotation_high</strong>: Rotation (radians) to use in the PELE’s simulation to perturb the ligand. High value. By default: 0.10.</li>
+<li><strong>-rotl</strong>, <strong>—rotation_low</strong>: Rotation (radians) to use in the PELE’s simulation to perturb the ligand. Low value. By default: 0.05.</li>
+<li><strong>-rad</strong>, <strong>—radius_box</strong>: Size of the radius to define the box in the PELE’s simulation where the ligand will be perturbed. By default: 4.</li>
+<li><strong>-dat</strong>, <strong>—data</strong>: Path to PELE Data folder to create symbolic links.</li>
+<li><strong>-doc</strong>, <strong>—documents</strong>: Path to PELE Documents folder to create symbolic links.</li>
 </ul>
 </div>
 <div class="section" id="clustering-and-spawning-configuration">
@@ -221,20 +274,29 @@ different clusters of structures to initialize the next GS. By default: 4.</li>
 <li><strong>-e</strong>, <strong>—epsilon</strong>: An epsilon fraction of processors are distributed proportionally to the value of a metric,
 and the rest are inverselyProportional distributed. A param n can be specified to only consider the n clusters with
 best metric. By default: 0‘5.</li>
-<li><strong>-cn</strong>, <strong>–condition</strong>: Selects whether to take into account maximum or minimum values in epsilon related spawning,
+<li><strong>-cn</strong>, <strong>—condition</strong>: Selects whether to take into account maximum or minimum values in epsilon related spawning,
 values are min or max. By default: min.</li>
 <li><strong>-mw</strong>, <strong>—metricweights</strong>: Selects how to distribute the weights of the cluster according to its metric, two
 options: linear (proportional to metric) or Boltzmann weigths (proportional to exp(-metric/T). Needs to define the
 temperature T. By default: ‘linear’.</li>
-<li><strong>-ncl</strong>, <strong>–nclusters</strong>: Number of initial structures that we want to use in each new GS. By default: 5.</li>
-<li><strong>-pdbf</strong>, <strong>–pdbout</strong>: Folder where PDBs selected to spawn in the next GS will be stored. By default: ‘PDBs_growing’.</li>
+<li><strong>-ncl</strong>, <strong>–.nclusters</strong>: Number of initial structures that we want to use in each new GS. By default: 5.</li>
+</ul>
+<p>The next ones have been created specially for FragPELE’s simulations:</p>
+<ul class="simple">
+<li><strong>-pdbf</strong>, <strong>—pdbout</strong>: Folder where PDBs selected to spawn in the next GS will be stored. By default: ‘PDBs_growing’.</li>
+<li><strong>-ban</strong>, <strong>—banned</strong>: List of lists of quartets of PDB atom names that form the banned dihedrals.
+These dihedrals will be examined after each growing step and if they cross the limit they will not be selected to
+next initialize the new growing step.</li>
+<li><strong>-lim</strong>, <strong>—limit</strong>: Maximum degrees that can accept the banned dihedral.</li>
 </ul>
 </div>
-<div class="section" id="others">
-<h3>Others<a class="headerlink" href="#others" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="output-configuration">
+<h3>Output configuration<a class="headerlink" href="#output-configuration" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><strong>-pl</strong>, <strong>–plop_path</strong>: Absolute path to PlopRotTemp.py.</li>
-<li><strong>-sp</strong>, <strong>–sch_python</strong>: Absolute path to Schrödinger’s python.</li>
+<li><strong>–mae</strong>: Output mae files with binding energy trajectory as property inside the file.</li>
+<li><strong>—rename</strong>: To avoid core renaming.</li>
+<li><strong>—tes*</strong>: Run tests configuration.</li>
+<li><strong>-nc</strong>, <strong>–no_check</strong>: Don’t perform the environment variables check.</li>
 </ul>
 </div>
 </div>
@@ -249,7 +311,7 @@ temperature T. By default: ‘linear’.</li>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="first_steps.html" class="btn btn-neutral" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="analysis_tools.html" class="btn btn-neutral float-left" title="Analysis Tools" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -258,7 +320,7 @@ temperature T. By default: ‘linear’.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Carles Perez Lopez and Dani Soler
+        &copy; Copyright 2019, Carles Perez Lopez and Daniel Soler
 
     </p>
   </div>
@@ -275,26 +337,16 @@ temperature T. By default: ‘linear’.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

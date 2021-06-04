@@ -1,14 +1,10 @@
-import subprocess
-import sys
-import shutil
-# subprocess.call("pip install numpy cython".split())
-from setuptools import setup, find_packages, Command
-from string import Template
+import numpy
+from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
-from distutils.extension import Extension
-from setuptools.command.install import install
+import frag_pele as fp
+
 try:
     from Cython.Build import cythonize
     from Cython.Distutils import build_ext
@@ -16,120 +12,28 @@ except ImportError:
     use_cython = False
 else:
     use_cython = True
-from distutils.command.sdist import sdist as _sdist
-
-# Run the following line to compile atomset package
-# python setup.py build_ext --inplace
-import FrAG.constants as constants
-
-
-class PreInstallCommand(install):
-    description = "Installer"
-    user_options = install.user_options + [
-        ('schr=', None, 'SCRHODINGER main path. i.e /opt/apps/schrodinger-2017/'),
-        ('pele=', None, 'PELE main path. i.e /opt/apps/PELErev1234/'),
-        ('pele-exec=', None, 'PELE bin path. i.e /opt/apps/PELErev1234/bin/Pele_mpi'),
-        ('pele-license=', None, 'PELE licenses PATH. i.e /opt/apps/PELErev12345/licenses/')
-    ]
-
-    def initialize_options(self):
-        install.initialize_options(self)
-        self.schr = None
-        self.pele = None
-        self.pele_exec = None
-        self.pele_license = None
-
-    def finalize_options(self):
-        install.finalize_options(self)
-        #if not self.schr:
-        #    raise ValueError("Define --schr path. Check --help-commands for more help")
-        #if not self.pele:
-        #    raise ValueError("Define --pele path. Check --help-commands for more help")
-        #if not self.pele_exec:
-        #    raise ValueError("Define --pele-exec path. Check --help-commands for more help")
-        #if not self.pele_license:
-        #    raise ValueError("Define --pele-license path. Check --help-commands for more help")
-        #if not self.mpirun:
-        #    raise ValueError("Define --mpirun path. Check --help-commands for more help")
-
-    def run(self):
-        #print("Cythonazing")
-        #subprocess.call("python FrAG/setup.py build_ext --inplace".split())
-        #print("Installing packages")
-        #subprocess.call("pip install {}".format(" ".join(packages)).split())
-        print("Setting environmental variables")
-        installer(self.schr, self.pele, self.pele_exec, self.pele_license)
-        print("Install")
-        install.run(self)
-
-class PostInstallCommand(install):
-    """Post-installation for installation mode."""
-    def run(self):
-        install.run(self)
-
-
-def installer(schr, pele, pele_exec, pele_license):
-    file_input = 'FrAG/constants.py'
-    shutil.copy('FrAG/Templates/constants.py', file_input)
-    d = {"SCHRODINGER":schr, "PELE":pele, "PELE_BIN":pele_exec, "LICENSE":pele_license }
-    filein = open(file_input)
-    src = Template( filein.read() )
-    installation_content = src.safe_substitute(d)
-    filein.close()
-    with open(file_input, "w") as f:
-        f.write(installation_content)
-
-        
 
 here = path.abspath(path.dirname(__file__))
 ext_modules = []
 cmdclass = {}
-#cmdclass.update({'install': PreInstallCommand})
-
-
-class sdist(_sdist):
-    def run(self):
-        # Make sure the compiled Cython files in the distribution are
-        # up-to-date
-        from Cython.Build import cythonize
-        cythonize(['cython/mycythonmodule.pyx'])
-        _sdist.run(self)
-        cmdclass['sdist'] = sdist
-
-        
-
-if use_cython:
-    ext_modules += [
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.atomset", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/atomset.pyx"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.SymmetryContactMapEvaluator", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/SymmetryContactMapEvaluator.pyx"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.RMSDCalculator", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/RMSDCalculator.pyx"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.freeEnergies.utils", ["FrAG/AdaptivePELE_repo/AdaptivePELE/freeEnergies/utils.pyx"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/freeEnergies"])
-    ]
-    cmdclass.update({'build_ext': build_ext})
-else:
-    ext_modules += [
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.atomset", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/atomset.c"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.SymmetryContactMapEvaluator", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/SymmetryContactMapEvaluator.c"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.atomset.RMSDCalculator", ["FrAG/AdaptivePELE_repo/AdaptivePELE/atomset/RMSDCalculator.c"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/atomset"]),
-        Extension("FrAG.AdaptivePELE_repo.AdaptivePELE.freeEnergies.utils", ["FrAG/AdaptivePELE_repo/AdaptivePELE/freeEnergies/utils.c"], include_dirs=["FrAG/AdaptivePELE_repo/AdaptivePELE", "FrAG/AdaptivePELE_repo/AdaptivePELE/freeEnergies"])
-    ]
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 setup(
-    name="FrAG",
-    version="1.0",
-    description='FrAG, a new tool for in silico hit-to-lead drug design, capable of growing a fragment into a core while exploring the protein-ligand conformational space',
+    name="frag_pele",
+    version=fp.__version__,
+    description='FragPELE, a new tool for in silico hit-to-lead drug design, capable of growing a frag_pelement into a core while exploring the protein-ligand conformational space',
     long_description=long_description,
-    url="https://github.com/danielSoler93/FrAG/",
+    url="https://github.com/carlesperez94/frag_pele/",
     author='Carles Perez Lopez, Daniel Soler Viladrich',
-    author_email='daniel.soler@nostrumbiodiscovery.com, carlesperez@gmail.com',
+    author_email='daniel.soler@nostrumbiodiscovery.com, carlesperez94@gmail.com',
     license='',
     packages=find_packages(exclude=['docs', 'tests']),
-    package_data={"AdaptivePELE_repo/AdaptivePELE/atomset": ['*.pxd'], "Templates": ["*.pdb", "*.conf"] },
     include_package_data=True,
-    install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody', 'six', 'mdtraj' ],
+    include_dirs=[numpy.get_include()],
+    install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody==1.10', 'pytest',
+    'AdaptivePELE>=1.6.0', 'lib_prep>=1.1.1', 'mdtraj', 'rdkit', 'peleffy>=1.1.0'],
     cmdclass=cmdclass,
     ext_modules=ext_modules,  # accepts a glob pattern
     #include_dirs=[numpy.get_include()],
@@ -141,9 +45,9 @@ setup(
         "Intended Audience :: Science/Research"
     ),
     project_urls={
-    'Documentation': 'https://danielsoler93.github.io/FrAG/',
-    'Source': 'https://danielsoler93.github.io/FrAG/',
-'Tracker': 'https://github.com/danielsoler93/FrAG/issues',
+    'Documentation': 'https://carlesperez94.github.io/frag_pele/',
+    'Source': 'https://carlesperez94.github.io/frag_pele/',
+'Tracker': 'https://github.com/carlesperez94/frag_pele/issues',
 },
 )
 

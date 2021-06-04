@@ -1,9 +1,0 @@
-#!/bin/bash
-/home/ryoji/software/Emma-1.3.1/bin/mm_estimate \
--i ./discretized/traj_* \
--lagtime 100 \
--reversible \
--sampling slidingwindow \
--outputtransitionmatrix matrix/transitionmatrixOf_Traj1_Traj2.dat \
--outputcountmatrix matrix/countmatrixOf_Traj1_Traj2.dat
-#-i ./discretized/MD_1.disctraj ./discretized/MD_2.disctraj ./discretized/MD_3.disctraj ./discretized/MD_4.disctraj ./discretized/MD_5.disctraj ./discretized/MD_6.disctraj ./discretized/MD_7.disctraj \
