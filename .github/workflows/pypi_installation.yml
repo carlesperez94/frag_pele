@@ -1,5 +1,7 @@
 name: Pypi installation
-on: [push]
+on:
+  release:
+    types: [created]
 
 jobs:
   build:
