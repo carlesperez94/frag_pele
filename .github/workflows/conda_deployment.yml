@@ -1,0 +1,34 @@
+name: Conda deployment
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        python-version: [3.7, 3.8]
+    name: Python ${{ matrix.python-version }} at ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup conda
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: true
+          python-version: ${{ matrix.python-version }}
+          conda-channels: anaconda, conda-forge
+      - name: Install conda-build
+        run: conda install conda-build
+      - name: Install anaconda-client
+        run: conda install anaconda-client
+      - name: Configurate conda-build
+        run: conda config --set anaconda_upload yes
+      - name: Configurate conda-client from anaconda
+        run: anaconda login --hostname fragpele300host${{ matrix.python-version }}${{ matrix.os }} --username ${{ secrets.ANACONDA_USER }} --password ${{ secrets.ANACONDA_PASSWD }}
+      - name: Deploy package to conda
+        run: conda build -c rdkit -c omnia 'conda_recipe'
+      - name: Logout from anaconda
+        run: anaconda logout
