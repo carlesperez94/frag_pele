@@ -33,7 +33,7 @@ setup(
     include_package_data=True,
     include_dirs=[numpy.get_include()],
     install_requires=['cython', 'numpy',  'scipy', 'matplotlib', 'biopython ', 'pandas',  'prody==1.10', 'pytest',
-    'AdaptivePELE>=1.6.0', 'lib_prep>=1.1.1', 'mdtraj', 'rdkit', 'peleffy>=1.1.0'],
+    'AdaptivePELE>=1.7.1', 'lib_prep>=1.1.1', 'mdtraj', 'peleffy>=1.3.0'],
     cmdclass=cmdclass,
     ext_modules=ext_modules,  # accepts a glob pattern
     #include_dirs=[numpy.get_include()],
