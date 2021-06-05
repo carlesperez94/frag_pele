@@ -34,7 +34,6 @@ jobs:
 
     - name: Install frag_pele
       run: |
-        conda activate frag_env
         python -m pip install --no-deps -v .
 
     - name: Test with pytest
