@@ -18,7 +18,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         activate-environment: frag_env
-        environment-file: conda_recipe/frag_env.yml
+        environment-file: conda_recipe/frag_env.yaml
         auto-activate-base: false
 
     - name: Environment Information
