@@ -17,8 +17,8 @@ jobs:
       name: Conda setup
       with:
         python-version: ${{ matrix.python-version }}
-        activate-environment: standard
-        environment-file: devtools/envs/standard.yaml
+        activate-environment: frag_env
+        environment-file: conda_recipe/frag_env.yml
         auto-activate-base: false
 
     - name: Environment Information
@@ -32,10 +32,6 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install pytest pytest-cov codecov
 
-    - name: Install via Conda
-      run: |
-        conda env create -f conda_recipe/frag_env.yml
-        
     - name: Install frag_pele
       run: |
         conda activate frag_env
