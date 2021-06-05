@@ -105,7 +105,7 @@ def parse_arguments():
     parser.add_argument("-stf", "--st_from", type=float, default=0.0,
                         help="Lamnda value to start the growing of a fragment from. F.ex: if you"
                              " set a 9 GS simulation, setting this value to 0.3 your fragment "
-                             "growing will start from the third step, but second GS. (30% of the size and FFp).")
+                             "growing will start from the third step, but second GS. (30%% of the size and FFp).")
 
     # Plop related arguments
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
