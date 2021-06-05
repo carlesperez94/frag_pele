@@ -1,0 +1,21 @@
+name: frag_env
+channels:
+  - NostrumBiodiscovery
+  - conda-forge
+  - omnia
+  - martimunicoy
+
+dependencies:
+    - python
+    - numpy
+    - cython
+    - pytest
+    - scipy
+    - prody=1.10.*
+    - six
+    - pandas
+    - rdkit
+    - mdtraj
+    - adaptive_pele>=1.7.1
+    - lib_prep>=1.1.1
+    - peleffy>=1.3.0
