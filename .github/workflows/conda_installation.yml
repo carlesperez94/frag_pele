@@ -4,25 +4,28 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macOS-latest]
         python-version: [3.7, 3.8]
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+    - uses: actions/checkout@v2
+
+    - uses: conda-incubator/setup-miniconda@v2
+      name: Conda setup
       with:
         python-version: ${{ matrix.python-version }}
+        activate-environment: standard
+        environment-file: devtools/envs/standard.yaml
+        auto-activate-base: false
 
-    - name: Include $CONDA in $PATH
+    - name: Environment Information
+      shell: bash -l {0}
       run: |
-        echo ::add-path::$CONDA/bin
-        echo ::add-path::$CONDA/condabin
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+        conda info
+        conda list
 
     - name: Install dependencies
       run: |
@@ -31,7 +34,12 @@ jobs:
 
     - name: Install via Conda
       run: |
-        conda install -c NostrumBiodiscovery -c conda-forge frag_pele --yes
+        conda env create -f conda_recipe/frag_env.yml
+        
+    - name: Install frag_pele
+      run: |
+        conda activate frag_env
+        python -m pip install --no-deps -v .
 
     - name: Test with pytest
       run: |
