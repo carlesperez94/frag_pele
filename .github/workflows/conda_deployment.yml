@@ -27,8 +27,8 @@ jobs:
       - name: Configurate conda-build
         run: conda config --set anaconda_upload yes
       - name: Configurate conda-client from anaconda
-        run: anaconda login --hostname fragpele_v300_${{ matrix.python-version }}${{ matrix.os }} --username ${{ secrets.ANACONDA_USER }} --password ${{ secrets.ANACONDA_PASSWD }}
+        run: anaconda login --hostname FragPELE${{ matrix.python-version }}${{ matrix.os }} --username ${{ secrets.ANACONDA_USER }} --password ${{ secrets.ANACONDA_PASSWD }}
       - name: Deploy package to conda
-        run: conda build -c rdkit -c omnia -c martimunicoy -c nostrumbiodiscovery -c conda-forge 'conda_recipe'
+        run: conda build -c conda-forge -c nostrumbiodiscovery -c martimunicoy 'conda_recipe'
       - name: Logout from anaconda
         run: anaconda logout
