@@ -25,7 +25,7 @@ def create_template_path(path, name, forcefield='OPLS2005', protein=False, templ
                             templ_string, name.lower())
     if forcefield == 'OFF' and protein:
         path = os.path.join(path, 
-                            'DataLocal/Templates/OFF/Protein',
+                            'DataLocal/Templates/OpenFF/Protein',
                             templ_string, aminoacid.lower())
     if forcefield == 'OPLS2005' and not protein:
         path = os.path.join(path,         
@@ -33,7 +33,7 @@ def create_template_path(path, name, forcefield='OPLS2005', protein=False, templ
                             templ_string, name.lower()+"z")
     if forcefield == 'OFF' and not protein:
         path = os.path.join(path,
-                            'DataLocal/Templates/OFF/Parsley',
+                            'DataLocal/Templates/OpenFF/Parsley',
                             templ_string, name.lower()+"z")
     return path
 
@@ -85,6 +85,12 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
         ff = OpenForceField('openff_unconstrained-1.2.0.offxml')
     parameters = ff.parameterize(m)
     topology = Topology(m, parameters)
+    if forcefield == 'OFF': # Not tested yet
+        from peleffy.solvent import OBC2
+        solvent = OBC2(topology)
+        solvent.to_file(os.path.join(outdir,
+                                     "DataLocal/OBC/ligandParams.txt"))
+
     impact = Impact(topology)
     impact.to_file(template_path) 
     print("Template in {}.".format(template_path))
@@ -97,7 +103,7 @@ def get_template_and_rot(pdb, forcefield='OPLS2005', template_name='grw', aminoa
 def add_off_waters_to_datalocal(outdir):
     path = os.path.dirname(frag_pele.__file__)
     shutil.copy(os.path.join(path, "Templates/OFF/hohz"),
-                os.path.join(outdir, "DataLocal/Templates/OFF/Parsley/hohz"))
+                os.path.join(outdir, "DataLocal/Templates/OpenFF/Parsley/hohz"))
  
 def get_datalocal(pdb, outdir='.', forcefield='OPLS2005', template_name='grw', aminoacid=False, rot_res=30,
                   constrainted_atoms=None, aminoacid_type=None, sch_path=c.SCHRODINGER):
@@ -106,5 +112,5 @@ def get_datalocal(pdb, outdir='.', forcefield='OPLS2005', template_name='grw', a
                          aminoacid=aminoacid, outdir=outdir, rot_res=rot_res,
                          contrained_atoms=constrainted_atoms, aminoacid_type=aminoacid_type,
                          sch_path=sch_path)
-    if forcefield == 'OFF':
-        add_off_waters_to_datalocal(outdir)
+#    if forcefield == 'OFF':
+#        add_off_waters_to_datalocal(outdir)
