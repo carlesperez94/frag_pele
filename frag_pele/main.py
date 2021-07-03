@@ -412,8 +412,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     pdbout_folder = os.path.join(working_dir, pdbout)
     if force_field == 'OFF':
         path_to_templates_generated = os.path.join(working_dir,
-                                                   "DataLocal/Templates/OFF/Parsley/templates_generated".format(force_field))
-        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OFF/Parsley".format(force_field))
+                                                   "DataLocal/Templates/OpenFF/Parsley/templates_generated".format(force_field))
+        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OpenFF/Parsley".format(force_field))
     elif force_field == 'OPLS2005':
         path_to_templates_generated = os.path.join(working_dir,
                                                    "DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated".format(force_field))
@@ -497,9 +497,9 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     # Get template filenames
     if cov_res:
         template_initial, template_final = [resname.lower() for resname in template_resnames]
-        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/{}/Protein".format(force_field))
+        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/Protein".format(force_field))
         path_to_templates_generated = os.path.join(working_dir,
-                                                   "DataLocal/Templates/{}/Protein/templates_generated".format(force_field))
+                                                   "DataLocal/Templates/OPLS2005/Protein/templates_generated".format(force_field))
     else:
         template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
     if only_prepare:
@@ -542,6 +542,9 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     # Set box center from ligand COM
     resname_core = template_resnames[0]
     center = center_of_mass.center_of_mass(os.path.join(working_dir, c.PRE_WORKING_DIR, "{}.pdb".format(resname_core.upper())))
+    if force_field == "OFF":
+        if contrl == c.CONTROL_TEMPLATE:
+            contrl = os.path.join(PackagePath, "Templates/control_off.conf")
     if cov_res:
         if contrl == c.CONTROL_TEMPLATE:
             contrl = os.path.join(PackagePath, "Templates/control_covalent.conf")
