@@ -714,7 +714,7 @@ class ReduceProperty:
                    result = function(atom_c.charge, atom_g.charge)
                    self.template.list_of_atoms[index_g].charge = result
 
-    def modify_core_nbond_params(self, function, exp_function=None):
+    def modify_core_nbond_params(self, function, exp_function=None, keep_charges=False):
         atoms_grw = self.template.get_list_of_core_atoms()
         atoms_ini = self.template_core.get_list_of_core_atoms()
         for atom_grow in atoms_grw:
@@ -726,7 +726,9 @@ class ReduceProperty:
                    self.template.list_of_atoms[index_g].epsilon = result
                    result = function(atom_c.sigma, atom_g.sigma)
                    self.template.list_of_atoms[index_g].sigma = result
-                   if exp_function:
+                   if keep_charges:
+                       result = atom_c.charge
+                   elif exp_function:
                        result = exp_function(atom_c.charge, atom_g.charge)
                    else:
                        result = function(atom_c.charge, atom_g.charge)
@@ -999,7 +1001,8 @@ def modify_core_parameters_linearly(template_grow, lambda_to_reduce, template_co
     if exp_charges:
         reductor_exp = ReduceExponentially(template_grow, lambda_to_reduce, template_core)
         reductor.modify_core_nbond_params(reductor.reduce_value_from_diference, 
-                                          reductor_exp.reduce_value_from_diference)
+                                          reductor_exp.reduce_value_from_diference,
+                                          null_charges)
     else:
         reductor.modify_core_nbond_params(reductor.reduce_value_from_diference, None)
     reductor.modify_core_bond_eq_dist(reductor.reduce_value_from_diference)
@@ -1051,8 +1054,11 @@ def main(template_initial_path, template_grown_path, step, total_steps, hydrogen
     set_linker_bond(templ_grw)
     if growing_mode == "SoftcoreLike":
         modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, exp_charges=True)
+        modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, exp_charges=True,
+                                        null_charges=null_charges)
         reduce_fragment_parameters_linearly(templ_grw, lambda_to_reduce, exp_charges=True, 
-                                            null_charges=True)
+                                            null_charges=null_charges)
+            
         modify_linkers_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, hydrogen_to_replace)
     elif growing_mode == "AllLinear":
         modify_core_parameters_linearly(templ_grw, lambda_to_reduce, templ_ini, exp_charges=False)
