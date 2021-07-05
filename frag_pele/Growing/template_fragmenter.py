@@ -998,6 +998,9 @@ def reduce_fragment_parameters_originaly(template_grow, template_core, lambda_to
 def modify_core_parameters_linearly(template_grow, lambda_to_reduce, template_core, exp_charges=False, 
                                     null_charges=False):
     reductor = ReduceLinearly(template_grow, lambda_to_reduce, template_core)
+    if exp_charges:
+        reductor_exp = ReduceExponentially(template_grow, lambda_to_reduce, template_core)
+        exp_charges = reductor_exp.reduce_value_from_diference
     reductor.modify_core_nbond_params(reductor.reduce_value_from_diference, 
                                       exp_charges, null_charges)
     reductor.modify_core_bond_eq_dist(reductor.reduce_value_from_diference)
