@@ -106,6 +106,9 @@ def parse_arguments():
                         help="Lamnda value to start the growing of a fragment from. F.ex: if you"
                              " set a 9 GS simulation, setting this value to 0.3 your fragment "
                              "growing will start from the third step, but second GS. (30% of the size and FFp).")
+    parser.add_argument("--keep_templates", action="store_true", help="If set, templates will not be overwritten "
+                                                                      " in templates_generated folder.")
+                                                                           
 
     # Plop related arguments
     parser.add_argument("-pl", "--plop_path", default=c.PLOP_PATH,
@@ -264,7 +267,7 @@ def parse_arguments():
            args.radius_box, args.sampling_control, args.data, args.documents, args.only_prepare, args.only_grow, \
            args.no_check, args.debug, args.highthroughput, args.test, args.cov_res, args.dist_const, \
            args.constraint_core, args.dih_constr, args.protocol, args.st_from, args.min_grow, args.min_sampling, \
-           args.force_field, args.dihedrals_list, args.srun
+           args.force_field, args.dihedrals_list, args.srun, args.keep_templates
 
 
 def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iterations, criteria, plop_path, sch_path,
@@ -276,7 +279,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                   radius_box=4, sampling_control=None, data=None, documents=None, only_prepare=False, only_grow=False, 
                   no_check=False, debug=False, cov_res=None, dist_constraint=None, constraint_core=None,
                   dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.0, min_grow=0.01, min_sampling=0.1,
-                  force_field='OPLS2005', dih_to_constraint=None, srun=True):
+                  force_field='OPLS2005', dih_to_constraint=None, srun=True, keep_templates=False):
 
 
     """
@@ -412,8 +415,8 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     pdbout_folder = os.path.join(working_dir, pdbout)
     if force_field == 'OFF':
         path_to_templates_generated = os.path.join(working_dir,
-                                                   "DataLocal/Templates/OFF/Parsley/templates_generated".format(force_field))
-        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OFF/Parsley".format(force_field))
+                                                   "DataLocal/Templates/OpenFF/Parsley/templates_generated".format(force_field))
+        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OpenFF/Parsley".format(force_field))
     elif force_field == 'OPLS2005':
         path_to_templates_generated = os.path.join(working_dir,
                                                    "DataLocal/Templates/OPLS2005/HeteroAtoms/templates_generated".format(force_field))
@@ -475,16 +478,17 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
                 aa_type = template_name
             else:
                 aa_type = None
-            create_templates.get_datalocal(pdb=os.path.join(working_dir,
-                                                 add_fragment_from_pdbs.c.PRE_WORKING_DIR,
-                                                 pdb_to_template), 
-                                           outdir=working_dir, 
-                                           forcefield=force_field, 
-                                           template_name=template_name, 
-                                           aminoacid=cov_res,
-                                           rot_res=rotamers,
-                                           aminoacid_type=aa_type,
-                                           sch_path = sch_path)
+            if not keep_templates:
+                create_templates.get_datalocal(pdb=os.path.join(working_dir,
+                                               add_fragment_from_pdbs.c.PRE_WORKING_DIR,
+                                               pdb_to_template), 
+                                               outdir=working_dir, 
+                                               forcefield=force_field, 
+                                               template_name=template_name, 
+                                               aminoacid=cov_res,
+                                               rot_res=rotamers,
+                                               aminoacid_type=aa_type,
+                                               sch_path = sch_path)
         if restart:
             if cov_res:
                 template_name = 'grw'
@@ -497,9 +501,9 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     # Get template filenames
     if cov_res:
         template_initial, template_final = [resname.lower() for resname in template_resnames]
-        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/{}/Protein".format(force_field))
+        path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OPLS2005/Protein".format(force_field))
         path_to_templates_generated = os.path.join(working_dir,
-                                                   "DataLocal/Templates/{}/Protein/templates_generated".format(force_field))
+                                                   "DataLocal/Templates/OPLS2005/Protein/templates_generated".format(force_field))
     else:
         template_initial, template_final = ["{}z".format(resname.lower()) for resname in template_resnames]
     if only_prepare:
@@ -542,6 +546,9 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     # Set box center from ligand COM
     resname_core = template_resnames[0]
     center = center_of_mass.center_of_mass(os.path.join(working_dir, c.PRE_WORKING_DIR, "{}.pdb".format(resname_core.upper())))
+    if force_field == "OFF":
+        if contrl == c.CONTROL_TEMPLATE:
+            contrl = os.path.join(PackagePath, "Templates/control_off.conf")
     if cov_res:
         if contrl == c.CONTROL_TEMPLATE:
             contrl = os.path.join(PackagePath, "Templates/control_covalent.conf")
@@ -830,13 +837,21 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     return fragment_names_dict
     
 
-def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTION_CRITERIA, plop_path=c.PLOP_PATH, sch_path=c.SCHRODINGER, pele_dir=c.PATH_TO_PELE, contrl=c.CONTROL_TEMPLATE, license=c.PATH_TO_LICENSE, resfold=c.RESULTS_FOLDER, 
-    report=c.REPORT_NAME, traject=c.TRAJECTORY_NAME, pdbout=c.PDBS_OUTPUT_FOLDER, cpus=c.CPUS, distcont=c.DISTANCE_COUNTER, threshold=c.CONTACT_THRESHOLD, epsilon=c.EPSILON, condition=c.CONDITION, metricweights=c.METRICS_WEIGHTS, 
-    nclusters=c.NUM_CLUSTERS, pele_eq_steps=c.PELE_EQ_STEPS, restart=False, min_overlap=c.MIN_OVERLAP, max_overlap=c.MAX_OVERLAP,
-    c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
-    rename=None, threshold_clash=None, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, rotation_high=c.ROTATION_HIGH, 
-    translation_low=c.TRANSLATION_LOW, rotation_low=c.ROTATION_LOW, explorative=False, radius_box=c.RADIUS_BOX, sampling_control=None, data=c.PATH_TO_PELE_DATA, documents=c.PATH_TO_PELE_DOCUMENTS, 
-    only_prepare=False, only_grow=False, no_check=False, debug=False, protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False, dih_constr=None, growing_protocol="SoftcoreLike", start_growing_from=0.0, min_grow=0.01, min_sampling=0.1, force_field='OPLS2005', dih_to_constraint=None, srun=True):
+def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTION_CRITERIA, plop_path=c.PLOP_PATH, 
+         sch_path=c.SCHRODINGER, pele_dir=c.PATH_TO_PELE, contrl=c.CONTROL_TEMPLATE, license=c.PATH_TO_LICENSE, 
+         resfold=c.RESULTS_FOLDER, report=c.REPORT_NAME, traject=c.TRAJECTORY_NAME, pdbout=c.PDBS_OUTPUT_FOLDER, 
+         cpus=c.CPUS, distcont=c.DISTANCE_COUNTER, threshold=c.CONTACT_THRESHOLD, epsilon=c.EPSILON, 
+         condition=c.CONDITION, metricweights=c.METRICS_WEIGHTS, nclusters=c.NUM_CLUSTERS, 
+         pele_eq_steps=c.PELE_EQ_STEPS, restart=False, min_overlap=c.MIN_OVERLAP, max_overlap=c.MAX_OVERLAP,
+         c_chain="L", f_chain="L", steps=c.STEPS, temperature=c.TEMPERATURE, seed=c.SEED, rotamers=c.ROTRES, 
+         banned=c.BANNED_DIHEDRALS_ATOMS, limit=c.BANNED_ANGLE_THRESHOLD, mae=False,
+         rename=None, threshold_clash=None, steering=c.STEERING, translation_high=c.TRANSLATION_HIGH, 
+         rotation_high=c.ROTATION_HIGH, translation_low=c.TRANSLATION_LOW, rotation_low=c.ROTATION_LOW, 
+         explorative=False, radius_box=c.RADIUS_BOX, sampling_control=None, data=c.PATH_TO_PELE_DATA, 
+         documents=c.PATH_TO_PELE_DOCUMENTS, only_prepare=False, only_grow=False, no_check=False, debug=False, 
+         protocol=False, test=False, cov_res=None, dist_constraint=None, constraint_core=False, dih_constr=None, 
+         growing_protocol="SoftcoreLike", start_growing_from=0.0, min_grow=0.01, min_sampling=0.1, 
+         force_field='OPLS2005', dih_to_constraint=None, srun=True, keep_templates=False):
 
     if protocol == "HT":
         iteration = 1
@@ -928,7 +943,7 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                                    translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
                                    only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core,
                                    dih_constr, growing_protocol, start_growing_from, min_grow, min_sampling, force_field,
-                                   dih_to_constraint, srun)
+                                   dih_to_constraint, srun, keep_templates)
 
                     atomname_mappig.append(atomname_map)
  
@@ -967,7 +982,8 @@ def main(complex_pdb, serie_file, iterations=c.GROWING_STEPS, criteria=c.SELECTI
                      threshold_clash, steering, translation_high, rotation_high,
                      translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
                      only_prepare, only_grow, no_check, debug, cov_res, dist_constraint, constraint_core, dih_constr,
-                     growing_protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint, srun)
+                     growing_protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint, srun,
+                     keep_templates)
             except Exception:
                 os.chdir(original_dir)
                 traceback.print_exc()
@@ -982,14 +998,16 @@ if __name__ == '__main__':
     rename, threshold_clash, steering, translation_high, rotation_high, \
     translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents, \
     only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core, \
-    dih_constr, protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint, srun = parse_arguments()
+    dih_constr, protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint, srun, \
+    keep_templates = parse_arguments()
     
     main(complex_pdb, serie_file, iterations, criteria, plop_path, sch_path, pele_dir, contrl, license, resfold,
-             report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
-             nclusters, pele_eq_steps, restart, min_overlap, max_overlap,
-             c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae,
-             rename, threshold_clash, steering, translation_high, rotation_high,
-             translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
-             only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core,
-             dih_constr, protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint, srun)
+         report, traject, pdbout, cpus, distcont, threshold, epsilon, condition, metricweights,
+         nclusters, pele_eq_steps, restart, min_overlap, max_overlap,
+         c_chain, f_chain, steps, temperature, seed, rotamers, banned, limit, mae,
+         rename, threshold_clash, steering, translation_high, rotation_high,
+         translation_low, rotation_low, explorative, radius_box, sampling_control, data, documents,
+         only_prepare, only_grow, no_check, debug, protocol, test, cov_res, dist_constraint, constraint_core,
+         dih_constr, protocol, start_growing_from, min_grow, min_sampling, force_field, dih_to_constraint, srun,
+         keep_templates)
 

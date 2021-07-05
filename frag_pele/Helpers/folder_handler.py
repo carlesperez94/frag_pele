@@ -17,17 +17,18 @@ def check_and_create_DataLocal(working_dir):
     # Get current path
     check_and_create_folder((os.path.join(working_dir, "DataLocal")))
     check_and_create_folder((os.path.join(working_dir, "DataLocal/LigandRotamerLibs")))
+    check_and_create_folder((os.path.join(working_dir, "DataLocal/OBC")))
     check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates")))
     check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OPLS2005")))
     check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OPLS2005/HeteroAtoms")))
     check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OPLS2005/HeteroAtoms", "templates_generated")))
     check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OPLS2005/Protein")))
     check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OPLS2005/Protein", "templates_generated")))
-    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OFF")))
-    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OFF/Protein")))
-    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OFF/Protein", "templates_generated")))
-    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OFF/Parsley")))
-    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OFF/Parsley", "templates_generated")))
+    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OpenFF")))
+    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OpenFF/Protein")))
+    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OpenFF/Protein", "templates_generated")))
+    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OpenFF/Parsley")))
+    check_and_create_folder((os.path.join(working_dir, "DataLocal/Templates/OpenFF/Parsley", "templates_generated")))
  
 
 
