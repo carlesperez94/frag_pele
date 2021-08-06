@@ -11,6 +11,7 @@ from logging.config import fileConfig
 import shutil
 import subprocess
 import traceback
+from peleffy.forcefield.selectors import ForceFieldSelector
 # Local imports
 from frag_pele.Growing.AddingFragHelpers import complex_to_prody
 from frag_pele.Helpers import clusterizer, checker, folder_handler, runner, constraints, check_constants
@@ -198,11 +199,18 @@ def parse_arguments():
     parser.add_argument("-mins", "--min_sampling", default=0.1,
                         help="Minimum RMS for Minimization in PELE conf that will we applied "
                              "  only after the 1/2 GS. Lowest the value stronger minimization.")
-    parser.add_argument("-ff", "--force_field", default="OPLS2005", choices=['OPLS2005', 'OFF'],
-                        help="Atomic ForceField that will be used in PELE simulation. Choose between: "
-                              "'OPLS2005', " 
-                              "'OFF': OpenForceField "
-                              " By default: OPLS2005")
+    parser.add_argument("-ff", "--force_field", default="OPLS2005", type=str,
+                        help="Atomic ForceField that will be used in PELE simulation. "
+                             "Visit peleffy documentation to get an updated list of options."
+                             " Here, we offer you some options: "
+                             "OPLS2005, "
+                             "openff_unconstrained-1.3.0.offxml, "
+                             "openff_unconstrained-1.2.1.offxml, "
+                             "openff_unconstrained-1.2.0.offxml, "
+                             "openff_unconstrained-1.1.1.offxml, "
+                             "openff_unconstrained-1.1.0.offxml, "
+                             "openff_unconstrained-1.0.1.offxml, "
+                             "openff_unconstrained-1.0.0.offxml'")
 
     # Clustering related arguments
     parser.add_argument("-dis", "--distcont", default=c.DISTANCE_COUNTER,
@@ -414,7 +422,9 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     if not os.path.exists(working_dir):
         os.mkdir(working_dir)  # Creating a working directory for each PDB-fragment combination
     pdbout_folder = os.path.join(working_dir, pdbout)
-    if force_field == 'OFF':
+    check_ff_name = ForceFieldSelector()
+    check_ff_name.get_by_name(force_field)
+    if 'openff_' in force_field:
         path_to_templates_generated = os.path.join(working_dir,
                                                    "DataLocal/Templates/OpenFF/Parsley/templates_generated".format(force_field))
         path_to_templates = os.path.join(working_dir, "DataLocal/Templates/OpenFF/Parsley".format(force_field))
@@ -441,7 +451,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     if cov_res:
         new_chain, resnum_core = complex_to_prody.read_residue_string(cov_res)
         # Temporary solution since OFF cannot support residues.
-        if force_field == 'OFF':
+        if 'openff_' in force_field:
             print("Warning: OpenForceField does not support residues. We will use OPLS2005 instead!")
             force_field = 'OPLS2005'
     else:
@@ -547,7 +557,7 @@ def grow_fragment(complex_pdb, fragment_pdb, core_atom, fragment_atom, iteration
     # Set box center from ligand COM
     resname_core = template_resnames[0]
     center = center_of_mass.center_of_mass(os.path.join(working_dir, c.PRE_WORKING_DIR, "{}.pdb".format(resname_core.upper())))
-    if force_field == "OFF":
+    if 'openff_' in force_field:
         if contrl == c.CONTROL_TEMPLATE:
             contrl = os.path.join(PackagePath, "Templates/control_off.conf")
     if cov_res:
