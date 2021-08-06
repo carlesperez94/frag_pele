@@ -6,7 +6,7 @@
 #SBATCH --time=00-2:00:00
 #SBATCH --qos=debug
 
-module purge
+module purge 
 module load ANACONDA/2019.10
 module load intel mkl impi gcc # 2> /dev/null
 module load impi
@@ -19,4 +19,4 @@ conda activate /gpfs/projects/bsc72/conda_envs/platform/1.6.0
 unset PYTHONPATH
 export PYTHONPATH="/gpfs/projects/bsc72/LibPrep/v1.1.1/lib_prep:/gpfs/projects/bsc72/FragPELE/v3.1.1-beta/frag_pele"
 
-python -m pytest test_all.py -vv
+python -m frag_pele.main -sef serie_file.conf -cp 1w7h_preparation_structure_no_w.pdb --cpus 4 -x 10 -es 20 -rot 10 -ff openff_unconstrained-1.3.0.offxml
